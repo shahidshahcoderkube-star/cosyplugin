@@ -1,0 +1,80 @@
+cosy-appointments/
+│
+├── cosy-appointments.php            ← Entry file (header, autoload, activation)
+├── uninstall.php                    ← Optional cleanup
+│
+├── assets/
+│   ├── css/
+│   │   └── frontend.css
+│   ├── js/
+│   │   ├── frontend.js
+│   │   └── provider-dashboard.js
+│   └── img/
+│
+├── src/
+│   ├── Plugin.php                   ← Orchestrator
+│   ├── Loader.php                   ← add_action/add_filter wrapper
+│   │
+│   ├── Roles/                       ← Custom roles & caps
+│   │   └── Roles.php
+│   │
+│   ├── PostTypes/                   ← CPTs & taxonomies
+│   │   ├── ServiceCPT.php
+│   │   ├── ProviderCPT.php
+│   │   └── Taxonomies.php           ← Service categories
+│   │
+│   ├── Admin/                       ← Admin settings & dashboards
+│   │   ├── AdminMenu.php            ← Top-level menus
+│   │   ├── ProvidersAdmin.php       ← Approvals, commissions
+│   │   ├── BookingsAdmin.php        ← All bookings list + filters
+│   │   ├── EarningsAdmin.php        ← Platform/provider earnings
+│   │   ├── SettingsAdmin.php        ← Global settings
+│   │   └── CalendarsAdmin.php       ← Admin calendar view
+│   │
+│   ├── Provider/                    ← Provider dashboard
+│   │   ├── Dashboard.php            ← Menu under Provider CPT
+│   │   ├── Profile.php              ← Bio/image/video/categories
+│   │   ├── Availability.php         ← Weekly slots + blocks + holidays
+│   │   ├── Pricing.php              ← Duration-wise pricing
+│   │   └── Bookings.php             ← Upcoming/past bookings
+│   │
+│   ├── Frontend/                    ← Shortcodes/Blocks + views
+│   │   ├── Frontend.php             ← [cosy_booking] entry flow
+│   │   └── Templates/               ← PHP views for steps
+│   │       ├── step-service.php
+│   │       ├── step-provider.php
+│   │       ├── step-datetime.php
+│   │       ├── step-payment.php
+│   │       └── confirmation.php
+│   │
+│   ├── Rest/                        ← REST API
+│   │   ├── Routes.php               ← Registers routes
+│   │   └── Controllers/
+│   │       ├── BookingController.php
+│   │       ├── ProviderController.php
+│   │       ├── AvailabilityController.php
+│   │       └── PricingController.php
+│   │
+│   ├── DB/                          ← Custom tables schema & CRUD
+│   │   ├── Schema.php               ← dbDelta schema builder
+│   │   ├── BookingsTable.php
+│   │   ├── AvailabilityTable.php
+│   │   └── PaymentsTable.php
+│   │
+│   ├── Payments/                    ← Gateways
+│   │   ├── PaymentManager.php       ← Unified interface
+│   │   ├── Gateways/
+│   │   │   ├── StripeGateway.php
+│   │   │   ├── RazorpayGateway.php
+│   │   │   └── PayPalGateway.php
+│   │   └── Webhooks.php
+│   │
+│   ├── Mail/                        ← Emails & notifications
+│   │   ├── Mailer.php               ← wp_mail wrapper + templates
+│   │   └── Templates/
+│   │       ├── booking-confirmation-user.php
+│   │       └── booking-confirmation-provider.php
+│   │
+│   └── Utils/
+│       ├── Helpers.php              ← Sanitization, formatting, time utils
+│       └── Validation.php           ← Input validation rules

@@ -1,0 +1,64 @@
+Cosy Appointments Plugin Plan
+
+1. Purpose
+- Document the planned architecture and development approach for the Cosy Appointments plugin.
+- Keep feature requirements, security improvements, and future expansion ideas in one easy-to-find text file.
+
+2. Plugin Architecture
+- Bootstrap file: cosy-appointments.php
+- Core startup: src/Plugin.php
+- Loader: src/Loader.php for registering actions and filters
+- Admin features: src/Admin/
+- Frontend features: src/Frontend/
+- Custom post types: src/PostTypes/
+- REST API: src/Rest/
+- Assets management: src/Assets/
+- Templates: templates/
+
+3. Key improvements needed
+- Use fixed plugin version constants instead of rand()
+- Add text domain and load_plugin_textdomain for translations
+- Add rewrite rule flushing on activation/deactivation
+- Add proper deactivation/uninstall cleanup for roles, pages, and custom tables
+- Protect AJAX handlers with nonces and capability checks
+- Keep path usage consistent using COSY_APPT_PATH
+- Replace manual require_once loading with autoloading if possible
+- Avoid loading scripts/styles on all pages; enqueue only where needed
+
+4. Security
+- Sanitize all input data
+- Escape output in templates
+- Use nonces for AJAX actions: check_ajax_referer or wp_verify_nonce
+- Protect REST endpoints with permission callbacks and nonce validation
+- Restrict user actions by role/capability rather than only by role string
+
+5. Feature roadmap
+- Booking and appointments workflow
+- Provider/customer registration and profile system
+- Provider dashboard with service management
+- Order management for customers and providers
+- Provider verification workflow
+- Notifications (email and dashboard alerts)
+- Calendar availability and scheduling
+- Payment integration for paid bookings
+
+6. Suggested implementation sequence
+1. Refactor plugin bootstrap and constants
+2. Add localization support
+3. Add activation/deactivation/uninstall hooks
+4. Harden AJAX and REST endpoints
+5. Clean up asset loading and versioning
+6. Build core booking flow and provider dashboard
+7. Add settings page and admin configuration
+8. Add upgrade and migration support for schema changes
+
+7. Where to find requirements
+- This file: wp-content/plugins/cosy-appointments/PLUGIN-PLAN.txt
+- Keep this file updated with new requirements as features are added
+- Use short, clear sections for each major change request
+
+Notes
+- Use this file as the single source of truth during plugin development.
+- When new requirements arrive, append a new section with date and summary.
+
+Saved requirement note on April 27, 2026.
