@@ -7,21 +7,21 @@
  * Author: Shahid
  */
 
-if (! defined('ABSPATH')) {
+if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
 // Constants define karo
 define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Plugin folder ka path
 define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // Plugin folder ka URL
-define('COSY_APPT_VER', rand());  // Plugin version
+define('COSY_APPT_VER', '1.0.1');  // Plugin version
 
 //------------ Register role----------------//
 function register_role()
 {
 
     // CUSTOMER role
-    if (! get_role('customer')) {
+    if (!get_role('customer')) {
         add_role(
             'customer',          // Role slug
             'Customer',          // Display name
@@ -32,7 +32,7 @@ function register_role()
     }
 
     // PROVIDER role
-    if (! get_role('provider')) {
+    if (!get_role('provider')) {
         add_role(
             'provider',          // Role slug
             'Provider',          // Display name

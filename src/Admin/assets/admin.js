@@ -151,7 +151,8 @@ jQuery(document).ready(function ($) {
             dataType: "json",
             data: {
                 action: "video_approve",
-                user_id: userId
+                user_id: userId,
+                nonce: cosy_admin_ajax.nonce
             },
             beforeSend: function () {
                 $btn.prop("disabled", true).text("Approving...");
@@ -196,7 +197,8 @@ jQuery(document).ready(function ($) {
             dataType: "json",
             data: {
                 action: "video_reject",
-                user_id: userId
+                user_id: userId,
+                nonce: cosy_admin_ajax.nonce
             },
             beforeSend: function () {
                 $btn.prop("disabled", true).text("Rejecting...");

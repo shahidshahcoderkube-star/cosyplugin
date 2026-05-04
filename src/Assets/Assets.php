@@ -62,6 +62,10 @@ class Assets
             COSY_APPT_VER,
             true
         );
+
+        wp_localize_script('cosy-admin-script', 'cosy_admin_ajax', [
+            'nonce' => wp_create_nonce('cosy_nonce')
+        ]);
     }
 
     //---------------- Frontend Assets ----------------//
@@ -158,7 +162,12 @@ class Assets
             true
         );
 
-        wp_localize_script('cosy-api', 'cosy_ajax', ['ajax_url' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce('wp_rest'), 'root' => esc_url_raw(rest_url())]);
+        wp_localize_script('cosy-api', 'cosy_ajax', [
+            'ajax_url' => admin_url('admin-ajax.php'), 
+            'nonce' => wp_create_nonce('wp_rest'), 
+            'cosy_nonce' => wp_create_nonce('cosy_nonce'), 
+            'root' => esc_url_raw(rest_url())
+        ]);
         // 3️⃣ Enqueue api.js
         wp_enqueue_script('cosy-api');
 

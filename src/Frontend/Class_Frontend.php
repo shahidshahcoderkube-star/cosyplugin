@@ -18,10 +18,6 @@ class Frontend
         $loader->add_action('wp_footer', $this, 'render_register_popup');
         $loader->add_action('template_redirect', $this, 'restrict_direct_page_access');
         $loader->add_action('after_setup_theme', $this, 'hide_admin_menu');
-        $formsData = new FormsData();
-        $loader->add_action('init', $formsData, 'handle_customer_registration');
-        // $loader->add_action('init', $formsData, 'handle_provider_registration');
-        $loader->add_action('init', $formsData, 'handle_provider_verification');
 
         $loader->add_filter('template_include', $this, 'provider_profile_dashboard_shortcode', 9999);
     }

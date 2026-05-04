@@ -21,8 +21,6 @@ class Backend_Actions_Handler
 
         //------ Register AJAX handlers -----//
         $this->register_ajax_handlers($actions, $this);
-        // var_dump($_POST);
-        // die;
     }
 
     public function register(Loader $loader): void
@@ -32,6 +30,10 @@ class Backend_Actions_Handler
     //--------------- Approve video ---------------//
     public function ajax_approve_video()
     {
+        check_ajax_referer('cosy_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
 
         $user_id = intval($_POST['user_id']);
         if (!$user_id) {
@@ -58,6 +60,11 @@ class Backend_Actions_Handler
     //--------------- Reject video ---------------//
     public function ajax_reject_video()
     {
+        check_ajax_referer('cosy_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+        
         $user_id = intval($_POST['user_id']);
         if (!$user_id) {
             wp_send_json_error(['message' => 'Invalid user ID']);
