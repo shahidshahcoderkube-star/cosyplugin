@@ -55,6 +55,10 @@ class Dashboard
         if (!$user_id) {
             wp_send_json_error(['message' => 'User not logged in']);
         }
+        $user = wp_get_current_user();
+        if (!in_array('provider', (array) $user->roles)) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
 
         if (isset($_POST['update_provider_profile']) || !isset($_POST['action']) || $_POST['action'] !== 'cosy_customer_register') {
             $user_id = get_current_user_id();
@@ -108,6 +112,10 @@ class Dashboard
         if (!$user_id) {
             wp_send_json_error(['message' => 'User not logged in']);
         }
+        $user = wp_get_current_user();
+        if (!in_array('provider', (array) $user->roles)) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
 
         // ✅ Check if user already has a pending video
         $current_status = get_user_meta($user_id, 'video_status', true);
@@ -160,9 +168,9 @@ class Dashboard
     {
         check_ajax_referer('cosy_nonce', 'nonce');
         $user_id = intval($_POST['user_id']);
-        if (!$user_id) {
+        if (!$user_id || get_current_user_id() !== $user_id) {
             wp_send_json_error([
-                'message' => __('Invalid user ID', 'cosy-appointments')
+                'message' => __('Invalid user ID or Unauthorized', 'cosy-appointments')
             ]);
         }
 
@@ -191,6 +199,10 @@ class Dashboard
 
         if (!$user_id) {
             wp_send_json_error(['message' => 'User not logged in']);
+        }
+        $user = wp_get_current_user();
+        if (!in_array('provider', (array) $user->roles)) {
+            wp_send_json_error(['message' => 'Unauthorized']);
         }
 
 
