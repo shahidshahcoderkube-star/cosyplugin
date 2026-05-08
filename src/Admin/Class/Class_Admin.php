@@ -45,7 +45,7 @@ class Admin
         add_menu_page(
             __('Booking Dashboard', 'cosy-appointments'),
             __('CC Booking', 'cosy-appointments'),
-            'manage_options',
+            'manage_cosy_appointments',
             'cosy-booking-dashboard',
             [$this->dashboardAdmin, 'render_booking_dashboard'],
             'dashicons-calendar-alt',
@@ -56,7 +56,7 @@ class Admin
             'cosy-booking-dashboard',
             __('Services', 'cosy-appointments'),
             __('Services', 'cosy-appointments'),
-            'manage_options',
+            'manage_cosy_appointments',
             'edit.php?post_type=cosy_service'
         );
 
@@ -64,7 +64,7 @@ class Admin
             'cosy-booking-dashboard',
             __('Orders', 'cosy-appointments'),
             __('Orders', 'cosy-appointments'),
-            'manage_options',
+            'manage_cosy_appointments',
             'cosy-orders',
             [$this->ordersAdmin, 'render_booking_orders']
         );
@@ -73,7 +73,7 @@ class Admin
             'cosy-booking-dashboard',
             __('Media Approve', 'cosy-appointments'),
             __('Media Approve', 'cosy-appointments'),
-            'manage_options',
+            'approve_cosy_media',
             'cosy-media-approve',
             [$this, 'render_media_approve']
         );

@@ -1,4 +1,5 @@
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4" id="cosy-dashboard-container">
+    <?php wp_nonce_field('cosy_dashboard_nonce', 'cosy_dashboard_nonce_field'); ?>
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-3 bg-gradient p-3 text-white"

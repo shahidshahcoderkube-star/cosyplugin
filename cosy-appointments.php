@@ -41,8 +41,16 @@ function register_role()
                 'edit_posts' => true,        // apni post edit
                 'edit_published_posts' => true,
                 'delete_posts' => true,      // apni post delete
+                'manage_cosy_appointments' => true,
             ]
         );
+    }
+
+    // Add capabilities to Administrator
+    $admin = get_role('administrator');
+    if ($admin) {
+        $admin->add_cap('manage_cosy_appointments');
+        $admin->add_cap('approve_cosy_media');
     }
 }
 

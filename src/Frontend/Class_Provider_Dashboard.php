@@ -50,6 +50,12 @@ class Dashboard
     //----------------- Profile Update Handler ----------------//
     public function handle_profile_update(): void
     {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
+        
+        if (!current_user_can('manage_cosy_appointments')) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+
         $user_id = get_current_user_id();
         if (!$user_id) {
             wp_send_json_error(['message' => 'User not logged in']);
@@ -101,6 +107,11 @@ class Dashboard
     //----------------- Video Upload Handler ----------------//
     public function handle_video_upload(): void
     {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
+
+        if (!current_user_can('manage_cosy_appointments')) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
 
         $user_id = get_current_user_id();
         if (!$user_id) {
@@ -156,6 +167,12 @@ class Dashboard
     //----------------- Delete Video Handler ----------------//
     public function ajax_delete_video()
     {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
+
+        if (!current_user_can('manage_cosy_appointments')) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+
         $user_id = intval($_POST['user_id']);
         if (!$user_id) {
             wp_send_json_error([
@@ -183,7 +200,12 @@ class Dashboard
 
     public function cosy_load_dashboard_tab()
     {
-        // check_ajax_referer('cosy_nonce', 'nonce');
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
+
+        if (!current_user_can('manage_cosy_appointments')) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+
         $user_id = get_current_user_id();
 
         if (!$user_id) {

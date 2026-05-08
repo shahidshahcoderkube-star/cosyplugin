@@ -46,6 +46,9 @@ class FormsData
     //----------------- Customer Registration ----------------//
     public function handle_customer_registration()
     {
+        // Security check: verify nonce
+        check_ajax_referer('cosy_customer_register_nonce', 'cosy_nonce');
+
         // Ensure request is POST + correct action
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['action']) || $_POST['action'] !== 'cosy_customer_register') {
             return; // silently ignore if not our form
@@ -91,6 +94,9 @@ class FormsData
     //----------------- Provider Registration ----------------//
     public function handle_provider_registration()
     {
+        // Security check: verify nonce
+        check_ajax_referer('cosy_provider_register_nonce', 'cosy_nonce');
+
         // Sanitize required fields
         $username = !empty($_POST['prov_username']) ? sanitize_text_field($_POST['prov_username']) : '';
         $email    = !empty($_POST['prov_email']) ? sanitize_email($_POST['prov_email']) : '';
@@ -166,6 +172,8 @@ class FormsData
     //----------------- Login Form Handler ----------------//
     public function handle_login()
     {
+        // Security check: verify nonce
+        check_ajax_referer('cosy_login_nonce', 'cosy_nonce');
 
         $creds = [
             'user_login'    => sanitize_text_field($_POST['log']),

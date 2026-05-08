@@ -47,7 +47,7 @@ class AppointmentCPT
             'edit.php?post_type=cosy_appointment', // parent slug = CPT menu
             __('Orders', 'cosy'), // page
             __('Orders', 'cosy'), // menu title
-            'manage_options', // capability 
+            'manage_cosy_appointments', // capability 
             'cosy-appointment-orders', // menu slug 
             [$this, 'render_orders_page'] // callback
         );
@@ -60,7 +60,7 @@ class AppointmentCPT
             'edit.php?post_type=cosy_appointment', // parent slug = CPT menu
             __('Video Approve', 'cosy'), // page
             __('Video Approve', 'cosy'), // menu title
-            'manage_options', // capability 
+            'approve_cosy_media', // capability 
             'cosy-video-approve', // menu slug 
             [$this, 'render_video_approve_page'] // callback
         );
@@ -73,7 +73,7 @@ class AppointmentCPT
             'edit.php?post_type=cosy_appointment', // parent slug = CPT menu
             __('Payment Token & Key', 'cosy'), // page
             __('Payment Token & Key', 'cosy'), // menu title
-            'manage_options', // capability 
+            'manage_cosy_appointments', // capability 
             'cosy-payment-token-key', // menu slug 
             [$this, 'render_payment_token_and_key_page'] // callback
         );

@@ -4,6 +4,7 @@
             <h2>Service Provider Registration</h2>
             <form id="providerForm" class="cosy-form two-column-form" data-action="cosy_provider_register">
                 <div class="cosy-message"></div>
+                <?php wp_nonce_field('cosy_provider_register_nonce', 'cosy_nonce'); ?>
                 <div class="cc_provider_form">
                     <div class="form-column">
                         <p><input type="text" name="prov_username" placeholder="Username" required></p>
