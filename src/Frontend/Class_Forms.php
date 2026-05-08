@@ -50,7 +50,6 @@ class FormsData
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['action']) || $_POST['action'] !== 'cosy_customer_register') {
             return; // silently ignore if not our form
         }
-        check_ajax_referer('cosy_nonce', 'nonce');
 
         // Safely fetch POST values
         $name  = !empty($_POST['cust_name']) ? sanitize_text_field($_POST['cust_name']) : '';
@@ -96,7 +95,6 @@ class FormsData
         $username = !empty($_POST['prov_username']) ? sanitize_text_field($_POST['prov_username']) : '';
         $email    = !empty($_POST['prov_email']) ? sanitize_email($_POST['prov_email']) : '';
         $pass     = !empty($_POST['prov_pass']) ? sanitize_text_field($_POST['prov_pass']) : '';
-        check_ajax_referer('cosy_nonce', 'nonce');
 
         // Basic validation
         if (empty($username) || empty($email) || empty($pass)) {
@@ -168,7 +166,6 @@ class FormsData
     //----------------- Login Form Handler ----------------//
     public function handle_login()
     {
-        check_ajax_referer('cosy_nonce', 'nonce');
 
         $creds = [
             'user_login'    => sanitize_text_field($_POST['log']),
@@ -183,6 +180,7 @@ class FormsData
         } else {
             // ✅ Instead of just message, send home_url for redirect 
             $this->send_response(true, home_url());
+            $this->send_response(true, 'Login successful!');
         }
     }
 
@@ -193,7 +191,6 @@ class FormsData
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['action']) || $_POST['action'] !== 'cosy_forgot_password') {
             return;
         }
-        check_ajax_referer('cosy_nonce', 'nonce');
 
         $email = !empty($_POST['email']) ? sanitize_email($_POST['email']) : '';
 

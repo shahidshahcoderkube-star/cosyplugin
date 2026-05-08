@@ -35,7 +35,8 @@
  }
 
  .service-card:hover {
-     box-shadow: 0 10px 25px rgba(155, 69, 147, 0.08);
+     transform: translateY(-8px);
+     box-shadow: 0 15px 35px rgba(155, 69, 147, 0.12);
  }
 
  /* Profile Image Area - Increased and Clean */

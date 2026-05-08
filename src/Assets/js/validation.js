@@ -48,7 +48,7 @@ var CosyApp = (function ($) {
                     $.ajax({
                         url: cosy_ajax.ajax_url,
                         type: "POST",
-                        data: $(formEl).serialize() + "&action=" + action + "&nonce=" + cosy_ajax.cosy_nonce,
+                        data: $(formEl).serialize() + "&action=" + action,
 
                         beforeSend() {
                             $btn.prop("disabled", true);
@@ -106,7 +106,6 @@ var CosyApp = (function ($) {
                 let $btn = $form.find("button[type='submit']");
                 let formData = new FormData(formEl);
                 formData.append("action", action);
-                formData.append("nonce", cosy_ajax.cosy_nonce);
 
                 $.ajax({
                     url: cosy_ajax.ajax_url,
@@ -187,7 +186,6 @@ var CosyApp = (function ($) {
 
             const formData = new FormData(this);
             formData.append("action", $form.data("action"));
-            formData.append("nonce", cosy_ajax.cosy_nonce);
 
             $.ajax({
                 url: cosy_ajax.ajax_url,
@@ -228,8 +226,7 @@ var CosyApp = (function ($) {
                 type: "POST",
                 data: {
                     action: $btn.data("action"),
-                    user_id: $btn.data("id"),
-                    nonce: cosy_ajax.cosy_nonce
+                    user_id: $btn.data("id")
                 },
 
                 beforeSend() {
@@ -269,8 +266,7 @@ var CosyApp = (function ($) {
                 dataType: "json",
                 data: {
                     action: "load_dashboard_tab",
-                    tab: tabSlug,
-                    nonce: cosy_ajax.cosy_nonce
+                    tab: tabSlug
                 },
 
                 beforeSend() {

@@ -10,14 +10,14 @@ if (empty($providers)) {
 ?>
 <div class="services-grid mb-5 mt-5">
 
-    <?php foreach ($providers as $provider) :
+    <?php foreach ($providers as $provider):
 
         // echo '<pre>';
         // print_r($provider);
         // echo '</pre>';
+    
 
-
-    ?>
+        ?>
         <div class="service-card">
             <div class="profile-area">
                 <img src="https://i.pravatar.cc/200?u=sarah" class="profile-pic" alt="Sarah">
@@ -25,7 +25,8 @@ if (empty($providers)) {
 
             <h3 class="name"><?php echo $provider['first_name'] . ' ' . $provider['last_name']; ?> </h3>
             <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i> <span>(4.8)</span>
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                    class="fas fa-star"></i><i class="fas fa-star-half-alt"></i> <span>(4.8)</span>
             </div>
 
             <p class="bio">

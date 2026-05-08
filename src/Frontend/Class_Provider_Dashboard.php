@@ -50,14 +50,9 @@ class Dashboard
     //----------------- Profile Update Handler ----------------//
     public function handle_profile_update(): void
     {
-        check_ajax_referer('cosy_nonce', 'nonce');
         $user_id = get_current_user_id();
         if (!$user_id) {
             wp_send_json_error(['message' => 'User not logged in']);
-        }
-        $user = wp_get_current_user();
-        if (!in_array('provider', (array) $user->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
         }
 
         if (isset($_POST['update_provider_profile']) || !isset($_POST['action']) || $_POST['action'] !== 'cosy_customer_register') {
@@ -106,15 +101,10 @@ class Dashboard
     //----------------- Video Upload Handler ----------------//
     public function handle_video_upload(): void
     {
-        check_ajax_referer('cosy_nonce', 'nonce');
 
         $user_id = get_current_user_id();
         if (!$user_id) {
             wp_send_json_error(['message' => 'User not logged in']);
-        }
-        $user = wp_get_current_user();
-        if (!in_array('provider', (array) $user->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
         }
 
         // ✅ Check if user already has a pending video
@@ -166,11 +156,10 @@ class Dashboard
     //----------------- Delete Video Handler ----------------//
     public function ajax_delete_video()
     {
-        check_ajax_referer('cosy_nonce', 'nonce');
         $user_id = intval($_POST['user_id']);
-        if (!$user_id || get_current_user_id() !== $user_id) {
+        if (!$user_id) {
             wp_send_json_error([
-                'message' => __('Invalid user ID or Unauthorized', 'cosy-appointments')
+                'message' => __('Invalid user ID', 'cosy-appointments')
             ]);
         }
 
@@ -194,15 +183,11 @@ class Dashboard
 
     public function cosy_load_dashboard_tab()
     {
-        check_ajax_referer('cosy_nonce', 'nonce');
+        // check_ajax_referer('cosy_nonce', 'nonce');
         $user_id = get_current_user_id();
 
         if (!$user_id) {
             wp_send_json_error(['message' => 'User not logged in']);
-        }
-        $user = wp_get_current_user();
-        if (!in_array('provider', (array) $user->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
         }
 
 
