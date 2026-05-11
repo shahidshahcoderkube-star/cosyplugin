@@ -91,7 +91,12 @@ class Assets
         );
 
         wp_enqueue_style(
-            'awesome',
+            'font-awesome',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css',
+        );
+
+        wp_enqueue_style(
+            'bootstrap-icons',
             'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css',
         );
 

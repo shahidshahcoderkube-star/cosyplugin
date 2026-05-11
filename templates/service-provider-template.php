@@ -8,43 +8,59 @@ if (empty($providers)) {
 }
 
 ?>
-<div class="services-grid mb-5 mt-5">
-
-    <?php foreach ($providers as $provider):
-
-        // echo '<pre>';
-        // print_r($provider);
-        // echo '</pre>';
-    
-
+<div class="cosy-premium-grid-container mb-5 mt-5">
+    <div class="cosy-premium-grid">
+        <?php foreach ($providers as $provider): 
+            $profile_pic = get_user_meta($provider['ID'], 'cosy_profile_pic', true);
+            if (empty($profile_pic)) {
+                $profile_pic = 'https://i.pravatar.cc/300?u=' . $provider['ID'];
+            }
         ?>
-        <div class="service-card">
-            <div class="profile-area">
-                <img src="https://i.pravatar.cc/200?u=sarah" class="profile-pic" alt="Sarah">
-            </div>
+            <div class="cosy-card-v2">
+                <div class="card-top-header">
+                    <div class="header-inner-flex">
+                        <div class="profile-avatar-wrapper">
+                            <img src="<?php echo esc_url($profile_pic); ?>" alt="<?php echo esc_attr($provider['first_name']); ?>" class="avatar">
+                        </div>
+                        <div class="profile-details-top">
+                            <h3 class="provider-name">
+                                <?php echo esc_html($provider['first_name'] . ' ' . $provider['last_name']); ?>
+                                <i class="fas fa-check-circle verified-tick"></i>
+                            </h3>
+                            <div class="rating-box-premium">
+                                <div class="stars-flex">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                </div>
+                                <span class="rating-val">5.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <h3 class="name"><?php echo $provider['first_name'] . ' ' . $provider['last_name']; ?> </h3>
-            <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                    class="fas fa-star"></i><i class="fas fa-star-half-alt"></i> <span>(4.8)</span>
-            </div>
+                <div class="card-main-content">
+                    <p class="description-text">
+                        <?php 
+                        $description = !empty($provider['description']) ? $provider['description'] : 'Experience premium service with our expert professionals who are dedicated to providing the highest quality sessions tailored to your specific needs.';
+                        echo esc_html(wp_trim_words($description, 25)); 
+                        ?>
+                    </p>
+                    
+                    <div class="pricing-premium">
+                        <span class="currency">$</span><span class="amount">45</span><span class="per">/ hr</span>
+                    </div>
+                </div>
 
-            <p class="bio">
-                <?php echo $provider['description']; ?>
-            </p>
-
-            <div class="card-footer">
-                <div class="price-tag">$45 <span>/ hr</span></div>
-                <div class="button-group">
-                    <button class="btn btn-video" onclick="openVideo('https://www.youtube.com/embed/ScMzIvxBSi4')">
+                <div class="card-action-footer">
+                    <button class="btn-premium btn-intro-v2" onclick="openVideo('https://www.youtube.com/embed/ScMzIvxBSi4')">
                         <i class="fas fa-play-circle"></i> Intro
                     </button>
-                    <a href="<?php echo get_author_posts_url($provider['ID']); ?>" class="btn btn-profile">View Profile</a>
+                    <a href="<?php echo get_author_posts_url($provider['ID']); ?>" class="btn-premium btn-profile-v2">
+                        View Profile <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
-        </div>
-    <?php endforeach; ?>
-
+        <?php endforeach; ?>
+    </div>
 </div>
 
 <div id="videoModal" class="modal" onclick="closeVideo()">
