@@ -19,11 +19,11 @@ $provider_data = $common->get_provider_with_services($author_slug);
                             $profile_image = !empty($provider_data['profile_image']) ? $provider_data['profile_image'] : 'https://via.placeholder.com/120';
                             ?>
                             <img src="<?php echo esc_url($profile_image); ?>" 
-                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 30px; border: 4px solid rgba(255,255,255,0.2);" 
+                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 30px; border: 4px solid rgba(255,255,255,0.3); box-shadow: 0 0 20px rgba(0,0,0,0.15);" 
                                  alt="<?php echo esc_attr($provider_data['name'] ?? 'Provider'); ?>">
                         </div>
                         <div class="profile-info-top">
-                            <h2 class="mb-2 fw-bold display-6">
+                            <h2 class="mb-2 fw-bold h4">
                                 <?php echo esc_html($provider_data['name'] ?? 'Dev Test'); ?>
                             </h2>
                             <div class="d-flex gap-3 opacity-75 small fw-medium">
@@ -37,18 +37,18 @@ $provider_data = $common->get_provider_with_services($author_slug);
                 </div>
 
                 <div class="card-body p-0">
-                    <div class="row text-center g-0 border-bottom">
+                    <div class="row text-center g-0 border-bottom" style="background: #fafbfc;">
                         <div class="col-4 py-3">
-                            <div class="h4 fw-bold mb-1" style="color: #a44390;">£<?php echo esc_html($provider_data['hourly_rate'] ?? '20'); ?></div>
-                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.5px;">Hourly Rate</small>
+                            <div class="h5 fw-bold mb-1" style="color: #a44390; letter-spacing: -0.5px;">£<?php echo esc_html($provider_data['hourly_rate'] ?? '20'); ?></div>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.8px;">Hourly Rate</small>
                         </div>
                         <div class="col-4 py-3 border-start border-end">
-                            <div class="h4 fw-bold mb-1 text-warning"><i class="fas fa-star me-1"></i>5.0</div>
-                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.5px;">(12 Reviews)</small>
+                            <div class="h5 fw-bold mb-1 text-warning" style="letter-spacing: -0.5px;"><i class="fas fa-star me-1" style="font-size: 1rem;"></i>5.0</div>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.8px;">(12 Reviews)</small>
                         </div>
                         <div class="col-4 py-3">
-                            <div class="h4 fw-bold mb-1" style="color: #1e293b;"><?php echo esc_html($provider_data['age_group'] ?? 'Middle'); ?></div>
-                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.5px;">Age Group</small>
+                            <div class="h5 fw-bold mb-1" style="color: #1e293b; letter-spacing: -0.5px;"><?php echo esc_html($provider_data['age_group'] ?? 'Middle'); ?></div>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.8px;">Age Group</small>
                         </div>
                     </div>
                 </div>
@@ -157,10 +157,24 @@ $provider_data = $common->get_provider_with_services($author_slug);
                     </div>
 
                     <div class="collapse mb-4" id="reviewForm">
-                        <div class="bg-light p-3 rounded-4">
-                            <textarea class="form-control mb-2 border-0 shadow-sm" rows="3"
-                                placeholder="Write your review..."></textarea>
-                            <button class="btn btn-dark btn-sm px-4 rounded-pill">Submit Review</button>
+                        <div class="p-4 rounded-4" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <label class="small fw-bold text-muted mb-2 d-block">Rating</label>
+                            <div class="star-rating-input d-flex gap-2 mb-3">
+                                <?php for($i=1; $i<=5; $i++): ?>
+                                <i class="fa-star far cursor-pointer rating-star" data-rating="<?php echo $i; ?>" style="color: #cbd5e1; font-size: 1.2rem; cursor: pointer; transition: all 0.2s;"></i>
+                                <?php endfor; ?>
+                                <input type="hidden" name="rating" id="selectedRating" value="0">
+                            </div>
+
+                            <label class="small fw-bold text-muted mb-2 d-block">Your Review</label>
+                            <textarea class="form-control mb-3 border-0 shadow-sm" rows="3"
+                                placeholder="Share your experience..." 
+                                style="border-radius: 14px; padding: 15px; font-size: 0.95rem; resize: none;"></textarea>
+                            
+                            <button class="btn w-100 py-2 fw-bold text-white shadow-sm" 
+                                style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 12px; border: none; font-size: 0.9rem; transition: all 0.3s;">
+                                Post Review
+                            </button>
                         </div>
                     </div>
 
@@ -230,10 +244,10 @@ $provider_data = $common->get_provider_with_services($author_slug);
                         </span>
                     </div>
 
-                    <button class="btn w-100 py-3 fw-bold text-white" 
-                        style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 14px; border: none; font-size: 1rem; letter-spacing: 0.3px; box-shadow: 0 8px 20px rgba(164,67,144,0.3); transition: all 0.3s;"
-                        onmouseover="this.style.transform='translateY(-2px)'"
-                        onmouseout="this.style.transform='translateY(0)'">
+                    <button class="btn w-100 py-3 fw-bold text-white btn-premium-pulse" 
+                        style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 14px; border: none; font-size: 1rem; letter-spacing: 0.3px; box-shadow: 0 8px 25px rgba(164,67,144,0.3); transition: all 0.4s ease;"
+                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(164,67,144,0.4)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(164,67,144,0.3)';">
                         <i class="fas fa-calendar-check me-2"></i> Proceed to Book
                     </button>
                 </div>
@@ -342,6 +356,42 @@ function openVideoPopup(url) {
     modal.show();
     document.getElementById('videoModal').addEventListener('hidden.bs.modal', () => { iframe.src = ''; });
 }
+
+// ===== Star Rating Logic =====
+document.addEventListener('DOMContentLoaded', () => {
+    const stars = document.querySelectorAll('.rating-star');
+    const ratingInput = document.getElementById('selectedRating');
+
+    stars.forEach(star => {
+        star.addEventListener('mouseover', function() {
+            const val = this.dataset.rating;
+            highlightStars(val);
+        });
+
+        star.addEventListener('mouseout', function() {
+            highlightStars(ratingInput.value);
+        });
+
+        star.addEventListener('click', function() {
+            ratingInput.value = this.dataset.rating;
+            highlightStars(ratingInput.value);
+        });
+    });
+
+    function highlightStars(val) {
+        stars.forEach(s => {
+            if (s.dataset.rating <= val) {
+                s.classList.remove('far');
+                s.classList.add('fas');
+                s.style.color = '#ffb800';
+            } else {
+                s.classList.remove('fas');
+                s.classList.add('far');
+                s.style.color = '#cbd5e1';
+            }
+        });
+    }
+});
 </script>
 
 <style>
