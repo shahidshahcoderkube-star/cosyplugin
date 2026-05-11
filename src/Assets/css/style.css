@@ -1,3 +1,38 @@
+/* Global Font: Poppins - loaded via wp_enqueue_style in Assets.php */
+.cosy-premium-grid-container,
+.cosy-premium-grid-container h1,
+.cosy-premium-grid-container h2,
+.cosy-premium-grid-container h3,
+.cosy-premium-grid-container h4,
+.cosy-premium-grid-container h5,
+.cosy-premium-grid-container h6,
+.cosy-premium-grid-container p,
+.cosy-premium-grid-container span,
+.cosy-premium-grid-container small,
+.cosy-premium-grid-container button,
+.cosy-profile-container,
+.cosy-profile-container h1,
+.cosy-profile-container h2,
+.cosy-profile-container h3,
+.cosy-profile-container h4,
+.cosy-profile-container h5,
+.cosy-profile-container h6,
+.cosy-profile-container p,
+.cosy-profile-container span,
+.cosy-profile-container small,
+.cosy-profile-container button,
+.card.border-0.shadow-sm,
+.card.border-0.shadow-sm h1,
+.card.border-0.shadow-sm h2,
+.card.border-0.shadow-sm h3,
+.card.border-0.shadow-sm h4,
+.card.border-0.shadow-sm h5,
+.card.border-0.shadow-sm h6,
+.card.border-0.shadow-sm p,
+.card.border-0.shadow-sm small {
+    font-family: 'Poppins', sans-serif;
+}
+
 #cosy-appointments {
     max-width: 400px;
     margin: 20px auto;

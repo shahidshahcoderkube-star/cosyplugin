@@ -56,6 +56,7 @@ trait GlobalCommonFunctions
             'email'    => $user->user_email,
             'name'     => $user->display_name,
             'role'     => implode(', ', $user->roles),
+            'user_registered' => $user->user_registered,
         ];
 
         // ✅ Fetch all user meta in one go
@@ -157,6 +158,8 @@ trait GlobalCommonFunctions
                 'gender'        => get_user_meta($user_id, 'gender', true),
                 'profile_image' => get_user_meta($user_id, 'profile_image', true),
                 'age_group'     => get_user_meta($user_id, 'age_group', true),
+                'introduction_video' => get_user_meta($user_id, 'introduction_video', true),
+                'hourly_rate'   => get_user_meta($user_id, 'hourly_rate', true),
             ];
         }
 
@@ -182,15 +185,26 @@ trait GlobalCommonFunctions
 
         global $wpdb;
         $table = $wpdb->prefix . 'provider_services';
-        $services = $wpdb->get_results(
+        $service_ids = $wpdb->get_col(
             $wpdb->prepare(
-                "SELECT * FROM $table WHERE provider_id = %d",
+                "SELECT service_id FROM $table WHERE provider_id = %d",
                 $provider_id
-            ),
-            ARRAY_A
+            )
         );
 
-        $data['services'] = $services;
+        $services_data = [];
+        if (!empty($service_ids)) {
+            foreach ($service_ids as $sid) {
+                $services_data[] = [
+                    'ID'    => $sid,
+                    'title' => get_the_title($sid),
+                    'price' => get_post_meta($sid, 'service_price', true),
+                    'time'  => get_post_meta($sid, 'service_duration', true),
+                ];
+            }
+        }
+
+        $data['services'] = $services_data;
         return $data;
     }
 }

@@ -11,10 +11,9 @@ if (empty($providers)) {
 <div class="cosy-premium-grid-container mb-5 mt-5">
     <div class="cosy-premium-grid">
         <?php foreach ($providers as $provider): 
-            $profile_pic = get_user_meta($provider['ID'], 'cosy_profile_pic', true);
-            if (empty($profile_pic)) {
-                $profile_pic = 'https://i.pravatar.cc/300?u=' . $provider['ID'];
-            }
+            $profile_pic = !empty($provider['profile_image']) ? $provider['profile_image'] : 'https://i.pravatar.cc/300?u=' . $provider['ID'];
+            $video_url   = !empty($provider['introduction_video']) ? $provider['introduction_video'] : 'https://www.youtube.com/embed/ScMzIvxBSi4';
+            $hourly_rate = !empty($provider['hourly_rate']) ? $provider['hourly_rate'] : '45';
         ?>
             <div class="cosy-card-v2">
                 <div class="card-top-header">
@@ -46,12 +45,12 @@ if (empty($providers)) {
                     </p>
                     
                     <div class="pricing-premium">
-                        <span class="currency">$</span><span class="amount">45</span><span class="per">/ hr</span>
+                        <span class="currency">$</span><span class="amount"><?php echo esc_html($hourly_rate); ?></span><span class="per">/ hr</span>
                     </div>
                 </div>
 
                 <div class="card-action-footer">
-                    <button class="btn-premium btn-intro-v2" onclick="openVideo('https://www.youtube.com/embed/ScMzIvxBSi4')">
+                    <button class="btn-premium btn-intro-v2" onclick="openVideo('<?php echo esc_url($video_url); ?>')">
                         <i class="fas fa-play-circle"></i> Intro
                     </button>
                     <a href="<?php echo get_author_posts_url($provider['ID']); ?>" class="btn-premium btn-profile-v2">
