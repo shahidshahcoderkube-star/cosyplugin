@@ -5,6 +5,7 @@
             <form id="cosyLoginForm" class="cosy-form" method="post" data-action="cosy_login">
                 <div class="cosy-message"></div>
                 <?php wp_nonce_field('cosy_login_nonce', 'cosy_nonce'); ?>
+                <input type="hidden" name="action" value="cosy_login">
                 <p><input type="text" name="log" placeholder="Username" required></p>
                 <p><input type="password" name="pwd" placeholder="Password" required></p>
                 <p><button type="submit" class="button button-primary">Login</button></p>

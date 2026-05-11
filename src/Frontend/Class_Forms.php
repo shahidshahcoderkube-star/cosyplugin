@@ -18,9 +18,11 @@ class FormsData
             'cosy_provider_register' => 'handle_provider_registration',
             'cosy_login'             => 'handle_login',
             'cosy_forgot_password'   => 'handle_forgot_password',
-            'cosy_verify_provider'   => 'handle_provider_verification',
         ];
         $this->register_ajax_handlers($actions, $this);
+
+        // Hook for non-AJAX verification (email link)
+        add_action('init', [$this, 'handle_provider_verification']);
     }
 
     //----------------- Utility: Send JSON response ----------------//
@@ -47,7 +49,9 @@ class FormsData
     public function handle_customer_registration()
     {
         // Security check: verify nonce
-        check_ajax_referer('cosy_customer_register_nonce', 'cosy_nonce');
+        if (!isset($_POST['cosy_nonce']) || !wp_verify_nonce($_POST['cosy_nonce'], 'cosy_customer_register_nonce')) {
+            wp_send_json_error('Security check failed. Please refresh the page.');
+        }
 
         // Ensure request is POST + correct action
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['action']) || $_POST['action'] !== 'cosy_customer_register') {
@@ -95,7 +99,9 @@ class FormsData
     public function handle_provider_registration()
     {
         // Security check: verify nonce
-        check_ajax_referer('cosy_provider_register_nonce', 'cosy_nonce');
+        if (!isset($_POST['cosy_nonce']) || !wp_verify_nonce($_POST['cosy_nonce'], 'cosy_provider_register_nonce')) {
+            wp_send_json_error('Security check failed. Please refresh the page.');
+        }
 
         // Sanitize required fields
         $username = !empty($_POST['prov_username']) ? sanitize_text_field($_POST['prov_username']) : '';
@@ -172,8 +178,12 @@ class FormsData
     //----------------- Login Form Handler ----------------//
     public function handle_login()
     {
+        $received_nonce = $_POST['cosy_nonce'] ?? 'MISSING';
+        
         // Security check: verify nonce
-        check_ajax_referer('cosy_login_nonce', 'cosy_nonce');
+        if (!isset($_POST['cosy_nonce']) || !wp_verify_nonce($_POST['cosy_nonce'], 'cosy_login_nonce')) {
+            wp_send_json_error("Security check failed. Received: $received_nonce. Expected: cosy_login_nonce");
+        }
 
         $creds = [
             'user_login'    => sanitize_text_field($_POST['log']),

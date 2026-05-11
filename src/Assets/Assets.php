@@ -50,14 +50,14 @@ class Assets
 
         wp_enqueue_style(
             'cosy-admin-style',
-            COSY_APPT_URL . 'assets/admin.css',
+            COSY_APPT_URL . 'src/Admin/assets/admin.css',
             [],
             COSY_APPT_VER
         );
 
         wp_enqueue_script(
             'cosy-admin-script',
-            COSY_APPT_URL . 'assets/admin.js',
+            COSY_APPT_URL . 'src/Admin/assets/admin.js',
             ['jquery'],
             COSY_APPT_VER,
             true

@@ -1,11 +1,14 @@
-// ==================================================
-// Cosy App – Final Stable Version
-// ==================================================
+console.log("validation.js LOADED");
+console.log("cosy_ajax:", typeof cosy_ajax !== "undefined" ? cosy_ajax : "UNDEFINED");
 
 var CosyApp = (function ($) {
 
     //--------------- ALERTS ---------------//
     function cosyAlert(type, message) {
+        // If message is an object, try to get .message property or stringify it
+        if (typeof message === "object" && message !== null) {
+            message = message.message || JSON.stringify(message);
+        }
         return `
             <div class="alert alert-${type} alert-dismissible fade show" role="alert">
                 ${message}
@@ -15,6 +18,36 @@ var CosyApp = (function ($) {
                         aria-label="Close"></button>
             </div>
         `;
+    }
+
+
+    //--------------- MANUAL SUBMIT FALLBACK ---------------//
+    function handleManualSubmit(formEl, action, $btn) {
+        let $form = $(formEl);
+        $.ajax({
+            url: cosy_ajax.ajax_url,
+            type: "POST",
+            data: $form.serialize() + "&action=" + action,
+            beforeSend() {
+                $btn.prop("disabled", true).html("Loading...");
+            },
+            success(response) {
+                let msgBox = $form.find(".cosy-message");
+                if (response.success) {
+                    if (typeof response.data === "string" && response.data.startsWith("http")) {
+                        window.location.href = response.data;
+                    } else {
+                        msgBox.html(cosyAlert("success", response.data));
+                        formEl.reset();
+                    }
+                } else {
+                    msgBox.html(cosyAlert("danger", response.data));
+                }
+            },
+            complete() {
+                $btn.prop("disabled", false).html("Submit");
+            }
+        });
     }
 
 
@@ -29,6 +62,16 @@ var CosyApp = (function ($) {
 
             let action = $form.data("action");
             let $btn = $form.find('button[type="submit"]');
+
+            if (typeof $.fn.validate === "undefined") {
+                console.warn("JQuery Validate not loaded. Using fallback submit.");
+                $form.on("submit", function(e) {
+                    e.preventDefault();
+                    // Call a manual submit if validate is missing
+                    handleManualSubmit(this, action, $btn);
+                });
+                return;
+            }
 
             $form.validate({
                 rules: {
@@ -548,15 +591,17 @@ var CosyApp = (function ($) {
     //-------- PUBLIC INITIALISATION --------//
     return {
         init() {
-            initAuthForms();
-            initProfileUpdate();
-            initVideoUpload();
-            initTabs();
-            serviceSelection();
-            updateServices();
-            serviceCheckbox();
-            removeService();
-            formValidation();
+            console.log("CosyApp: Initializing...");
+            try { initAuthForms(); } catch (e) { console.error("AuthForms Error:", e); }
+            try { initProfileUpdate(); } catch (e) { console.error("ProfileUpdate Error:", e); }
+            try { initVideoUpload(); } catch (e) { console.error("VideoUpload Error:", e); }
+            try { initTabs(); } catch (e) { console.error("Tabs Error:", e); }
+            try { serviceSelection(); } catch (e) { console.error("ServiceSelection Error:", e); }
+            try { updateServices(); } catch (e) { console.error("UpdateServices Error:", e); }
+            try { serviceCheckbox(); } catch (e) { console.error("ServiceCheckbox Error:", e); }
+            try { removeService(); } catch (e) { console.error("RemoveService Error:", e); }
+            try { formValidation(); } catch (e) { console.error("FormValidation Error:", e); }
+            console.log("CosyApp: Initialization Complete.");
         }
     };
 

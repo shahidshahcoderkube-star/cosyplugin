@@ -15,8 +15,8 @@ class Backend_Actions_Handler
     {
         //------ Register all AJAX handlers dynamically-----//
         $actions = [
-            'video_approve'   => 'ajax_approve_video',
-            'video_reject'   => 'ajax_reject_video',
+            'video_approve' => 'ajax_approve_video',
+            'video_reject' => 'ajax_reject_video',
         ];
 
         //------ Register AJAX handlers -----//
@@ -32,44 +32,81 @@ class Backend_Actions_Handler
     //--------------- Approve video ---------------//
     public function ajax_approve_video()
     {
+        // ✅ Security check
+        check_ajax_referer('cosy_media_nonce', 'nonce');
+        if (!current_user_can('approve_cosy_media')) {
+            wp_send_json_error(['message' => 'Unauthorized access']);
+        }
 
         $user_id = intval($_POST['user_id']);
         if (!$user_id) {
             wp_send_json_error(['message' => 'Invalid user ID']);
         }
 
-        // Update status
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_media_approvals';
+
+        // ✅ Update DB table status
+        $wpdb->update(
+            $table_name,
+            ['status' => 'approved', 'reviewed_at' => current_time('mysql')],
+            ['user_id' => $user_id],
+            ['%s', '%s'],
+            ['%d']
+        );
+
+        // Update status in meta
         update_user_meta($user_id, 'video_status', 'approved');
 
         // Send email to provider
         $user = get_userdata($user_id);
-        wp_mail(
-            $user->user_email,
-            'Your Video is Approved',
-            'Hello ' . $user->display_name . ', your video has been approved by admin.'
-        );
+        if ($user) {
+            wp_mail(
+                $user->user_email,
+                'Your Video is Approved',
+                'Hello ' . $user->display_name . ', your video has been approved by admin.'
+            );
+        }
 
         wp_send_json_success([
             'message' => 'Video approved successfully!',
-            'status'  => 'approved'
+            'status' => 'approved'
         ]);
     }
 
     //--------------- Reject video ---------------//
     public function ajax_reject_video()
     {
+        // ✅ Security check
+        check_ajax_referer('cosy_media_nonce', 'nonce');
+        if (!current_user_can('approve_cosy_media')) {
+            wp_send_json_error(['message' => 'Unauthorized access']);
+        }
+
         $user_id = intval($_POST['user_id']);
         if (!$user_id) {
             wp_send_json_error(['message' => 'Invalid user ID']);
         }
 
-        // Delete video + update status
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_media_approvals';
+
+        // ✅ Update DB table status
+        $wpdb->update(
+            $table_name,
+            ['status' => 'rejected', 'reviewed_at' => current_time('mysql')],
+            ['user_id' => $user_id],
+            ['%s', '%s'],
+            ['%d']
+        );
+
+        // Delete video + update status in meta
         delete_user_meta($user_id, 'introduction_video');
         update_user_meta($user_id, 'video_status', 'rejected');
 
         wp_send_json_success([
             'message' => 'Video rejected and deleted!',
-            'status'  => 'rejected'
+            'status' => 'rejected'
         ]);
     }
 }

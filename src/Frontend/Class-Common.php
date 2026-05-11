@@ -163,4 +163,34 @@ trait GlobalCommonFunctions
 
         return $data;
     }
+
+    //------ Utility: Get Provider with Services by slug -----//
+    public function get_provider_with_services(string $slug): array
+    {
+        $user = get_user_by('slug', $slug);
+        if (!$user) {
+            // Fallback: check by author name if slug doesn't match
+            $user = get_user_by('login', $slug);
+        }
+
+        if (!$user) {
+            return [];
+        }
+
+        $provider_id = $user->ID;
+        $data = $this->get_provider_data($provider_id);
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'provider_services';
+        $services = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM $table WHERE provider_id = %d",
+                $provider_id
+            ),
+            ARRAY_A
+        );
+
+        $data['services'] = $services;
+        return $data;
+    }
 }

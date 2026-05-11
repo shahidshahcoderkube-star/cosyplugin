@@ -6,6 +6,7 @@
             <form id="customerForm" class="cosy-form" method="post" data-action="cosy_customer_register">
                 <div class="cosy-message"></div>
                 <?php wp_nonce_field('cosy_customer_register_nonce', 'cosy_nonce'); ?>
+                <input type="hidden" name="action" value="cosy_customer_register">
                 <p><label>Name<br><input type="text" name="cust_name" required></label></p>
                 <p><label>Email<br><input type="email" name="cust_email" required autocomplete="off"></label></p>
                 <p><label>Password<br><input type="password" name="cust_pass" required></label></p>

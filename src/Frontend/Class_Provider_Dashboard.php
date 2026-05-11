@@ -16,8 +16,8 @@ class Dashboard
     {
         //------ Register all AJAX handlers dynamically-----//
         $actions = [
-            'cosy_provider_information_update'   => 'handle_profile_update',
-            'cosy_provider_video'   => 'handle_video_upload',
+            'cosy_provider_information_update' => 'handle_profile_update',
+            'cosy_provider_video' => 'handle_video_upload',
             'delete_video' => 'ajax_delete_video',
             'load_dashboard_tab' => 'cosy_load_dashboard_tab',
         ];
@@ -51,8 +51,8 @@ class Dashboard
     public function handle_profile_update(): void
     {
         check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-        
-        if (!current_user_can('manage_cosy_appointments')) {
+
+        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
             wp_send_json_error(['message' => 'Unauthorized']);
         }
 
@@ -68,17 +68,17 @@ class Dashboard
                 'prov_username' => sanitize_text_field($_POST['prov_username']),
                 // 'prov_fname'    => sanitize_text_field($_POST['prov_fname']),
                 // 'prov_mname'    => sanitize_text_field($_POST['prov_mname']),
-                'first_name'    => sanitize_text_field($_POST['prov_fname']),
-                'prov_mname'    => sanitize_text_field($_POST['prov_mname']),
-                'last_name'    => sanitize_text_field($_POST['prov_sname']),
-                'prov_email'    => sanitize_email($_POST['prov_email']),
-                'prov_phone'    => sanitize_text_field($_POST['prov_phone']),
-                'prov_address'  => sanitize_textarea_field($_POST['prov_address']),
-                'dob'           => sanitize_text_field($_POST['dob']),
-                'postal_code'   => sanitize_text_field($_POST['postal_code']),
-                'description'           => sanitize_textarea_field($_POST['bio']),
-                'gender'        => sanitize_text_field($_POST['gender']),
-                'age_group'     => sanitize_text_field($_POST['age_group']),
+                'first_name' => sanitize_text_field($_POST['prov_fname']),
+                'prov_mname' => sanitize_text_field($_POST['prov_mname']),
+                'last_name' => sanitize_text_field($_POST['prov_sname']),
+                'prov_email' => sanitize_email($_POST['prov_email']),
+                'prov_phone' => sanitize_text_field($_POST['prov_phone']),
+                'prov_address' => sanitize_textarea_field($_POST['prov_address']),
+                'dob' => sanitize_text_field($_POST['dob']),
+                'postal_code' => sanitize_text_field($_POST['postal_code']),
+                'description' => sanitize_textarea_field($_POST['bio']),
+                'gender' => sanitize_text_field($_POST['gender']),
+                'age_group' => sanitize_text_field($_POST['age_group']),
             ];
 
             foreach ($provider_meta as $key => $value) {
@@ -109,7 +109,7 @@ class Dashboard
     {
         check_ajax_referer('cosy_dashboard_nonce', 'nonce');
 
-        if (!current_user_can('manage_cosy_appointments')) {
+        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
             wp_send_json_error(['message' => 'Unauthorized']);
         }
 
@@ -148,11 +148,44 @@ class Dashboard
                 // ✅ Save status as pending
                 update_user_meta($user_id, 'video_status', 'pending');
 
+                // ✅ Sync with custom table for Admin Dashboard
+                global $wpdb;
+                $table_name = $wpdb->prefix . 'cosy_media_approvals';
+
+                // Check if user already has an entry
+                $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM $table_name WHERE user_id = %d", $user_id));
+
+                if ($existing) {
+                    $wpdb->update(
+                        $table_name,
+                        [
+                            'media_url'   => $video_url,
+                            'status'      => 'pending',
+                            'uploaded_at' => current_time('mysql'),
+                            'reviewed_at' => null
+                        ],
+                        ['user_id' => $user_id],
+                        ['%s', '%s', '%s', '%s'],
+                        ['%d']
+                    );
+                } else {
+                    $wpdb->insert(
+                        $table_name,
+                        [
+                            'user_id'     => $user_id,
+                            'media_url'   => $video_url,
+                            'status'      => 'pending',
+                            'uploaded_at' => current_time('mysql'),
+                        ],
+                        ['%d', '%s', '%s', '%s']
+                    );
+                }
+
                 wp_send_json_success([
-                    'message'     => 'Video uploaded successfully! Awaiting admin approval.',
-                    'video_url'   => $video_url,
+                    'message' => 'Video uploaded successfully! Awaiting admin approval.',
+                    'video_url' => $video_url,
                     'uploaded_on' => current_time('mysql'),
-                    'status'      => 'pending'
+                    'status' => 'pending'
                 ]);
             } else {
                 wp_send_json_error([
@@ -169,7 +202,7 @@ class Dashboard
     {
         check_ajax_referer('cosy_dashboard_nonce', 'nonce');
 
-        if (!current_user_can('manage_cosy_appointments')) {
+        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
             wp_send_json_error(['message' => 'Unauthorized']);
         }
 
@@ -202,7 +235,7 @@ class Dashboard
     {
         check_ajax_referer('cosy_dashboard_nonce', 'nonce');
 
-        if (!current_user_can('manage_cosy_appointments')) {
+        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
             wp_send_json_error(['message' => 'Unauthorized']);
         }
 
@@ -221,23 +254,23 @@ class Dashboard
 
         // allowed tabs (security)
         $allowed_tabs = [
-            'profile'     => 'profile-information.php',
-            'video'       => 'media-upload.php',
-            'services'    => 'services.php',
+            'profile' => 'profile-information.php',
+            'video' => 'media-upload.php',
+            'services' => 'services.php',
             'availability' => 'availability.php',
-            'orders'      => 'orders.php',
-            'nonworking'  => 'holidays.php',
-            'reviews'     => 'customer-reviews.php',
-            'invoices'    => 'invoices.php',
+            'orders' => 'orders.php',
+            'nonworking' => 'holidays.php',
+            'reviews' => 'customer-reviews.php',
+            'invoices' => 'invoices.php',
         ];
 
-        if (! isset($allowed_tabs[$tab])) {
+        if (!isset($allowed_tabs[$tab])) {
             wp_send_json_error('Tab not allowed');
         }
 
         $file_path = plugin_dir_path(__FILE__) . '../../templates/provider/dashboard/' . $allowed_tabs[$tab];
 
-        if (! file_exists($file_path)) {
+        if (!file_exists($file_path)) {
             wp_send_json_error('File not found');
         }
 

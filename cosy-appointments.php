@@ -135,6 +135,29 @@ function cosy_create_services_table()
     }
 }
 
+//-------Create Media Approvals table--------//
+function cosy_create_media_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'cosy_media_approvals';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+        $sql = "CREATE TABLE $table_name (
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id BIGINT(20) UNSIGNED NOT NULL,
+            media_url TEXT NOT NULL,
+            status VARCHAR(20) DEFAULT 'pending',
+            uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            reviewed_at DATETIME DEFAULT NULL,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+}
+
 //-------Register activation hook--------//
 register_activation_hook(__FILE__, 'cosy_plugin_activate');
 
@@ -145,6 +168,7 @@ function cosy_plugin_activate()
     register_role();
     cosy_create_pages_on_activation();
     cosy_create_services_table();
+    cosy_create_media_table();
     update_option('cosy_plugin_version', COSY_APPT_VER);
 }
 
