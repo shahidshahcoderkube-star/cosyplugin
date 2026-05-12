@@ -349,8 +349,12 @@ var CosyApp = (function ($) {
             <td><textarea class="form-control" name="service_desc[${serviceId}]">${item?.description ?? ''}</textarea></td>
             <td>
                 <select class="form-select" name="service_duration[${serviceId}]">
+                    <option value="10" ${item?.duration == 10 ? 'selected' : ''}>10 Minutes</option>
+                    <option value="20" ${item?.duration == 20 ? 'selected' : ''}>20 Minutes</option>
                     <option value="30" ${item?.duration == 30 ? 'selected' : ''}>30 Minutes</option>
-                    <option value="60" ${item?.duration == 60 ? 'selected' : ''}>1 Hour</option>
+                    <option value="40" ${item?.duration == 40 ? 'selected' : ''}>40 Minutes</option>
+                    <option value="50" ${item?.duration == 50 ? 'selected' : ''}>50 Minutes</option>
+                    <option value="60" ${item?.duration == 60 ? 'selected' : ''}>60 Minutes</option>
                 </select>
             </td>
             <td><input type="number" class="form-control" name="service_price[${serviceId}]" value="${item?.price ?? ''}" required></td>

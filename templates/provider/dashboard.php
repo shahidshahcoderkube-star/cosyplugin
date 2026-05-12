@@ -94,33 +94,38 @@
     <?php wp_nonce_field('cosy_dashboard_nonce', 'cosy_dashboard_nonce_field'); ?>
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-12 col-md-3 bg-gradient p-3 text-white" id="cosy-sidebar"
-            style="background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); min-height:100vh;">
-            <h4 class="mb-4 text-center fw-bold">Provider Dashboard</h4>
+        <div class="col-12 col-md-3 bg-white p-4 shadow-sm" id="cosy-sidebar" style="min-height:100vh; border-right: 1px solid #f1f5f9;">
+            <div class="sidebar-header mb-4 pb-3 text-center" style="border-bottom: 1.5px solid #f8fafc;">
+                <div class="d-inline-flex align-items-center justify-content-center p-2 mb-2" style="background: rgba(164, 67, 144, 0.08); border-radius: 12px;">
+                    <i class="fas fa-th-large" style="color: #a44390; font-size: 1.2rem;"></i>
+                </div>
+                <h4 class="m-0" style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem; color: #1e293b; letter-spacing: 0.5px; text-transform: uppercase;">Provider Dashboard</h4>
+            </div>
+            
             <div class="nav flex-column cc__dashboard nav-pills" id="cosyDashboardTabs" role="tablist" aria-orientation="vertical">
                 <button class="nav-link cosy-tab active mb-2" data-tab="profile" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab">
-                    👤 Profile
+                    <i class="fas fa-user-circle"></i> Profile
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="video" id="video-tab" data-bs-toggle="pill" data-bs-target="#video" type="button" role="tab">
-                    🎥 Video
+                    <i class="fas fa-video"></i> Video
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="services" id="services-tab" data-bs-toggle="pill" data-bs-target="#services" type="button" role="tab">
-                    🛠 Services
+                    <i class="fas fa-concierge-bell"></i> Services
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="availability" id="availability-tab" data-bs-toggle="pill" data-bs-target="#availability" type="button" role="tab">
-                    📅 Availability
+                    <i class="fas fa-calendar-alt"></i> Availability
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="orders" id="orders-tab" data-bs-toggle="pill" data-bs-target="#orders" type="button" role="tab">
-                    📦 Orders
+                    <i class="fas fa-shopping-bag"></i> Orders
                 </button>
-                <button class="nav-link cosy-tab cosy-tab mb-2" data-tab="nonworking" id="nonworking-tab" data-bs-toggle="pill" data-bs-target="#nonworking" type="button" role="tab">
-                    🚫 Holidays
+                <button class="nav-link cosy-tab mb-2" data-tab="nonworking" id="nonworking-tab" data-bs-toggle="pill" data-bs-target="#nonworking" type="button" role="tab">
+                    <i class="fas fa-calendar-times"></i> Holidays
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="reviews" id="reviews-tab" data-bs-toggle="pill" data-bs-target="#reviews" type="button" role="tab">
-                    ⭐ Reviews
+                    <i class="fas fa-star"></i> Reviews
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="invoices" id="invoices-tab" data-bs-toggle="pill" data-bs-target="#invoices" type="button" role="tab">
-                    💳 Invoices
+                    <i class="fas fa-file-invoice-dollar"></i> Invoices
                 </button>
             </div>
         </div>
