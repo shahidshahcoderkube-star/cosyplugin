@@ -264,21 +264,8 @@ $provider_data = $common->get_provider_with_services($author_slug);
                             <span id="displaySelectedDate" class="text-primary">May 13, 2026</span>
                         </div>
 
-                        <div id="timeSlotsList" class="d-flex flex-column gap-2 mb-4">
+                        <div id="timeSlotsList" class="d-flex flex-column gap-2 mb-0">
                             <!-- Rows will be populated by JS -->
-                        </div>
-
-                        <!-- Booking Summary Footer -->
-                        <div class="mt-4 p-3 rounded-4" style="background: #f8fafc; border: 1.5px dashed #a44390;">
-                            <div class="text-center mb-3">
-                                <h6 class="fw-bold mb-1" style="color: #a44390; font-size: 0.9rem;">Booking Summary</h6>
-                                <p class="small text-muted mb-0" id="finalBookingSummary" style="font-size: 0.75rem;">Select time slots to continue.</p>
-                            </div>
-                            <button class="btn btn-lg w-100 py-3 fw-bold text-white shadow-sm" 
-                                    style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 14px; border: none; font-size: 1rem; opacity: 0.6;"
-                                    id="finalProceedBtn" disabled>
-                                Book Now
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -443,9 +430,8 @@ function openTimeSlotModal(dateStr, btn) {
             const isSelected = selectedTimeSlotsByDay[dateStr] && selectedTimeSlotsByDay[dateStr].includes(timeStr);
             
             grid.innerHTML += `
-                <div class="time-block p-2 text-center small fw-bold cursor-pointer" 
+                <div class="time-block p-2 text-center small fw-bold ${isSelected ? 'selected' : ''}" 
                      onclick="toggleTimeSlot('${timeStr}', this)"
-                     style="border-radius: 8px; border: 1px solid #edf2f7; background: ${isSelected ? '#3498db' : '#fff'}; color: ${isSelected ? '#fff' : '#475569'}; transition: all 0.2s;"
                      data-time="${timeStr}">
                     ${timeStr}
                 </div>
@@ -465,12 +451,10 @@ function toggleTimeSlot(time, el) {
     const index = selectedTimeSlotsByDay[currentModalDate].indexOf(time);
     if (index > -1) {
         selectedTimeSlotsByDay[currentModalDate].splice(index, 1);
-        el.style.background = '#fff';
-        el.style.color = '#475569';
+        el.classList.remove('selected');
     } else {
         selectedTimeSlotsByDay[currentModalDate].push(time);
-        el.style.background = '#3498db';
-        el.style.color = '#fff';
+        el.classList.add('selected');
     }
     updateModalDuration();
 }
@@ -590,12 +574,31 @@ document.addEventListener('DOMContentLoaded', () => {
 <style>
 .time-grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.time-block {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 10px !important;
+    background: #fff;
+    border: 1.5px solid #edf2f7;
+    color: #475569;
+    font-weight: 600;
 }
 .time-block:hover {
-    border-color: #3498db !important;
-    background: #f0f9ff !important;
+    border-color: #a44390 !important;
+    background: #fdf2fb !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(164,67,144,0.1);
+}
+.time-block.selected {
+    background: #a44390 !important;
+    color: #fff !important;
+    border-color: #a44390 !important;
+}
+@media (max-width: 576px) {
+    .time-grid-container { grid-template-columns: repeat(3, 1fr); }
 }
 </style>
 
@@ -618,17 +621,17 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="modal-body p-4">
                 <div class="d-flex gap-4 mb-4 small fw-medium justify-content-center">
                     <span class="d-flex align-items-center gap-2">
-                        <span style="width: 12px; height: 12px; background: #2ecc71; border-radius: 3px;"></span> Available
+                        <span style="width: 12px; height: 12px; background: #fff; border: 1.5px solid #edf2f7; border-radius: 3px;"></span> Available
                     </span>
                     <span class="d-flex align-items-center gap-2">
-                        <span style="width: 12px; height: 12px; background: #3498db; border-radius: 3px;"></span> Selected
+                        <span style="width: 12px; height: 12px; background: #a44390; border-radius: 3px;"></span> Selected
                     </span>
                     <span class="d-flex align-items-center gap-2">
                         <span style="width: 12px; height: 12px; background: #e2e8f0; border-radius: 3px;"></span> Booked
                     </span>
                 </div>
                 
-                <div id="timeGrid" class="time-grid-container p-3 rounded-4" style="background: #f8fafc; border: 1px solid #edf2f7; max-height: 400px; overflow-y: auto;">
+                <div id="timeGrid" class="time-grid-container p-3 rounded-4" style="background: #f8fafc; border: 1px solid #edf2f7; max-height: 320px; overflow-y: auto;">
                     <!-- Time blocks generated by JS -->
                 </div>
             </div>
