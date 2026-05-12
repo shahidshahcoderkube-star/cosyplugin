@@ -31,95 +31,92 @@ $age_group     = get_user_meta($user_id, 'age_group', true);
 .cosy-profile-card h3 {
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: #1e293b;
-    margin-bottom: 35px;
+    margin-bottom: 30px;
     display: flex;
     align-items: center;
     gap: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .cosy-profile-card .form-label {
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     color: #475569;
-    font-size: 0.95rem;
-    margin-bottom: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
 }
 
 .cosy-profile-card .form-control,
 .cosy-profile-card .form-select {
     border: 1.5px solid #e2e8f0 !important;
-    border-radius: 14px !important;
+    border-radius: 12px !important;
     font-family: 'Poppins', sans-serif;
     font-size: 0.95rem;
     color: #334155;
     background-color: #f8fafc !important;
+    padding: 10px 15px !important;
     transition: all 0.3s ease;
-    line-height: 1.5 !important;
 }
 
 .cosy-profile-card .form-select {
-    appearance: none !important;
     background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E') !important;
     background-repeat: no-repeat !important;
     background-position: right 1rem center !important;
     background-size: 1.1em !important;
-    padding-right: 45px !important;
 }
 
 .cosy-profile-card .form-control:focus,
 .cosy-profile-card .form-select:focus {
-    outline: none !important;
     border-color: #a44390 !important;
     background-color: #fff !important;
-    box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.15) !important;
+    box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.1) !important;
 }
 
 .cosy-profile-card .custom-btn {
     background: linear-gradient(135deg, #a44390 0%, #833573 100%) !important;
     border: none !important;
-    border-radius: 14px !important;
-    padding: 14px 40px !important;
+    border-radius: 12px !important;
+    padding: 14px 45px !important;
     color: #fff !important;
-    font-family: 'Poppins', sans-serif;
     font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease !important;
     box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2) !important;
-}
-
-.cosy-profile-card .custom-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(164, 67, 144, 0.3) !important;
 }
 
 .cosy-profile-card .circle {
     width: 140px;
     height: 140px;
-    border: 4px solid #f1f5f9;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 5px solid #fff;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border-radius: 50%;
 }
 
 .cosy-profile-card .p-image {
     background: #a44390;
     color: #fff;
-    width: 35px;
-    height: 35px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    top: 105px;
-    left: 95px;
     cursor: pointer;
     border: 3px solid #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 </style>
 
 <div class="card cosy-profile-card mb-4">
     <div class="card-body p-0">
-        <h3>👤 Profile Information</h3>
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="header-icon-badge" style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user-circle" style="color: #a44390; font-size: 1.3rem;"></i>
+            </div>
+            <h3 class="mb-0" style="margin-bottom: 0 !important;">Profile Information</h3>
+        </div>
         <form method="post" class="cosy-form-update" data-action="cosy_provider_information_update" enctype="multipart/form-data">
             <div class="cosy-message"></div>
             <div class="row">

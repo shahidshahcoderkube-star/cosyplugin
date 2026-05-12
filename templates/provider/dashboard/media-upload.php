@@ -1,6 +1,84 @@
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-        <h3 class="text-danger">🎥 Upload Introduction Video</h3>
+<style>
+.cosy-video-card {
+    background: #ffffff;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    padding: 30px;
+}
+
+.cosy-video-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #1e293b;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cosy-video-card .video-dropzone {
+    border: 2px dashed #e2e8f0 !important;
+    background: #f8fafc !important;
+    border-radius: 15px !important;
+    transition: all 0.3s ease;
+}
+
+.cosy-video-card .video-dropzone:hover {
+    border-color: #a44390 !important;
+    background: rgba(164, 67, 144, 0.02) !important;
+}
+
+.cosy-video-card .video-dropzone i {
+    color: #a44390 !important;
+}
+
+.cosy-video-card .video-dropzone span {
+    color: #475569 !important;
+    font-family: 'Poppins', sans-serif;
+}
+
+.cosy-video-card video {
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    background: #000;
+}
+
+.cosy-video-card .remove-video {
+    background: #fff !important;
+    color: #ef4444 !important;
+    border: none !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    transition: all 0.2s ease;
+}
+
+.cosy-video-card .remove-video:hover {
+    transform: scale(1.1);
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
+.cosy-video-card .custom-btn {
+    background: linear-gradient(135deg, #a44390 0%, #833573 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px 35px !important;
+    font-weight: 600;
+}
+</style>
+
+<div class="card cosy-video-card mb-4">
+    <div class="card-body p-0">
+        <h3><i class="fas fa-video" style="color: #a44390;"></i> Introduction Video</h3>
 
         <?php
         $user_id = get_current_user_id();
@@ -11,78 +89,63 @@
         ?>
 
         <?php if ($video_status === 'pending') : ?>
-            <div class="alert alert-warning alert-dismissible fade show" role="alert"> Your video is currently under review. You cannot upload a new video until the current one is reviewed. <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> </div>
+            <div class="alert alert-warning border-0 rounded-4 shadow-sm py-3" role="alert"> 
+                <i class="fas fa-clock me-2"></i> Your video is currently under review. 
+            </div>
 
         <?php elseif ($video_status === 'rejected') : ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                Your video is not approved by admin. Please upload a new video.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-danger border-0 rounded-4 shadow-sm py-3" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> Your video was not approved. Please upload a new one.
             </div>
 
             <!-- Show upload form again -->
-            <div class="cosy-message"></div>
             <form id="video-upload-form-<?php echo esc_attr($user_id); ?>"
-                class="cosy_form_video video-upload-form"
+                class="cosy_form_video video-upload-form mt-4"
                 data-action="cosy_provider_video"
                 method="post"
                 enctype="multipart/form-data">
 
                 <div class="cosy-message"></div>
 
-                <!-- DROPZONE -->
                 <div id="video-dropzone-<?php echo esc_attr($user_id); ?>"
-                    class="video-dropzone border border-2 border-danger rounded
-                            d-flex align-items-center justify-content-center
-                            flex-column p-5"
-                    style="cursor:pointer; min-height:200px; background:#fffaf9;">
-                    <i class="bi bi-cloud-arrow-up text-danger" style="font-size:48px;"></i>
-                    <span class="mt-2 text-danger fw-bold">Click to upload video</span>
+                    class="video-dropzone d-flex align-items-center justify-content-center flex-column p-5"
+                    style="cursor:pointer; min-height:220px;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
+                    <span class="mt-3 fw-bold">Click to upload your intro video</span>
+                    <p class="text-muted small mt-1">Recommended: MP4 format (Max 20MB)</p>
                 </div>
 
-                <!-- FILE INPUT -->
-                <input type="file"
-                    id="video-upload-<?php echo esc_attr($user_id); ?>"
-                    class="video-upload"
-                    name="video_upload"
-                    accept="video/*"
-                    hidden>
+                <input type="file" id="video-upload-<?php echo esc_attr($user_id); ?>" class="video-upload" name="video_upload" accept="video/*" hidden>
 
-                <!-- Preview -->
-                <div id="video-upload-preview-<?php echo esc_attr($user_id); ?>"
-                    class="video-upload-preview mt-3"
-                    style="display:none; position:relative;">
-                    <video controls width="100%" class="rounded shadow-sm">
+                <div id="video-upload-preview-<?php echo esc_attr($user_id); ?>" class="video-upload-preview mt-4" style="display:none; position:relative;">
+                    <video controls width="100%">
                         <source src="" type="video/mp4">
                     </video>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="text-center mt-3">
-                    <button type="submit" class="btn btn-primary">Save Video</button>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary custom-btn">Save Video</button>
                 </div>
             </form>
 
         <?php elseif (!empty($introduction_video_url)) : ?>
-            <!-- ✅ Agar video already hai to show karo -->
-            <div id="existing-video-<?php echo esc_attr($user_id); ?>" class="mt-3" style="position:relative;">
-                <video controls width="100%" class="rounded shadow-sm">
+            <!-- ✅ Video Player -->
+            <div id="existing-video-<?php echo esc_attr($user_id); ?>" class="mt-2" style="position:relative;">
+                <video controls width="100%">
                     <source src="<?php echo esc_url($introduction_video_url); ?>" type="video/mp4">
-                    Your browser does not support the video tag.
                 </video>
-                <!-- Remove Icon -->
                 <button id="remove-video-<?php echo esc_attr($user_id); ?>"
                     data-action="delete_video"
                     type="button"
-                    class="btn btn-sm btn-danger remove-video"
+                    class="btn remove-video"
                     data-id="<?php echo esc_attr($user_id); ?>"
-                    style="position:absolute; top:10px; right:10px;">
-                    <i class="bi bi-x-lg"></i>
+                    style="position:absolute; top:15px; right:15px;">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
 
         <?php else : ?>
             <!-- Default upload form -->
-            <div class="cosy-message"></div>
             <form id="video-upload-form-<?php echo esc_attr($user_id); ?>"
                 class="cosy_form_video video-upload-form"
                 data-action="cosy_provider_video"
@@ -91,36 +154,24 @@
 
                 <div class="cosy-message"></div>
 
-                <!-- DROPZONE -->
                 <div id="video-dropzone-<?php echo esc_attr($user_id); ?>"
-                    class="video-dropzone border border-2 border-danger rounded
-                            d-flex align-items-center justify-content-center
-                            flex-column p-5"
-                    style="cursor:pointer; min-height:200px; background:#fffaf9;">
-                    <i class="bi bi-cloud-arrow-up text-danger" style="font-size:48px;"></i>
-                    <span class="mt-2 text-danger fw-bold">Click to upload video</span>
+                    class="video-dropzone d-flex align-items-center justify-content-center flex-column p-5"
+                    style="cursor:pointer; min-height:220px;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
+                    <span class="mt-3 fw-bold">Click to upload your intro video</span>
+                    <p class="text-muted small mt-1">Recommended: MP4 format (Max 20MB)</p>
                 </div>
 
-                <!-- FILE INPUT -->
-                <input type="file"
-                    id="video-upload-<?php echo esc_attr($user_id); ?>"
-                    class="video-upload"
-                    name="video_upload"
-                    accept="video/*"
-                    hidden>
+                <input type="file" id="video-upload-<?php echo esc_attr($user_id); ?>" class="video-upload" name="video_upload" accept="video/*" hidden>
 
-                <!-- Preview -->
-                <div id="video-upload-preview-<?php echo esc_attr($user_id); ?>"
-                    class="video-upload-preview mt-3"
-                    style="display:none; position:relative;">
-                    <video controls width="100%" class="rounded shadow-sm">
+                <div id="video-upload-preview-<?php echo esc_attr($user_id); ?>" class="video-upload-preview mt-4" style="display:none; position:relative;">
+                    <video controls width="100%">
                         <source src="" type="video/mp4">
                     </video>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="text-center mt-3">
-                    <button type="submit" class="btn btn-primary">Save Video</button>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary custom-btn">Save Video</button>
                 </div>
             </form>
         <?php endif; ?>

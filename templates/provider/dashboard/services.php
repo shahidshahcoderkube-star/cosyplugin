@@ -116,8 +116,13 @@
 
 <div class="card cosy-services-card mb-4">
     <div class="card-body p-0">
-        <h3><i class="bi bi-tools" style="color: #a44390;"></i> My Services</h3>
-        <p class="text-muted mb-4">Manage your offerings, pricing, and session durations below.</p>
+        <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="header-icon-badge" style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-tools" style="color: #a44390; font-size: 1.2rem;"></i>
+            </div>
+            <h3 class="mb-0" style="margin-bottom: 0 !important;">My Services</h3>
+        </div>
+        <p class="text-muted mb-4" style="margin-left: 58px;">Manage your offerings, pricing, and session durations below.</p>
 
         <!-- Service Checkbox List -->
         <?php
