@@ -360,10 +360,10 @@ var CosyApp = (function ($) {
             <td><input type="number" class="form-control" name="service_price[${serviceId}]" value="${item?.price ?? ''}" required></td>
             <td>
                 <button type="button" class="btn btn-success btn-sm update-service" data-service-id="${serviceId}">
-                    <i class="bi bi-check-circle"></i>
+                    <i class="fas fa-check"></i>
                 </button>
                 <button type="button" class="btn btn-danger btn-sm remove-service" data-service-id="${serviceId}" data-slug="${slug}">
-                    <i class="bi bi-x-circle"></i>
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             </td>
         </tr> `;
