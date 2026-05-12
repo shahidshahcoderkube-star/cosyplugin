@@ -193,66 +193,98 @@ $provider_data = $common->get_provider_with_services($author_slug);
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm sticky-top" style="border-radius: 24px; top: 20px; overflow: hidden;">
-                <!-- Calendar Header -->
-                <div class="p-4 pb-0">
-                    <div class="d-flex align-items-center gap-3 mb-4 pb-2 border-bottom" style="border-color: #f1f5f9 !important;">
-                        <div style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-calendar-alt" style="color: #a44390;"></i>
+        </div>        <div class="col-lg-5">
+            <div class="sticky-top" style="top: 20px;">
+                <!-- Calendar Card -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 24px; overflow: hidden;">
+                    <div class="p-4 pb-0">
+                        <div class="d-flex align-items-center gap-3 mb-4 pb-2 border-bottom" style="border-color: #f1f5f9 !important;">
+                            <div style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-calendar-alt" style="color: #a44390;"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Select Date</h5>
                         </div>
-                        <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Select Date</h5>
+
+                        <!-- Month Navigation -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div style="width:32px; height:32px; flex-shrink:0;">
+                                <button onclick="changeMonth(-1)" style="width:32px; height:32px; padding:0; margin:0; border-radius:50%; background:#fff; border:1.5px solid #e2e8f0; color:#a44390; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:all 0.2s; box-sizing:border-box;" onmouseover="this.style.background='#a44390';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#a44390';">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                            </div>
+                            <span class="fw-bold" id="currentMonthYear" style="color:#1e293b; font-size:0.95rem;"></span>
+                            <div style="width:32px; height:32px; flex-shrink:0;">
+                                <button onclick="changeMonth(1)" style="width:32px; height:32px; padding:0; margin:0; border-radius:50%; background:#fff; border:1.5px solid #e2e8f0; color:#a44390; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:all 0.2s; box-sizing:border-box;" onmouseover="this.style.background='#a44390';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#a44390';">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Day Labels -->
+                        <div id="calendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 8px;">
+                            <?php foreach(['Mo','Tu','We','Th','Fr','Sa','Su'] as $d): ?>
+                                <div style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; padding: 6px 0;"><?php echo $d; ?></div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div id="calendarDays" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 16px;"></div>
                     </div>
 
-                    <!-- Month Navigation -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <div style="width:32px; height:32px; flex-shrink:0;">
-                            <button onclick="changeMonth(-1)" style="width:32px; height:32px; padding:0; margin:0; border-radius:50%; background:#fff; border:1.5px solid #e2e8f0; color:#a44390; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:all 0.2s; box-sizing:border-box;" onmouseover="this.style.background='#a44390';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#a44390';">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                        </div>
-                        <span class="fw-bold" id="currentMonthYear" style="color:#1e293b; font-size:0.95rem;"></span>
-                        <div style="width:32px; height:32px; flex-shrink:0;">
-                            <button onclick="changeMonth(1)" style="width:32px; height:32px; padding:0; margin:0; border-radius:50%; background:#fff; border:1.5px solid #e2e8f0; color:#a44390; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:all 0.2s; box-sizing:border-box;" onmouseover="this.style.background='#a44390';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#a44390';">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
+                    <div class="p-4 pt-2">
+                        <div class="d-flex gap-3 justify-content-center mb-0 small">
+                            <span style="display: flex; align-items: center; gap: 6px;">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #a44390; display: inline-block;"></span> Selected
+                            </span>
+                            <span style="display: flex; align-items: center; gap: 6px;">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #e9d5e9; display: inline-block;"></span> Available
+                            </span>
+                            <span style="display: flex; align-items: center; gap: 6px;">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; display: inline-block;"></span> Unavailable
+                            </span>
                         </div>
                     </div>
-
-                    <!-- Day Labels -->
-                    <div id="calendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 8px;">
-                        <?php foreach(['Mo','Tu','We','Th','Fr','Sa','Su'] as $d): ?>
-                            <div style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; padding: 6px 0;"><?php echo $d; ?></div>
-                        <?php endforeach; ?>
-                    </div>
-                    <!-- Calendar Days (filled by JS) -->
-                    <div id="calendarDays" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 16px;"></div>
                 </div>
 
-                <!-- Legend + Book Button -->
-                <div class="p-4 pt-2">
-                    <div class="d-flex gap-3 justify-content-center mb-4 small">
-                        <span style="display: flex; align-items: center; gap: 6px;">
-                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #a44390; display: inline-block;"></span> Selected
-                        </span>
-                        <span style="display: flex; align-items: center; gap: 6px;">
-                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #e9d5e9; display: inline-block;"></span> Available
-                        </span>
-                        <span style="display: flex; align-items: center; gap: 6px;">
-                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; display: inline-block;"></span> Unavailable
-                        </span>
-                    </div>
+                <!-- Weekly Call Schedule Card -->
+                <div id="bookingTimeSlots" class="card border-0 shadow-sm" style="display: none; border-radius: 24px; overflow: hidden; background: #fff;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-4 pb-2 border-bottom" style="border-color: #f1f5f9 !important;">
+                            <div style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="color: #a44390;"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Call Schedule</h5>
+                        </div>
 
-                    <button class="btn w-100 py-3 fw-bold text-white btn-premium-pulse" 
-                        style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 14px; border: none; font-size: 1rem; letter-spacing: 0.3px; box-shadow: 0 8px 25px rgba(164,67,144,0.3); transition: all 0.4s ease;"
-                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(164,67,144,0.4)';"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(164,67,144,0.3)';">
-                        <i class="fas fa-calendar-check me-2"></i> Proceed to Book
-                    </button>
+                        <div class="d-flex align-items-center gap-2 mb-3 p-2 bg-light rounded-3 border" style="border-color: #edf2f7 !important;">
+                            <input type="checkbox" id="bookingForAnother" style="width: 18px; height: 18px; cursor: pointer; accent-color: #a44390;">
+                            <label for="bookingForAnother" class="small text-muted fw-bold mb-0 cursor-pointer" style="font-size: 0.75rem;">Booking for another person</label>
+                        </div>
+
+                        <div class="p-2 px-3 fw-bold text-dark mb-3 d-flex align-items-center justify-content-between" style="background: #fdf2fb; border: 1px solid #f9e6f5; border-radius: 10px; font-size: 0.8rem;">
+                            <span><i class="fas fa-calendar-day me-2 text-muted"></i> Start Date:</span>
+                            <span id="displaySelectedDate" class="text-primary">May 13, 2026</span>
+                        </div>
+
+                        <div id="timeSlotsList" class="d-flex flex-column gap-2 mb-4">
+                            <!-- Rows will be populated by JS -->
+                        </div>
+
+                        <!-- Booking Summary Footer -->
+                        <div class="mt-4 p-3 rounded-4" style="background: #f8fafc; border: 1.5px dashed #a44390;">
+                            <div class="text-center mb-3">
+                                <h6 class="fw-bold mb-1" style="color: #a44390; font-size: 0.9rem;">Booking Summary</h6>
+                                <p class="small text-muted mb-0" id="finalBookingSummary" style="font-size: 0.75rem;">Select time slots to continue.</p>
+                            </div>
+                            <button class="btn btn-lg w-100 py-3 fw-bold text-white shadow-sm" 
+                                    style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 14px; border: none; font-size: 1rem; opacity: 0.6;"
+                                    id="finalProceedBtn" disabled>
+                                Book Now
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -286,7 +318,6 @@ function renderCalendar() {
     document.getElementById('currentMonthYear').textContent = monthNames[month] + ' ' + year;
 
     const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
-    // Convert Sunday-based to Monday-based offset
     const offset = (firstDay === 0) ? 6 : firstDay - 1;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
@@ -294,7 +325,6 @@ function renderCalendar() {
     const container = document.getElementById('calendarDays');
     container.innerHTML = '';
 
-    // Empty cells for offset
     for (let i = 0; i < offset; i++) {
         container.innerHTML += `<div></div>`;
     }
@@ -309,33 +339,85 @@ function renderCalendar() {
         let color = '#1e293b';
         let border = '1px solid transparent';
         let cursor = 'pointer';
-        let fontWeight = '500';
+        let fontWeight = '600';
+        let opacity = '1';
 
         if (isPast) {
-            bg = 'transparent'; color = '#cbd5e1'; cursor = 'not-allowed';
+            bg = 'transparent'; color = '#cbd5e1'; cursor = 'not-allowed'; opacity = '0.5';
         } else if (isSelected) {
-            bg = '#a44390'; color = '#fff'; border = '1px solid #a44390'; fontWeight = '700';
+            bg = '#fff'; color = '#a44390'; border = '1.5px solid #a44390'; fontWeight = '700';
         } else if (isToday) {
-            bg = '#fdf2fb'; color = '#a44390'; border = '1px solid #a44390'; fontWeight = '700';
+            bg = '#fdf2fb'; color = '#a44390'; border = '1.5px solid #a44390'; fontWeight = '700';
         }
 
         container.innerHTML += `
             <div onclick="${isPast ? '' : 'selectDay(this, ' + d + ')'}" 
                  data-day="${d}" data-month="${month}" data-year="${year}"
                  style="aspect-ratio:1; display:flex; align-items:center; justify-content:center;
-                        font-size:0.85rem; font-weight:${fontWeight}; border-radius:10px;
-                        background:${bg}; color:${color}; border:${border};
-                        cursor:${cursor}; transition:all 0.2s;">
+                        font-size:0.85rem; font-weight:${fontWeight}; border-radius:12px;
+                        background:${bg}; color:${color}; border:${border}; opacity:${opacity};
+                        cursor:${cursor}; transition:all 0.2s; box-shadow: ${bg !== 'transparent' && !isSelected ? '0 2px 4px rgba(0,0,0,0.02)' : 'none'};">
                 ${d}
             </div>`;
     }
 }
+
+let selectedTimeSlotsByDay = {};
 
 function selectDay(el, day) {
     const year = parseInt(el.dataset.year);
     const month = parseInt(el.dataset.month);
     selectedDate = new Date(year, month, day);
     renderCalendar();
+
+    const bookingSection = document.getElementById('bookingTimeSlots');
+    const displayDate = document.getElementById('displaySelectedDate');
+    const slotsList = document.getElementById('timeSlotsList');
+    
+    if (bookingSection) {
+        bookingSection.style.display = 'block';
+        
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        displayDate.textContent = selectedDate.toLocaleDateString('en-US', options);
+        
+        slotsList.innerHTML = '';
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        
+        let addedCount = 0;
+        let dayOffset = 0;
+        
+        while (addedCount < 6 && dayOffset < 14) {
+            const nextDate = new Date(selectedDate);
+            nextDate.setDate(selectedDate.getDate() + dayOffset);
+            const dayIndex = nextDate.getDay();
+            const dayName = dayNames[dayIndex];
+            const dateStr = nextDate.toDateString();
+            
+            dayOffset++;
+            if (dayIndex === 0) continue;
+            addedCount++;
+            
+            const duration = selectedTimeSlotsByDay[dateStr] ? selectedTimeSlotsByDay[dateStr].length * 15 : 0;
+            
+            slotsList.innerHTML += `
+                <div class="time-slot-row d-flex justify-content-between align-items-center p-3" 
+                     style="background: #ffffff; border-radius: 16px; border: 1.5px solid #f1f5f9; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;"
+                     data-date="${dateStr}"
+                     onmouseover="this.style.borderColor='#a44390'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(164,67,144,0.1)';"
+                     onmouseout="this.style.borderColor='#f1f5f9'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <div class="d-flex flex-column gap-1">
+                        <span class="fw-bold text-dark" style="font-size: 0.9rem; letter-spacing: -0.3px;">${dayName}</span>
+                        <span class="duration-text text-muted" style="font-size: 0.7rem; font-weight: 500;">${duration} minutes Call Duration</span>
+                    </div>
+                    <button class="btn btn-sm text-white px-3 fw-bold select-time-btn" 
+                            onclick="openTimeSlotModal('${dateStr}', this)"
+                            style="background: #3498db; border-radius: 10px; font-size: 0.75rem; padding: 10px 15px; border: none; transition: all 0.2s ease;">
+                        Select Time
+                    </button>
+                </div>
+            `;
+        }
+    }
 }
 
 function changeMonth(dir) {
@@ -344,6 +426,109 @@ function changeMonth(dir) {
 }
 
 document.addEventListener('DOMContentLoaded', renderCalendar);
+
+// ===== Booking Logic =====
+let currentModalDate = '';
+
+function openTimeSlotModal(dateStr, btn) {
+    currentModalDate = dateStr;
+    const modal = new bootstrap.Modal(document.getElementById('timeSlotModal'));
+    const grid = document.getElementById('timeGrid');
+    grid.innerHTML = '';
+    
+    // 9:00 AM to 9:00 PM (15 min blocks)
+    for (let hour = 9; hour < 21; hour++) {
+        for (let min = 0; min < 60; min += 15) {
+            const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+            const isSelected = selectedTimeSlotsByDay[dateStr] && selectedTimeSlotsByDay[dateStr].includes(timeStr);
+            
+            grid.innerHTML += `
+                <div class="time-block p-2 text-center small fw-bold cursor-pointer" 
+                     onclick="toggleTimeSlot('${timeStr}', this)"
+                     style="border-radius: 8px; border: 1px solid #edf2f7; background: ${isSelected ? '#3498db' : '#fff'}; color: ${isSelected ? '#fff' : '#475569'}; transition: all 0.2s;"
+                     data-time="${timeStr}">
+                    ${timeStr}
+                </div>
+            `;
+        }
+    }
+    
+    updateModalDuration();
+    modal.show();
+}
+
+function toggleTimeSlot(time, el) {
+    if (!selectedTimeSlotsByDay[currentModalDate]) {
+        selectedTimeSlotsByDay[currentModalDate] = [];
+    }
+    
+    const index = selectedTimeSlotsByDay[currentModalDate].indexOf(time);
+    if (index > -1) {
+        selectedTimeSlotsByDay[currentModalDate].splice(index, 1);
+        el.style.background = '#fff';
+        el.style.color = '#475569';
+    } else {
+        selectedTimeSlotsByDay[currentModalDate].push(time);
+        el.style.background = '#3498db';
+        el.style.color = '#fff';
+    }
+    updateModalDuration();
+}
+
+function updateModalDuration() {
+    const count = selectedTimeSlotsByDay[currentModalDate] ? selectedTimeSlotsByDay[currentModalDate].length : 0;
+    document.getElementById('modalTotalDuration').textContent = `${count * 15} minutes`;
+}
+
+function confirmTimeSlots() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('timeSlotModal'));
+    modal.hide();
+    
+    const rows = document.querySelectorAll('.time-slot-row');
+    rows.forEach(row => {
+        if (row.dataset.date === currentModalDate) {
+            const duration = selectedTimeSlotsByDay[currentModalDate].length * 15;
+            row.querySelector('.duration-text').textContent = `${duration} minutes Call Duration`;
+            
+            const btn = row.querySelector('.select-time-btn');
+            if (duration > 0) {
+                btn.style.background = '#2ecc71';
+                btn.innerHTML = '<i class="fas fa-check me-1"></i> Selected';
+            } else {
+                btn.style.background = '#3498db';
+                btn.textContent = 'Select Time';
+            }
+        }
+    });
+    updateBookingSummary();
+}
+
+function updateBookingSummary() {
+    let totalMinutes = 0;
+    let daysCount = 0;
+    
+    for (const date in selectedTimeSlotsByDay) {
+        if (selectedTimeSlotsByDay[date].length > 0) {
+            totalMinutes += selectedTimeSlotsByDay[date].length * 15;
+            daysCount++;
+        }
+    }
+    
+    const summaryLabel = document.getElementById('finalBookingSummary');
+    const proceedBtn = document.getElementById('finalProceedBtn');
+    
+    if (totalMinutes > 0) {
+        summaryLabel.innerHTML = `<span style="color: #1e293b;">Total:</span> <strong style="color: #a44390;">${totalMinutes} minutes</strong> over <strong style="color: #1e293b;">${daysCount} day(s)</strong>`;
+        proceedBtn.disabled = false;
+        proceedBtn.style.opacity = '1';
+        proceedBtn.classList.add('btn-premium-pulse');
+    } else {
+        summaryLabel.textContent = 'Select time slots to continue.';
+        proceedBtn.disabled = true;
+        proceedBtn.style.opacity = '0.6';
+        proceedBtn.classList.remove('btn-premium-pulse');
+    }
+}
 
 // ===== Video Popup =====
 function openVideoPopup(url) {
@@ -401,5 +586,67 @@ document.addEventListener('DOMContentLoaded', () => {
     transform: scale(1.1);
 }
 </style>
+
+<style>
+.time-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+}
+.time-block:hover {
+    border-color: #3498db !important;
+    background: #f0f9ff !important;
+}
+</style>
+
+<!-- Time Slot Selection Modal -->
+<div class="modal fade" id="timeSlotModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-0 pb-0 justify-content-between align-items-center p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-clock" style="color: #a44390;"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #1e293b; letter-spacing: -0.5px;">Select Call Start Time</h5>
+                        <small class="text-muted fw-medium">Additional call blocks can be selected</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-flex gap-4 mb-4 small fw-medium justify-content-center">
+                    <span class="d-flex align-items-center gap-2">
+                        <span style="width: 12px; height: 12px; background: #2ecc71; border-radius: 3px;"></span> Available
+                    </span>
+                    <span class="d-flex align-items-center gap-2">
+                        <span style="width: 12px; height: 12px; background: #3498db; border-radius: 3px;"></span> Selected
+                    </span>
+                    <span class="d-flex align-items-center gap-2">
+                        <span style="width: 12px; height: 12px; background: #e2e8f0; border-radius: 3px;"></span> Booked
+                    </span>
+                </div>
+                
+                <div id="timeGrid" class="time-grid-container p-3 rounded-4" style="background: #f8fafc; border: 1px solid #edf2f7; max-height: 400px; overflow-y: auto;">
+                    <!-- Time blocks generated by JS -->
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-2">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="text-start">
+                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">Total Duration</small>
+                        <span id="modalTotalDuration" class="fw-bold" style="color: #a44390; font-size: 1.1rem;">0 minutes</span>
+                    </div>
+                    <button type="button" class="btn px-5 py-3 fw-bold text-white shadow-sm" 
+                            onclick="confirmTimeSlots()"
+                            style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 14px; border: none; min-width: 200px;">
+                        Confirm Selection
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php get_footer() ?>
