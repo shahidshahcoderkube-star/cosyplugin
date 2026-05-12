@@ -1,8 +1,37 @@
-<div class="container-fluid mt-4" id="cosy-dashboard-container">
+<style>
+/* Force Theme Containers to be Full Width */
+.ast-container, 
+.site-content, 
+#primary, 
+#main, 
+.ast-container-fluid {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#cosy-dashboard-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 !important;
+}
+/* Sidebar responsive height fix */
+@media (max-width: 767px) {
+    #cosy-sidebar {
+        min-height: auto !important;
+        height: auto !important;
+    }
+}
+</style>
+
+<div class="container-fluid mt-0 mt-md-4 px-0" id="cosy-dashboard-container">
     <?php wp_nonce_field('cosy_dashboard_nonce', 'cosy_dashboard_nonce_field'); ?>
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3 bg-gradient p-3 text-white"
+        <div class="col-12 col-md-3 bg-gradient p-3 text-white" id="cosy-sidebar"
             style="background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); min-height:100vh;">
             <h4 class="mb-4 text-center fw-bold">Provider Dashboard</h4>
             <div class="nav flex-column cc__dashboard nav-pills" id="cosyDashboardTabs" role="tablist" aria-orientation="vertical">
@@ -33,38 +62,34 @@
             </div>
         </div>
 
-        <!-- Content -->
-        <div class="col-md-9 p-4" style="background:#f9f9f9;">
+        <!-- Content Area -->
+        <div class="col-12 col-md-9 p-3 p-md-4" style="background:#f9f9f9;">
             <div class="tab-content" id="dashboardTabsContent">
                 <div class="tab-pane fade show active" id="profile" role="tabpanel">
-                    <?php include 'dashboard/profile-information.php';
-                    ?>
+                    <?php include 'dashboard/profile-information.php'; ?>
                 </div>
                 <div class="tab-pane fade" id="video" role="tabpanel">
-                    <?php include 'dashboard/media-upload.php';
-                    ?>
+                    <?php include 'dashboard/media-upload.php'; ?>
                 </div>
                 <div class="tab-pane fade" id="services" role="tabpanel">
                     <?php include 'dashboard/services.php'; ?>
                 </div>
                 <div class="tab-pane fade" id="availability" role="tabpanel">
-                    <?php include 'dashboard/availability.php';
-                    ?>
+                    <?php include 'dashboard/availability.php'; ?>
                 </div>
                 <div class="tab-pane fade" id="orders" role="tabpanel">
-                    <?php include 'dashboard/orders.php';  ?>
+                    <?php include 'dashboard/orders.php'; ?>
                 </div>
                 <div class="tab-pane fade" id="nonworking" role="tabpanel">
-                    <?php include 'dashboard/holidays.php';
-                    ?>
+                    <?php include 'dashboard/holidays.php'; ?>
                 </div>
                 <div class="tab-pane fade" id="reviews" role="tabpanel">
                     <?php include 'dashboard/customer-reviews.php'; ?>
                 </div>
                 <div class="tab-pane fade" id="invoices" role="tabpanel">
-                    <?php include 'dashboard/invoices.php';  ?>
+                    <?php include 'dashboard/invoices.php'; ?>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div>

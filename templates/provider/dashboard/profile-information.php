@@ -19,25 +19,125 @@ $profile_image = get_user_meta($user_id, 'profile_image', true);
 $age_group     = get_user_meta($user_id, 'age_group', true);
 ?>
 
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-        <h3 class="text-dark">👤 Profile Information</h3>
+<style>
+.cosy-profile-card {
+    background: #ffffff;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    padding: 30px;
+}
+
+.cosy-profile-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #1e293b;
+    margin-bottom: 35px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cosy-profile-card .form-label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+}
+
+.cosy-profile-card .form-control,
+.cosy-profile-card .form-select {
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    color: #334155;
+    background-color: #f8fafc !important;
+    transition: all 0.3s ease;
+    line-height: 1.5 !important;
+}
+
+.cosy-profile-card .form-select {
+    appearance: none !important;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 1rem center !important;
+    background-size: 1.1em !important;
+    padding-right: 45px !important;
+}
+
+.cosy-profile-card .form-control:focus,
+.cosy-profile-card .form-select:focus {
+    outline: none !important;
+    border-color: #a44390 !important;
+    background-color: #fff !important;
+    box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.15) !important;
+}
+
+.cosy-profile-card .custom-btn {
+    background: linear-gradient(135deg, #a44390 0%, #833573 100%) !important;
+    border: none !important;
+    border-radius: 14px !important;
+    padding: 14px 40px !important;
+    color: #fff !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2) !important;
+}
+
+.cosy-profile-card .custom-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(164, 67, 144, 0.3) !important;
+}
+
+.cosy-profile-card .circle {
+    width: 140px;
+    height: 140px;
+    border: 4px solid #f1f5f9;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.cosy-profile-card .p-image {
+    background: #a44390;
+    color: #fff;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 105px;
+    left: 95px;
+    cursor: pointer;
+    border: 3px solid #fff;
+}
+</style>
+
+<div class="card cosy-profile-card mb-4">
+    <div class="card-body p-0">
+        <h3>👤 Profile Information</h3>
         <form method="post" class="cosy-form-update" data-action="cosy_provider_information_update" enctype="multipart/form-data">
             <div class="cosy-message"></div>
             <div class="row">
                 <!-- Left Column -->
                 <div class="col-md-6">
-                    <div class="mb-5">
-                        <div class="circle">
-                            <?php if ($profile_image): ?>
-                                <img class="profile-pic" src="<?php echo esc_url($profile_image); ?>">
-                            <?php else: ?>
-                                <img class="profile-pic" src="https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg">
-                            <?php endif; ?>
-                        </div>
-                        <div class="p-image">
-                            <i class="bi bi-camera upload-button"></i>
-                            <input class="file-upload" id="upload-button" name="profile_image" type="file" accept="image/*" />
+                    <div class="mb-5 d-flex justify-content-center">
+                        <div class="position-relative" style="width: 140px;">
+                            <div class="circle mx-auto">
+                                <?php if ($profile_image): ?>
+                                    <img class="profile-pic" src="<?php echo esc_url($profile_image); ?>">
+                                <?php else: ?>
+                                    <img class="profile-pic" src="https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg">
+                                <?php endif; ?>
+                            </div>
+                            <div class="p-image position-absolute" style="bottom: 5px; right: 5px; transform: none; top: auto; left: auto;">
+                                <i class="bi bi-camera upload-button"></i>
+                                <input class="file-upload" id="upload-button" name="profile_image" type="file" accept="image/*" />
+                            </div>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -117,3 +217,23 @@ $age_group     = get_user_meta($user_id, 'age_group', true);
         </form>
     </div>
 </div>
+
+<script>
+jQuery(document).ready(function($) {
+    // Trigger file input when camera icon is clicked
+    $('.upload-button').on('click', function() {
+        $('.file-upload').click();
+    });
+
+    // Preview image after selection
+    $('.file-upload').on('change', function() {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.profile-pic').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+});
+</script>
