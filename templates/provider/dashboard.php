@@ -25,6 +25,69 @@
         height: auto !important;
     }
 }
+/* Premium Sidebar Styling */
+.cc__dashboard {
+    padding-top: 10px;
+}
+.cosy-tab {
+    border: none !important;
+    background: transparent !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    text-align: left !important;
+    padding: 14px 20px !important;
+    border-radius: 12px !important;
+    margin-bottom: 10px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+}
+.cosy-tab i {
+    font-size: 1.15rem;
+    width: 24px;
+    text-align: center;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+.cosy-tab:hover {
+    background: #a44390 !important;
+    color: #ffffff !important;
+    transform: translateX(8px);
+}
+.cosy-tab:hover i {
+    color: #ffffff !important;
+}
+.cosy-tab::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0%;
+    background: #a44390;
+    transition: all 0.3s ease;
+    border-radius: 0 4px 4px 0;
+}
+.cosy-tab:hover::before,
+.cosy-tab.active::before {
+    width: 4px;
+    height: 60%;
+}
+.cosy-tab.active {
+    background: linear-gradient(135deg, #a44390 0%, #833573 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 15px rgba(164, 67, 144, 0.2) !important;
+}
+.cosy-tab.active i {
+    color: #ffffff !important;
+}
 </style>
 
 <div class="container-fluid mt-0 mt-md-4 px-0" id="cosy-dashboard-container">
