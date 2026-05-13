@@ -51,11 +51,11 @@ trait GlobalCommonFunctions
 
         // Basic WP user fields
         $data = [
-            'ID'       => $user->ID,
+            'ID' => $user->ID,
             'username' => $user->user_login,
-            'email'    => $user->user_email,
-            'name'     => $user->display_name,
-            'role'     => implode(', ', $user->roles),
+            'email' => $user->user_email,
+            'name' => $user->display_name,
+            'role' => implode(', ', $user->roles),
             'user_registered' => $user->user_registered,
         ];
 
@@ -71,27 +71,23 @@ trait GlobalCommonFunctions
     }
 
 
-    //------ Utility: Get Checked Services -----//
+    //------ Utility: Get Selected/Checked Services for Provider (By Authorship) -----//
     public function get_checked_services(): array
     {
-        global $wpdb;
-
         $provider_id = get_current_user_id();
-
         if (!$provider_id) {
             return [];
         }
 
-        $table = $wpdb->prefix . 'provider_services';
+        // Get all cosy_service posts authored by this provider
+        $services = get_posts([
+            'post_type' => 'cosy_service',
+            'post_status' => 'publish',
+            'author' => $provider_id,
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+        ]);
 
-        $services = $wpdb->get_col(
-            $wpdb->prepare(
-                "SELECT service_id FROM $table WHERE provider_id = %d",
-                $provider_id
-            )
-        );
-
-        // Always return array
         return is_array($services) ? array_map('intval', $services) : [];
     }
 
@@ -101,24 +97,24 @@ trait GlobalCommonFunctions
     {
         // Fetch all cosy_service posts
         $services = get_posts([
-            'post_type'   => 'cosy_service',
+            'post_type' => 'cosy_service',
             'post_status' => 'publish',
             'numberposts' => -1,
-            'orderby'     => 'title',
-            'order'       => 'ASC',
+            'orderby' => 'title',
+            'order' => 'ASC',
         ]);
 
         $data = [];
 
         foreach ($services as $service) {
             $data[] = [
-                'ID'          => $service->ID,
-                'title'       => $service->post_title,
-                'post_name'       => $service->post_name,
+                'ID' => $service->ID,
+                'title' => $service->post_title,
+                'post_name' => $service->post_name,
                 'description' => $service->post_content,
-                'price'       => get_post_meta($service->ID, 'service_price', true),
-                'duration'    => get_post_meta($service->ID, 'service_duration', true),
-                'provider'    => get_userdata($service->post_author)->display_name ?? '',
+                'price' => get_post_meta($service->ID, 'service_price', true),
+                'duration' => get_post_meta($service->ID, 'service_duration', true),
+                'provider' => get_userdata($service->post_author)->display_name ?? '',
             ];
         }
 
@@ -128,41 +124,73 @@ trait GlobalCommonFunctions
     //------ Utility: Get All Service Providers -----//
     public function get_all_service_providers(): array
     {
-        $service_providers = get_users([
+        $category_slug = get_query_var('service_category');
+        $include_users = [];
+
+        if (!empty($category_slug)) {
+            // Find services matching the slug to get their authors (providers)
+            $matched_services = get_posts([
+                'post_type' => 'cosy_service',
+                'post_status' => 'publish',
+                'name' => $category_slug, // matches post_name
+                'posts_per_page' => -1,
+                'fields' => 'ids',
+            ]);
+
+            if (!empty($matched_services)) {
+                foreach ($matched_services as $service_id) {
+                    $post = get_post($service_id);
+                    $include_users[] = $post->post_author;
+                }
+            } else {
+                // If no services match this slug, return empty
+                return [];
+            }
+        }
+
+        $args = [
             'role' => 'provider',
             'number' => -1,
             'order' => 'DESC',
-        ]);
+        ];
+
+        if (!empty($include_users)) {
+            $args['include'] = array_unique($include_users);
+        } elseif (!empty($service_slug)) {
+            // Service was specified but no providers found
+            return [];
+        }
+
+        $service_providers = get_users($args);
 
         $data = [];
 
         foreach ($service_providers as $provider) {
             $user_id = $provider->ID;
             $data[] = [
-                'ID'       => $provider->ID,
+                'ID' => $provider->ID,
                 'username' => $provider->user_login,
-                'email'    => $provider->user_email,
-                'name'     => $provider->display_name,
-                'role'     => implode(', ', $provider->roles),
+                'email' => $provider->user_email,
+                'name' => $provider->display_name,
+                'role' => implode(', ', $provider->roles),
                 // Custom user meta
                 'prov_username' => get_user_meta($user_id, 'prov_username', true),
-                'first_name'    => get_user_meta($user_id, 'first_name', true),
-                'middle_name'   => get_user_meta($user_id, 'prov_mname', true),
-                'last_name'     => get_user_meta($user_id, 'last_name', true),
-                'prov_email'    => get_user_meta($user_id, 'prov_email', true),
-                'phone'         => get_user_meta($user_id, 'prov_phone', true),
-                'address'       => get_user_meta($user_id, 'prov_address', true),
-                'dob'           => get_user_meta($user_id, 'dob', true),
-                'postal_code'   => get_user_meta($user_id, 'postal_code', true),
-                'description'   => get_user_meta($user_id, 'description', true),
-                'gender'        => get_user_meta($user_id, 'gender', true),
+                'first_name' => get_user_meta($user_id, 'first_name', true),
+                'middle_name' => get_user_meta($user_id, 'prov_mname', true),
+                'last_name' => get_user_meta($user_id, 'last_name', true),
+                'prov_email' => get_user_meta($user_id, 'prov_email', true),
+                'phone' => get_user_meta($user_id, 'prov_phone', true),
+                'address' => get_user_meta($user_id, 'prov_address', true),
+                'dob' => get_user_meta($user_id, 'dob', true),
+                'postal_code' => get_user_meta($user_id, 'postal_code', true),
+                'description' => get_user_meta($user_id, 'description', true),
+                'gender' => get_user_meta($user_id, 'gender', true),
                 'profile_image' => get_user_meta($user_id, 'profile_image', true),
-                'age_group'     => get_user_meta($user_id, 'age_group', true),
+                'age_group' => get_user_meta($user_id, 'age_group', true),
                 'introduction_video' => get_user_meta($user_id, 'introduction_video', true),
-                'hourly_rate'   => get_user_meta($user_id, 'hourly_rate', true),
+                'hourly_rate' => get_user_meta($user_id, 'hourly_rate', true),
             ];
         }
-
 
         return $data;
     }
@@ -196,10 +224,10 @@ trait GlobalCommonFunctions
         if (!empty($service_ids)) {
             foreach ($service_ids as $sid) {
                 $services_data[] = [
-                    'ID'    => $sid,
+                    'ID' => $sid,
                     'title' => get_the_title($sid),
                     'price' => get_post_meta($sid, 'service_price', true),
-                    'time'  => get_post_meta($sid, 'service_duration', true),
+                    'time' => get_post_meta($sid, 'service_duration', true),
                 ];
             }
         }

@@ -106,6 +106,7 @@ require_once COSY_APPT_PATH . 'src/Frontend/Class_Provider_Dashboard.php';
 require_once COSY_APPT_PATH . 'src/Frontend/Class_Forms.php';
 require_once COSY_APPT_PATH . 'src/Rest/Routes.php';
 require_once COSY_APPT_PATH . 'src/Rest/Class_Service_Provider.php';
+require_once COSY_APPT_PATH . 'src/Frontend/Class_Header_Menu.php';
 require_once COSY_APPT_PATH . 'src/Plugin.php';
 
 //-------Create tables--------//
@@ -185,10 +186,20 @@ cosy_appt_start();
 //--------Rewrite rules--------//
 function cosyplugin_author_rewrite()
 {
+    // Rule for provider profile
+    // Rule for service-provider category filtering
     add_rewrite_rule(
-        '^author/([^/]*)/?',
-        'index.php?pagename=provider-profile&author_name=$matches[1]',
+        '^service-provider/([^/]*)/?',
+        'index.php?pagename=service-provider&service_category=$matches[1]',
         'top'
     );
 }
 add_action('init', 'cosyplugin_author_rewrite');
+
+// Register query variable
+function cosy_register_query_vars($vars)
+{
+    $vars[] = 'service_category';
+    return $vars;
+}
+add_filter('query_vars', 'cosy_register_query_vars');

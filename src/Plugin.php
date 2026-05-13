@@ -11,6 +11,7 @@ use Cosy\Appointments\Rest\Routes;
 use Cosy\Appointments\Assets\Assets;
 use Cosy\Appointments\Frontend\Dashboard;
 use Cosy\Appointments\Rest\ProviderServices;
+use Cosy\Appointments\Frontend\Class_Header_Menu;
 
 // use Cosy\Appointments\Common\GlobalCommonFunctions;
 
@@ -44,6 +45,9 @@ class Plugin
 
         //--------------- Register Provider Dashboard ----------------//
         (new Dashboard())->register($this->loader);
+
+        //--------------- Register Header Menu Dropdown ----------------//
+        (new Class_Header_Menu())->register($this->loader);
 
         //--------------- Register REST API Routes ----------------//
         (new Routes())->register($this->loader);
