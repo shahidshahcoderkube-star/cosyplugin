@@ -133,7 +133,6 @@ trait GlobalCommonFunctions
         $service_slug = end($url_segments);
 
         $include_users = [];
-
         if (!empty($service_slug)) {
             // Find service matching the slug to get its ID
             $matched_services = get_posts([
@@ -147,17 +146,19 @@ trait GlobalCommonFunctions
             if (!empty($matched_services)) {
                 $service_id = $matched_services[0];
 
-                // Find providers who selected this service
+                // Find providers who selected this service and their prices in ONE query
                 $table_name = $wpdb->prefix . 'provider_services';
-                $provider_ids = $wpdb->get_col(
+                $service_results = $wpdb->get_results(
                     $wpdb->prepare(
-                        "SELECT provider_id FROM $table_name WHERE service_id = %d AND checkbox_status = 'yes'",
+                        "SELECT provider_id, price FROM $table_name WHERE service_id = %d AND checkbox_status = 'yes'",
                         $service_id
-                    )
+                    ),
+                    OBJECT_K // Yeh result ko provider_id se index kar dega
                 );
 
-                if (!empty($provider_ids)) {
-                    $include_users = array_map('intval', $provider_ids);
+                if (!empty($service_results)) {
+                    $include_users = array_map('intval', array_keys($service_results));
+                    $provider_prices = $service_results; // Index-ready array
                 } else {
                     return []; // Service exists, but no provider selected it
                 }
@@ -167,18 +168,18 @@ trait GlobalCommonFunctions
         }
 
         $args = [
-            'role'   => 'provider',
+            'role' => 'provider',
             'number' => -1,
-            'order'  => 'DESC',
+            'order' => 'DESC',
             'meta_query' => [
                 'relation' => 'OR',
                 [
-                    'key'     => 'cosy_provider_status',
-                    'value'   => 'active',
+                    'key' => 'cosy_provider_status',
+                    'value' => 'active',
                     'compare' => '='
                 ],
                 [
-                    'key'     => 'cosy_provider_status',
+                    'key' => 'cosy_provider_status',
                     'compare' => 'NOT EXISTS'
                 ]
             ]
@@ -218,7 +219,7 @@ trait GlobalCommonFunctions
                 'profile_image' => get_user_meta($user_id, 'profile_image', true),
                 'age_group' => get_user_meta($user_id, 'age_group', true),
                 'introduction_video' => get_user_meta($user_id, 'introduction_video', true),
-                'hourly_rate' => get_user_meta($user_id, 'hourly_rate', true),
+                'price' => isset($provider_prices[$user_id]) ? $provider_prices[$user_id]->price : '0.00',
             ];
         }
 

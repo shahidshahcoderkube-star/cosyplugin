@@ -11,17 +11,18 @@ $providers = $this->get_all_service_providers();
         </div>
     <?php else: ?>
         <div class="cosy-premium-grid">
-            <?php foreach ($providers as $provider):
-                $profile_pic = !empty($provider['profile_image']) ? $provider['profile_image'] : 'https://i.pravatar.cc/300?u=' . $provider['ID'];
-                $video_url = !empty($provider['introduction_video']) ? $provider['introduction_video'] : 'https://www.youtube.com/embed/ScMzIvxBSi4';
-                $hourly_rate = !empty($provider['hourly_rate']) ? $provider['hourly_rate'] : '45';
-                ?>
+            <?php foreach ($providers as $provider): ?>
                 <div class="cosy-card-v2">
                     <div class="card-top-header">
                         <div class="header-inner-flex">
                             <div class="profile-avatar-wrapper">
-                                <img src="<?php echo esc_url($profile_pic); ?>"
-                                    alt="<?php echo esc_attr($provider['first_name']); ?>" class="avatar">
+                                <?php if (!empty($provider['profile_image'])): ?>
+                                    <img src="<?php echo esc_url($provider['profile_image']); ?>"
+                                        alt="<?php echo esc_attr($provider['first_name']); ?>" class="avatar">
+                                <?php else: ?>
+                                    <img src="<?php echo plugin_dir_url(__FILE__); ?>../images/profile.avif"
+                                        alt="<?php echo esc_attr($provider['first_name']); ?>" class="avatar">
+                                <?php endif; ?>
                             </div>
                             <div class="profile-details-top">
                                 <h3 class="provider-name">
@@ -41,22 +42,24 @@ $providers = $this->get_all_service_providers();
 
                     <div class="card-main-content">
                         <p class="description-text">
-                            <?php
-                            $description = !empty($provider['description']) ? $provider['description'] : 'Experience premium service with our expert professionals who are dedicated to providing the highest quality sessions tailored to your specific needs.';
-                            echo esc_html(wp_trim_words($description, 25));
-                            ?>
+                            <?php echo esc_html(wp_trim_words($provider['description'], 25)); ?>
                         </p>
 
-                        <div class="pricing-premium">
-                            <span class="currency">$</span><span
-                                class="amount"><?php echo esc_html($hourly_rate); ?></span><span class="per">/ hr</span>
-                        </div>
+                        <?php if (!empty($provider['price'])): ?>
+                            <div class="pricing-premium">
+                                <span class="currency">£</span>
+                                <span class="amount"><?php echo esc_html($provider['price']); ?></span><span class="per">/ hr</span>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="card-action-footer">
-                        <button class="btn-premium btn-intro-v2" onclick="openVideo('<?php echo esc_url($video_url); ?>')">
-                            <i class="fas fa-play-circle"></i> Intro
-                        </button>
+                        <?php if (!empty($provider['introduction_video'])): ?>
+                            <button class="btn-premium btn-intro-v2"
+                                onclick="openVideo('<?php echo esc_url($provider['introduction_video']); ?>')">
+                                <i class="fas fa-play-circle"></i> Intro
+                            </button>
+                        <?php endif; ?>
                         <a href="<?php echo get_author_posts_url($provider['ID']); ?>" class="btn-premium btn-profile-v2">
                             View Profile <i class="fas fa-arrow-right"></i>
                         </a>

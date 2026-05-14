@@ -7,7 +7,7 @@
  * Author: Shahid
  */
 
-if (! defined('ABSPATH')) {
+if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
@@ -21,7 +21,7 @@ function register_role()
 {
 
     // CUSTOMER role
-    if (! get_role('customer')) {
+    if (!get_role('customer')) {
         add_role(
             'customer',          // Role slug
             'Customer',          // Display name
@@ -32,7 +32,7 @@ function register_role()
     }
 
     // PROVIDER role
-    if (! get_role('provider')) {
+    if (!get_role('provider')) {
         add_role(
             'provider',          // Role slug
             'Provider',          // Display name
