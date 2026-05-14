@@ -134,9 +134,8 @@ class FormsData
 
         // Save meta (role_type + status)
         update_user_meta($user_id, 'role_type', 'provider');
-        update_user_meta($user_id, 'account_status', 'pending');
-
-        // ✅ Save all provider fields in one array
+        update_user_meta($user_id, 'account_status', 'pending'); // Email verification status
+        update_user_meta($user_id, 'cosy_provider_status', 'deactive'); // Admin verification status
         $provider_meta = [
             'prov_username' => sanitize_text_field($_POST['prov_username']),
             'prov_mname'    => sanitize_text_field($_POST['prov_mname']),

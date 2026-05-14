@@ -127,7 +127,8 @@ trait GlobalCommonFunctions
         global $wpdb;
 
         // Get service slug from URL (e.g. "kids" from /service-provider/kids/)
-        $current_url = trim($_SERVER['REQUEST_URI'], '/');
+        $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $current_url = trim($uri_path, '/');
         $url_segments = explode('/', $current_url);
         $service_slug = end($url_segments);
 
@@ -166,9 +167,21 @@ trait GlobalCommonFunctions
         }
 
         $args = [
-            'role' => 'provider',
+            'role'   => 'provider',
             'number' => -1,
-            'order' => 'DESC',
+            'order'  => 'DESC',
+            'meta_query' => [
+                'relation' => 'OR',
+                [
+                    'key'     => 'cosy_provider_status',
+                    'value'   => 'active',
+                    'compare' => '='
+                ],
+                [
+                    'key'     => 'cosy_provider_status',
+                    'compare' => 'NOT EXISTS'
+                ]
+            ]
         ];
 
         if (!empty($include_users)) {

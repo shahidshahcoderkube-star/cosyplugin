@@ -27,6 +27,7 @@ class Plugin
 
         //--------------- Register Admin Components ----------------//
         (new Admin())->register($this->loader);
+        (new \Cosy\Appointments\Admin\Class_Provider_Verification())->register($this->loader);
 
         //--------------- Register Backend AJAX Handlers ----------------//
         (new Backend_Actions_Handler());

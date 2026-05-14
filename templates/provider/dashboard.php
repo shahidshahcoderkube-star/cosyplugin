@@ -132,6 +132,21 @@
 
         <!-- Content Area -->
         <div class="col-12 col-md-9 p-3 p-md-4" style="background:#f9f9f9;">
+            <?php 
+            $user_id = get_current_user_id();
+            $provider_status = get_user_meta($user_id, 'cosy_provider_status', true);
+            if ($provider_status === 'deactive'): 
+            ?>
+                <div class="alert d-flex align-items-center mb-4 border-0 shadow-sm" style="background: #fff8e1; border-radius: 16px; color: #b78103;" role="alert">
+                    <div style="width: 40px; height: 40px; background: rgba(255, 193, 7, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 1.1rem; color: #d39e00;"></i>
+                    </div>
+                    <div>
+                        <strong style="font-family: 'Poppins', sans-serif;">Account Under Review:</strong> <span style="font-size: 0.95rem;">Your profile is currently under review by the administrator. Once approved, it will be visible to parents.</span>
+                    </div>
+                </div>
+            <?php endif; ?>
+            
             <div class="tab-content" id="dashboardTabsContent">
                 <div class="tab-pane fade show active" id="profile" role="tabpanel">
                     <?php include 'dashboard/profile-information.php'; ?>
