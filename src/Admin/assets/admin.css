@@ -1,3 +1,10 @@
 .widefat a {
     color: #2271b1 !important;
 }
+
+.cosy-verify-dropdown {
+    border-radius: 4px; 
+    padding: 4px 24px 4px 8px; 
+    min-width: 100px;
+    cursor: pointer;
+}

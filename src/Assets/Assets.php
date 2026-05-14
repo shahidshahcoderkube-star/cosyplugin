@@ -23,6 +23,7 @@ class Assets
             'cc-booking_page_cosy-orders',
             'cc-booking_page_cosy-settings',
             'cc-booking_page_cosy-media-approve',
+            'users.php', // Required for the verification dropdown
         ];
 
 

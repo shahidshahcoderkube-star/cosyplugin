@@ -155,7 +155,10 @@
 }
 
 .btn-premium {
-    flex: 1;
+    flex: 1 1 0% !important;
+    /* Forces equal width in flex container */
+    width: 0;
+    /* Ensures flex-basis takes precedence */
     height: 50px;
     border-radius: 15px;
     font-size: 0.85rem;
@@ -166,34 +169,49 @@
     gap: 8px;
     text-decoration: none;
     transition: all 0.3s ease;
+    white-space: nowrap;
+    /* Prevents text wrapping */
 }
 
 .btn-intro-v2 {
-    background: #f8fafc;
-    color: var(--cosy-primary);
-    border: 1.2px solid rgba(155, 69, 147, 0.15);
+    background: #ffffff;
+    color: var(--cosy-primary) !important;
+    border: 1.5px solid var(--cosy-primary) !important;
+    outline: none !important;
 }
 
 .btn-intro-v2:hover {
-    background: rgba(155, 69, 147, 0.05);
+    background: var(--cosy-primary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 20px rgba(155, 69, 147, 0.2);
+    transform: translateY(-3px);
 }
 
 .btn-profile-v2 {
-    background: var(--cosy-gradient);
-    color: #ffffff;
+    background: #ffffff !important;
+    color: var(--cosy-primary) !important;
+    border: 1.5px solid var(--cosy-primary) !important;
+    outline: none !important;
 }
 
 .btn-profile-v2:hover {
-    box-shadow: 0 10px 20px rgba(155, 69, 147, 0.3);
-    color: #ffffff;
+    background: var(--cosy-secondary) !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(131, 53, 115, 0.4);
+    transform: translateY(-3px);
 }
 
 @media (max-width: 1200px) {
-    .cosy-premium-grid { grid-template-columns: repeat(2, 1fr); }
+    .cosy-premium-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
-    .cosy-premium-grid { grid-template-columns: 1fr; }
+    .cosy-premium-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Modal Styling */

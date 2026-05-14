@@ -1,7 +1,5 @@
 <?php
 $providers = $this->get_all_service_providers();
-
-
 ?>
 <div class="cosy-premium-grid-container mb-5 mt-5">
     <?php if (empty($providers)): ?>

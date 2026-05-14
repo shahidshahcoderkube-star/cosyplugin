@@ -642,50 +642,7 @@ $provider_data = $common->get_provider_with_services($author_slug);
     });
 </script>
 
-<style>
-    .btn-video-overlay:hover {
-        background: #a44390 !important;
-        color: #fff !important;
-        transform: scale(1.1);
-    }
-</style>
 
-<style>
-    .time-grid-container {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-    }
-
-    .time-block {
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-radius: 10px !important;
-        background: #fff;
-        border: 1.5px solid #edf2f7;
-        color: #475569;
-        font-weight: 600;
-    }
-
-    .time-block:hover {
-        border-color: #a44390 !important;
-        background: #fdf2fb !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(164, 67, 144, 0.1);
-    }
-
-    .time-block.selected {
-        background: #a44390 !important;
-        color: #fff !important;
-        border-color: #a44390 !important;
-    }
-
-    @media (max-width: 576px) {
-        .time-grid-container {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-</style>
 
 <!-- Time Slot Selection Modal -->
 <div class="modal fade" id="timeSlotModal" tabindex="-1" aria-hidden="true">

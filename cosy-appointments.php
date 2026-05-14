@@ -99,6 +99,7 @@ require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Backend.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/SettingsAdmin.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/OrdersAdmin.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/DashboardAdmin.php';
+require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Provider_Verification.php';
 require_once COSY_APPT_PATH . 'src/PostTypes/ServiceCPT.php';
 require_once COSY_APPT_PATH . 'src/Assets/Assets.php';
 require_once COSY_APPT_PATH . 'src/Frontend/Class_Frontend.php';

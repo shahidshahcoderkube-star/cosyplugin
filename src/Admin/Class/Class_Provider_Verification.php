@@ -47,7 +47,7 @@ class Class_Provider_Verification
             'active'   => 'Activate'
         ];
 
-        $html = sprintf('<select class="cosy-verify-dropdown" data-user-id="%d" style="border-radius: 4px; padding: 4px 24px 4px 8px; min-width: 100px;">', esc_attr($user_id));
+        $html = sprintf('<select class="cosy-verify-dropdown" data-user-id="%d">', esc_attr($user_id));
         foreach ($options as $val_opt => $label) {
             $selected = selected($status, $val_opt, false);
             $html .= sprintf('<option value="%s" %s>%s</option>', esc_attr($val_opt), $selected, esc_html($label));
