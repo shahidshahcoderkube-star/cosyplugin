@@ -5,9 +5,7 @@ $common = new class {
     use \Cosy\Appointments\Common\GlobalCommonFunctions;
 };
 $provider_data = $common->get_provider_with_services($author_slug);
-// echo '<pre>';
-// print_r($provider_data);
-// echo '</pre>';
+
 ?>
 <div class="container py-5">
     <div class="row g-4">

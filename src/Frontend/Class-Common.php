@@ -124,27 +124,44 @@ trait GlobalCommonFunctions
     //------ Utility: Get All Service Providers -----//
     public function get_all_service_providers(): array
     {
-        $category_slug = get_query_var('service_category');
+        global $wpdb;
+
+        // Get service slug from URL (e.g. "kids" from /service-provider/kids/)
+        $current_url = trim($_SERVER['REQUEST_URI'], '/');
+        $url_segments = explode('/', $current_url);
+        $service_slug = end($url_segments);
+
         $include_users = [];
 
-        if (!empty($category_slug)) {
-            // Find services matching the slug to get their authors (providers)
+        if (!empty($service_slug)) {
+            // Find service matching the slug to get its ID
             $matched_services = get_posts([
                 'post_type' => 'cosy_service',
                 'post_status' => 'publish',
-                'name' => $category_slug, // matches post_name
-                'posts_per_page' => -1,
+                'name' => $service_slug,
+                'posts_per_page' => 1,
                 'fields' => 'ids',
             ]);
 
             if (!empty($matched_services)) {
-                foreach ($matched_services as $service_id) {
-                    $post = get_post($service_id);
-                    $include_users[] = $post->post_author;
+                $service_id = $matched_services[0];
+
+                // Find providers who selected this service
+                $table_name = $wpdb->prefix . 'provider_services';
+                $provider_ids = $wpdb->get_col(
+                    $wpdb->prepare(
+                        "SELECT provider_id FROM $table_name WHERE service_id = %d AND checkbox_status = 'yes'",
+                        $service_id
+                    )
+                );
+
+                if (!empty($provider_ids)) {
+                    $include_users = array_map('intval', $provider_ids);
+                } else {
+                    return []; // Service exists, but no provider selected it
                 }
             } else {
-                // If no services match this slug, return empty
-                return [];
+                return []; // Service not found
             }
         }
 

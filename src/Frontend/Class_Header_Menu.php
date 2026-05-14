@@ -35,13 +35,6 @@ class Class_Header_Menu
 
         ob_start();
         ?>
-        <!-- Separate Service Provider Link (Simple Link) -->
-        <li class="menu-item cosy-header-simple-link">
-            <a href="<?php echo home_url('/service-provider/'); ?>">
-                Service Provider
-            </a>
-        </li>
-
         <!-- Services Dropdown (Premium Button) -->
         <li class="menu-item menu-item-has-children cosy-header-dropdown-wrapper">
             <a href="#" class="cosy-dropdown-toggle">
@@ -97,21 +90,23 @@ class Class_Header_Menu
                 display: inline-flex !important;
                 align-items: center !important;
                 gap: 8px !important;
-                padding: 8px 24px !important;
-                border: 1.5px solid #a44390 !important;
+                padding: 10px 24px !important;
+                background: #a44390 !important;
+                color: #ffffff !important;
+                border: none !important;
                 border-radius: 50px !important;
-                color: #a44390 !important;
                 font-weight: 600 !important;
                 font-family: 'Poppins', sans-serif !important;
                 text-decoration: none !important;
                 transition: all 0.3s ease !important;
-                background: transparent !important;
                 font-size: 0.95rem !important;
             }
 
             .cosy-dropdown-toggle:hover {
-                background: rgba(164, 67, 144, 0.05) !important;
-                box-shadow: 0 4px 12px rgba(164, 67, 144, 0.15) !important;
+                background: #8e367c !important;
+                /* Slightly darker purple */
+                color: #ffffff !important;
+                box-shadow: 0 4px 12px rgba(164, 67, 144, 0.3) !important;
             }
 
             .cosy-arrow {
@@ -151,6 +146,10 @@ class Class_Header_Menu
             .cosy-custom-submenu li {
                 margin: 0 !important;
                 padding: 0 !important;
+            }
+
+            .menu-top-menu-container ul {
+                margin: 0;
             }
 
             .cosy-custom-submenu li a {
