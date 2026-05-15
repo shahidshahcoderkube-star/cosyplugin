@@ -367,7 +367,7 @@ $provider_data = $common->get_provider_with_services($author_slug);
                                 <div class="p-2 mb-3 rounded-4"
                                     style="background: #fdf2fb; border: 1px dashed #a44390;">
                                     <span class="text-muted d-block mb-1 fw-bold"
-                                        style="font-size: 0.65rem; text-uppercase; letter-spacing: 0.5px;">Total Service
+                                        style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Total Service
                                         Amount</span>
                                     <h4 class="fw-bold mb-0" id="finalTotalAmountText" style="color: #a44390;">£ 0.00
                                     </h4>

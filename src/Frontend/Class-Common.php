@@ -154,7 +154,7 @@ trait GlobalCommonFunctions
                         "SELECT provider_id, price FROM $table_name WHERE service_id = %d AND checkbox_status = 'yes'",
                         $service_id
                     ),
-                    OBJECT_K // Yeh result ko provider_id se index kar dega
+                    OBJECT_K // This will index the result by Provider ID.
                 );
 
                 if (!empty($service_results)) {
