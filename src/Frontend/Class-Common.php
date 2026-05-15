@@ -133,6 +133,7 @@ trait GlobalCommonFunctions
         $service_slug = end($url_segments);
 
         $include_users = [];
+        $provider_prices = []; // Initialize to avoid undefined variable error
         if (!empty($service_slug)) {
             // Find service matching the slug to get its ID
             $matched_services = get_posts([
@@ -223,6 +224,7 @@ trait GlobalCommonFunctions
             ];
         }
 
+
         return $data;
     }
 
@@ -244,26 +246,25 @@ trait GlobalCommonFunctions
 
         global $wpdb;
         $table = $wpdb->prefix . 'provider_services';
-        $service_ids = $wpdb->get_col(
+        $posts_table = $wpdb->posts;
+
+        // Fetching ALL selected services for this provider
+        $services_data = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT service_id FROM $table WHERE provider_id = %d",
+                "SELECT 
+                    ps.service_id AS ID, 
+                    p.post_title AS title, 
+                    ps.price, 
+                    ps.duration AS time 
+                FROM $table ps
+                JOIN $posts_table p ON ps.service_id = p.ID
+                WHERE ps.provider_id = %d AND ps.checkbox_status = 'yes'",
                 $provider_id
-            )
+            ),
+            ARRAY_A
         );
 
-        $services_data = [];
-        if (!empty($service_ids)) {
-            foreach ($service_ids as $sid) {
-                $services_data[] = [
-                    'ID' => $sid,
-                    'title' => get_the_title($sid),
-                    'price' => get_post_meta($sid, 'service_price', true),
-                    'time' => get_post_meta($sid, 'service_duration', true),
-                ];
-            }
-        }
-
-        $data['services'] = $services_data;
+        $data['services'] = !empty($services_data) ? $services_data : [];
         return $data;
     }
 }

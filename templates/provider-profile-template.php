@@ -6,6 +6,10 @@ $common = new class {
 };
 $provider_data = $common->get_provider_with_services($author_slug);
 
+// echo '<pre>';
+// print_r($provider_data);
+// echo '</pre>';
+
 ?>
 <div class="container py-5">
     <div class="row g-4">
@@ -45,13 +49,20 @@ $provider_data = $common->get_provider_with_services($author_slug);
                 <div class="card-body p-0">
                     <div class="row text-center g-0 border-bottom" style="background: #fafbfc;">
                         <div class="col-4 py-3">
-                            <?php if (!empty($provider_data['hourly_rate'])) { ?>
+                            <?php
+                            if (!empty($provider_data['services'])):
+                                // Saari services ke prices nikaal kar sab se kam (minimum) price dhoondna
+                                $prices = array_column($provider_data['services'], 'price');
+                                $min_price = !empty($prices) ? min($prices) : '0.00';
+                            ?>
                                 <div class="h5 fw-bold mb-1" style="color: #a44390; letter-spacing: -0.5px;">
-                                    £<?php echo esc_html($provider_data['hourly_rate']); ?></div>
-                            <?php } ?>
-                            <small class="text-muted text-uppercase fw-bold"
-                                style="font-size: 0.6rem; letter-spacing: 0.8px;">Hourly Rate</small>
-
+                                    £<?php echo esc_html($min_price); ?>
+                                </div>
+                                <small class="text-muted text-uppercase fw-bold"
+                                    style="font-size: 0.6rem; letter-spacing: 0.8px;">
+                                    Starting From Hourly Rate
+                                </small>
+                            <?php endif; ?>
                         </div>
                         <div class="col-4 py-3 border-start border-end">
                             <div class="h5 fw-bold mb-1 text-warning" style="letter-spacing: -0.5px;"><i
@@ -65,9 +76,9 @@ $provider_data = $common->get_provider_with_services($author_slug);
                                 <div class="h5 fw-bold mb-1" style="color: #1e293b; letter-spacing: -0.5px;">
                                     <?php echo esc_html($provider_data['age_group']); ?>
                                 </div>
+                                <small class="text-muted text-uppercase fw-bold"
+                                    style="font-size: 0.6rem; letter-spacing: 0.8px;">Age Group</small>
                             <?php } ?>
-                            <small class="text-muted text-uppercase fw-bold"
-                                style="font-size: 0.6rem; letter-spacing: 0.8px;">Age Group</small>
                         </div>
                     </div>
                 </div>
@@ -87,7 +98,7 @@ $provider_data = $common->get_provider_with_services($author_slug);
                                 style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-concierge-bell" style="color: #a44390;"></i>
                             </div>
-                            <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Our Services</h5>
+                            <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Offered Services</h5>
                         </div>
                         <div class="services-list-premium">
                             <?php foreach ($provider_data['services'] as $service): ?>
@@ -128,10 +139,7 @@ $provider_data = $common->get_provider_with_services($author_slug);
                         <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">About Me</h5>
                     </div>
                     <p class="text-muted lh-lg mb-0" style="font-size: 1.05rem; color: #475569 !important;">
-                        <?php
-                        $about_text = !empty($provider_data['description']) ? $provider_data['description'] : 'As a mother of a young man who has thrived despite ADHD and ASD, and with years of experience as an Early Years specialist and teacher, I deeply understand the challenges faced by families. I offer a compassionate listening ear and tailored plans to help your child succeed.';
-                        echo nl2br(esc_html($about_text));
-                        ?>
+                        <?php echo nl2br(esc_html($provider_data['description'])); ?>
                     </p>
                 </div>
             </div>
@@ -144,7 +152,7 @@ $provider_data = $common->get_provider_with_services($author_slug);
                             style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                             <i class="fa-solid fa-calendar-check" style="color: #a44390;"></i>
                         </div>
-                        <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Working Hours</h5>
+                        <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Availability</h5>
                     </div>
                     <div class="table-responsive">
                         <table class="table border-0 mb-0">
@@ -339,7 +347,7 @@ $provider_data = $common->get_provider_with_services($author_slug);
                                 <div class="px-2 mb-3 position-relative">
                                     <select id="totalBookingWeeks"
                                         class="form-select border shadow-sm fw-bold py-2 ps-3 pe-5"
-                                        style="border-radius: 12px; background: #ffffff; border-color: #e2e8f0 !important; color: #1e293b; font-size: 0.85rem; cursor: pointer; appearance: none !important; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em;"
+                                        style="border-radius: 12px; background: #ffffff; border-color: #e2e8f0 !important; color: #1e293b; font-size: 0.85rem; cursor: pointer; appearance: none !important; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em;"
                                         onchange="updateFinalPrice()">
                                         <option value="1">1 Week Duration</option>
                                         <option value="2">2 Weeks Recurring</option>
@@ -412,7 +420,8 @@ $provider_data = $common->get_provider_with_services($author_slug);
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'];
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
         document.getElementById('currentMonthYear').textContent = monthNames[month] + ' ' + year;
 
         const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
@@ -439,11 +448,18 @@ $provider_data = $common->get_provider_with_services($author_slug);
             let fontWeight = '600';
 
             if (isPast) {
-                bg = 'transparent'; color = '#cbd5e1';
+                bg = 'transparent';
+                color = '#cbd5e1';
             } else if (isSelected) {
-                bg = '#fff'; color = '#a44390'; border = '1.5px solid #a44390'; fontWeight = '700';
+                bg = '#fff';
+                color = '#a44390';
+                border = '1.5px solid #a44390';
+                fontWeight = '700';
             } else if (isToday) {
-                bg = '#fdf2fb'; color = '#a44390'; border = '1.5px solid #a44390'; fontWeight = '700';
+                bg = '#fdf2fb';
+                color = '#a44390';
+                border = '1.5px solid #a44390';
+                fontWeight = '700';
             }
 
             container.innerHTML += `
@@ -470,7 +486,11 @@ $provider_data = $common->get_provider_with_services($author_slug);
 
         if (bookingSection) {
             bookingSection.style.display = 'block';
-            displayDateText.textContent = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            displayDateText.textContent = selectedDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
 
             slotsList.innerHTML = '';
             const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -620,9 +640,13 @@ $provider_data = $common->get_provider_with_services($author_slug);
         if (!stars.length) return;
 
         stars.forEach(star => {
-            star.addEventListener('mouseover', function () { highlightStars(this.dataset.rating); });
-            star.addEventListener('mouseout', function () { highlightStars(ratingInput.value); });
-            star.addEventListener('click', function () {
+            star.addEventListener('mouseover', function() {
+                highlightStars(this.dataset.rating);
+            });
+            star.addEventListener('mouseout', function() {
+                highlightStars(ratingInput.value);
+            });
+            star.addEventListener('click', function() {
                 ratingInput.value = this.dataset.rating;
                 highlightStars(ratingInput.value);
             });
