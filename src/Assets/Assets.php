@@ -4,17 +4,33 @@ namespace Cosy\Appointments\Assets;
 
 use Cosy\Appointments\Loader;
 
+/**
+ * Assets Class
+ * 
+ * This class is responsible for loading all CSS and JavaScript files needed for the plugin.
+ * It handles both the WordPress Admin area and the public Frontend.
+ */
 class Assets
 {
-    //--------------- Register Assets ----------------//
+    /**
+     * register
+     * 
+     * Sets up the hooks to load assets.
+     * admin_enqueue_scripts -> Loads files in the WP Dashboard.
+     * wp_enqueue_scripts    -> Loads files on the public website.
+     */
     public function register(Loader $loader): void
     {
-        // Admin aur frontend ke liye assets enqueue karo
         $loader->add_action('admin_enqueue_scripts', $this, 'admin_assets');
         $loader->add_action('wp_enqueue_scripts', $this, 'frontend_assets');
     }
 
-    //--------------- Admin Assets ----------------//
+    /**
+     * admin_assets
+     * 
+     * Loads CSS and JS for the WordPress Admin pages.
+     * It only loads these files on specific plugin pages to keep the site fast.
+     */
     public function admin_assets($hook): void
     {
         // Allowed hooks (security) 
@@ -108,6 +124,22 @@ class Assets
             'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css',
         );
 
+        // SweetAlert2: Used for beautiful popup notifications (Success, Error, Confirmations).
+        wp_enqueue_style(
+            'sweetalert2',
+            'https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css',
+            [],
+            '11.10.5'
+        );
+
+        wp_enqueue_script(
+            'sweetalert2',
+            'https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js',
+            [],
+            '11.10.5',
+            true
+        );
+
         // Pass REST base URL to JS
         wp_localize_script('cosy-script', 'cosyAppointments', [
             'restUrl' => esc_url_raw(rest_url('cosy/v1/')),
@@ -149,7 +181,8 @@ class Assets
             true
         );
 
-        // Loade API JS Always First Before Frontend and validation JS
+        // Register API Logic (api.js): This defines the endpoints the JS uses to talk to the server.
+        // It must be registered first so validation.js can use it.
         wp_register_script(
             'cosy-api',
             COSY_APPT_URL . 'src/assets/js/api.js',
@@ -166,6 +199,8 @@ class Assets
             true
         );
 
+        // Localization: This passes PHP data (like the AJAX URL and Security Nonce) to JavaScript.
+        // It allows 'api.js' to know exactly where to send data.
         wp_localize_script('cosy-api', 'cosy_ajax', ['ajax_url' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce('wp_rest'), 'root' => esc_url_raw(rest_url())]);
         // 3️⃣ Enqueue api.js
         wp_enqueue_script('cosy-api');

@@ -6,23 +6,33 @@ use Cosy\Appointments\Forms\FormsData;
 use Cosy\Appointments\Loader;
 use Cosy\Appointments\Common\GlobalCommonFunctions;
 
+/**
+ * Class Dashboard
+ * 
+ * This class handles all backend actions for the Provider Dashboard.
+ * It includes profile updates, video uploads, tab loading, and availability settings.
+ */
 class Dashboard
 {
     //--------------- Traits ----------------//
     use GlobalCommonFunctions;
 
-    //--------------- Constructor ----------------//
+    /**
+     * Constructor: Initializes the class and registers AJAX handlers.
+     * These handlers allow the frontend (JavaScript) to talk to the backend (PHP).
+     */
     public function __construct()
     {
-        //------ Register all AJAX handlers dynamically-----//
+        // List of AJAX actions and their corresponding functions
         $actions = [
-            'cosy_provider_information_update' => 'handle_profile_update',
-            'cosy_provider_video' => 'handle_video_upload',
-            'delete_video' => 'ajax_delete_video',
-            'load_dashboard_tab' => 'cosy_load_dashboard_tab',
+            'cosy_provider_information_update' => 'handle_profile_update', // Updates profile info
+            'cosy_provider_video'              => 'handle_video_upload',   // Handles video upload
+            'delete_video'                     => 'ajax_delete_video',     // Deletes provider video
+            'load_dashboard_tab'               => 'cosy_load_dashboard_tab', // Loads tabs via AJAX
+            'save_provider_availability'       => 'handle_availability_save', // Saves working hours
         ];
 
-        //------ Register AJAX handlers -----//
+        // Register all AJAX handlers dynamically
         $this->register_ajax_handlers($actions, $this);
     }
 
@@ -47,7 +57,13 @@ class Dashboard
         echo ob_get_clean();
     }
 
-    //----------------- Profile Update Handler ----------------//
+    /**
+     * handle_profile_update
+     * 
+     * This function saves the provider's profile information (Name, Email, Bio, etc.)
+     * Data comes from the profile form via POST request.
+     * It saves the data into WordPress User Meta.
+     */
     public function handle_profile_update(): void
     {
         check_ajax_referer('cosy_dashboard_nonce', 'nonce');
@@ -104,7 +120,15 @@ class Dashboard
         }
     }
 
-    //----------------- Video Upload Handler ----------------//
+    /**
+     * handle_video_upload
+     * 
+     * This function handles the introduction video upload for providers.
+     * 1. Checks for file size (max 2MB).
+     * 2. Uploads the file to the WordPress Media Library.
+     * 3. Saves the video URL and status ('pending') to User Meta.
+     * 4. Updates the 'cosy_media_approvals' table for admin review.
+     */
     public function handle_video_upload(): void
     {
         check_ajax_referer('cosy_dashboard_nonce', 'nonce');
@@ -231,6 +255,12 @@ class Dashboard
     }
 
 
+    /**
+     * cosy_load_dashboard_tab
+     * 
+     * This function loads the content of different dashboard tabs (Profile, Services, Availability, etc.)
+     * using AJAX. This makes the dashboard feel faster because the whole page doesn't reload.
+     */
     public function cosy_load_dashboard_tab()
     {
         check_ajax_referer('cosy_dashboard_nonce', 'nonce');
@@ -274,6 +304,13 @@ class Dashboard
             wp_send_json_error('File not found');
         }
 
+        $user_id = get_current_user_id();
+        $days_list = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $availability = [];
+        foreach ($days_list as $day) {
+            $availability[$day] = get_user_meta($user_id, "cosy_availability_{$day}", true);
+        }
+
         ob_start();
         include $file_path;
         $html = ob_get_clean();
@@ -281,5 +318,41 @@ class Dashboard
         wp_send_json_success([
             'html' => $html
         ]);
+    }
+    /**
+     * handle_availability_save
+     * 
+     * This function saves the working hours for a specific day.
+     * Data comes from the 'Availability' tab form.
+     * It saves Start Time, End Time, Slot Duration, and Breaks into a specific User Meta key
+     * for each day (e.g., 'cosy_availability_Monday').
+     */
+    public function handle_availability_save(): void
+    {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
+
+        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+
+        $user_id = get_current_user_id();
+        $day = sanitize_text_field($_POST['day']);
+        
+        if (!$day) {
+            wp_send_json_error('Day is required');
+        }
+
+        $availability_data = [
+            'start_time'    => sanitize_text_field($_POST['start_time']),
+            'end_time'      => sanitize_text_field($_POST['end_time']),
+            'slot_duration' => sanitize_text_field($_POST['slot_duration']),
+            'break_start'   => sanitize_text_field($_POST['break_start']),
+            'break_end'     => sanitize_text_field($_POST['break_end']),
+        ];
+
+        // Save in user meta for the specific day
+        update_user_meta($user_id, "cosy_availability_{$day}", $availability_data);
+
+        wp_send_json_success('Availability saved successfully for ' . $day);
     }
 }

@@ -55,9 +55,9 @@ class Plugin
         // (new ProviderServices())->register($this->loader);
 
         if (class_exists(\Cosy\Appointments\Rest\ProviderServices::class)) {
-            error_log('✅ ProviderServices loaded');
+            error_log('ProviderServices loaded');
         } else {
-            error_log('❌ ProviderServices NOT loaded');
+            error_log('ProviderServices NOT loaded');
         }
     }
 

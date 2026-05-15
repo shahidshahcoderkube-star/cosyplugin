@@ -2,10 +2,23 @@
 
 namespace Cosy\Appointments\Common;
 
+/**
+ * Trait GlobalCommonFunctions
+ * 
+ * This trait contains helper functions that are used by multiple classes in the plugin.
+ * It helps avoid repeating the same code in different places.
+ */
 trait GlobalCommonFunctions
 {
 
-    //------ Utility: Register AJAX Handlers Dynamically -----//
+    /**
+     * register_ajax_handlers
+     * 
+     * This utility function automatically registers WordPress AJAX actions.
+     * It connects a JavaScript 'action' string to a specific PHP method in a class.
+     * wp_ajax_          -> For logged-in users.
+     * wp_ajax_nopriv_   -> For guest/non-logged-in users.
+     */
     protected function register_ajax_handlers(array $actions, $instance)
     {
         foreach ($actions as $action => $method) {
@@ -121,7 +134,14 @@ trait GlobalCommonFunctions
         return $data;
     }
 
-    //------ Utility: Get All Service Providers -----//
+    /**
+     * get_all_service_providers
+     * 
+     * This function retrieves a list of all providers.
+     * 1. It can filter providers by category (e.g., if the URL is /service-provider/kids/).
+     * 2. It fetches the provider's specific price for that service from the custom database table.
+     * 3. It returns an array with all profile details like Bio, Photo, and Price.
+     */
     public function get_all_service_providers(): array
     {
         global $wpdb;
@@ -228,7 +248,13 @@ trait GlobalCommonFunctions
         return $data;
     }
 
-    //------ Utility: Get Provider with Services by slug -----//
+    /**
+     * get_provider_with_services
+     * 
+     * Fetches complete profile data for a single provider using their URL slug.
+     * It also fetches all the services that this provider has currently active ('yes' status).
+     * Used mainly for the public-facing 'Provider Profile' page.
+     */
     public function get_provider_with_services(string $slug): array
     {
         $user = get_user_by('slug', $slug);

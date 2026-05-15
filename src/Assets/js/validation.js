@@ -1,6 +1,10 @@
-console.log("validation.js LOADED");
-console.log("cosy_ajax:", typeof cosy_ajax !== "undefined" ? cosy_ajax : "UNDEFINED");
-
+/**
+ * CosyApp JavaScript Module
+ * 
+ * This file handles all frontend logic for the Cosy Appointments plugin.
+ * It includes form validation, AJAX submissions, real-time UI updates,
+ * and SweetAlert2 notifications.
+ */
 var CosyApp = (function ($) {
 
     //--------------- ALERTS ---------------//
@@ -51,7 +55,12 @@ var CosyApp = (function ($) {
     }
 
 
-    //--------------- AUTH / REGISTER / LOGIN FORM VALIDATION ---------------//
+    /**
+     * initAuthForms
+     * 
+     * Handles validation and AJAX submission for Login and Registration forms.
+     * It uses JQuery Validate to check fields before sending data to the server.
+     */
     function initAuthForms(container = document) {
 
         $(container).find(".cosy-form").each(function () {
@@ -65,7 +74,7 @@ var CosyApp = (function ($) {
 
             if (typeof $.fn.validate === "undefined") {
                 console.warn("JQuery Validate not loaded. Using fallback submit.");
-                $form.on("submit", function(e) {
+                $form.on("submit", function (e) {
                     e.preventDefault();
                     // Call a manual submit if validate is missing
                     handleManualSubmit(this, action, $btn);
@@ -129,7 +138,12 @@ var CosyApp = (function ($) {
     }
 
 
-    //----------- PROFILE UPDATE ----------------//
+    /**
+     * initProfileUpdate
+     * 
+     * Handles the AJAX submission for the Provider Profile Information form.
+     * It sends text data and the profile image to the backend update handler.
+     */
     function initProfileUpdate(container = document) {
 
         let $form = $(container).find(".cosy-form-update");
@@ -185,7 +199,15 @@ var CosyApp = (function ($) {
     }
 
 
-    //----------- VIDEO UPLOAD & DELETE (ONCE) ----------------//
+    /**
+     * initVideoUpload
+     * 
+     * Handles introduction video uploads and deletions.
+     * Features:
+     * 1. Real-time video preview before uploading.
+     * 2. AJAX upload with progress feedback.
+     * 3. SweetAlert2 confirmation for deletions.
+     */
     function initVideoUpload() {
 
         $(document)
@@ -205,7 +227,14 @@ var CosyApp = (function ($) {
 
             const file = this.files[0];
             if (!file || !file.type.startsWith("video/")) {
-                alert("Please upload a valid video file");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid File',
+                    text: 'Please upload a valid video file.',
+                    confirmButtonColor: '#a44390',
+                    showClass: { popup: '' },
+                    hideClass: { popup: '' }
+                });
                 this.value = "";
                 return;
             }
@@ -261,44 +290,73 @@ var CosyApp = (function ($) {
 
         // Delete
         $(document).on("click.cosyVideo", ".remove-video", function () {
-
-            if (!confirm("Do you really want to delete this video?")) return;
-
             const $btn = $(this);
+            const videoId = $btn.data("id");
+            const $container = $btn.closest(".video-item, .video-preview-card");
 
-            $.ajax({
-                url: cosy_ajax.ajax_url,
-                type: "POST",
-                data: {
-                    action: $btn.data("action"),
-                    user_id: $btn.data("id"),
-                    nonce: $("#cosy_dashboard_nonce_field").val()
-                },
-
-                beforeSend() {
-                    $btn.prop("disabled", true)
-                        .data("original-html", $btn.html())
-                        .html(`<span class="spinner-border spinner-border-sm"></span>`);
-                },
-
-                success(res) {
-                    if (res.success) {
-                        location.reload();
-                    } else {
-                        alert(res.data.message);
-                    }
-                },
-
-                complete() {
-                    $btn.prop("disabled", false)
-                        .html($btn.data("original-html"));
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this video?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#22c55e',
+                confirmButtonText: 'Yes, delete it!',
+                showClass: { popup: '' },
+                hideClass: { popup: '' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: cosy_ajax.ajax_url,
+                        type: "POST",
+                        data: {
+                            action: "cosy_delete_provider_video",
+                            video_id: videoId,
+                            nonce: $("#cosy_dashboard_nonce_field").val()
+                        },
+                        beforeSend() {
+                            $btn.prop("disabled", true).html(`<span class="spinner-border spinner-border-sm"></span>`);
+                        },
+                        success(res) {
+                            if (res.success) {
+                                $container.fadeOut(300, function () { $(this).remove(); });
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Video has been deleted.',
+                                    timer: 1500,
+                                    showConfirmButton: false,
+                                    showClass: { popup: '' },
+                                    hideClass: { popup: '' }
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: res.data || "Could not delete video.",
+                                    confirmButtonColor: '#a44390',
+                                    showClass: { popup: '' },
+                                    hideClass: { popup: '' }
+                                });
+                            }
+                        },
+                        complete() {
+                            $btn.prop("disabled", false).html('<i class="fas fa-trash"></i>');
+                        }
+                    });
                 }
             });
         });
     }
 
 
-    //----------- DASHBOARD TABS (AJAX) ----------------//
+    /**
+     * initTabs
+     * 
+     * Handles dynamic loading of Dashboard tabs via AJAX.
+     * When a user clicks a tab (Profile, Services, etc.), the content is fetched from the server
+     * and injected into the page without a full reload.
+     */
     function initTabs() {
 
         $("#cosyDashboardTabs").on("shown.bs.tab", ".cosy-tab", function (e) {
@@ -370,7 +428,12 @@ var CosyApp = (function ($) {
     }
 
 
-    // -------- PAGE LOAD: GET SAVED SERVICES -------- //
+    /**
+     * serviceSelection
+     * 
+     * Fetches the provider's saved services from the database on page load.
+     * It populates the 'Services' table with descriptions, durations, and prices.
+     */
     function serviceSelection() {
         if ($("#servicesTable").length) {
             fetch(COSY_API.base + COSY_API.providerServices.get, {
@@ -561,33 +624,162 @@ var CosyApp = (function ($) {
         $(document).on("click", ".remove-service", function () {
             const serviceId = $(this).data("service-id");
             const slug = $(this).data("slug");
-            const msgBox = $(".cosy-message");
 
-            if (!confirm("Are you sure you want to delete this service?")) return;
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this service?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#22c55e',
+                confirmButtonText: 'Yes, delete it!',
+                showClass: { popup: '' },
+                hideClass: { popup: '' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(COSY_API.base + COSY_API.providerServices.delete, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-WP-Nonce': cosy_ajax.nonce
+                        },
+                        body: JSON.stringify({ service_id: serviceId })
+                    })
+                    .then(res => res.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            $("#row-" + serviceId).remove();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: resp.message,
+                                timer: 1500,
+                                showConfirmButton: false,
+                                showClass: { popup: '' },
+                                hideClass: { popup: '' }
+                            });
+                            setTimeout(() => { location.reload(); }, 1600);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: resp.message,
+                                confirmButtonColor: '#a44390',
+                                showClass: { popup: '' },
+                                hideClass: { popup: '' }
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Remove service error:", err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: "Something went wrong while deleting.",
+                            confirmButtonColor: '#a44390',
+                            showClass: { popup: '' },
+                            hideClass: { popup: '' }
+                        });
+                    });
+                }
+            });
+        });
+    }
 
-            fetch(COSY_API.base + COSY_API.providerServices.delete, {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-WP-Nonce': cosy_ajax.nonce
-                },
-                body: JSON.stringify({ service_id: serviceId })
-            })
-                .then(res => res.json())
-                .then(resp => {
-                    if (resp.success) {
-                        $("#row-" + serviceId).remove();
-                        msgBox.html(cosyAlert("success", resp.message));
-                        setTimeout(() => { location.reload(); }, 1000);
-                    } else {
-                        msgBox.html(cosyAlert("danger", resp.message));
-                    }
-                })
-                .catch(err => {
-                    console.error("Remove service error:", err);
-                    msgBox.html(cosyAlert("danger", "Something went wrong while deleting."));
+
+    /**
+     * initAvailability
+     * 
+     * Handles the 'Availability' management system.
+     * 1. Validates required fields (Day, Start/End time).
+     * 2. Saves data to backend via AJAX.
+     * 3. Updates the 'Weekly Preview' badges in real-time on success.
+     * 4. Resets form fields after a successful save.
+     */
+    function initAvailability(container = document) {
+        $(container).off("click", "#save_availability_btn").on("click", "#save_availability_btn", function (e) {
+            e.preventDefault();
+            const $btn = $(this);
+            const data = {
+                action: 'save_provider_availability',
+                nonce: $('#cosy_dashboard_nonce_field').val(),
+                day: $('#availability_day').val(),
+                start_time: $('#start_time').val(),
+                end_time: $('#end_time').val(),
+                slot_duration: $('#slot_duration').val(),
+                break_start: $('#break_start_time').val(),
+                break_end: $('#break_end_time').val()
+            };
+
+            if (!data.day || !data.start_time || !data.end_time) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Incomplete Information',
+                    text: 'Please fill all required fields before saving.',
+                    confirmButtonColor: '#a44390',
+                    showClass: { popup: '' }, // No bounce animation
+                    hideClass: { popup: '' }  // No bounce animation
                 });
+                return;
+            }
+
+            $.ajax({
+                url: cosy_ajax.ajax_url,
+                type: "POST",
+                data: data,
+                beforeSend() {
+                    $btn.prop("disabled", true).html(`<span class="spinner-border spinner-border-sm"></span> Saving...`);
+                },
+                success(res) {
+                    if (res.success) {
+                        // Update local data for real-time preview using the 'data' object from outer scope
+                        const dayName = data.day;
+                        if (!window.savedAvailability) window.savedAvailability = {};
+                        window.savedAvailability[dayName] = {
+                            start_time: data.start_time,
+                            end_time: data.end_time,
+                            slot_duration: data.slot_duration,
+                            break_start: data.break_start,
+                            break_end: data.break_end
+                        };
+
+                        // Trigger re-render of badges
+                        if (typeof renderAvailabilityBadges === 'function') {
+                            renderAvailabilityBadges();
+                        }
+
+                        // Clear fields after success
+                        $('#availability_day').val('');
+                        $('#start_time').val('');
+                        $('#end_time').val('');
+                        $('#slot_duration').val('10');
+                        $('#break_start_time').val('');
+                        $('#break_end_time').val('');
+
+                        // Success Notification
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Your availability has been saved.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    } else {
+                        // Error Notification
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: res.data || 'Something went wrong while saving.',
+                            confirmButtonColor: '#a44390'
+                        });
+                    }
+                },
+                complete() {
+                    $btn.prop("disabled", false).html("Save Availability");
+                }
+            });
         });
     }
 
@@ -605,6 +797,7 @@ var CosyApp = (function ($) {
             try { serviceCheckbox(); } catch (e) { console.error("ServiceCheckbox Error:", e); }
             try { removeService(); } catch (e) { console.error("RemoveService Error:", e); }
             try { formValidation(); } catch (e) { console.error("FormValidation Error:", e); }
+            try { initAvailability(); } catch (e) { console.error("InitAvailability Error:", e); }
             console.log("CosyApp: Initialization Complete.");
         }
     };

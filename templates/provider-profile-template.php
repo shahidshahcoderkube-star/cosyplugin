@@ -6,9 +6,36 @@ $common = new class {
 };
 $provider_data = $common->get_provider_with_services($author_slug);
 
-// echo '<pre>';
-// print_r($provider_data);
-// echo '</pre>';
+/** 
+ * PROVIDER AVAILABILITY DATA FETCHING
+ * 
+ * This block retrieves the weekly working schedule (Start Time, End Time, Breaks) 
+ * for the current service provider from user_meta.
+ * 
+ * Used for:
+ * 1. Rendering the 'Availability' table further down in this template.
+ * 2. Providing data to a global JavaScript variable for future booking calendar logic.
+ */
+$days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+$availability = [];
+
+if (!empty($provider_data['ID'])) {
+    foreach ($days_of_week as $day) {
+        // Fetch saved metadata for each specific day
+        $day_data = get_user_meta($provider_data['ID'], "cosy_availability_{$day}", true);
+        $availability[$day] = !empty($day_data) ? $day_data : null;
+    }
+}
+?>
+
+<!-- 
+    Global JavaScript Object: Exposes provider availability data to the frontend.
+    Allows interactive components (like booking calendars) to access slots in real-time.
+-->
+<script>
+    window.providerAvailability = <?php echo json_encode($availability); ?>;
+</script>
+<?php
 
 ?>
 <div class="container py-5">
@@ -157,22 +184,35 @@ $provider_data = $common->get_provider_with_services($author_slug);
                     <div class="table-responsive">
                         <table class="table border-0 mb-0">
                             <tbody class="text-secondary small">
-                                <tr>
-                                    <td class="border-0 fw-bold py-3 text-dark">Monday</td>
-                                    <td class="border-0 text-end py-3">09:00 AM - 01:00 PM & 02:00 PM - 07:00 PM</td>
-                                </tr>
-                                <tr>
-                                    <td class="border-0 fw-bold py-3 text-dark">Tuesday</td>
-                                    <td class="border-0 text-end py-3">09:00 AM - 01:00 PM & 02:00 PM - 07:00 PM</td>
-                                </tr>
-                                <tr>
-                                    <td class="border-0 fw-bold py-3 text-dark">Wednesday</td>
-                                    <td class="border-0 text-end py-3">09:00 AM - 01:00 PM & 02:00 PM - 07:00 PM</td>
-                                </tr>
-                                <tr>
-                                    <td class="border-0 fw-bold py-3 text-dark text-danger">Sunday</td>
-                                    <td class="border-0 text-end py-3 text-danger fw-medium">Unavailable</td>
-                                </tr>
+                                <?php
+                                $days_display = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                                foreach ($days_display as $day):
+                                    $day_avail = $availability[$day];
+                                    $is_available = !empty($day_avail) && !empty($day_avail['start_time']) && !empty($day_avail['end_time']);
+
+                                    // Skip unavailable days
+                                    if (!$is_available) continue;
+                                ?>
+                                    <tr>
+                                        <td class="border-0 fw-bold py-3 text-dark">
+                                            <?php echo $day; ?>
+                                        </td>
+                                        <td class="border-0 text-end py-3">
+                                            <?php
+                                            $start = date("h:i A", strtotime($day_avail['start_time']));
+                                            $end = date("h:i A", strtotime($day_avail['end_time']));
+
+                                            if (!empty($day_avail['break_start']) && !empty($day_avail['break_end'])) {
+                                                $b_start = date("h:i A", strtotime($day_avail['break_start']));
+                                                $b_end = date("h:i A", strtotime($day_avail['break_end']));
+                                                echo esc_html($start . " - " . $b_start . " & " . $b_end . " - " . $end);
+                                            } else {
+                                                echo esc_html($start . " - " . $end);
+                                            }
+                                            ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
@@ -503,9 +543,13 @@ $provider_data = $common->get_provider_with_services($author_slug);
                 nextDate.setDate(selectedDate.getDate() + dayOffset);
                 const dayIndex = nextDate.getDay();
                 const dateStr = nextDate.toDateString();
+                const dayName = dayNames[dayIndex];
 
                 dayOffset++;
-                if (dayIndex === 0) continue; // Skip Sundays
+
+                // Skip if no availability set for this day
+                if (!window.providerAvailability || !window.providerAvailability[dayName]) continue;
+
                 addedCount++;
 
                 const duration = selectedTimeSlotsByDay[dateStr] ? selectedTimeSlotsByDay[dateStr].length * 15 : 0;
@@ -543,19 +587,67 @@ $provider_data = $common->get_provider_with_services($author_slug);
         const grid = document.getElementById('timeGrid');
         grid.innerHTML = '';
 
-        for (let hour = 9; hour < 21; hour++) {
-            for (let min = 0; min < 60; min += 15) {
-                const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
-                const isSelected = selectedTimeSlotsByDay[dateStr] && selectedTimeSlotsByDay[dateStr].includes(timeStr);
+        const dateObj = new Date(dateStr);
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNames[dateObj.getDay()];
+        const avail = window.providerAvailability ? window.providerAvailability[dayName] : null;
 
-                grid.innerHTML += `
-                <div class="time-block p-2 text-center small fw-bold ${isSelected ? 'selected' : ''}" 
-                     onclick="toggleTimeSlot('${timeStr}', this)">
-                    ${timeStr}
-                </div>
-            `;
-            }
+        if (!avail) {
+            grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No availability set for this day.</div>';
+            modal.show();
+            return;
         }
+
+        const startStr = avail.start_time; // e.g. "09:00"
+        const endStr = avail.end_time; // e.g. "17:00"
+        const slotDuration = parseInt(avail.slot_duration) || 30;
+
+        const startTime = new Date(`1970-01-01T${startStr}:00`);
+        const endTime = new Date(`1970-01-01T${endStr}:00`);
+
+        let breakStart = null;
+        let breakEnd = null;
+
+        if (avail.break_start && avail.break_end) {
+            breakStart = new Date(`1970-01-01T${avail.break_start}:00`);
+            breakEnd = new Date(`1970-01-01T${avail.break_end}:00`);
+        }
+
+        let currentTime = new Date(startTime);
+
+        while (currentTime < endTime) {
+            const timeStr = currentTime.toTimeString().substring(0, 5); // "HH:MM"
+            const displayTime = currentTime.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Check if this slot falls within a break
+            let isInBreak = false;
+            if (breakStart && breakEnd) {
+                if (currentTime >= breakStart && currentTime < breakEnd) {
+                    isInBreak = true;
+                }
+            }
+
+            if (!isInBreak) {
+                const isSelected = selectedTimeSlotsByDay[dateStr] && selectedTimeSlotsByDay[dateStr].includes(timeStr);
+                grid.innerHTML += `
+                    <div class="time-block p-2 text-center small fw-bold ${isSelected ? 'selected' : ''}" 
+                         onclick="toggleTimeSlot('${timeStr}', this)">
+                        ${displayTime}
+                    </div>
+                `;
+            }
+
+            // Move to next slot
+            currentTime.setMinutes(currentTime.getMinutes() + slotDuration);
+        }
+
+        if (grid.innerHTML === '') {
+            grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No slots available for the selected range.</div>';
+        }
+
         updateModalDuration();
         modal.show();
     }
@@ -576,7 +668,15 @@ $provider_data = $common->get_provider_with_services($author_slug);
     function updateModalDuration() {
         const count = selectedTimeSlotsByDay[currentModalDate] ? selectedTimeSlotsByDay[currentModalDate].length : 0;
         const durationEl = document.getElementById('modalTotalDuration');
-        if (durationEl) durationEl.textContent = `${count * 15} minutes`;
+
+        // Get slot duration for this day to calculate total correctly
+        const dateObj = new Date(currentModalDate);
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNames[dateObj.getDay()];
+        const avail = window.providerAvailability ? window.providerAvailability[dayName] : null;
+        const slotDur = avail ? parseInt(avail.slot_duration) : 15;
+
+        if (durationEl) durationEl.textContent = `${count * slotDur} minutes`;
     }
 
     function confirmTimeSlots() {
@@ -586,7 +686,14 @@ $provider_data = $common->get_provider_with_services($author_slug);
 
         // Update Sidebar Row
         const selectedSlots = selectedTimeSlotsByDay[currentModalDate] || [];
-        const duration = selectedSlots.length * 15;
+
+        const dateObj = new Date(currentModalDate);
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNames[dateObj.getDay()];
+        const avail = window.providerAvailability ? window.providerAvailability[dayName] : null;
+        const slotDur = avail ? parseInt(avail.slot_duration) : 15;
+
+        const duration = selectedSlots.length * slotDur;
         const durationTextEl = document.getElementById(`duration-${currentModalDate}`);
         if (durationTextEl) {
             durationTextEl.textContent = `${duration} minutes Call Duration`;
@@ -597,7 +704,11 @@ $provider_data = $common->get_provider_with_services($author_slug);
         // Pricing visibility
         let grandTotalMin = 0;
         for (const d in selectedTimeSlotsByDay) {
-            grandTotalMin += selectedTimeSlotsByDay[d].length * 15;
+            const dObj = new Date(d);
+            const dName = dayNames[dObj.getDay()];
+            const dAvail = window.providerAvailability ? window.providerAvailability[dName] : null;
+            const dSlotDur = dAvail ? parseInt(dAvail.slot_duration) : 15;
+            grandTotalMin += selectedTimeSlotsByDay[d].length * dSlotDur;
         }
 
         const pricingSection = document.getElementById('weeklyPricingSection');
@@ -613,8 +724,13 @@ $provider_data = $common->get_provider_with_services($author_slug);
 
     function updateFinalPrice() {
         let totalMinutes = 0;
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         for (const d in selectedTimeSlotsByDay) {
-            totalMinutes += selectedTimeSlotsByDay[d].length * 15;
+            const dObj = new Date(d);
+            const dName = dayNames[dObj.getDay()];
+            const dAvail = window.providerAvailability ? window.providerAvailability[dName] : null;
+            const dSlotDur = dAvail ? parseInt(dAvail.slot_duration) : 15;
+            totalMinutes += selectedTimeSlotsByDay[d].length * dSlotDur;
         }
         const weeks = parseInt(document.getElementById('totalBookingWeeks').value) || 1;
         const totalHours = (totalMinutes / 60) * weeks;

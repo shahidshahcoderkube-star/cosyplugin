@@ -11,15 +11,24 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-// Constants define karo
-define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Plugin folder ka path
-define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // Plugin folder ka URL
-define('COSY_APPT_VER', '1.0.0');  // Plugin version
+/**
+ * Main Plugin Constants
+ * These constants define the paths and version of the plugin for easy access.
+ */
+define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Absolute path to the plugin folder
+define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // URL to the plugin folder
+define('COSY_APPT_VER', '1.0.0');  // Current version
 
-//------------ Register role----------------//
+/**
+ * register_role
+ * 
+ * Creates custom user roles for the plugin:
+ * 1. Customer: Can book appointments.
+ * 2. Provider: Can offer services, set availability, and manage their dashboard.
+ * Also adds 'manage_cosy_appointments' capability to the Admin.
+ */
 function register_role()
 {
-
     // CUSTOMER role
     if (!get_role('customer')) {
         add_role(
@@ -38,15 +47,15 @@ function register_role()
             'Provider',          // Display name
             [
                 'read' => true,
-                'edit_posts' => true,        // apni post edit
+                'edit_posts' => true,        // Can edit their own posts
                 'edit_published_posts' => true,
-                'delete_posts' => true,      // apni post delete
+                'delete_posts' => true,      // Can delete their own posts
                 'manage_cosy_appointments' => true,
             ]
         );
     }
 
-    // Add capabilities to Administrator
+    // Give Administrator full control over the plugin
     $admin = get_role('administrator');
     if ($admin) {
         $admin->add_cap('manage_cosy_appointments');
@@ -56,10 +65,16 @@ function register_role()
 
 
 
-// Activation hook: create pages
+/**
+ * cosy_create_pages_on_activation
+ * 
+ * Automatically creates the required pages (like Login, Dashboard, Profile) 
+ * when the plugin is activated. This ensures the user doesn't have to 
+ * create them manually.
+ */
 function cosy_create_pages_on_activation()
 {
-    // Pages to create and their shortcodes 
+    // List of pages to be created with their respective shortcodes
     $pages = [
         ['title' => 'Appointments', 'slug' => 'appointments', 'content' => '[cosy_appointments]'],
         ['title' => 'Orders', 'slug' => 'orders', 'content' => '[cosy_orders]'],
@@ -74,8 +89,8 @@ function cosy_create_pages_on_activation()
         ['title' => 'Provider Profile', 'slug' => 'provider-profile', 'content' => '[cosy_profile_dashboard]'],
     ];
 
-    // Check if page already exists by slug
     foreach ($pages as $page) {
+        // Only create the page if it doesn't already exist
         $existing = get_page_by_path($page['slug']);
         if (!$existing) {
             wp_insert_post([
@@ -174,7 +189,12 @@ function cosy_plugin_activate()
     update_option('cosy_plugin_version', COSY_APPT_VER);
 }
 
-//---------Start the plugin--------//
+/**
+ * cosy_appt_start
+ * 
+ * This is the entry point of the plugin.
+ * It initializes the main Plugin class and triggers the run() method.
+ */
 function cosy_appt_start()
 {
     $plugin = new \Cosy\Appointments\Plugin();
