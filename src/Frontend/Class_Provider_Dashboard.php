@@ -462,22 +462,39 @@ class Dashboard
  
         wp_send_json_success('Availability saved successfully for ' . $day);
     }
- 
+    /**
+     * AJAX Handler: Adds a new review for a service provider.
+     * 
+     * Security & Business Logic:
+     * 1. Validates that the user is logged in.
+     * 2. RESTRICTS reviews strictly to logged-in users with the 'customer' role. 
+     *    All other roles (e.g., service providers, authors, administrators) are rejected.
+     * 3. Validates that provider_id, rating (1-5), and review text are present and valid.
+     * 4. Saves the review with status='pending'. It will not appear publicly until approved.
+     * 
+     * Output:
+     * - Returns JSON success if successfully saved.
+     * - Returns JSON error with appropriate message on failure.
+     */
     public function handle_add_review(): void
     {
+        // 1. Enforce active user session
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'Please login as a Customer to submit a review.']);
         }
  
+        // 2. Strict Role Authorization: Only allow 'customer' role to post reviews
         $current_user = wp_get_current_user();
         if (!in_array('customer', (array) $current_user->roles)) {
             wp_send_json_error(['message' => 'Only registered customers are allowed to submit reviews.']);
         }
  
+        // 3. Extract and sanitize inputs
         $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
         $rating = isset($_POST['rating']) ? intval($_POST['rating']) : 0;
         $review_text = isset($_POST['review']) ? sanitize_textarea_field($_POST['review']) : '';
  
+        // 4. Input validation
         if (!$provider_id) {
             wp_send_json_error(['message' => 'Invalid Service Provider.']);
         }
@@ -493,6 +510,7 @@ class Dashboard
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
  
+        // 5. Insert pending review into custom DB table
         $inserted = $wpdb->insert(
             $table_name,
             [
@@ -501,7 +519,7 @@ class Dashboard
                 'customer_name' => $current_user->display_name,
                 'rating'        => $rating,
                 'review'        => $review_text,
-                'status'        => 'pending',
+                'status'        => 'pending', // Starts as pending, needs approval
                 'created_at'    => current_time('mysql'),
             ],
             ['%d', '%d', '%s', '%d', '%s', '%s', '%s']
@@ -514,12 +532,27 @@ class Dashboard
         }
     }
  
+    /**
+     * AJAX Handler: Approves a pending review.
+     * 
+     * Security & Business Logic:
+     * 1. Enforces logged-in user check.
+     * 2. Enforces authorization check: Only administrators or the specific service provider 
+     *    to whom this review was submitted can approve it.
+     * 3. Service Providers can only update reviews targeted to their own provider ID.
+     * 
+     * Output:
+     * - Returns JSON success on successful database status update.
+     * - Returns JSON error on failure.
+     */
     public function handle_approve_review(): void
     {
+        // 1. Enforce active user session
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'Unauthorized']);
         }
  
+        // 2. Role Check: Only allow administrator or provider
         $current_user = wp_get_current_user();
         $is_admin = current_user_can('manage_cosy_appointments');
         $is_provider = in_array('provider', (array) $current_user->roles);
@@ -528,6 +561,7 @@ class Dashboard
             wp_send_json_error(['message' => 'Unauthorized']);
         }
  
+        // 3. Extract and validate review ID
         $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
  
         if (!$review_id) {
@@ -537,8 +571,9 @@ class Dashboard
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
  
-        // Secure check: Provider can only approve their own reviews
+        // 4. Update status with secure scoping
         if ($is_provider && !$is_admin) {
+            // Service provider can only approve reviews written for them
             $updated = $wpdb->update(
                 $table_name,
                 ['status' => 'approved'],
@@ -547,6 +582,7 @@ class Dashboard
                 ['%d', '%d']
             );
         } else {
+            // Administrator can approve any review in the system
             $updated = $wpdb->update(
                 $table_name,
                 ['status' => 'approved'],
@@ -563,12 +599,27 @@ class Dashboard
         }
     }
  
+    /**
+     * AJAX Handler: Deletes or rejects a review.
+     * 
+     * Security & Business Logic:
+     * 1. Enforces logged-in user check.
+     * 2. Enforces authorization check: Only administrators or the specific service provider
+     *    to whom this review was submitted can delete it.
+     * 3. Service Providers can only delete reviews targeted to their own provider ID.
+     * 
+     * Output:
+     * - Returns JSON success on successful database row deletion.
+     * - Returns JSON error on failure.
+     */
     public function handle_delete_review(): void
     {
+        // 1. Enforce active user session
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'Unauthorized']);
         }
  
+        // 2. Role Check: Only allow administrator or provider
         $current_user = wp_get_current_user();
         $is_admin = current_user_can('manage_cosy_appointments');
         $is_provider = in_array('provider', (array) $current_user->roles);
@@ -577,6 +628,7 @@ class Dashboard
             wp_send_json_error(['message' => 'Unauthorized']);
         }
  
+        // 3. Extract and validate review ID
         $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
  
         if (!$review_id) {
@@ -586,14 +638,16 @@ class Dashboard
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
  
-        // Secure check: Provider can only delete their own reviews
+        // 4. Delete review from database with secure scoping
         if ($is_provider && !$is_admin) {
+            // Service provider can only delete reviews written for them
             $deleted = $wpdb->delete(
                 $table_name,
                 ['id' => $review_id, 'provider_id' => $current_user->ID],
                 ['%d', '%d']
             );
         } else {
+            // Administrator can delete any review in the system
             $deleted = $wpdb->delete(
                 $table_name,
                 ['id' => $review_id],

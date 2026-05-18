@@ -3,111 +3,27 @@
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
 
-// Fetch saved meta
-$prov_username = get_user_meta($user_id, 'prov_username', true);
-$prov_fname    = get_user_meta($user_id, 'first_name', true);
-$prov_mname    = get_user_meta($user_id, 'prov_mname', true);
-$prov_sname    = get_user_meta($user_id, 'last_name', true);
-$prov_email    = get_user_meta($user_id, 'prov_email', true);
-$prov_phone    = get_user_meta($user_id, 'prov_phone', true);
-$prov_address  = get_user_meta($user_id, 'prov_address', true);
-$dob           = get_user_meta($user_id, 'dob', true);
-$postal_code   = get_user_meta($user_id, 'postal_code', true);
-$bio           = get_user_meta($user_id, 'description', true);
-$gender        = get_user_meta($user_id, 'gender', true);
-$profile_image = get_user_meta($user_id, 'profile_image', true);
-$age_group     = get_user_meta($user_id, 'age_group', true);
+// Reuse the GlobalCommonFunctions trait to retrieve all user details in a single query
+$common = new class {
+    use \Cosy\Appointments\Common\GlobalCommonFunctions;
+};
+$provider_data = $common->get_provider_data($user_id);
+
+// Map variables from centralized data array with fallback defaults
+$prov_username = $provider_data['prov_username'] ?? '';
+$prov_fname    = $provider_data['first_name'] ?? '';
+$prov_mname    = $provider_data['prov_mname'] ?? '';
+$prov_sname    = $provider_data['last_name'] ?? '';
+$prov_email    = $provider_data['prov_email'] ?? '';
+$prov_phone    = $provider_data['prov_phone'] ?? '';
+$prov_address  = $provider_data['prov_address'] ?? '';
+$dob           = $provider_data['dob'] ?? '';
+$postal_code   = $provider_data['postal_code'] ?? '';
+$bio           = $provider_data['description'] ?? '';
+$gender        = $provider_data['gender'] ?? '';
+$profile_image = $provider_data['profile_image'] ?? '';
+$age_group     = $provider_data['age_group'] ?? '';
 ?>
-
-<style>
-.cosy-profile-card {
-    background: #ffffff;
-    border-radius: 20px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
-    border: none !important;
-    padding: 30px;
-}
-
-.cosy-profile-card h3 {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: #1e293b;
-    margin-bottom: 30px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.cosy-profile-card .form-label {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
-    color: #475569;
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-}
-
-.cosy-profile-card .form-control,
-.cosy-profile-card .form-select {
-    border: 1.5px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.95rem;
-    color: #334155;
-    background-color: #f8fafc !important;
-    padding: 10px 15px !important;
-    transition: all 0.3s ease;
-}
-
-.cosy-profile-card .form-select {
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E') !important;
-    background-repeat: no-repeat !important;
-    background-position: right 1rem center !important;
-    background-size: 1.1em !important;
-}
-
-.cosy-profile-card .form-control:focus,
-.cosy-profile-card .form-select:focus {
-    border-color: #a44390 !important;
-    background-color: #fff !important;
-    box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.1) !important;
-}
-
-.cosy-profile-card .custom-btn {
-    background: linear-gradient(135deg, #a44390 0%, #833573 100%) !important;
-    border: none !important;
-    border-radius: 12px !important;
-    padding: 14px 45px !important;
-    color: #fff !important;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2) !important;
-}
-
-.cosy-profile-card .circle {
-    width: 140px;
-    height: 140px;
-    border: 5px solid #fff;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    overflow: hidden;
-    border-radius: 50%;
-}
-
-.cosy-profile-card .p-image {
-    background: #a44390;
-    color: #fff;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: 3px solid #fff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-</style>
 
 <div class="card cosy-profile-card mb-4">
     <div class="card-body p-0">
@@ -216,21 +132,21 @@ $age_group     = get_user_meta($user_id, 'age_group', true);
 </div>
 
 <script>
-jQuery(document).ready(function($) {
-    // Trigger file input when camera icon is clicked
-    $('.upload-button').on('click', function() {
-        $('.file-upload').click();
-    });
+    jQuery(document).ready(function($) {
+        // Trigger file input when camera icon is clicked
+        $('.upload-button').on('click', function() {
+            $('.file-upload').click();
+        });
 
-    // Preview image after selection
-    $('.file-upload').on('change', function() {
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('.profile-pic').attr('src', e.target.result);
+        // Preview image after selection
+        $('.file-upload').on('change', function() {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('.profile-pic').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
             }
-            reader.readAsDataURL(this.files[0]);
-        }
+        });
     });
-});
 </script>

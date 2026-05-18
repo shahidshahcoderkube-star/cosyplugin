@@ -509,8 +509,8 @@ if (!empty($provider_data['ID'])) {
     </div>
 </div>
 
+<!-- // ===== Custom Premium Calendar ===== -->
 <script>
-    // ===== Custom Premium Calendar =====
     let currentDate = new Date();
     let selectedDate = null;
     let selectedTimeSlotsByDay = {};
@@ -1069,8 +1069,6 @@ if (!empty($provider_data['ID'])) {
         }
     });
 </script>
-
-
 
 <!-- Time Slot Selection Modal -->
 <div class="modal fade" id="timeSlotModal" tabindex="-1" aria-hidden="true">

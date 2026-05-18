@@ -176,12 +176,25 @@ function cosy_create_media_table()
 }
 
 //-------Create Reviews table--------//
+/**
+ * Database Schema Builder: Creates the provider reviews custom table.
+ * 
+ * Purpose:
+ * - This table ('wp_cosy_provider_reviews') is used to persist customer feedback for service providers.
+ * - By using a dedicated database table instead of standard WordPress comments, we achieve 
+ *   high performance, easier scoping, and clean administration of reviews within the Bento dashboard.
+ * 
+ * Safety:
+ * - Checks if the table already exists via "SHOW TABLES LIKE..." to prevent overwriting or deleting
+ *   existing customer reviews during plugin updates/reactivations.
+ */
 function cosy_create_reviews_table()
 {
     global $wpdb;
     $table_name = $wpdb->prefix . 'cosy_provider_reviews';
     $charset_collate = $wpdb->get_charset_collate();
 
+    // Verify if table does not exist yet to prevent overwriting data
     if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
         $sql = "CREATE TABLE $table_name (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -195,12 +208,13 @@ function cosy_create_reviews_table()
             PRIMARY KEY (id)
         ) $charset_collate;";
 
+        // Use WordPress dbDelta function to securely install/modify database tables
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }
 }
 
-// Run immediately to ensure the table is created for active installations
+// Execute immediately on load to guarantee table presence for active environments
 cosy_create_reviews_table();
 
 //-------Register activation hook--------//
