@@ -141,13 +141,18 @@ if (!empty($provider_data['ID'])) {
                             <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Offered Services</h5>
                         </div>
                         <div class="services-list-premium">
-                            <?php foreach ($provider_data['services'] as $service): ?>
-                                <div class="service-item-row d-flex justify-content-between align-items-center p-3 mb-3"
-                                    style="background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; transition: all 0.3s ease;">
+                            <?php foreach ($provider_data['services'] as $service): 
+                                $s_title = esc_js($service['title']);
+                                $s_price = esc_js($service['price']);
+                                $s_time = esc_js($service['time'] ?? '60');
+                            ?>
+                                <div class="service-item-row d-flex justify-content-between align-items-center p-3 mb-3 cursor-pointer"
+                                    onclick="selectServiceItem(this, '<?php echo $s_title; ?>', <?php echo $s_price; ?>, <?php echo $s_time; ?>)"
+                                    style="background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; transition: all 0.3s ease; cursor: pointer;">
                                     <div class="d-flex align-items-center gap-3">
                                         <div
                                             style="width: 40px; height: 40px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                                            <i class="fas fa-check-circle" style="color: #a44390;"></i>
+                                            <i class="fas fa-check-circle service-check-icon" style="color: #cbd5e1; transition: color 0.3s;"></i>
                                         </div>
                                         <div>
                                             <h6 class="mb-0 fw-bold" style="color: #1e293b;">
@@ -468,6 +473,35 @@ if (!empty($provider_data['ID'])) {
     let currentDate = new Date();
     let selectedDate = null;
     let selectedTimeSlotsByDay = {};
+    let selectedService = null;
+
+    function selectServiceItem(el, title, price, duration) {
+        // Reset all services
+        const allRows = document.querySelectorAll('.service-item-row');
+        allRows.forEach(row => {
+            row.style.background = '#f8fafc';
+            row.style.border = '1px solid #e2e8f0';
+            const icon = row.querySelector('.service-check-icon');
+            if(icon) icon.style.color = '#cbd5e1';
+        });
+
+        // Highlight selected service
+        el.style.background = '#fdf2fb';
+        el.style.border = '1px solid #a44390';
+        const activeIcon = el.querySelector('.service-check-icon');
+        if(activeIcon) activeIcon.style.color = '#a44390';
+
+        selectedService = {
+            title: title,
+            price: parseFloat(price),
+            duration: parseInt(duration)
+        };
+
+        // Update final price if a date is already selected
+        if (selectedDate && document.getElementById('weeklyPricingSection').style.display === 'block') {
+            updateFinalPrice();
+        }
+    }
 
     function renderCalendar() {
         const year = currentDate.getFullYear();
@@ -538,6 +572,47 @@ if (!empty($provider_data['ID'])) {
     }
 
     function selectDay(el, day) {
+        if (!selectedService) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Select a Service',
+                    text: 'Please select a service from "Offered Services" before selecting a date.',
+                    confirmButtonColor: '#a44390',
+                    showClass: { popup: '' },
+                    hideClass: { popup: '' },
+                    customClass: {
+                        popup: 'swal-poppins-font',
+                        title: 'swal-title-custom',
+                        confirmButton: 'swal-btn-custom'
+                    },
+                    didOpen: () => {
+                        // Apply exact styling from first image
+                        const popup = Swal.getPopup();
+                        popup.style.fontFamily = "'Poppins', sans-serif";
+                        popup.style.borderRadius = '16px';
+                        const title = Swal.getTitle();
+                        title.style.color = '#1e293b';
+                        title.style.fontWeight = '700';
+                        title.style.fontSize = '1.75rem';
+                        const content = Swal.getHtmlContainer();
+                        content.style.color = '#64748b';
+                        content.style.fontSize = '1.05rem';
+                        const confirmBtn = Swal.getConfirmButton();
+                        confirmBtn.style.borderRadius = '10px';
+                        confirmBtn.style.padding = '8px 24px';
+                        confirmBtn.style.fontWeight = '600';
+                        confirmBtn.style.border = 'none';
+                        confirmBtn.style.boxShadow = 'none';
+                        confirmBtn.style.outline = 'none';
+                    }
+                });
+            } else {
+                alert('Please select a service from "Offered Services" before selecting a date.');
+            }
+            return;
+        }
+
         const year = parseInt(el.dataset.year);
         const month = parseInt(el.dataset.month);
         selectedDate = new Date(year, month, day);
