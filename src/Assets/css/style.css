@@ -1001,3 +1001,8 @@ label.error {
     color: #ffffff !important;
     background: linear-gradient(135deg, #a44390 0%, #c05a9e 100%) !important;
 }
+
+/* Ensure SweetAlert appears above modals with high z-index */
+.swal2-container {
+    z-index: 999999 !important;
+}

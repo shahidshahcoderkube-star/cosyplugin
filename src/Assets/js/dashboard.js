@@ -21,12 +21,12 @@
      * Falls back to cosyDashboard if both are available.
      */
     var ajaxUrl = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.ajax_url
-                : (typeof cosyAjax     !== 'undefined') ? cosyAjax.ajax_url
-                : '';
+        : (typeof cosyAjax !== 'undefined') ? cosyAjax.ajax_url
+            : '';
 
-    var nonce   = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
-                : (typeof cosyAjax     !== 'undefined') ? cosyAjax.nonce
-                : '';
+    var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
+        : (typeof cosyAjax !== 'undefined') ? cosyAjax.nonce
+            : '';
 
     /* ============================================================
        NON WORKING DAYS (HOLIDAYS)
@@ -44,20 +44,20 @@
     function buildHolidayRow(date, displayDate, reason) {
         return '<div class="holiday-item" id="holiday-' + date + '">' +
             '<div class="holiday-info">' +
-                '<i class="fas fa-calendar-day"></i>' +
-                '<div>' +
-                    '<span class="holiday-date">' + displayDate + '</span>' +
-                    '<span class="mx-2 text-muted">|</span>' +
-                    '<span class="holiday-reason text-muted small">' + escHtml(reason) + '</span>' +
-                '</div>' +
+            '<i class="fas fa-calendar-day"></i>' +
+            '<div>' +
+            '<span class="holiday-date">' + displayDate + '</span>' +
+            '<span class="mx-2 text-muted">|</span>' +
+            '<span class="holiday-reason text-muted small">' + escHtml(reason) + '</span>' +
+            '</div>' +
             '</div>' +
             '<div class="d-flex align-items-center gap-3">' +
-                '<button class="cosy-delete-holiday-btn" data-date="' + date + '" title="Remove Holiday">' +
-                    '<i class="fas fa-trash-alt" style="font-size:0.85rem;"></i>' +
-                '</button>' +
-                '<span class="badge holiday-badge">Holiday</span>' +
+            '<button class="cosy-delete-holiday-btn" data-date="' + date + '" title="Remove Holiday">' +
+            '<i class="fas fa-trash-alt" style="font-size:0.85rem;"></i>' +
+            '</button>' +
+            '<span class="badge holiday-badge">Holiday</span>' +
             '</div>' +
-        '</div>';
+            '</div>';
     }
 
     /**
@@ -77,7 +77,7 @@
      * holiday rows currently exist in the list.
      */
     function syncEmptyState() {
-        var list  = document.getElementById('cosyHolidayList');
+        var list = document.getElementById('cosyHolidayList');
         if (!list) return;
 
         var items = list.querySelectorAll('.holiday-item');
@@ -121,12 +121,12 @@
         if (saveBtn) {
             e.preventDefault();
 
-            var dateInput   = document.getElementById('cosyHolidayDate');
+            var dateInput = document.getElementById('cosyHolidayDate');
             var reasonInput = document.getElementById('cosyHolidayReason');
             if (!dateInput || !reasonInput) return;
 
-            var date        = dateInput.value.trim();
-            var reason      = reasonInput.value.trim();
+            var date = dateInput.value.trim();
+            var reason = reasonInput.value.trim();
 
             // --- Validation ---
             if (!date) {
@@ -147,6 +147,17 @@
                     confirmButtonColor: '#a44390',
                 });
                 reasonInput.focus();
+                return;
+            }
+
+            // --- Duplicate Date Check (Frontend) ---
+            if (document.getElementById('holiday-' + date)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Already Marked',
+                    text: 'This date is already marked as a holiday. Please choose another date.',
+                    confirmButtonColor: '#a44390',
+                });
                 return;
             }
 
@@ -245,8 +256,8 @@
                             var row = document.getElementById('holiday-' + dateToRemove);
                             if (row) {
                                 row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                                row.style.opacity    = '0';
-                                row.style.transform  = 'translateX(20px)';
+                                row.style.opacity = '0';
+                                row.style.transform = 'translateX(20px)';
                                 setTimeout(function () {
                                     row.remove();
                                     syncEmptyState();
