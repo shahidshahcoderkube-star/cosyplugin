@@ -18,12 +18,24 @@ $provider_data = $common->get_provider_with_services($author_slug);
  */
 $days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 $availability = [];
+$holiday_dates = [];
 
 if (!empty($provider_data['ID'])) {
     foreach ($days_of_week as $day) {
         // Fetch saved metadata for each specific day
         $day_data = get_user_meta($provider_data['ID'], "cosy_availability_{$day}", true);
         $availability[$day] = !empty($day_data) ? $day_data : null;
+    }
+    
+    // Fetch Holidays
+    $raw_holidays = get_user_meta($provider_data['ID'], 'cosy_provider_holidays', true);
+    $holidays_arr = (!empty($raw_holidays)) ? json_decode($raw_holidays, true) : [];
+    if (is_array($holidays_arr)) {
+        foreach ($holidays_arr as $h) {
+            if (!empty($h['date'])) {
+                $holiday_dates[] = $h['date'];
+            }
+        }
     }
 }
 ?>
@@ -34,6 +46,7 @@ if (!empty($provider_data['ID'])) {
 -->
 <script>
     window.providerAvailability = <?php echo json_encode($availability); ?>;
+    window.providerHolidays = <?php echo json_encode($holiday_dates); ?>;
 </script>
 <?php
 
@@ -481,13 +494,22 @@ if (!empty($provider_data['ID'])) {
             const isPast = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
             const isToday = cellDate.toDateString() === today.toDateString();
             const isSelected = selectedDate && cellDate.toDateString() === selectedDate.toDateString();
+            
+            // Format cellDate to YYYY-MM-DD for holiday check
+            const cellYear = cellDate.getFullYear();
+            const cellMonth = String(cellDate.getMonth() + 1).padStart(2, '0');
+            const cellDayStr = String(cellDate.getDate()).padStart(2, '0');
+            const dateString = `${cellYear}-${cellMonth}-${cellDayStr}`;
+            const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateString);
+            
+            const isUnavailable = isPast || isHoliday;
 
             let bg = '#f8fafc';
             let color = '#1e293b';
             let border = '1px solid transparent';
             let fontWeight = '600';
 
-            if (isPast) {
+            if (isUnavailable) {
                 bg = 'transparent';
                 color = '#cbd5e1';
             } else if (isSelected) {
@@ -503,12 +525,13 @@ if (!empty($provider_data['ID'])) {
             }
 
             container.innerHTML += `
-            <div onclick="${isPast ? '' : 'selectDay(this, ' + d + ')'}" 
+            <div onclick="${isUnavailable ? '' : 'selectDay(this, ' + d + ')'}" 
                  data-day="${d}" data-month="${month}" data-year="${year}"
                  style="aspect-ratio:1; display:flex; align-items:center; justify-content:center;
                         font-size:0.85rem; font-weight:${fontWeight}; border-radius:12px;
                         background:${bg}; color:${color}; border:${border};
-                        cursor:${isPast ? 'not-allowed' : 'pointer'}; transition:all 0.2s;">
+                        cursor:${isUnavailable ? 'not-allowed' : 'pointer'}; transition:all 0.2s;"
+                 title="${isHoliday ? 'Holiday / Unavailable' : ''}">
                 ${d}
             </div>`;
         }
