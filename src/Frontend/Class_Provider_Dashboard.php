@@ -25,11 +25,13 @@ class Dashboard
     {
         // List of AJAX actions and their corresponding functions
         $actions = [
-            'cosy_provider_information_update' => 'handle_profile_update', // Updates profile info
-            'cosy_provider_video'              => 'handle_video_upload',   // Handles video upload
-            'delete_video'                     => 'ajax_delete_video',     // Deletes provider video
+            'cosy_provider_information_update' => 'handle_profile_update',   // Updates profile info
+            'cosy_provider_video'              => 'handle_video_upload',     // Handles video upload
+            'delete_video'                     => 'ajax_delete_video',       // Deletes provider video
             'load_dashboard_tab'               => 'cosy_load_dashboard_tab', // Loads tabs via AJAX
             'save_provider_availability'       => 'handle_availability_save', // Saves working hours
+            'cosy_add_holiday'                 => 'handle_add_holiday',      // Adds a non-working day
+            'cosy_delete_holiday'              => 'handle_delete_holiday',   // Deletes a non-working day
         ];
 
         // Register all AJAX handlers dynamically
@@ -319,6 +321,108 @@ class Dashboard
             'html' => $html
         ]);
     }
+    /**
+     * handle_add_holiday
+     *
+     * Saves a new non-working day for the provider.
+     * Holidays are stored as a JSON array in user meta 'cosy_provider_holidays'.
+     * Each holiday: { date: 'YYYY-MM-DD', reason: 'string' }
+     */
+    public function handle_add_holiday(): void
+    {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
+
+        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            wp_send_json_error(['message' => 'User not logged in']);
+        }
+
+        $date   = sanitize_text_field($_POST['holiday_date'] ?? '');
+        $reason = sanitize_text_field($_POST['holiday_reason'] ?? '');
+
+        if (empty($date)) {
+            wp_send_json_error(['message' => 'Date is required.']);
+        }
+
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            wp_send_json_error(['message' => 'Invalid date format.']);
+        }
+
+        // Load existing holidays
+        $holidays = get_user_meta($user_id, 'cosy_provider_holidays', true);
+        $holidays = !empty($holidays) ? json_decode($holidays, true) : [];
+
+        // Prevent duplicate dates
+        foreach ($holidays as $h) {
+            if ($h['date'] === $date) {
+                wp_send_json_error(['message' => 'This date is already marked as a holiday.']);
+            }
+        }
+
+        // Add the new holiday
+        $holidays[] = [
+            'date'   => $date,
+            'reason' => $reason ?: 'Holiday',
+        ];
+
+        // Sort by date ascending
+        usort($holidays, fn($a, $b) => strcmp($a['date'], $b['date']));
+
+        // Save back to user meta
+        update_user_meta($user_id, 'cosy_provider_holidays', wp_json_encode($holidays));
+
+        // Format date for display: 01 Jan 2026
+        $display_date = date('d M Y', strtotime($date));
+
+        wp_send_json_success([
+            'message'      => 'Holiday added successfully!',
+            'date'         => $date,
+            'display_date' => $display_date,
+            'reason'       => $reason ?: 'Holiday',
+        ]);
+    }
+
+    /**
+     * handle_delete_holiday
+     *
+     * Removes a non-working day from the provider's holiday list by date.
+     */
+    public function handle_delete_holiday(): void
+    {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
+
+        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            wp_send_json_error(['message' => 'User not logged in']);
+        }
+
+        $date = sanitize_text_field($_POST['holiday_date'] ?? '');
+
+        if (empty($date)) {
+            wp_send_json_error(['message' => 'Date is required.']);
+        }
+
+        // Load existing holidays
+        $holidays = get_user_meta($user_id, 'cosy_provider_holidays', true);
+        $holidays = !empty($holidays) ? json_decode($holidays, true) : [];
+
+        // Filter out the holiday with the given date
+        $updated = array_values(array_filter($holidays, fn($h) => $h['date'] !== $date));
+
+        // Save updated list
+        update_user_meta($user_id, 'cosy_provider_holidays', wp_json_encode($updated));
+
+        wp_send_json_success(['message' => 'Holiday removed successfully!', 'date' => $date]);
+    }
+
     /**
      * handle_availability_save
      * 

@@ -212,6 +212,22 @@ class Assets
             COSY_APPT_VER,
             true
         );
+
+        // Dashboard JS: Handles all Provider Dashboard tab interactions (holidays, etc.)
+        wp_enqueue_script(
+            'cosy-dashboard',
+            COSY_APPT_URL . 'src/assets/js/dashboard.js',
+            ['jquery', 'bootstrap-bundle', 'sweetalert2'],
+            COSY_APPT_VER,
+            true
+        );
+
+        // Pass AJAX URL + nonce to dashboard.js
+        wp_localize_script('cosy-dashboard', 'cosyDashboard', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce'    => wp_create_nonce('cosy_dashboard_nonce'),
+        ]);
+
         //cosy_nonce
     }
 }
