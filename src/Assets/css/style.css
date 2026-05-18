@@ -1,3 +1,17 @@
+:root {
+    --cosy-primary: #9b4593;
+    --cosy-secondary: #833573;
+    --cosy-accent: #f1c40f;
+    --cosy-text: #1e293b;
+    --cosy-subtext: #64748b;
+    --cosy-bg: #f8fafc;
+    --cosy-white: #ffffff;
+    --cosy-gradient: linear-gradient(135deg, #9b4593 0%, #7a3673 100%);
+    --cosy-font-family: 'Poppins', sans-serif;
+    --cosy-border-radius: 12px;
+    --cosy-border-radius-lg: 24px;
+}
+
 /* Global Font: Poppins - loaded via wp_enqueue_style in Assets.php */
 .cosy-premium-grid-container,
 .cosy-premium-grid-container h1,
@@ -30,7 +44,7 @@
 .card.border-0.shadow-sm h6,
 .card.border-0.shadow-sm p,
 .card.border-0.shadow-sm small {
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--cosy-font-family);
 }
 
 #cosy-appointments {
@@ -1123,18 +1137,18 @@ body .swal2-icon {
    COSY PROVIDER DASHBOARD: PROFILE INFORMATION CARD
    ========================================================================== */
 .cosy-profile-card {
-    background: #ffffff;
-    border-radius: 20px !important;
+    background: var(--cosy-white);
+    border-radius: var(--cosy-border-radius-lg) !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
     border: none !important;
     padding: 30px;
 }
 
 .cosy-profile-card h3 {
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--cosy-font-family);
     font-weight: 700;
     font-size: 1.5rem;
-    color: #1e293b;
+    color: var(--cosy-text);
     margin-bottom: 30px;
     display: flex;
     align-items: center;
@@ -1144,9 +1158,9 @@ body .swal2-icon {
 }
 
 .cosy-profile-card .form-label {
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--cosy-font-family);
     font-weight: 600;
-    color: #475569;
+    color: var(--cosy-subtext);
     font-size: 0.9rem;
     margin-bottom: 10px;
 }
@@ -1154,17 +1168,17 @@ body .swal2-icon {
 .cosy-profile-card .form-control,
 .cosy-profile-card .form-select {
     border: 1.5px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    font-family: 'Poppins', sans-serif;
+    border-radius: var(--cosy-border-radius) !important;
+    font-family: var(--cosy-font-family);
     font-size: 0.95rem;
-    color: #334155;
-    background-color: #f8fafc !important;
+    color: var(--cosy-text);
+    background-color: var(--cosy-bg) !important;
     padding: 10px 15px !important;
     transition: all 0.3s ease;
 }
 
 .cosy-profile-card .form-select {
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E') !important;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239b4593%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E') !important;
     background-repeat: no-repeat !important;
     background-position: right 1rem center !important;
     background-size: 1.1em !important;
@@ -1172,33 +1186,33 @@ body .swal2-icon {
 
 .cosy-profile-card .form-control:focus,
 .cosy-profile-card .form-select:focus {
-    border-color: #a44390 !important;
-    background-color: #fff !important;
-    box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.1) !important;
+    border-color: var(--cosy-primary) !important;
+    background-color: var(--cosy-white) !important;
+    box-shadow: 0 0 0 4px rgba(155, 69, 147, 0.1) !important;
 }
 
 .cosy-profile-card .custom-btn {
-    background: linear-gradient(135deg, #a44390 0%, #833573 100%) !important;
+    background: var(--cosy-gradient) !important;
     border: none !important;
-    border-radius: 12px !important;
+    border-radius: var(--cosy-border-radius) !important;
     padding: 14px 45px !important;
-    color: #fff !important;
+    color: var(--cosy-white) !important;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
 }
 
 .cosy-profile-card .circle {
     width: 140px;
     height: 140px;
-    border: 5px solid #fff;
+    border: 5px solid var(--cosy-white);
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     overflow: hidden;
     border-radius: 50%;
 }
 
 .cosy-profile-card .p-image {
-    background: #a44390;
-    color: #fff;
+    background: var(--cosy-primary);
+    color: var(--cosy-white);
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -1206,6 +1220,6 @@ body .swal2-icon {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 3px solid #fff;
+    border: 3px solid var(--cosy-white);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }

@@ -472,12 +472,20 @@ if (!empty($provider_data['ID'])) {
                                     </h4>
                                 </div>
 
+                                <?php if ($is_logged_in && $user_role === 'customer'): ?>
                                 <button class="btn w-100 py-2 fw-bold text-white shadow-sm"
                                     style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 12px; border: none; font-size: 0.95rem; transition: all 0.2s;"
                                     onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';"
                                     id="bookServiceBtn">
                                     Book Service Now
                                 </button>
+                                <?php else: ?>
+                                    <div class="alert alert-warning py-3 px-3 mb-0 text-center fw-bold d-flex align-items-center justify-content-center gap-2" 
+                                         style="border-radius: 12px; font-size: 0.8rem; background: #fffbeb; border: 1px solid #fef3c7; color: #d97706; font-family: var(--cosy-font-family);">
+                                        <i class="fas fa-lock" style="font-size: 0.9rem;"></i>
+                                        <span>Please log in as a Customer to book this service.</span>
+                                    </div>
+                                <?php endif; ?>
                                 <p class="small text-muted mt-3 mb-0" style="font-size: 0.7rem;">Secure payment via
                                     CosyChats Checkout</p>
                             </div>
