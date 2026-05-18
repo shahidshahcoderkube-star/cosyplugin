@@ -957,6 +957,22 @@ label.error {
     background: #fff !important;
 }
 
+.cosy-modal-header .btn-close {
+    box-shadow: none !important;
+    background-color: transparent !important;
+    outline: none !important;
+    opacity: 0.8;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.cosy-modal-header .btn-close:hover,
+.cosy-modal-header .btn-close:focus {
+    background-color: transparent !important;
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: none !important;
+}
+
 .save-holiday-btn {
     background: linear-gradient(135deg, #a44390 0%, #c05a9e 100%) !important;
     color: #ffffff !important;
@@ -968,6 +984,10 @@ label.error {
     box-shadow: 0 6px 15px rgba(164, 67, 144, 0.2) !important;
     transition: all 0.3s ease;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .save-holiday-btn:hover {
@@ -976,6 +996,8 @@ label.error {
 }
 
 .save-holiday-btn:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
+    opacity: 0.8 !important;
+    cursor: not-allowed !important;
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #a44390 0%, #c05a9e 100%) !important;
 }
