@@ -698,20 +698,35 @@ if (!empty($provider_data['ID'])) {
 
         const startStr = avail.start_time; // e.g. "09:00"
         const endStr = avail.end_time; // e.g. "17:00"
-        const slotDuration = parseInt(avail.slot_duration) || 30;
+        const slotDuration = parseInt(avail.slot_duration) || (selectedService ? selectedService.duration : 30);
 
-        const startTime = new Date(`1970-01-01T${startStr}:00`);
-        const endTime = new Date(`1970-01-01T${endStr}:00`);
+        const baseDateStr = '1970-01-01T';
+        let startTime = new Date(`${baseDateStr}${startStr}:00`);
+        let endTime = new Date(`${baseDateStr}${endStr}:00`);
+
+        // Handle overnight shifts
+        if (endTime <= startTime) {
+            endTime.setDate(endTime.getDate() + 1);
+        }
 
         let breakStart = null;
         let breakEnd = null;
 
         if (avail.break_start && avail.break_end) {
-            breakStart = new Date(`1970-01-01T${avail.break_start}:00`);
-            breakEnd = new Date(`1970-01-01T${avail.break_end}:00`);
+            breakStart = new Date(`${baseDateStr}${avail.break_start}:00`);
+            breakEnd = new Date(`${baseDateStr}${avail.break_end}:00`);
+            
+            // Adjust break times for overnight shifts
+            if (breakStart < startTime) {
+                breakStart.setDate(breakStart.getDate() + 1);
+            }
+            if (breakEnd < breakStart) {
+                breakEnd.setDate(breakEnd.getDate() + 1);
+            }
         }
 
         let currentTime = new Date(startTime);
+        let slotsCount = 0;
 
         while (currentTime < endTime) {
             const timeStr = currentTime.toTimeString().substring(0, 5); // "HH:MM"
@@ -720,15 +735,25 @@ if (!empty($provider_data['ID'])) {
                 minute: '2-digit'
             });
 
-            // Check if this slot falls within a break
+            // Calculate the end of THIS slot
+            const currentSlotEnd = new Date(currentTime);
+            currentSlotEnd.setMinutes(currentSlotEnd.getMinutes() + slotDuration);
+
+            // Don't create the slot if it exceeds the shift end time
+            if (currentSlotEnd > endTime) {
+                break;
+            }
+
+            // Check if this slot falls within a break (overlap logic)
             let isInBreak = false;
             if (breakStart && breakEnd) {
-                if (currentTime >= breakStart && currentTime < breakEnd) {
+                if (currentTime < breakEnd && currentSlotEnd > breakStart) {
                     isInBreak = true;
                 }
             }
 
             if (!isInBreak) {
+                slotsCount++;
                 const isSelected = selectedTimeSlotsByDay[dateStr] && selectedTimeSlotsByDay[dateStr].includes(timeStr);
                 grid.innerHTML += `
                     <div class="time-block p-2 text-center small fw-bold ${isSelected ? 'selected' : ''}" 
@@ -739,10 +764,10 @@ if (!empty($provider_data['ID'])) {
             }
 
             // Move to next slot
-            currentTime.setMinutes(currentTime.getMinutes() + slotDuration);
+            currentTime = new Date(currentSlotEnd);
         }
 
-        if (grid.innerHTML === '') {
+        if (slotsCount === 0) {
             grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No slots available for the selected range.</div>';
         }
 
@@ -821,20 +846,18 @@ if (!empty($provider_data['ID'])) {
     }
 
     function updateFinalPrice() {
-        let totalMinutes = 0;
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        let totalSlots = 0;
         for (const d in selectedTimeSlotsByDay) {
-            const dObj = new Date(d);
-            const dName = dayNames[dObj.getDay()];
-            const dAvail = window.providerAvailability ? window.providerAvailability[dName] : null;
-            const dSlotDur = dAvail ? parseInt(dAvail.slot_duration) : 15;
-            totalMinutes += selectedTimeSlotsByDay[d].length * dSlotDur;
+            totalSlots += selectedTimeSlotsByDay[d].length;
         }
+        
         const weeks = parseInt(document.getElementById('totalBookingWeeks').value) || 1;
-        const totalHours = (totalMinutes / 60) * weeks;
-        const totalPrice = totalHours * (selectedService ? selectedService.price : 0);
+        const servicePrice = selectedService ? selectedService.price : 0;
+        
+        const totalPrice = totalSlots * servicePrice * weeks;
+        
         const amountText = document.getElementById('finalTotalAmountText');
-        if (amountText) amountText.textContent = `£ ${totalPrice.toFixed(2)}`;
+        if (amountText) amountText.textContent = `£${totalPrice.toFixed(2)}`;
     }
 
     // ===== Extra Utilities =====
