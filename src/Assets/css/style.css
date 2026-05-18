@@ -133,10 +133,12 @@
     align-items: stretch;
     gap: 0;
     padding: 0;
-    max-width: 1000px; /* Back to a more standard width */
+    max-width: 1000px;
+    /* Back to a more standard width */
     margin: 60px auto;
     background: #fff;
-    border-radius: 24px; /* More rounded for premium feel */
+    border-radius: 24px;
+    /* More rounded for premium feel */
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     min-height: 650px;
@@ -178,7 +180,7 @@
     margin: 40px auto;
     background: #fff;
     border-radius: 24px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     padding: 60px;
 }
 
@@ -189,8 +191,10 @@
 
 .cosy-provider-registration h2 {
     text-align: center;
-    margin-bottom: 60px; /* Increased space after title */
-    font-size: 2.6rem; /* Slightly larger */
+    margin-bottom: 60px;
+    /* Increased space after title */
+    font-size: 2.6rem;
+    /* Slightly larger */
     position: relative;
     padding-bottom: 20px;
     color: #1e293b;
@@ -247,7 +251,8 @@
     width: 100%;
     padding: 16px 20px;
     border: 1.5px solid #e2e8f0;
-    border-radius: 14px !important; /* Force radius for all types */
+    border-radius: 14px !important;
+    /* Force radius for all types */
     font-family: 'Poppins', sans-serif;
     font-size: 1rem;
     color: #334155;
@@ -313,7 +318,8 @@
 
 /* Text elements in Form */
 .cosy-reg-form .footer-text {
-    text-align: center !important; /* Force center for footer */
+    text-align: center !important;
+    /* Force center for footer */
     margin-top: 30px;
     font-size: 0.95rem;
     color: #64748b;
@@ -327,7 +333,8 @@
 
 .cosy-forgot {
     margin-top: 20px;
-    text-align: center !important; /* Force center for forgot link */
+    text-align: center !important;
+    /* Force center for forgot link */
 }
 
 .cosy-forgot a {
@@ -385,7 +392,7 @@
     .cosy-reg-form h2 {
         font-size: 1.8rem;
     }
-    
+
     .cosy-reg-form {
         padding: 30px 20px;
     }
@@ -581,6 +588,7 @@ label.error {
 .cc__dashboard {
     padding-top: 10px;
 }
+
 .cosy-tab {
     border: none !important;
     background: transparent !important;
@@ -600,6 +608,7 @@ label.error {
     font-family: 'Poppins', sans-serif;
     font-size: 0.95rem;
 }
+
 .cosy-tab i {
     font-size: 1.15rem;
     width: 24px;
@@ -607,14 +616,17 @@ label.error {
     color: #64748b;
     transition: all 0.3s ease;
 }
+
 .cosy-tab:hover {
     background: #a44390 !important;
     color: #ffffff !important;
     transform: translateX(8px);
 }
+
 .cosy-tab:hover i {
     color: #ffffff !important;
 }
+
 .cosy-tab::before {
     content: '';
     position: absolute;
@@ -627,16 +639,19 @@ label.error {
     transition: all 0.3s ease;
     border-radius: 0 4px 4px 0;
 }
+
 .cosy-tab:hover::before,
 .cosy-tab.active::before {
     width: 4px;
     height: 60%;
 }
+
 .cosy-tab.active {
     background: linear-gradient(135deg, #a44390 0%, #833573 100%) !important;
     color: #ffffff !important;
     box-shadow: 0 8px 15px rgba(164, 67, 144, 0.2) !important;
 }
+
 .cosy-tab.active i {
     color: #ffffff !important;
 }
@@ -925,7 +940,7 @@ label.error {
     border: none !important;
     background: #ffffff !important;
     overflow: visible !important;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3) !important;
 }
 
 .cosy-modal-header {
@@ -1002,7 +1017,104 @@ label.error {
     background: linear-gradient(135deg, #a44390 0%, #c05a9e 100%) !important;
 }
 
-/* Ensure SweetAlert appears above modals with high z-index */
+/* Ensure SweetAlert appears above modals with high z-index and has premium styling */
 .swal2-container {
     z-index: 999999 !important;
+}
+
+body .swal2-container {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+body .swal2-popup {
+    border-radius: 24px !important;
+    padding: 40px 30px 40px 30px !important; /* Perfectly equal 40px top and bottom padding */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08) !important;
+    border: none !important;
+}
+
+body .swal2-title {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1.6rem !important;
+    color: #1e293b !important;
+    /* margin-top: 15px !important;
+    margin-bottom: 10px !important; */
+}
+
+body .swal2-html-container {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 0.95rem !important;
+    color: #475569 !important;
+    line-height: 1.6 !important;
+    /* margin-bottom: 25px !important; */
+}
+
+body .swal2-confirm {
+    background: #a44390 !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    padding: 12px 35px !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.25) !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+body .swal2-confirm:hover {
+    background: #8e367c !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(164, 67, 144, 0.35) !important;
+}
+
+/* Red Confirm Button for Warnings/Errors/Delete Alerts */
+body .swal2-popup:has(.swal2-warning) .swal2-confirm,
+body .swal2-popup:has(.swal2-error) .swal2-confirm,
+body .swal2-popup:has(.swal2-icon-warning) .swal2-confirm,
+body .swal2-popup:has(.swal2-icon-error) .swal2-confirm {
+    background: #ef4444 !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+}
+
+body .swal2-popup:has(.swal2-warning) .swal2-confirm:hover,
+body .swal2-popup:has(.swal2-error) .swal2-confirm:hover,
+body .swal2-popup:has(.swal2-icon-warning) .swal2-confirm:hover,
+body .swal2-popup:has(.swal2-icon-error) .swal2-confirm:hover {
+    background: #dc2626 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(239, 68, 68, 0.35) !important;
+}
+
+/* Premium Green Cancel Button */
+body .swal2-cancel {
+    background: #22c55e !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    padding: 12px 30px !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+
+body .swal2-cancel:hover {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(34, 197, 94, 0.3) !important;
+}
+
+body .swal2-actions {
+    gap: 12px !important;
+}
+
+body .swal2-icon {
+    border-width: 3px !important;
+    transform: scale(1.1);
+    margin: 0 auto 15px auto !important; /* Reset high 2.5em top margin of SweetAlert default icon to balance spacing */
 }

@@ -32,6 +32,9 @@ class Dashboard
             'save_provider_availability'       => 'handle_availability_save', // Saves working hours
             'cosy_add_holiday'                 => 'handle_add_holiday',      // Adds a non-working day
             'cosy_delete_holiday'              => 'handle_delete_holiday',   // Deletes a non-working day
+            'cosy_add_provider_review'         => 'handle_add_review',
+            'cosy_approve_provider_review'     => 'handle_approve_review',
+            'cosy_delete_provider_review'      => 'handle_delete_review',
         ];
 
         // Register all AJAX handlers dynamically
@@ -456,7 +459,152 @@ class Dashboard
 
         // Save in user meta for the specific day
         update_user_meta($user_id, "cosy_availability_{$day}", $availability_data);
-
+ 
         wp_send_json_success('Availability saved successfully for ' . $day);
+    }
+ 
+    public function handle_add_review(): void
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Please login as a Customer to submit a review.']);
+        }
+ 
+        $current_user = wp_get_current_user();
+        if (!in_array('customer', (array) $current_user->roles)) {
+            wp_send_json_error(['message' => 'Only registered customers are allowed to submit reviews.']);
+        }
+ 
+        $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
+        $rating = isset($_POST['rating']) ? intval($_POST['rating']) : 0;
+        $review_text = isset($_POST['review']) ? sanitize_textarea_field($_POST['review']) : '';
+ 
+        if (!$provider_id) {
+            wp_send_json_error(['message' => 'Invalid Service Provider.']);
+        }
+ 
+        if ($rating < 1 || $rating > 5) {
+            wp_send_json_error(['message' => 'Please select a star rating (1 to 5).']);
+        }
+ 
+        if (empty($review_text)) {
+            wp_send_json_error(['message' => 'Please write a review comment.']);
+        }
+ 
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+ 
+        $inserted = $wpdb->insert(
+            $table_name,
+            [
+                'provider_id'   => $provider_id,
+                'customer_id'   => $current_user->ID,
+                'customer_name' => $current_user->display_name,
+                'rating'        => $rating,
+                'review'        => $review_text,
+                'status'        => 'pending',
+                'created_at'    => current_time('mysql'),
+            ],
+            ['%d', '%d', '%s', '%d', '%s', '%s', '%s']
+        );
+ 
+        if ($inserted) {
+            wp_send_json_success(['message' => 'Review submitted successfully! It will be displayed after provider approval.']);
+        } else {
+            wp_send_json_error(['message' => 'Failed to save review. Please try again.']);
+        }
+    }
+ 
+    public function handle_approve_review(): void
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+ 
+        $current_user = wp_get_current_user();
+        $is_admin = current_user_can('manage_cosy_appointments');
+        $is_provider = in_array('provider', (array) $current_user->roles);
+ 
+        if (!$is_admin && !$is_provider) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+ 
+        $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
+ 
+        if (!$review_id) {
+            wp_send_json_error(['message' => 'Invalid Review ID.']);
+        }
+ 
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+ 
+        // Secure check: Provider can only approve their own reviews
+        if ($is_provider && !$is_admin) {
+            $updated = $wpdb->update(
+                $table_name,
+                ['status' => 'approved'],
+                ['id' => $review_id, 'provider_id' => $current_user->ID],
+                ['%s'],
+                ['%d', '%d']
+            );
+        } else {
+            $updated = $wpdb->update(
+                $table_name,
+                ['status' => 'approved'],
+                ['id' => $review_id],
+                ['%s'],
+                ['%d']
+            );
+        }
+ 
+        if ($updated !== false) {
+            wp_send_json_success(['message' => 'Review approved successfully!']);
+        } else {
+            wp_send_json_error(['message' => 'Failed to approve review.']);
+        }
+    }
+ 
+    public function handle_delete_review(): void
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+ 
+        $current_user = wp_get_current_user();
+        $is_admin = current_user_can('manage_cosy_appointments');
+        $is_provider = in_array('provider', (array) $current_user->roles);
+ 
+        if (!$is_admin && !$is_provider) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+ 
+        $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
+ 
+        if (!$review_id) {
+            wp_send_json_error(['message' => 'Invalid Review ID.']);
+        }
+ 
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+ 
+        // Secure check: Provider can only delete their own reviews
+        if ($is_provider && !$is_admin) {
+            $deleted = $wpdb->delete(
+                $table_name,
+                ['id' => $review_id, 'provider_id' => $current_user->ID],
+                ['%d', '%d']
+            );
+        } else {
+            $deleted = $wpdb->delete(
+                $table_name,
+                ['id' => $review_id],
+                ['%d']
+            );
+        }
+ 
+        if ($deleted !== false) {
+            wp_send_json_success(['message' => 'Review deleted successfully!']);
+        } else {
+            wp_send_json_error(['message' => 'Failed to delete review.']);
+        }
     }
 }

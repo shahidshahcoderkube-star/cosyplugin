@@ -6,6 +6,30 @@ $common = new class {
 };
 $provider_data = $common->get_provider_with_services($author_slug);
 
+$current_user = wp_get_current_user();
+$is_logged_in = is_user_logged_in();
+$user_role = !empty($current_user->roles) ? reset($current_user->roles) : '';
+
+global $wpdb;
+$reviews_table = $wpdb->prefix . 'cosy_provider_reviews';
+$approved_reviews = [];
+if (!empty($provider_data['ID'])) {
+    $approved_reviews = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT * FROM $reviews_table WHERE provider_id = %d AND status = 'approved' ORDER BY created_at DESC",
+            $provider_data['ID']
+        ),
+        ARRAY_A
+    );
+}
+
+$total_reviews = count($approved_reviews);
+$average_rating = 0;
+if ($total_reviews > 0) {
+    $total_stars = array_sum(array_column($approved_reviews, 'rating'));
+    $average_rating = round($total_stars / $total_reviews, 1);
+}
+
 /** 
  * PROVIDER AVAILABILITY DATA FETCHING
  * 
@@ -26,7 +50,7 @@ if (!empty($provider_data['ID'])) {
         $day_data = get_user_meta($provider_data['ID'], "cosy_availability_{$day}", true);
         $availability[$day] = !empty($day_data) ? $day_data : null;
     }
-    
+
     // Fetch Holidays
     $raw_holidays = get_user_meta($provider_data['ID'], 'cosy_provider_holidays', true);
     $holidays_arr = (!empty($raw_holidays)) ? json_decode($raw_holidays, true) : [];
@@ -47,6 +71,13 @@ if (!empty($provider_data['ID'])) {
 <script>
     window.providerAvailability = <?php echo json_encode($availability); ?>;
     window.providerHolidays = <?php echo json_encode($holiday_dates); ?>;
+    window.currentUser = {
+        isLoggedIn: <?php echo $is_logged_in ? 'true' : 'false'; ?>,
+        role: <?php echo json_encode($user_role); ?>,
+        name: <?php echo json_encode($current_user->display_name); ?>,
+        id: <?php echo json_encode($current_user->ID); ?>
+    };
+    window.providerId = <?php echo json_encode($provider_data['ID'] ?? 0); ?>;
 </script>
 <?php
 
@@ -106,10 +137,10 @@ if (!empty($provider_data['ID'])) {
                         </div>
                         <div class="col-4 py-3 border-start border-end">
                             <div class="h5 fw-bold mb-1 text-warning" style="letter-spacing: -0.5px;"><i
-                                    class="fas fa-star me-1" style="font-size: 1rem;"></i>5.0</div>
+                                    class="fas fa-star me-1" style="font-size: 1rem;"></i><?php echo ($average_rating > 0) ? number_format($average_rating, 1) : '0.0'; ?></div>
 
                             <small class="text-muted text-uppercase fw-bold"
-                                style="font-size: 0.6rem; letter-spacing: 0.8px;">(12 Reviews)</small>
+                                style="font-size: 0.6rem; letter-spacing: 0.8px;">(<?php echo $total_reviews; ?> Reviews)</small>
                         </div>
                         <div class="col-4 py-3">
                             <?php if (!empty($provider_data['age_group'])) { ?>
@@ -141,7 +172,7 @@ if (!empty($provider_data['ID'])) {
                             <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Offered Services</h5>
                         </div>
                         <div class="services-list-premium">
-                            <?php foreach ($provider_data['services'] as $service): 
+                            <?php foreach ($provider_data['services'] as $service):
                                 $s_title = esc_js($service['title']);
                                 $s_price = esc_js($service['price']);
                                 $s_time = esc_js($service['time'] ?? '60');
@@ -249,8 +280,7 @@ if (!empty($provider_data['ID'])) {
                             <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Reviews</h5>
                         </div>
                         <button class="btn btn-sm text-white px-3"
-                            style="background-color: #a44390; border-radius: 10px;" data-bs-toggle="collapse"
-                            data-bs-target="#reviewForm">
+                            style="background-color: #a44390; border-radius: 10px;" id="addReviewBtn">
                             + Add Review
                         </button>
                     </div>
@@ -268,28 +298,39 @@ if (!empty($provider_data['ID'])) {
 
                             <label class="small fw-bold text-muted mb-2 d-block">Your Review</label>
                             <textarea class="form-control mb-3 border-0 shadow-sm" rows="3"
+                                id="reviewText"
                                 placeholder="Share your experience..."
                                 style="border-radius: 14px; padding: 15px; font-size: 0.95rem; resize: none;"></textarea>
 
-                            <button class="btn w-100 py-2 fw-bold text-white shadow-sm"
+                            <button class="btn w-100 py-2 fw-bold text-white shadow-sm" id="postReviewBtn"
                                 style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 12px; border: none; font-size: 0.9rem; transition: all 0.3s;">
                                 Post Review
                             </button>
                         </div>
                     </div>
 
-                    <div class="d-flex gap-3 pb-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                            style="width: 45px; height: 45px; background: #fdf2fb; color: #a44390;">
-                            <span class="fw-bold">S</span>
-                        </div>
-                        <div>
-                            <h6 class="mb-0 fw-bold">Sarah Jenkins</h6>
-                            <small class="text-warning"><i class="fa-solid fa-star"></i><i
-                                    class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                    class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></small>
-                            <p class="small text-muted mb-0">Amanda was absolutely amazing. Very helpful!</p>
-                        </div>
+                    <div class="reviews-list-container d-flex flex-column gap-3">
+                        <?php if (!empty($approved_reviews)): ?>
+                            <?php foreach ($approved_reviews as $rev): ?>
+                                <div class="d-flex gap-3 pb-3 border-bottom animate__animated animate__fadeIn" style="border-color: #f1f5f9 !important;">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-uppercase"
+                                        style="width: 45px; height: 45px; background: #fdf2fb; color: #a44390;">
+                                        <?php echo esc_html(substr($rev['customer_name'], 0, 1)); ?>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold"><?php echo esc_html($rev['customer_name']); ?></h6>
+                                        <small class="text-warning">
+                                            <?php for ($star = 1; $star <= 5; $star++): ?>
+                                                <i class="<?php echo ($star <= $rev['rating']) ? 'fa-solid' : 'fa-regular'; ?> fa-star"></i>
+                                            <?php endfor; ?>
+                                        </small>
+                                        <p class="small text-muted mb-0 mt-1" style="font-size: 0.85rem; line-height: 1.4;"><?php echo esc_html($rev['review']); ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="text-muted small mb-0">No reviews yet for this provider.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -389,7 +430,7 @@ if (!empty($provider_data['ID'])) {
                         <div class="p-2 px-3 fw-bold text-dark mb-3 d-flex align-items-center justify-content-between"
                             style="background: #fdf2fb; border: 1px solid #f9e6f5; border-radius: 10px; font-size: 0.8rem;">
                             <span><i class="fas fa-calendar-day me-2 text-muted"></i> Start Date:</span>
-                            <span id="displaySelectedDate" class="text-primary">May 13, 2026</span>
+                            <span id="displaySelectedDate" style="color: #a44390 !important;">May 13, 2026</span>
                         </div>
 
                         <div id="timeSlotsList" class="d-flex flex-column gap-2 mb-0">
@@ -482,14 +523,14 @@ if (!empty($provider_data['ID'])) {
             row.style.background = '#f8fafc';
             row.style.border = '1px solid #e2e8f0';
             const icon = row.querySelector('.service-check-icon');
-            if(icon) icon.style.color = '#cbd5e1';
+            if (icon) icon.style.color = '#cbd5e1';
         });
 
         // Highlight selected service
         el.style.background = '#fdf2fb';
         el.style.border = '1px solid #a44390';
         const activeIcon = el.querySelector('.service-check-icon');
-        if(activeIcon) activeIcon.style.color = '#a44390';
+        if (activeIcon) activeIcon.style.color = '#a44390';
 
         selectedService = {
             title: title,
@@ -528,14 +569,14 @@ if (!empty($provider_data['ID'])) {
             const isPast = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
             const isToday = cellDate.toDateString() === today.toDateString();
             const isSelected = selectedDate && cellDate.toDateString() === selectedDate.toDateString();
-            
+
             // Format cellDate to YYYY-MM-DD for holiday check
             const cellYear = cellDate.getFullYear();
             const cellMonth = String(cellDate.getMonth() + 1).padStart(2, '0');
             const cellDayStr = String(cellDate.getDate()).padStart(2, '0');
             const dateString = `${cellYear}-${cellMonth}-${cellDayStr}`;
             const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateString);
-            
+
             const isUnavailable = isPast || isHoliday;
 
             let bg = '#f8fafc';
@@ -577,38 +618,11 @@ if (!empty($provider_data['ID'])) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Select a Service',
-                    text: 'Please select a service from "Offered Services" before selecting a date.',
-                    confirmButtonColor: '#a44390',
-                    showClass: { popup: '' },
-                    hideClass: { popup: '' },
-                    customClass: {
-                        popup: 'swal-poppins-font',
-                        title: 'swal-title-custom',
-                        confirmButton: 'swal-btn-custom'
-                    },
-                    didOpen: () => {
-                        // Apply exact styling from first image
-                        const popup = Swal.getPopup();
-                        popup.style.fontFamily = "'Poppins', sans-serif";
-                        popup.style.borderRadius = '16px';
-                        const title = Swal.getTitle();
-                        title.style.color = '#1e293b';
-                        title.style.fontWeight = '700';
-                        title.style.fontSize = '1.75rem';
-                        const content = Swal.getHtmlContainer();
-                        content.style.color = '#64748b';
-                        content.style.fontSize = '1.05rem';
-                        const confirmBtn = Swal.getConfirmButton();
-                        confirmBtn.style.borderRadius = '10px';
-                        confirmBtn.style.padding = '8px 24px';
-                        confirmBtn.style.fontWeight = '600';
-                        confirmBtn.style.border = 'none';
-                        confirmBtn.style.boxShadow = 'none';
-                        confirmBtn.style.outline = 'none';
-                    }
+                    html: 'Please select a service from <span style="color: #a44390; font-weight: 700;">Offered Services</span> before selecting a date.',
+                    confirmButtonText: 'OK'
                 });
             } else {
-                alert('Please select a service from "Offered Services" before selecting a date.');
+                alert('Please select a service from Offered Services before selecting a date.');
             }
             return;
         }
@@ -715,7 +729,7 @@ if (!empty($provider_data['ID'])) {
         if (avail.break_start && avail.break_end) {
             breakStart = new Date(`${baseDateStr}${avail.break_start}:00`);
             breakEnd = new Date(`${baseDateStr}${avail.break_end}:00`);
-            
+
             // Adjust break times for overnight shifts
             if (breakStart < startTime) {
                 breakStart.setDate(breakStart.getDate() + 1);
@@ -850,12 +864,12 @@ if (!empty($provider_data['ID'])) {
         for (const d in selectedTimeSlotsByDay) {
             totalSlots += selectedTimeSlotsByDay[d].length;
         }
-        
+
         const weeks = parseInt(document.getElementById('totalBookingWeeks').value) || 1;
         const servicePrice = selectedService ? selectedService.price : 0;
-        
+
         const totalPrice = totalSlots * servicePrice * weeks;
-        
+
         const amountText = document.getElementById('finalTotalAmountText');
         if (amountText) amountText.textContent = `£${totalPrice.toFixed(2)}`;
     }
@@ -874,20 +888,173 @@ if (!empty($provider_data['ID'])) {
     document.addEventListener('DOMContentLoaded', () => {
         const stars = document.querySelectorAll('.rating-star');
         const ratingInput = document.getElementById('selectedRating');
-        if (!stars.length) return;
+        const addReviewBtn = document.getElementById('addReviewBtn');
+        const postReviewBtn = document.getElementById('postReviewBtn');
+        const reviewText = document.getElementById('reviewText');
+        const reviewFormEl = document.getElementById('reviewForm');
 
-        stars.forEach(star => {
-            star.addEventListener('mouseover', function() {
-                highlightStars(this.dataset.rating);
+        if (addReviewBtn) {
+            addReviewBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!window.currentUser || !window.currentUser.isLoggedIn) {
+                    Swal.fire({
+                        title: 'Customer Login Required',
+                        text: 'Please log in to a Customer account to post a review.',
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                if (window.currentUser.role !== 'customer') {
+                    Swal.fire({
+                        title: 'Access Restricted',
+                        text: 'Only registered customers are allowed to post reviews.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(reviewFormEl);
+                bsCollapse.toggle();
             });
-            star.addEventListener('mouseout', function() {
-                highlightStars(ratingInput.value);
+        }
+
+        if (postReviewBtn) {
+            postReviewBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const ratingVal = ratingInput ? parseInt(ratingInput.value) : 0;
+                const reviewVal = reviewText ? reviewText.value.trim() : '';
+
+                if (ratingVal < 1 || ratingVal > 5) {
+                    Swal.fire({
+                        title: 'Rating Required',
+                        text: 'Please select a rating by clicking on the stars.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#a44390',
+                        background: '#ffffff',
+                        customClass: {
+                            popup: 'swal2-bento-popup',
+                            title: 'swal2-bento-title',
+                            htmlContainer: 'swal2-bento-text',
+                            confirmButton: 'swal2-bento-btn'
+                        }
+                    });
+                    return;
+                }
+
+                if (reviewVal === '') {
+                    Swal.fire({
+                        title: 'Review Required',
+                        text: 'Please write a brief comment describing your experience.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#a44390',
+                        background: '#ffffff',
+                        customClass: {
+                            popup: 'swal2-bento-popup',
+                            title: 'swal2-bento-title',
+                            htmlContainer: 'swal2-bento-text',
+                            confirmButton: 'swal2-bento-btn'
+                        }
+                    });
+                    return;
+                }
+
+                postReviewBtn.disabled = true;
+                postReviewBtn.textContent = 'Posting...';
+
+                // Send AJAX request
+                jQuery.ajax({
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    type: 'POST',
+                    data: {
+                        action: 'cosy_add_provider_review',
+                        rating: ratingVal,
+                        review: reviewVal,
+                        provider_id: window.providerId
+                    },
+                    success: function(response) {
+                        postReviewBtn.disabled = false;
+                        postReviewBtn.textContent = 'Post Review';
+
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Thank You!',
+                                text: response.data.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#a44390',
+                                background: '#ffffff',
+                                customClass: {
+                                    popup: 'swal2-bento-popup',
+                                    title: 'swal2-bento-title',
+                                    htmlContainer: 'swal2-bento-text',
+                                    confirmButton: 'swal2-bento-btn'
+                                }
+                            });
+
+                            // Clear inputs & hide form
+                            if (ratingInput) ratingInput.value = '0';
+                            if (reviewText) reviewText.value = '';
+                            highlightStars(0);
+                            const bsCollapse = bootstrap.Collapse.getInstance(reviewFormEl);
+                            if (bsCollapse) bsCollapse.hide();
+                        } else {
+                            Swal.fire({
+                                title: 'Submission Failed',
+                                text: response.data.message || 'Something went wrong.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#a44390',
+                                background: '#ffffff',
+                                customClass: {
+                                    popup: 'swal2-bento-popup',
+                                    title: 'swal2-bento-title',
+                                    htmlContainer: 'swal2-bento-text',
+                                    confirmButton: 'swal2-bento-btn'
+                                }
+                            });
+                        }
+                    },
+                    error: function() {
+                        postReviewBtn.disabled = false;
+                        postReviewBtn.textContent = 'Post Review';
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to communicate with server. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#a44390',
+                            background: '#ffffff',
+                            customClass: {
+                                popup: 'swal2-bento-popup',
+                                title: 'swal2-bento-title',
+                                htmlContainer: 'swal2-bento-text',
+                                confirmButton: 'swal2-bento-btn'
+                            }
+                        });
+                    }
+                });
             });
-            star.addEventListener('click', function() {
-                ratingInput.value = this.dataset.rating;
-                highlightStars(ratingInput.value);
+        }
+
+        if (stars.length) {
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    highlightStars(this.dataset.rating);
+                });
+                star.addEventListener('mouseout', function() {
+                    highlightStars(ratingInput.value);
+                });
+                star.addEventListener('click', function() {
+                    ratingInput.value = this.dataset.rating;
+                    highlightStars(ratingInput.value);
+                });
             });
-        });
+        }
 
         function highlightStars(val) {
             stars.forEach(s => {

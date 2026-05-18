@@ -1,3 +1,38 @@
+<?php
+$current_provider_id = get_current_user_id();
+global $wpdb;
+$table_name = $wpdb->prefix . 'cosy_provider_reviews';
+
+// Fetch all reviews for this provider (both pending and approved)
+$all_reviews = [];
+if ($current_provider_id) {
+    $all_reviews = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT * FROM $table_name WHERE provider_id = %d ORDER BY created_at DESC",
+            $current_provider_id
+        ),
+        ARRAY_A
+    );
+}
+
+// Calculate metrics based on APPROVED reviews
+$approved_reviews_db = array_filter($all_reviews, function($r) {
+    return $r['status'] === 'approved';
+});
+
+$total_approved = count($approved_reviews_db);
+$average_rating_db = 0;
+$rating_counts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+
+if ($total_approved > 0) {
+    $sum_ratings = 0;
+    foreach ($approved_reviews_db as $r) {
+        $sum_ratings += intval($r['rating']);
+        $rating_counts[intval($r['rating'])]++;
+    }
+    $average_rating_db = round($sum_ratings / $total_approved, 1);
+}
+?>
 <style>
 .cosy-reviews-card {
     background: #ffffff;
@@ -93,103 +128,235 @@
         <!-- Rating Summary -->
         <div class="row mb-5 align-items-center">
             <div class="col-md-4 text-center border-end">
-                <div class="rating-number">4.2</div>
+                <div class="rating-number"><?php echo $average_rating_db > 0 ? number_format($average_rating_db, 1) : '0.0'; ?></div>
                 <div class="mb-2">
-                    <i class="fas fa-star star-active"></i>
-                    <i class="fas fa-star star-active"></i>
-                    <i class="fas fa-star star-active"></i>
-                    <i class="fas fa-star star-active"></i>
-                    <i class="fas fa-star-half-alt star-active"></i>
+                    <?php
+                    $full_stars = floor($average_rating_db);
+                    $half_star = ($average_rating_db - $full_stars) >= 0.5 ? true : false;
+                    for ($star = 1; $star <= 5; $star++) {
+                        if ($star <= $full_stars) {
+                            echo '<i class="fas fa-star star-active"></i>';
+                        } elseif ($star == $full_stars + 1 && $half_star) {
+                            echo '<i class="fas fa-star-half-alt star-active"></i>';
+                        } else {
+                            echo '<i class="far fa-star star-inactive"></i>';
+                        }
+                    }
+                    ?>
                 </div>
                 <p class="text-muted small fw-bold mb-0">Average Rating</p>
-                <p class="text-muted small">Based on 120 reviews</p>
+                <p class="text-muted small">Based on <?php echo $total_approved; ?> reviews</p>
             </div>
             <div class="col-md-8 ps-md-5">
                 <!-- Rating Distribution -->
-                <div class="d-flex align-items-center mb-3">
-                    <span class="text-muted small fw-bold" style="width: 25px;">5</span>
-                    <i class="fas fa-star star-active small me-3"></i>
-                    <div class="progress flex-grow-1">
-                        <div class="progress-bar" style="width: 60%"></div>
+                <?php for ($i = 5; $i >= 1; $i--): 
+                    $percent = $total_approved > 0 ? round(($rating_counts[$i] / $total_approved) * 100) : 0;
+                ?>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="text-muted small fw-bold" style="width: 25px;"><?php echo $i; ?></span>
+                        <i class="fas fa-star star-active small me-3"></i>
+                        <div class="progress flex-grow-1">
+                            <div class="progress-bar" style="width: <?php echo $percent; ?>%"></div>
+                        </div>
+                        <span class="ms-3 text-muted small fw-bold" style="width: 30px; text-align: right;"><?php echo $rating_counts[$i]; ?></span>
                     </div>
-                    <span class="ms-3 text-muted small fw-bold">72</span>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                    <span class="text-muted small fw-bold" style="width: 25px;">4</span>
-                    <i class="fas fa-star star-active small me-3"></i>
-                    <div class="progress flex-grow-1">
-                        <div class="progress-bar" style="width: 25%"></div>
-                    </div>
-                    <span class="ms-3 text-muted small fw-bold">30</span>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                    <span class="text-muted small fw-bold" style="width: 25px;">3</span>
-                    <i class="fas fa-star star-active small me-3"></i>
-                    <div class="progress flex-grow-1">
-                        <div class="progress-bar" style="width: 10%"></div>
-                    </div>
-                    <span class="ms-3 text-muted small fw-bold">12</span>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                    <span class="text-muted small fw-bold" style="width: 25px;">2</span>
-                    <i class="fas fa-star star-active small me-3"></i>
-                    <div class="progress flex-grow-1">
-                        <div class="progress-bar" style="width: 3%"></div>
-                    </div>
-                    <span class="ms-3 text-muted small fw-bold">4</span>
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="text-muted small fw-bold" style="width: 25px;">1</span>
-                    <i class="fas fa-star star-active small me-3"></i>
-                    <div class="progress flex-grow-1">
-                        <div class="progress-bar" style="width: 2%"></div>
-                    </div>
-                    <span class="ms-3 text-muted small fw-bold">2</span>
-                </div>
+                <?php endfor; ?>
             </div>
         </div>
 
         <!-- Recent Reviews -->
+        <h5 class="fw-bold mb-3 border-bottom pb-2" style="font-family: 'Poppins', sans-serif; color: #1e293b;">Feedback List</h5>
         <div class="reviews-list">
-            <div class="review-item">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <h6 class="mb-0 fw-bold d-flex align-items-center">
-                            Rahul Sharma 
-                            <span class="badge verified-badge"><i class="fas fa-check-circle me-1"></i> Verified</span>
-                        </h6>
-                        <small class="text-muted">Haircut • 01 Jan 2026</small>
+            <?php if (!empty($all_reviews)): ?>
+                <?php foreach ($all_reviews as $r): 
+                    $is_pending = ($r['status'] === 'pending');
+                ?>
+                    <div class="review-item border-start border-4 <?php echo $is_pending ? 'border-start-warning' : 'border-start-success'; ?>" id="cosy-review-<?php echo $r['id']; ?>" style="border-left-color: <?php echo $is_pending ? '#ffb800' : '#22c55e'; ?> !important;">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="mb-0 fw-bold d-flex align-items-center">
+                                    <?php echo esc_html($r['customer_name']); ?>
+                                    <?php if ($is_pending): ?>
+                                        <span class="badge bg-warning text-dark ms-2" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;"><i class="fas fa-clock me-1"></i> Pending Approval</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success text-white ms-2" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;"><i class="fas fa-check-circle me-1"></i> Approved</span>
+                                    <?php endif; ?>
+                                </h6>
+                                <small class="text-muted"><?php echo date('d M Y - h:i A', strtotime($r['created_at'])); ?></small>
+                            </div>
+                            <div class="text-warning small">
+                                <?php for ($star = 1; $star <= 5; $star++): ?>
+                                    <i class="<?php echo ($star <= $r['rating']) ? 'fas fa-star' : 'far fa-star star-inactive'; ?>"></i>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+                        <p class="mb-3 text-dark small mt-2">"<?php echo esc_html($r['review']); ?>"</p>
+                        
+                        <!-- Moderation Controls -->
+                        <div class="d-flex gap-2">
+                            <?php if ($is_pending): ?>
+                                <button class="btn btn-sm btn-success approve-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem; background-color: #22c55e; border-color: #22c55e;">
+                                    <i class="fas fa-check me-1"></i> Approve
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem; background-color: #ef4444; border-color: #ef4444;">
+                                    <i class="fas fa-times me-1"></i> Reject
+                                </button>
+                            <?php else: ?>
+                                <button class="btn btn-sm btn-outline-danger delete-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem;">
+                                    <i class="fas fa-trash-alt me-1"></i> Delete
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="text-warning small">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        <i class="far fa-star star-inactive"></i>
-                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="text-center py-5 rounded-4" style="background: #f8fafc; border: 1.5px dashed #cbd5e1;">
+                    <i class="far fa-comments text-muted mb-3" style="font-size: 2.5rem;"></i>
+                    <p class="text-muted mb-0">No customer reviews found for your profile yet.</p>
                 </div>
-                <p class="mb-0 text-dark small mt-2">"Great service, very professional and friendly!"</p>
-            </div>
-
-            <div class="review-item">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <h6 class="mb-0 fw-bold">Priya Patel</h6>
-                        <small class="text-muted">Massage Therapy • 02 Jan 2026</small>
-                    </div>
-                    <div class="text-warning small">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i><i class="far fa-star star-inactive"></i>
-                        <i class="far fa-star star-inactive"></i>
-                    </div>
-                </div>
-                <p class="mb-0 text-dark small mt-2">"Relaxing experience, could improve ambience."</p>
-            </div>
-        </div>
-
-        <!-- View All Button -->
-        <div class="text-center mt-4">
-            <button class="btn custom-btn-outline" data-bs-toggle="modal" data-bs-target="#reviewsModal">
-                View All Reviews
-            </button>
+            <?php endif; ?>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Event delegation for Approve button
+    document.addEventListener('click', function(e) {
+        const approveBtn = e.target.closest('.approve-review-btn');
+        if (approveBtn) {
+            e.preventDefault();
+            const reviewId = approveBtn.getAttribute('data-id');
+            
+            approveBtn.disabled = true;
+            approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Approving...';
+            
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'POST',
+                data: {
+                    action: 'cosy_approve_provider_review',
+                    review_id: reviewId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Approved!',
+                            text: 'Review successfully approved and displayed on your profile.',
+                            icon: 'success',
+                            confirmButtonColor: '#a44390',
+                            background: '#ffffff',
+                            customClass: {
+                                popup: 'swal2-bento-popup',
+                                title: 'swal2-bento-title',
+                                htmlContainer: 'swal2-bento-text',
+                                confirmButton: 'swal2-bento-btn'
+                            }
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        approveBtn.disabled = false;
+                        approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
+                        Swal.fire({
+                            title: 'Error',
+                            text: response.data.message || 'Failed to approve review.',
+                            icon: 'error',
+                            confirmButtonColor: '#a44390'
+                        });
+                    }
+                },
+                error: function() {
+                    approveBtn.disabled = false;
+                    approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to communicate with server.',
+                        icon: 'error',
+                        confirmButtonColor: '#a44390'
+                    });
+                }
+            });
+        }
+    });
+
+    // Event delegation for Delete/Reject button
+    document.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('.delete-review-btn');
+        if (deleteBtn) {
+            e.preventDefault();
+            const reviewId = deleteBtn.getAttribute('data-id');
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to delete or reject this review? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                background: '#ffffff',
+                customClass: {
+                    popup: 'swal2-bento-popup',
+                    title: 'swal2-bento-title',
+                    htmlContainer: 'swal2-bento-text',
+                    confirmButton: 'swal2-bento-btn'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteBtn.disabled = true;
+                    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Deleting...';
+                    
+                    jQuery.ajax({
+                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                        type: 'POST',
+                        data: {
+                            action: 'cosy_delete_provider_review',
+                            review_id: reviewId
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'Review has been removed.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#a44390',
+                                    background: '#ffffff',
+                                    customClass: {
+                                        popup: 'swal2-bento-popup',
+                                        title: 'swal2-bento-title',
+                                        htmlContainer: 'swal2-bento-text',
+                                        confirmButton: 'swal2-bento-btn'
+                                    }
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                deleteBtn.disabled = false;
+                                deleteBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i> Reject';
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: response.data.message || 'Failed to delete review.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#a44390'
+                                });
+                            }
+                        },
+                        error: function() {
+                            deleteBtn.disabled = false;
+                            deleteBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i> Reject';
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Failed to communicate with server.',
+                                icon: 'error',
+                                confirmButtonColor: '#a44390'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+</script>

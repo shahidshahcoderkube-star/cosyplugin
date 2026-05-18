@@ -175,6 +175,34 @@ function cosy_create_media_table()
     }
 }
 
+//-------Create Reviews table--------//
+function cosy_create_reviews_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+        $sql = "CREATE TABLE $table_name (
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            provider_id BIGINT(20) UNSIGNED NOT NULL,
+            customer_id BIGINT(20) UNSIGNED NOT NULL,
+            customer_name VARCHAR(255) NOT NULL,
+            rating TINYINT(1) UNSIGNED NOT NULL,
+            review TEXT NOT NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'pending',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+}
+
+// Run immediately to ensure the table is created for active installations
+cosy_create_reviews_table();
+
 //-------Register activation hook--------//
 register_activation_hook(__FILE__, 'cosy_plugin_activate');
 
@@ -186,6 +214,7 @@ function cosy_plugin_activate()
     cosy_create_pages_on_activation();
     cosy_create_services_table();
     cosy_create_media_table();
+    cosy_create_reviews_table();
     update_option('cosy_plugin_version', COSY_APPT_VER);
 }
 
