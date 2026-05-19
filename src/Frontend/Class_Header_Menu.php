@@ -30,6 +30,13 @@ class Class_Header_Menu
             return $items;
         }
 
+        $current_user = wp_get_current_user();
+        $roles = (array) $current_user->roles;
+
+        if (in_array('provider', $roles)) {
+            $items = str_replace('Service Provide', '', $items);
+        }
+
         ob_start();
         ?>
         <!-- Services Dropdown (Premium Button) -->
@@ -47,6 +54,35 @@ class Class_Header_Menu
                 <?php endforeach; ?>
             </ul>
         </li>
+        
+        <!-- Auth Buttons -->
+        <?php if (!is_user_logged_in()) : ?>
+            <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
+                <a href="#" class="btn btn-filled openRegisterPopup" style="margin-left: 10px;">Register</a>
+            </li>
+            <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
+                <a href="<?php echo site_url('login/'); ?>" class="btn btn-filled" style="margin-left: 10px;">Login</a>
+            </li>
+        <?php else : ?>
+            <?php if (in_array('customer', $roles)) : ?>
+                <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
+                    <a href="<?php echo site_url('customer-profile'); ?>" class="btn btn-filled" style="margin-left: 10px;">Dashboard</a>
+                </li>
+                <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
+                    <a href="<?php echo site_url('customer-order'); ?>" class="btn btn-filled" style="margin-left: 10px;">Order</a>
+                </li>
+                <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
+                    <a href="<?php echo wp_logout_url(home_url()); ?>" class="btn btn-filled" style="margin-left: 10px;">Logout</a>
+                </li>
+            <?php elseif (in_array('provider', $roles)) : ?>
+                <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
+                    <a href="<?php echo site_url('provider-dashboard'); ?>" class="btn btn-filled" style="margin-left: 10px;">Dashboard</a>
+                </li>
+                <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
+                    <a href="<?php echo wp_logout_url(home_url()); ?>" class="btn btn-filled" style="margin-left: 10px;">Logout</a>
+                </li>
+            <?php endif; ?>
+        <?php endif; ?>
         <?php
         $dropdown_html = ob_get_clean();
 

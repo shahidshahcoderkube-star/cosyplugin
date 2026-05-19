@@ -25,26 +25,26 @@ $appointments_query = new WP_Query($args);
 $appointments = $appointments_query->posts;
 ?>
 
-<div class="card cosy-orders-card mb-4 border-0" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(109, 46, 103, 0.04);">
+<div class="card cosy-orders-card mb-4 border-0">
     <div class="card-body p-4">
         <div class="d-flex align-items-center gap-3 mb-2">
-            <div class="header-icon-badge" style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-box-open" style="color: #a44390; font-size: 1.2rem;"></i>
+            <div class="header-icon-badge">
+                <i class="fas fa-box-open"></i>
             </div>
-            <h3 class="mb-0 fw-bold" style="color: #1e293b; font-family: 'Outfit', sans-serif;">Orders Management</h3>
+            <h3 class="mb-0 fw-bold">Orders Management</h3>
         </div>
-        <p class="text-muted mb-4" style="margin-left: 58px; font-size: 0.9rem;">Track and manage your customer bookings and order status.</p>
+        <p class="text-muted mb-4 cosy-orders-subtitle">Track and manage your customer bookings and order status.</p>
 
         <!-- Search & Filter -->
         <div class="row mb-4 gx-3">
             <div class="col-md-6 mb-2 mb-md-0">
                 <div class="position-relative">
-                    <i class="fas fa-search position-absolute" style="top: 15px; left: 18px; color: #94a3b8; font-size: 0.9rem;"></i>
-                    <input type="text" id="orderSearchInput" class="form-control rounded-4 border-0 bg-light" style="padding-left: 45px !important; height: 46px; font-size: 0.9rem;" placeholder="Search by Order ID or Customer...">
+                    <i class="fas fa-search position-absolute search-icon-abs"></i>
+                    <input type="text" id="orderSearchInput" class="form-control rounded-4 border-0 bg-light cosy-orders-filter-input" placeholder="Search by Order ID or Customer...">
                 </div>
             </div>
             <div class="col-md-3 mb-2 mb-md-0">
-                <select id="orderStatusFilter" class="form-select rounded-4 border-0 bg-light" style="height: 46px; font-size: 0.9rem; color: #475569;">
+                <select id="orderStatusFilter" class="form-select rounded-4 border-0 bg-light cosy-orders-filter-select">
                     <option value="">Filter by Status</option>
                     <option value="pending">Pending</option>
                     <option value="completed">Completed</option>
@@ -52,25 +52,17 @@ $appointments = $appointments_query->posts;
                 </select>
             </div>
             <div class="col-md-3">
-                <button id="exportOrdersBtn" class="btn btn-primary custom-btn w-100 rounded-4 fw-bold d-flex align-items-center justify-content-center gap-2" style="background: #6d2e67; border: none; height: 46px; font-size: 0.9rem;">
+                <button id="exportOrdersBtn" class="btn btn-primary custom-btn w-100 rounded-4 fw-bold d-flex align-items-center justify-content-center gap-2 cosy-orders-export-btn">
                     <i class="fas fa-file-export"></i> Export Orders
                 </button>
             </div>
         </div>
 
         <!-- Orders Table -->
-        <style>
-            #providerOrdersTable,
-            #providerOrdersTable th, 
-            #providerOrdersTable td {
-                border-left: 0 !important;
-                border-right: 0 !important;
-            }
-        </style>
         <div class="table-responsive">
             <table class="table align-middle" id="providerOrdersTable">
                 <thead>
-                    <tr style="border-bottom: 2px solid #f1f5f9; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">
+                    <tr>
                         <th class="pb-3">#Order ID</th>
                         <th class="pb-3">Customer</th>
                         <th class="pb-3">Service</th>
@@ -125,46 +117,44 @@ $appointments = $appointments_query->posts;
                             $status_badge = '';
                             $badge_class = '';
                             if ($booking_status === 'completed') {
-                                $status_badge = '<span class="badge badge-completed" style="background: #e6fcf5; color: #0ca678; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+                                $status_badge = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
                                 $badge_class = 'completed';
                             } elseif ($booking_status === 'cancelled') {
-                                $status_badge = '<span class="badge badge-cancelled" style="background: #fff5f5; color: #fa5252; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+                                $status_badge = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
                                 $badge_class = 'cancelled';
                             } else {
-                                $status_badge = '<span class="badge badge-pending" style="background: #fdf2fb; color: #a44390; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-clock me-1"></i> Pending</span>';
+                                $status_badge = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
                                 $badge_class = 'pending';
                             }
                         ?>
-                            <tr class="order-table-row" id="order-row-<?php echo $appt_id; ?>" data-search="<?php echo esc_attr(strtolower("#{$appt_id} {$customer_name}")); ?>" data-status="<?php echo esc_attr($booking_status); ?>" style="border-bottom: 1px solid #f8fafc; transition: background 0.2s;">
+                            <tr class="order-table-row" id="order-row-<?php echo $appt_id; ?>" data-search="<?php echo esc_attr(strtolower("#{$appt_id} {$customer_name}")); ?>" data-status="<?php echo esc_attr($booking_status); ?>">
                                 <td class="fw-bold text-dark">#<?php echo $appt_id; ?></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; font-size: 0.8rem; font-weight: 700; color: #a44390; border: 1.5px solid #f1e4ef;"><?php echo esc_html($initials); ?></div>
-                                        <span class="fw-semibold text-slate" style="color: #334155;"><?php echo esc_html($customer_name); ?></span>
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center order-customer-avatar"><?php echo esc_html($initials); ?></div>
+                                        <span class="fw-semibold order-customer-name"><?php echo esc_html($customer_name); ?></span>
                                     </div>
                                 </td>
-                                <td><span class="badge bg-light text-dark border-0 px-3 py-2 rounded-3" style="font-weight: 500; font-size: 0.8rem; color: #475569 !important;"><?php echo esc_html($service_name); ?></span></td>
-                                <td style="font-size: 0.85rem; color: #64748b;"><?php echo esc_html($start_date); ?></td>
+                                <td><span class="badge bg-light text-dark border-0 px-3 py-2 rounded-3 order-service-badge"><?php echo esc_html($service_name); ?></span></td>
+                                <td class="order-date-cell"><?php echo esc_html($start_date); ?></td>
                                 <td class="status-cell"><?php echo $status_badge; ?></td>
                                 <td>
                                     <div class="d-flex gap-2">
                                         <?php if ($booking_status === 'pending') : ?>
-                                            <button class="btn-action action-update-status bg-success text-white" 
+                                            <button class="btn-action action-update-status bg-success text-white order-action-btn" 
                                                     data-id="<?php echo $appt_id; ?>" 
                                                     data-status="completed" 
-                                                    style="width: 32px; height: 32px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" 
                                                     title="Mark Completed">
-                                                <i class="fas fa-check" style="font-size: 0.8rem;"></i>
+                                                <i class="fas fa-check"></i>
                                             </button>
-                                            <button class="btn-action action-update-status bg-danger text-white" 
+                                            <button class="btn-action action-update-status bg-danger text-white order-action-btn" 
                                                     data-id="<?php echo $appt_id; ?>" 
                                                     data-status="cancelled" 
-                                                    style="width: 32px; height: 32px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" 
                                                     title="Cancel Order">
-                                                <i class="fas fa-times" style="font-size: 0.8rem;"></i>
+                                                <i class="fas fa-times"></i>
                                             </button>
                                         <?php endif; ?>
-                                        <button class="btn-action btn-view-order-details bg-light text-secondary" 
+                                        <button class="btn-action btn-view-order-details bg-light text-secondary order-action-btn" 
                                                 data-id="<?php echo $appt_id; ?>"
                                                 data-customer="<?php echo esc_attr($customer_name); ?>"
                                                 data-email="<?php echo esc_attr($customer_email); ?>"
@@ -179,9 +169,8 @@ $appointments = $appointments_query->posts;
                                                 data-status="<?php echo esc_attr($booking_status); ?>"
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#orderDetailsModal" 
-                                                style="width: 32px; height: 32px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" 
                                                 title="View Details">
-                                            <i class="fas fa-eye" style="font-size: 0.8rem;"></i>
+                                            <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -197,33 +186,33 @@ $appointments = $appointments_query->posts;
 <!-- Order Details Modal -->
 <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content cosy-modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header cosy-modal-header text-white p-4" style="background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); border-top-left-radius: 20px; border-top-right-radius: 20px;">
-                <h5 class="modal-title fw-bold text-white" id="modalOrderTitle" style="font-family: 'Outfit', sans-serif; color: #ffffff !important;">Order Details</h5>
+        <div class="modal-content cosy-modal-content border-0 shadow-lg">
+            <div class="modal-header cosy-modal-header cosy-modal-header-gradient text-white p-4">
+                <h5 class="modal-title fw-bold text-white cosy-modal-title" id="modalOrderTitle">Order Details</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <div class="p-3 rounded-4" style="background-color: #fdf2fb; border: 1px solid #f1e4ef;">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif;"><i class="fas fa-user text-primary" style="color: #a44390 !important;"></i> Customer Info</h6>
-                            <p class="mb-1 fw-bold text-slate" id="modalCustomerName" style="color: #1e293b;"></p>
+                        <div class="p-3 rounded-4 modal-info-box-primary">
+                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-user text-primary modal-icon-primary"></i> Customer Info</h6>
+                            <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalCustomerName"></p>
                             <p class="mb-0 text-muted small" id="modalCustomerEmail"></p>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="p-3 rounded-4 bg-light" style="border: 1px solid #e2e8f0;">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif;"><i class="fas fa-concierge-bell text-primary" style="color: #a44390 !important;"></i> Service Details</h6>
-                            <p class="mb-1 fw-bold text-slate" id="modalServiceName" style="color: #1e293b;"></p>
-                            <p class="mb-1 text-muted small" id="modalScheduleInfo" style="font-size: 0.8rem;"></p>
-                            <p class="mb-1 text-muted small" id="modalWeeksInfo" style="font-size: 0.8rem;"></p>
-                            <p class="mb-0 fw-bold text-primary" id="modalCostInfo" style="color: #a44390 !important; font-size: 1.1rem;"></p>
+                        <div class="p-3 rounded-4 bg-light modal-info-box-secondary">
+                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-concierge-bell text-primary modal-icon-primary"></i> Service Details</h6>
+                            <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalServiceName"></p>
+                            <p class="mb-1 text-muted small modal-small-info" id="modalScheduleInfo"></p>
+                            <p class="mb-1 text-muted small modal-small-info" id="modalWeeksInfo"></p>
+                            <p class="mb-0 fw-bold text-primary modal-cost-info" id="modalCostInfo"></p>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-4 p-3 rounded-4 border" style="border-color: #f1e4ef !important; background-color: #fdf2fb;">
-                    <h6 class="fw-bold mb-2 text-slate" style="font-size: 0.85rem;">Current Status</h6>
+                <div class="mt-4 p-3 rounded-4 border modal-status-box">
+                    <h6 class="fw-bold mb-2 text-slate modal-status-title">Current Status</h6>
                     <div id="modalStatusContainer"></div>
                 </div>
             </div>
@@ -307,17 +296,17 @@ jQuery(document).ready(function($) {
 
         let badge = '';
         if (status === 'completed') {
-            badge = '<span class="badge badge-completed" style="background: #e6fcf5; color: #0ca678; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-check-circle me-1"></i> Completed</span>';
-            $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold" style="background: #cbd5e1; border: none; color: #475569;" data-bs-dismiss="modal">Close</button>');
+            badge = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+            $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
         } else if (status === 'cancelled') {
-            badge = '<span class="badge badge-cancelled" style="background: #fff5f5; color: #fa5252; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
-            $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold" style="background: #cbd5e1; border: none; color: #475569;" data-bs-dismiss="modal">Close</button>');
+            badge = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+            $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
         } else {
-            badge = '<span class="badge badge-pending" style="background: #fdf2fb; color: #a44390; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-clock me-1"></i> Pending</span>';
+            badge = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
             $('#modalFooterActions').html(`
-                <button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold" style="background: #cbd5e1; border: none; color: #475569;" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success rounded-4 px-4 py-2 fw-bold action-update-status" data-id="${id}" data-status="completed" data-bs-dismiss="modal" style="background: #0ca678; border: none;">Mark Completed</button>
-                <button type="button" class="btn btn-danger rounded-4 px-4 py-2 fw-bold action-update-status" data-id="${id}" data-status="cancelled" data-bs-dismiss="modal" style="background: #fa5252; border: none;">Cancel Order</button>
+                <button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-complete" data-id="${id}" data-status="completed" data-bs-dismiss="modal">Mark Completed</button>
+                <button type="button" class="btn btn-danger rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-cancel" data-id="${id}" data-status="cancelled" data-bs-dismiss="modal">Cancel Order</button>
             `);
         }
         $('#modalStatusContainer').html(badge);
@@ -380,11 +369,11 @@ jQuery(document).ready(function($) {
                                 // 2. Update status badge HTML
                                 let badgeHtml = '';
                                 if (newStatus === 'completed') {
-                                    badgeHtml = '<span class="badge badge-completed" style="background: #e6fcf5; color: #0ca678; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+                                    badgeHtml = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
                                 } else if (newStatus === 'cancelled') {
-                                    badgeHtml = '<span class="badge badge-cancelled" style="background: #fff5f5; color: #fa5252; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+                                    badgeHtml = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
                                 } else {
-                                    badgeHtml = '<span class="badge badge-pending" style="background: #fdf2fb; color: #a44390; padding: 6px 12px; border-radius: 20px; font-weight: 600;"><i class="fas fa-clock me-1"></i> Pending</span>';
+                                    badgeHtml = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
                                 }
                                 row.find('.status-cell').html(badgeHtml);
 

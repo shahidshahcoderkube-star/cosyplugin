@@ -1870,3 +1870,48 @@ body .swal2-icon {
     color: var(--cosy-white) !important;
     box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
 }
+/* --- Provider Orders Dashboard Styles --- */
+.cosy-orders-card { border-radius: 20px; box-shadow: 0 10px 30px rgba(109, 46, 103, 0.04); }
+.header-icon-badge { background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.header-icon-badge i { color: #a44390; font-size: 1.2rem; }
+.cosy-orders-card h3 { color: #1e293b; font-family: 'Outfit', sans-serif; }
+.cosy-orders-subtitle { margin-left: 58px; font-size: 0.9rem; }
+.search-icon-abs { top: 15px; left: 18px; color: #94a3b8; font-size: 0.9rem; }
+.cosy-orders-filter-input { padding-left: 45px !important; height: 46px; font-size: 0.9rem; }
+.cosy-orders-filter-select { height: 46px; font-size: 0.9rem; color: #475569; }
+.cosy-orders-export-btn { background: #6d2e67 !important; border: none !important; height: 46px; font-size: 0.9rem; color: #ffffff !important; }
+.cosy-orders-export-btn:hover { background: #582453 !important; color: #ffffff !important; }
+
+#providerOrdersTable, #providerOrdersTable th, #providerOrdersTable td { border-left: 0 !important; border-right: 0 !important; }
+#providerOrdersTable thead tr { border-bottom: 2px solid #f1f5f9; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+.order-table-row { border-bottom: 1px solid #f8fafc; transition: background 0.2s; }
+.order-table-row:hover { background-color: #f8fafc; }
+.order-customer-avatar { width: 34px; height: 34px; font-size: 0.8rem; font-weight: 700; color: #a44390; border: 1.5px solid #f1e4ef; }
+.order-customer-name { color: #334155; }
+.order-service-badge { font-weight: 500; font-size: 0.8rem; color: #475569 !important; }
+.order-date-cell { font-size: 0.85rem; color: #64748b; }
+.order-action-btn { width: 32px; height: 32px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.order-action-btn i { font-size: 0.8rem; }
+.order-action-btn.bg-success { background-color: #0ca678 !important; }
+.order-action-btn.bg-danger { background-color: #fa5252 !important; }
+
+.badge-completed { background: #e6fcf5 !important; color: #0ca678 !important; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+.badge-cancelled { background: #fff5f5 !important; color: #fa5252 !important; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+.badge-pending { background: #fdf2fb !important; color: #a44390 !important; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+
+.cosy-modal-content { border-radius: 20px; }
+.cosy-modal-header-gradient { background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); border-top-left-radius: 20px; border-top-right-radius: 20px; }
+.cosy-modal-title { font-family: 'Outfit', sans-serif; color: #ffffff !important; }
+.modal-info-box-primary { background-color: #fdf2fb; border: 1px solid #f1e4ef; }
+.modal-info-title { font-family: 'Outfit', sans-serif; }
+.modal-icon-primary { color: #a44390 !important; }
+.modal-customer-name { color: #1e293b; }
+.modal-info-box-secondary { border: 1px solid #e2e8f0; }
+.modal-small-info { font-size: 0.8rem; }
+.modal-cost-info { color: #a44390 !important; font-size: 1.1rem; }
+.modal-status-box { border-color: #f1e4ef !important; background-color: #fdf2fb; }
+.modal-status-title { font-size: 0.85rem; }
+
+.btn-modal-close { background: #cbd5e1 !important; border: none; color: #475569 !important; }
+.btn-modal-complete { background: #0ca678 !important; border: none; color: #ffffff !important; }
+.btn-modal-cancel { background: #fa5252 !important; border: none; color: #ffffff !important; }

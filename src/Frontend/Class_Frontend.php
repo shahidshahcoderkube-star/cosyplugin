@@ -18,7 +18,7 @@ class Frontend
         $loader->add_action('wp_footer', $this, 'render_register_popup');
         $loader->add_action('template_redirect', $this, 'restrict_direct_page_access');
         $loader->add_action('after_setup_theme', $this, 'hide_admin_menu');
-        
+
         // FormsData handles its own registration in constructor
         new FormsData();
 
@@ -287,7 +287,7 @@ class Frontend
         update_post_meta($appointment_id, 'cosy_booking_status', 'pending');
 
         // Set email content type to HTML
-        $html_email_filter = function() {
+        $html_email_filter = function () {
             return 'text/html';
         };
         add_filter('wp_mail_content_type', $html_email_filter);
