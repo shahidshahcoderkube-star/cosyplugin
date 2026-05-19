@@ -17,13 +17,18 @@ if ($current_user->exists()) {
 ?>
 
 <div class="container my-orders mt-5 mb-5" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold" style="font-family: 'Outfit', sans-serif; color: #1e293b;">My Bookings & Orders</h2>
-            <p class="text-muted small mb-0">Manage and track your appointment bookings and secure payments.</p>
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="header-icon-badge" style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-calendar-check" style="color: #a44390; font-size: 1.2rem;"></i>
+                </div>
+                <h3 class="mb-0 fw-bold" style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 1.75rem;">My Bookings & Orders</h3>
+            </div>
+            <p class="text-muted mb-0" style="margin-left: 58px; font-size: 0.95rem; font-weight: 500;">Manage and track your appointment bookings and secure payments.</p>
         </div>
-        <a href="<?php echo site_url('/service-provider'); ?>" class="btn px-4 py-2 text-white fw-bold shadow-sm"
-           style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 12px; border: none; font-size: 0.9rem;">
+        <a href="<?php echo site_url('/service-provider'); ?>" class="btn px-4 text-white fw-bold shadow-sm mt-3 mt-md-0"
+           style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 10px; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; height: 44px;">
            <i class="fas fa-plus me-2"></i> Book Another Service
         </a>
     </div>

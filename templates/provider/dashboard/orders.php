@@ -59,6 +59,14 @@ $appointments = $appointments_query->posts;
         </div>
 
         <!-- Orders Table -->
+        <style>
+            #providerOrdersTable,
+            #providerOrdersTable th, 
+            #providerOrdersTable td {
+                border-left: 0 !important;
+                border-right: 0 !important;
+            }
+        </style>
         <div class="table-responsive">
             <table class="table align-middle" id="providerOrdersTable">
                 <thead>
