@@ -1065,6 +1065,121 @@ if (!empty($provider_data['ID'])) {
                 }
             });
         }
+
+        const bookServiceBtn = document.getElementById('bookServiceBtn');
+        if (bookServiceBtn) {
+            bookServiceBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // 1. Check if a service is selected
+                if (!selectedService) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Select a Service',
+                        text: 'Please select a service from the Offered Services section.',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#a44390'
+                    });
+                    return;
+                }
+                
+                // 2. Check if at least one slot is selected
+                let totalSlots = 0;
+                let bookingSlotsList = [];
+                for (const dateStr in selectedTimeSlotsByDay) {
+                    const slots = selectedTimeSlotsByDay[dateStr];
+                    if (slots && slots.length > 0) {
+                        totalSlots += slots.length;
+                        slots.forEach(time => {
+                            bookingSlotsList.push({
+                                date: dateStr, // e.g. "Wed May 20 2026"
+                                time: time // e.g. "09:00"
+                            });
+                        });
+                    }
+                }
+                
+                if (totalSlots === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Select Time Slot',
+                        text: 'Please click on the calendar date and select at least one starting time slot.',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#a44390'
+                    });
+                    return;
+                }
+                
+                // 3. Get total weeks and calculations
+                const weeks = parseInt(document.getElementById('totalBookingWeeks').value) || 1;
+                const serviceCost = totalSlots * selectedService.price * weeks;
+                const serviceFee = 0.10; // Flat £0.10 service fee as shown in user's screenshot
+                const totalPayable = serviceCost + serviceFee;
+                
+                // Sort bookingSlotsList by date chronologically
+                bookingSlotsList.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                // Start date is the selected calendar date or fallback to first selected slot date
+                const startDateObj = selectedDate ? new Date(selectedDate) : new Date(bookingSlotsList[0].date);
+                const startDateStr = startDateObj.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                // Calculate end date based on selected weeks duration (e.g. 1 week = 7 days duration range)
+                const endDateObj = new Date(startDateObj);
+                endDateObj.setDate(startDateObj.getDate() + (weeks * 7) - 1);
+                
+                const endDateStr = endDateObj.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                // Map day names to slot time for display
+                // e.g. "Wednesday 9:00 AM 10 Minutes"
+                const firstSlot = bookingSlotsList[0];
+                const firstSlotDate = new Date(firstSlot.date);
+                const dayName = firstSlotDate.toLocaleDateString('en-US', { weekday: 'long' });
+                
+                // Format the slot time nicely (e.g. "09:00" to "9:00 AM")
+                const [hourStr, minStr] = firstSlot.time.split(':');
+                let hour = parseInt(hourStr);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                hour = hour % 12;
+                hour = hour ? hour : 12; // the hour '0' should be '12'
+                const timeFormatted = `${hour}:${minStr} ${ampm}`;
+                
+                const weeklyBookingStr = `${dayName} ${timeFormatted} ${selectedService.duration} Minutes`;
+                
+                // Get provider info
+                const providerName = <?php echo json_encode($provider_data['prov_mname'] ?? ''); ?>;
+                const providerId = window.providerId;
+                
+                // Save details to localStorage
+                const pendingBooking = {
+                    service: selectedService.title,
+                    serviceDuration: selectedService.duration,
+                    providerName: providerName,
+                    providerId: providerId,
+                    startDate: startDateStr,
+                    endDate: endDateStr,
+                    weeklyBooking: weeklyBookingStr,
+                    numberOfWeeks: weeks,
+                    numberOfBookings: totalSlots * weeks,
+                    serviceCost: serviceCost.toFixed(2),
+                    serviceFee: serviceFee.toFixed(2),
+                    totalPayable: totalPayable.toFixed(2),
+                    slots: bookingSlotsList
+                };
+                
+                localStorage.setItem('cosy_pending_booking', JSON.stringify(pendingBooking));
+                
+                // 4. Redirect to Checkout page
+                window.location.href = <?php echo json_encode(site_url('/cosy-checkout')); ?>;
+            });
+        }
     });
 </script>
 

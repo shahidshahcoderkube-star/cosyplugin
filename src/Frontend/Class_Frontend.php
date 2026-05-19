@@ -23,6 +23,12 @@ class Frontend
         new FormsData();
 
         $loader->add_filter('template_include', $this, 'provider_profile_dashboard_shortcode', 9999);
+
+        // Register AJAX handlers for booking creation
+        $this->register_ajax_handlers([
+            'cosy_create_booking' => 'handle_create_booking',
+            'cosy_update_booking_status' => 'handle_update_booking_status'
+        ], $this);
     }
 
 
@@ -38,6 +44,18 @@ class Frontend
         add_shortcode('cosy_login_form', [$this, 'login_form']);
         add_shortcode('cosy_customer_order', [$this, 'customer_order_page']);
         add_shortcode('cosy_service_provider_list', [$this, 'service_provider_shortcode']);
+        add_shortcode('cosy_checkout', [$this, 'checkout_page']);
+
+        // Auto-create cosy-checkout page if it doesn't exist
+        if (!get_page_by_path('cosy-checkout')) {
+            wp_insert_post([
+                'post_title'   => 'Checkout',
+                'post_name'    => 'cosy-checkout',
+                'post_content' => '[cosy_checkout]',
+                'post_status'  => 'publish',
+                'post_type'    => 'page'
+            ]);
+        }
     }
 
 
@@ -109,6 +127,15 @@ class Frontend
     }
 
 
+    //------------- Rendering the checkout shortcode content -------------//
+    public function checkout_page(): string
+    {
+        ob_start();
+        include COSY_APPT_PATH . 'templates/checkout-template.php';
+        return ob_get_clean();
+    }
+
+
     //------------- Rendering the provider dashboard shortcode content -------------//
     public function provider_verify_shortcode(): string
     {
@@ -157,7 +184,7 @@ class Frontend
     public function restrict_direct_page_access()
     {
         // Pages that require login
-        $restricted_slugs = ['appointments', 'orders', 'customer-order', 'customer-profile', 'provider-dashboard', 'provider-verify'];
+        $restricted_slugs = ['appointments', 'orders', 'customer-order', 'customer-profile', 'provider-dashboard', 'provider-verify', 'cosy-checkout'];
         if (is_page($restricted_slugs) && !is_user_logged_in()) {
             wp_redirect(site_url('/login'));
             exit;
@@ -168,7 +195,7 @@ class Frontend
 
             $user = wp_get_current_user();
 
-            $blocked_for_provider = ['customer-order', 'customer-profile', 'appointments', 'orders'];
+            $blocked_for_provider = ['customer-order', 'customer-profile', 'appointments', 'orders', 'cosy-checkout'];
             if (in_array('provider', (array) $user->roles) && is_page($blocked_for_provider)) {
                 wp_redirect(site_url('/provider-dashboard'));
                 exit;
@@ -184,5 +211,285 @@ class Frontend
             // wp_redirect(site_url('/login'));
             // exit;
         }
+    }
+
+    /**
+     * handle_create_booking
+     * 
+     * AJAX handler to process checkout payment submission.
+     * Inserts a post of type 'cosy_appointment' and saves all booking/pricing details in postmeta.
+     */
+    public function handle_create_booking(): void
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'User must be logged in to book services.']);
+        }
+
+        $current_user = wp_get_current_user();
+        if (!in_array('customer', (array) $current_user->roles)) {
+            wp_send_json_error(['message' => 'Only customers are authorized to book appointments.']);
+        }
+
+        // Retrieve and validate POST data
+        $service            = isset($_POST['service']) ? sanitize_text_field($_POST['service']) : '';
+        $provider_id        = isset($_POST['providerId']) ? intval($_POST['providerId']) : 0;
+        $provider_name      = isset($_POST['providerName']) ? sanitize_text_field($_POST['providerName']) : '';
+        $start_date         = isset($_POST['startDate']) ? sanitize_text_field($_POST['startDate']) : '';
+        $end_date           = isset($_POST['endDate']) ? sanitize_text_field($_POST['endDate']) : '';
+        $weekly_booking     = isset($_POST['weeklyBooking']) ? sanitize_text_field($_POST['weeklyBooking']) : '';
+        $number_of_weeks    = isset($_POST['numberOfWeeks']) ? intval($_POST['numberOfWeeks']) : 1;
+        $number_of_bookings = isset($_POST['numberOfBookings']) ? intval($_POST['numberOfBookings']) : 1;
+        $service_cost       = isset($_POST['serviceCost']) ? sanitize_text_field($_POST['serviceCost']) : '0.00';
+        $service_fee        = isset($_POST['serviceFee']) ? sanitize_text_field($_POST['serviceFee']) : '0.00';
+        $total_payable      = isset($_POST['totalPayable']) ? sanitize_text_field($_POST['totalPayable']) : '0.00';
+        $slots_json         = isset($_POST['slots']) ? wp_unslash($_POST['slots']) : ''; // raw JSON string
+
+        if (empty($service) || empty($provider_id)) {
+            wp_send_json_error(['message' => 'Missing required service or provider details.']);
+        }
+
+        // Insert new cosy_appointment post
+        $appointment_title = sprintf(
+            '%s booked %s by %s',
+            $current_user->display_name,
+            $service,
+            $provider_name
+        );
+
+        $appointment_id = wp_insert_post([
+            'post_title'   => $appointment_title,
+            'post_type'    => 'cosy_appointment',
+            'post_status'  => 'publish',
+            'post_author'  => $current_user->ID
+        ]);
+
+        if (is_wp_error($appointment_id)) {
+            wp_send_json_error(['message' => 'Failed to create booking: ' . $appointment_id->get_error_message()]);
+        }
+
+        // Save metadata
+        update_post_meta($appointment_id, 'cosy_service_name', $service);
+        update_post_meta($appointment_id, 'cosy_provider_id', $provider_id);
+        update_post_meta($appointment_id, 'cosy_provider_name', $provider_name);
+        update_post_meta($appointment_id, 'cosy_customer_id', $current_user->ID);
+        update_post_meta($appointment_id, 'cosy_customer_name', $current_user->display_name);
+        update_post_meta($appointment_id, 'cosy_customer_email', $current_user->user_email);
+        update_post_meta($appointment_id, 'cosy_start_date', $start_date);
+        update_post_meta($appointment_id, 'cosy_end_date', $end_date);
+        update_post_meta($appointment_id, 'cosy_weekly_booking', $weekly_booking);
+        update_post_meta($appointment_id, 'cosy_number_of_weeks', $number_of_weeks);
+        update_post_meta($appointment_id, 'cosy_number_of_bookings', $number_of_bookings);
+        update_post_meta($appointment_id, 'cosy_service_cost', $service_cost);
+        update_post_meta($appointment_id, 'cosy_service_fee', $service_fee);
+        update_post_meta($appointment_id, 'cosy_total_payable', $total_payable);
+        update_post_meta($appointment_id, 'cosy_slots', sanitize_textarea_field($slots_json));
+        update_post_meta($appointment_id, 'cosy_payment_status', 'Paid');
+        update_post_meta($appointment_id, 'cosy_booking_status', 'pending');
+
+        // Set email content type to HTML
+        $html_email_filter = function() {
+            return 'text/html';
+        };
+        add_filter('wp_mail_content_type', $html_email_filter);
+
+        // Get Provider email
+        $provider_user = get_userdata($provider_id);
+        $provider_email = $provider_user ? $provider_user->user_email : '';
+
+        // Common email styling wrapper
+        $email_style = "
+            background-color: #faf6f9;
+            padding: 40px 15px;
+            font-family: 'Outfit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1e293b;
+        ";
+        $card_style = "
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #f1e4ef;
+            box-shadow: 0 10px 25px rgba(109, 46, 103, 0.05);
+            overflow: hidden;
+        ";
+        $header_style = "
+            background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
+            padding: 30px 20px;
+            text-align: center;
+            color: #ffffff;
+        ";
+        $body_style = "
+            padding: 30px 25px;
+            font-size: 15px;
+            line-height: 1.6;
+        ";
+        $table_style = "
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        ";
+        $footer_style = "
+            background-color: #fdf2fb;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #8a7a88;
+            border-top: 1px solid #f1e4ef;
+        ";
+
+        // 1. Send Customer Email
+        $customer_subject = "🌸 Booking Confirmed - Thank you for your payment!";
+        $customer_body = "
+        <div style='{$email_style}'>
+            <div style='{$card_style}'>
+                <div style='{$header_style}'>
+                    <h1 style='margin: 0; font-size: 24px; font-weight: 700;'>Booking Confirmed!</h1>
+                </div>
+                <div style='{$body_style}'>
+                    <p>Hello <strong>{$current_user->display_name}</strong>,</p>
+                    <p>Thank you for choosing our platform. Your payment of <strong>£{$total_payable}</strong> has been successfully processed via <strong>Worldpay FIS</strong>.</p>
+                    
+                    <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Booking Information Summary:</h3>
+                    <table style='{$table_style}'>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service Booked</td><td style='padding: 10px 0;'>{$service}</td></tr>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Number of Weeks</td><td style='padding: 10px 0;'>{$number_of_weeks}</td></tr>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Total Booked Slots</td><td style='padding: 10px 0;'>{$number_of_bookings} slots</td></tr>
+                    </table>
+
+                    <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Payment Details:</h3>
+                    <table style='{$table_style}'>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Cost</td><td style='padding: 10px 0; text-align: right;'>£{$service_cost}</td></tr>
+                        <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee</td><td style='padding: 10px 0; text-align: right;'>£{$service_fee}</td></tr>
+                        <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>£{$total_payable}</td></tr>
+                    </table>
+                    
+                    <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>You can track your live schedule and update booking details directly from your Customer account profile.</p>
+                </div>
+                <div style='{$footer_style}'>
+                    &copy; " . date('Y') . " Cosy Appointments. All rights reserved.
+                </div>
+            </div>
+        </div>";
+        wp_mail($current_user->user_email, $customer_subject, $customer_body);
+
+        // 2. Send Provider Email
+        if (!empty($provider_email)) {
+            $provider_subject = "📅 New Booking Received - {$current_user->display_name} has booked your service!";
+            $provider_body = "
+            <div style='{$email_style}'>
+                <div style='{$card_style}'>
+                    <div style='{$header_style}'>
+                        <h1 style='margin: 0; font-size: 24px; font-weight: 700;'>New Appointment Notification</h1>
+                    </div>
+                    <div style='{$body_style}'>
+                        <p>Hello <strong>{$provider_name}</strong>,</p>
+                        <p>Great news! A new customer, <strong>{$current_user->display_name}</strong>, has booked your services and completed the payment transaction.</p>
+                        
+                        <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Booking Information:</h3>
+                        <table style='{$table_style}'>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service Booked</td><td style='padding: 10px 0;'>{$service}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>{$current_user->display_name}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Email</td><td style='padding: 10px 0;'>{$current_user->user_email}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Number of Weeks</td><td style='padding: 10px 0;'>{$number_of_weeks}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Total Booked Slots</td><td style='padding: 10px 0;'>{$number_of_bookings} slots</td></tr>
+                            <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #6d2e67;'>Your Earnings</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #6d2e67;'>£{$service_cost}</td></tr>
+                        </table>
+                        
+                        <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>Please log in to your Provider Dashboard to manage your dashboard schedule and check invoice receipts.</p>
+                    </div>
+                    <div style='{$footer_style}'>
+                        &copy; " . date('Y') . " Cosy Appointments. All rights reserved.
+                    </div>
+                </div>
+            </div>";
+            wp_mail($provider_email, $provider_subject, $provider_body);
+        }
+
+        // 3. Send Administrator Email
+        $admin_email = get_option('admin_email');
+        if (!empty($admin_email)) {
+            $admin_subject = "🔔 New Secure Payment Received - Order #{$appointment_id}";
+            $admin_body = "
+            <div style='{$email_style}'>
+                <div style='{$card_style}'>
+                    <div style='{$header_style}'>
+                        <h1 style='margin: 0; font-size: 24px; font-weight: 700;'>Admin Payment Alert</h1>
+                    </div>
+                    <div style='{$body_style}'>
+                        <p>Hello Administrator,</p>
+                        <p>A new payment transaction has been processed and authorized successfully via <strong>Worldpay FIS</strong>.</p>
+                        
+                        <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Order Information Summary:</h3>
+                        <table style='{$table_style}'>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order Reference ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service</td><td style='padding: 10px 0;'>{$service}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>{$current_user->display_name} ({$current_user->user_email})</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weeks & Slots</td><td style='padding: 10px 0;'>{$number_of_bookings} slots over {$number_of_weeks} week(s)</td></tr>
+                        </table>
+
+                        <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Financial Details:</h3>
+                        <table style='{$table_style}'>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Provider Revenue Share</td><td style='padding: 10px 0; text-align: right;'>£{$service_cost}</td></tr>
+                            <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Platform Service Fee (Net)</td><td style='padding: 10px 0; text-align: right;'>£{$service_fee}</td></tr>
+                            <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>£{$total_payable}</td></tr>
+                        </table>
+                    </div>
+                    <div style='{$footer_style}'>
+                        &copy; " . date('Y') . " Cosy Appointments. Admin Operations Panel.
+                    </div>
+                </div>
+            </div>";
+            wp_mail($admin_email, $admin_subject, $admin_body);
+        }
+
+        // Remove HTML filter to restore defaults for other system emails
+        remove_filter('wp_mail_content_type', $html_email_filter);
+
+        wp_send_json_success([
+            'message' => 'Booking and payment processed successfully!',
+            'appointment_id' => $appointment_id
+        ]);
+    }
+
+    /**
+     * handle_update_booking_status
+     * 
+     * AJAX handler to process appointment status changes.
+     */
+    public function handle_update_booking_status(): void
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'User must be logged in.']);
+        }
+
+        $appointment_id = isset($_POST['appointment_id']) ? intval($_POST['appointment_id']) : 0;
+        $new_status     = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
+
+        if (empty($appointment_id) || !in_array($new_status, ['completed', 'cancelled'])) {
+            wp_send_json_error(['message' => 'Invalid parameters.']);
+        }
+
+        // Validate that the logged in user is indeed the provider for this appointment
+        $current_user_id = get_current_user_id();
+        $provider_id = intval(get_post_meta($appointment_id, 'cosy_provider_id', true));
+
+        if ($provider_id !== $current_user_id && !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Unauthorized action.']);
+        }
+
+        update_post_meta($appointment_id, 'cosy_booking_status', $new_status);
+
+        wp_send_json_success(['message' => 'Status updated successfully to ' . ucfirst($new_status)]);
     }
 }

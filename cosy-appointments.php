@@ -87,6 +87,7 @@ function cosy_create_pages_on_activation()
         ['title' => 'Provider Verify', 'slug' => 'provider-verify', 'content' => '[cosy_verify_provider]'],
         ['title' => 'Service Provider', 'slug' => 'service-provider', 'content' => '[cosy_service_provider_list]'],
         ['title' => 'Provider Profile', 'slug' => 'provider-profile', 'content' => '[cosy_profile_dashboard]'],
+        ['title' => 'Checkout', 'slug' => 'cosy-checkout', 'content' => '[cosy_checkout]'],
     ];
 
     foreach ($pages as $page) {
