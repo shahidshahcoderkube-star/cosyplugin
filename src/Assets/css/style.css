@@ -1390,3 +1390,83 @@ body .swal2-icon {
     color: var(--cosy-white) !important;
     box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
 }
+
+/* ============================================================
+   COSY PROVIDER DASHBOARD: MEDIA UPLOAD CARD
+   ============================================================ */
+.cosy-video-card {
+    background: var(--cosy-white);
+    border-radius: var(--cosy-border-radius-lg) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    padding: 30px;
+}
+
+.cosy-video-card h3 {
+    font-family: var(--cosy-font-family);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--cosy-text);
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cosy-video-card .video-dropzone {
+    border: 2px dashed #e2e8f0 !important;
+    background: var(--cosy-bg) !important;
+    border-radius: 15px !important;
+    transition: all 0.3s ease;
+}
+
+.cosy-video-card .video-dropzone:hover {
+    border-color: var(--cosy-primary) !important;
+    background: rgba(155, 69, 147, 0.02) !important;
+}
+
+.cosy-video-card .video-dropzone i {
+    color: var(--cosy-primary) !important;
+}
+
+.cosy-video-card .video-dropzone span {
+    color: var(--cosy-subtext) !important;
+    font-family: var(--cosy-font-family);
+}
+
+.cosy-video-card video {
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: #000;
+}
+
+.cosy-video-card .remove-video {
+    background: var(--cosy-white) !important;
+    color: #ef4444 !important;
+    border: none !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.2s ease;
+}
+
+.cosy-video-card .remove-video:hover {
+    transform: scale(1.1);
+    background: #ef4444 !important;
+    color: var(--cosy-white) !important;
+}
+
+.cosy-video-card .custom-btn {
+    background: var(--cosy-gradient) !important;
+    border: none !important;
+    border-radius: var(--cosy-border-radius) !important;
+    padding: 12px 35px !important;
+    font-weight: 600;
+    color: var(--cosy-white) !important;
+}
