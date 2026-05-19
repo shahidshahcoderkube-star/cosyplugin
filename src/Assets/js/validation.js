@@ -388,6 +388,9 @@ var CosyApp = (function ($) {
                         if (tabSlug === "services") {
                             serviceSelection();
                         }
+                        if (tabSlug === "nonworking") {
+                            initNonWorkingDays(targetBox);
+                        }
                     } else {
                         $(targetBox).html(cosyAlert("danger", res.data));
                     }
@@ -869,6 +872,96 @@ var CosyApp = (function ($) {
         });
     }
 
+    /**
+     * Helper: updateDaysCount
+     * 
+     * Recalculates and displays the number of non-working days marked
+     * in the daysTable.
+     */
+    function updateDaysCount() {
+        const count = jQuery('#daysTable tbody tr').length;
+        const counter = jQuery('#daysCount');
+        if (counter.length) {
+            counter.html(count === 0 ? "No non-working days added yet." : `❌ ${count} non-working day(s) marked.`);
+        }
+    }
+
+    /**
+     * initNonWorkingDays
+     * 
+     * Handles the client-side interaction for marking non-working days.
+     * 1. Listens for clicks on #add_non_working_day_btn to validate the date input,
+     *    avoid duplicate additions, and dynamically inject a row.
+     * 2. Listens for clicks on .remove-day-btn to dynamically clear marked days.
+     * 
+     * @param {HTMLElement|Document} container - Parent element context for event binding.
+     */
+    function initNonWorkingDays(container = document) {
+        // Add Non-Working Day via event delegation
+        $(container).off('click', '#add_non_working_day_btn').on('click', '#add_non_working_day_btn', function(e) {
+            e.preventDefault();
+            const date = $('#nonWorkingDate').val();
+            const reason = $('#nonWorkingReason').val() || 'N/A';
+            const tableBody = $('#daysTable tbody');
+
+            if (!date) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Date Required',
+                    text: 'Please select a valid date first!',
+                    confirmButtonColor: '#a44390',
+                    showClass: { popup: '' },
+                    hideClass: { popup: '' }
+                });
+                return;
+            }
+
+            // Prevent duplicate dates
+            if ($('#day-' + date).length) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Date Already Marked',
+                    text: 'This date is already present in your non-working days list.',
+                    confirmButtonColor: '#a44390',
+                    showClass: { popup: '' },
+                    hideClass: { popup: '' }
+                });
+                return;
+            }
+
+            const rowHtml = `
+                <tr id="day-${date}">
+                    <td>${date}</td>
+                    <td>${reason}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm update-day-btn" title="Update" style="margin-right: 4px;">
+                            <i class="bi bi-check-circle"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm remove-day-btn" title="Remove" data-date="${date}">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+
+            tableBody.append(rowHtml);
+            $('#nonWorkingDate').val('');
+            $('#nonWorkingReason').val('');
+            updateDaysCount();
+        });
+
+        // Remove Non-Working Day via event delegation
+        $(container).off('click', '.remove-day-btn').on('click', '.remove-day-btn', function(e) {
+            e.preventDefault();
+            const date = $(this).data('date');
+            const row = $('#day-' + date);
+            if (row.length) {
+                row.remove();
+            }
+            updateDaysCount();
+        });
+    }
+
 
     //-------- PUBLIC INITIALISATION --------//
     return {
@@ -884,6 +977,7 @@ var CosyApp = (function ($) {
             try { removeService(); } catch (e) { console.error("RemoveService Error:", e); }
             try { formValidation(); } catch (e) { console.error("FormValidation Error:", e); }
             try { initAvailability(); } catch (e) { console.error("InitAvailability Error:", e); }
+            try { initNonWorkingDays(); } catch (e) { console.error("InitNonWorkingDays Error:", e); }
             console.log("CosyApp: Initialization Complete.");
         }
     };
