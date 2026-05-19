@@ -293,4 +293,64 @@ trait GlobalCommonFunctions
         $data['services'] = !empty($services_data) ? $services_data : [];
         return $data;
     }
+
+    /**
+     * get_provider_reviews
+     * 
+     * Retrieves all reviews (or optionally only approved ones) for a specific provider
+     * and calculates essential review metrics like rating counts and average ratings.
+     * 
+     * @param int $provider_id The provider's user ID.
+     * @param bool $approved_only Whether to only fetch approved reviews.
+     * @return array Contains 'all', 'approved', 'total_approved', 'average_rating', and 'rating_counts'.
+     */
+    public function get_provider_reviews(int $provider_id, bool $approved_only = false): array
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+
+        if ($approved_only) {
+            $reviews = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM $table_name WHERE provider_id = %d AND status = 'approved' ORDER BY created_at DESC",
+                    $provider_id
+                ),
+                ARRAY_A
+            );
+        } else {
+            $reviews = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM $table_name WHERE provider_id = %d ORDER BY created_at DESC",
+                    $provider_id
+                ),
+                ARRAY_A
+            );
+        }
+
+        // Calculate metrics based on APPROVED reviews
+        $approved_reviews = array_filter($reviews, function($r) {
+            return $r['status'] === 'approved';
+        });
+
+        $total_approved = count($approved_reviews);
+        $average_rating = 0;
+        $rating_counts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+
+        if ($total_approved > 0) {
+            $sum_ratings = 0;
+            foreach ($approved_reviews as $r) {
+                $sum_ratings += intval($r['rating']);
+                $rating_counts[intval($r['rating'])]++;
+            }
+            $average_rating = round($sum_ratings / $total_approved, 1);
+        }
+
+        return [
+            'all'            => $reviews,
+            'approved'       => array_values($approved_reviews),
+            'total_approved' => $total_approved,
+            'average_rating' => $average_rating,
+            'rating_counts'  => $rating_counts,
+        ];
+    }
 }

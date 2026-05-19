@@ -1,37 +1,13 @@
 <?php
 $current_provider_id = get_current_user_id();
-global $wpdb;
-$table_name = $wpdb->prefix . 'cosy_provider_reviews';
 
-// Fetch all reviews for this provider (both pending and approved)
-$all_reviews = [];
-if ($current_provider_id) {
-    $all_reviews = $wpdb->get_results(
-        $wpdb->prepare(
-            "SELECT * FROM $table_name WHERE provider_id = %d ORDER BY created_at DESC",
-            $current_provider_id
-        ),
-        ARRAY_A
-    );
-}
-
-// Calculate metrics based on APPROVED reviews
-$approved_reviews_db = array_filter($all_reviews, function($r) {
-    return $r['status'] === 'approved';
-});
-
-$total_approved = count($approved_reviews_db);
-$average_rating_db = 0;
-$rating_counts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
-
-if ($total_approved > 0) {
-    $sum_ratings = 0;
-    foreach ($approved_reviews_db as $r) {
-        $sum_ratings += intval($r['rating']);
-        $rating_counts[intval($r['rating'])]++;
-    }
-    $average_rating_db = round($sum_ratings / $total_approved, 1);
-}
+// Call OOP-based common method to fetch reviews and calculate metrics
+$reviews_data = $this->get_provider_reviews($current_provider_id);
+$all_reviews = $reviews_data['all'];
+$approved_reviews_db = $reviews_data['approved'];
+$total_approved = $reviews_data['total_approved'];
+$average_rating_db = $reviews_data['average_rating'];
+$rating_counts = $reviews_data['rating_counts'];
 ?>
 
 
@@ -70,7 +46,7 @@ if ($total_approved > 0) {
             </div>
             <div class="col-md-8 ps-md-5">
                 <!-- Rating Distribution -->
-                <?php for ($i = 5; $i >= 1; $i--): 
+                <?php for ($i = 5; $i >= 1; $i--):
                     $percent = $total_approved > 0 ? round(($rating_counts[$i] / $total_approved) * 100) : 0;
                 ?>
                     <div class="d-flex align-items-center mb-3">
@@ -89,7 +65,7 @@ if ($total_approved > 0) {
         <h5 class="fw-bold mb-3 border-bottom pb-2" style="font-family: 'Poppins', sans-serif; color: #1e293b;">Feedback List</h5>
         <div class="reviews-list">
             <?php if (!empty($all_reviews)): ?>
-                <?php foreach ($all_reviews as $r): 
+                <?php foreach ($all_reviews as $r):
                     $is_pending = ($r['status'] === 'pending');
                 ?>
                     <div class="review-item border-start border-4 <?php echo $is_pending ? 'border-start-warning' : 'border-start-success'; ?>" id="cosy-review-<?php echo $r['id']; ?>" style="border-left-color: <?php echo $is_pending ? '#ffb800' : '#22c55e'; ?> !important;">
@@ -112,7 +88,7 @@ if ($total_approved > 0) {
                             </div>
                         </div>
                         <p class="mb-3 text-dark small mt-2">"<?php echo esc_html($r['review']); ?>"</p>
-                        
+
                         <!-- Moderation Controls -->
                         <div class="d-flex gap-2">
                             <?php if ($is_pending): ?>
@@ -139,145 +115,3 @@ if ($total_approved > 0) {
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Event delegation for Approve button
-    document.addEventListener('click', function(e) {
-        const approveBtn = e.target.closest('.approve-review-btn');
-        if (approveBtn) {
-            e.preventDefault();
-            const reviewId = approveBtn.getAttribute('data-id');
-            
-            approveBtn.disabled = true;
-            approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Approving...';
-            
-            jQuery.ajax({
-                url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                type: 'POST',
-                data: {
-                    action: 'cosy_approve_provider_review',
-                    review_id: reviewId
-                },
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            title: 'Approved!',
-                            text: 'Review successfully approved and displayed on your profile.',
-                            icon: 'success',
-                            confirmButtonColor: '#a44390',
-                            background: '#ffffff',
-                            customClass: {
-                                popup: 'swal2-bento-popup',
-                                title: 'swal2-bento-title',
-                                htmlContainer: 'swal2-bento-text',
-                                confirmButton: 'swal2-bento-btn'
-                            }
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        approveBtn.disabled = false;
-                        approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
-                        Swal.fire({
-                            title: 'Error',
-                            text: response.data.message || 'Failed to approve review.',
-                            icon: 'error',
-                            confirmButtonColor: '#a44390'
-                        });
-                    }
-                },
-                error: function() {
-                    approveBtn.disabled = false;
-                    approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Failed to communicate with server.',
-                        icon: 'error',
-                        confirmButtonColor: '#a44390'
-                    });
-                }
-            });
-        }
-    });
-
-    // Event delegation for Delete/Reject button
-    document.addEventListener('click', function(e) {
-        const deleteBtn = e.target.closest('.delete-review-btn');
-        if (deleteBtn) {
-            e.preventDefault();
-            const reviewId = deleteBtn.getAttribute('data-id');
-            
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to delete or reject this review? This action cannot be undone.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-                background: '#ffffff',
-                customClass: {
-                    popup: 'swal2-bento-popup',
-                    title: 'swal2-bento-title',
-                    htmlContainer: 'swal2-bento-text',
-                    confirmButton: 'swal2-bento-btn'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    deleteBtn.disabled = true;
-                    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Deleting...';
-                    
-                    jQuery.ajax({
-                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                        type: 'POST',
-                        data: {
-                            action: 'cosy_delete_provider_review',
-                            review_id: reviewId
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    title: 'Deleted!',
-                                    text: 'Review has been removed.',
-                                    icon: 'success',
-                                    confirmButtonColor: '#a44390',
-                                    background: '#ffffff',
-                                    customClass: {
-                                        popup: 'swal2-bento-popup',
-                                        title: 'swal2-bento-title',
-                                        htmlContainer: 'swal2-bento-text',
-                                        confirmButton: 'swal2-bento-btn'
-                                    }
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                deleteBtn.disabled = false;
-                                deleteBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i> Reject';
-                                Swal.fire({
-                                    title: 'Error',
-                                    text: response.data.message || 'Failed to delete review.',
-                                    icon: 'error',
-                                    confirmButtonColor: '#a44390'
-                                });
-                            }
-                        },
-                        error: function() {
-                            deleteBtn.disabled = false;
-                            deleteBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i> Reject';
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'Failed to communicate with server.',
-                                icon: 'error',
-                                confirmButtonColor: '#a44390'
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    });
-});
-</script>

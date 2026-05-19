@@ -10,24 +10,14 @@ $current_user = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
 $user_role = !empty($current_user->roles) ? reset($current_user->roles) : '';
 
-global $wpdb;
-$reviews_table = $wpdb->prefix . 'cosy_provider_reviews';
 $approved_reviews = [];
-if (!empty($provider_data['ID'])) {
-    $approved_reviews = $wpdb->get_results(
-        $wpdb->prepare(
-            "SELECT * FROM $reviews_table WHERE provider_id = %d AND status = 'approved' ORDER BY created_at DESC",
-            $provider_data['ID']
-        ),
-        ARRAY_A
-    );
-}
-
-$total_reviews = count($approved_reviews);
+$total_reviews = 0;
 $average_rating = 0;
-if ($total_reviews > 0) {
-    $total_stars = array_sum(array_column($approved_reviews, 'rating'));
-    $average_rating = round($total_stars / $total_reviews, 1);
+if (!empty($provider_data['ID'])) {
+    $reviews_data = $common->get_provider_reviews($provider_data['ID'], true);
+    $approved_reviews = $reviews_data['approved'];
+    $total_reviews = $reviews_data['total_approved'];
+    $average_rating = $reviews_data['average_rating'];
 }
 
 /** 
