@@ -101,6 +101,24 @@
     }
 
     /**
+     * Show or hide the empty-state placeholder for reviews
+     * if all reviews are deleted.
+     */
+    function syncReviewsEmptyState() {
+        var list = document.querySelector('.reviews-list');
+        if (!list) return;
+
+        var items = list.querySelectorAll('.review-item');
+        if (items.length === 0) {
+            list.innerHTML =
+                '<div class="text-center py-5 rounded-4" style="background: #f8fafc; border: 1.5px dashed #cbd5e1;">' +
+                '<i class="far fa-comments text-muted mb-3" style="font-size: 2.5rem;"></i>' +
+                '<p class="text-muted mb-0">No customer reviews found for your profile yet.</p>' +
+                '</div>';
+        }
+    }
+
+    /**
      * Reset the Save Holiday button back to its default enabled state.
      */
     function resetSaveBtn() {
@@ -289,6 +307,173 @@
                             confirmButtonColor: '#a44390',
                         });
                     });
+            });
+        }
+
+        /* ---------- APPROVE CUSTOMER REVIEW ---------- */
+        var approveBtn = e.target.closest('.approve-review-btn');
+        if (approveBtn) {
+            e.preventDefault();
+            var reviewId = approveBtn.getAttribute('data-id');
+
+            approveBtn.disabled = true;
+            approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Approving...';
+
+            jQuery.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'cosy_approve_provider_review',
+                    review_id: reviewId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Approved!',
+                            text: 'Review successfully approved and displayed on your profile.',
+                            icon: 'success',
+                            confirmButtonColor: '#a44390',
+                            background: '#ffffff',
+                            customClass: {
+                                popup: 'swal2-bento-popup',
+                                title: 'swal2-bento-title',
+                                htmlContainer: 'swal2-bento-text',
+                                confirmButton: 'swal2-bento-btn'
+                            }
+                        }).then(function() {
+                            // DOM Update without reload:
+                            var card = document.getElementById('cosy-review-' + reviewId);
+                            if (card) {
+                                // 1. Update border
+                                card.className = card.className.replace('border-start-warning', 'border-start-success');
+                                card.style.setProperty('border-left-color', '#22c55e', 'important');
+
+                                // 2. Update status badge
+                                var badge = card.querySelector('.badge');
+                                if (badge) {
+                                    badge.className = 'badge bg-success text-white ms-2';
+                                    badge.innerHTML = '<i class="fas fa-check-circle me-1"></i> Approved';
+                                }
+
+                                // 3. Update moderation buttons
+                                var controls = card.querySelector('.d-flex.gap-2');
+                                if (controls) {
+                                    controls.innerHTML = 
+                                        '<button class="btn btn-sm btn-outline-danger delete-review-btn" data-id="' + reviewId + '" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem;">' +
+                                        '<i class="fas fa-trash-alt me-1"></i> Delete' +
+                                        '</button>';
+                                }
+                            }
+                        });
+                    } else {
+                        approveBtn.disabled = false;
+                        approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
+                        Swal.fire({
+                            title: 'Error',
+                            text: (response.data && response.data.message) || 'Failed to approve review.',
+                            icon: 'error',
+                            confirmButtonColor: '#a44390'
+                        });
+                    }
+                },
+                error: function() {
+                    approveBtn.disabled = false;
+                    approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to communicate with server.',
+                        icon: 'error',
+                        confirmButtonColor: '#a44390'
+                    });
+                }
+            });
+        }
+
+        /* ---------- DELETE CUSTOMER REVIEW ---------- */
+        var deleteBtn = e.target.closest('.delete-review-btn');
+        if (deleteBtn) {
+            e.preventDefault();
+            var reviewId = deleteBtn.getAttribute('data-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to delete or reject this review? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                background: '#ffffff',
+                customClass: {
+                    popup: 'swal2-bento-popup',
+                    title: 'swal2-bento-title',
+                    htmlContainer: 'swal2-bento-text',
+                    confirmButton: 'swal2-bento-btn'
+                }
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    deleteBtn.disabled = true;
+                    var originalHTML = deleteBtn.innerHTML;
+                    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Deleting...';
+
+                    jQuery.ajax({
+                        url: ajaxUrl,
+                        type: 'POST',
+                        data: {
+                            action: 'cosy_delete_provider_review',
+                            review_id: reviewId
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'Review has been removed.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#a44390',
+                                    background: '#ffffff',
+                                    customClass: {
+                                        popup: 'swal2-bento-popup',
+                                        title: 'swal2-bento-title',
+                                        htmlContainer: 'swal2-bento-text',
+                                        confirmButton: 'swal2-bento-btn'
+                                    }
+                                }).then(function() {
+                                    // DOM Update without reload:
+                                    var card = document.getElementById('cosy-review-' + reviewId);
+                                    if (card) {
+                                        card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                                        card.style.opacity = '0';
+                                        card.style.transform = 'translateY(10px)';
+                                        setTimeout(function() {
+                                            card.remove();
+                                            syncReviewsEmptyState();
+                                        }, 300);
+                                    }
+                                });
+                            } else {
+                                deleteBtn.disabled = false;
+                                deleteBtn.innerHTML = originalHTML;
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: (response.data && response.data.message) || 'Failed to delete review.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#a44390'
+                                });
+                            }
+                        },
+                        error: function() {
+                            deleteBtn.disabled = false;
+                            deleteBtn.innerHTML = originalHTML;
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Failed to communicate with server.',
+                                icon: 'error',
+                                confirmButtonColor: '#a44390'
+                            });
+                        }
+                    });
+                }
             });
         }
     });
