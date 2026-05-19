@@ -503,12 +503,16 @@ var CosyApp = (function ($) {
     }
 
 
-    // -------- SERVICE UPDATE -------- //
+    /**
+     * updateServices
+     * 
+     * Handles dynamic update of individual service details (description, duration, price)
+     * via fetch API when the provider clicks the green check icon on a service row.
+     */
     function updateServices() {
         $(document).on("click", ".update-service", function () {
             const btn = $(this);
             const form = btn.closest("form");
-            console.log(form);
 
             const msgBox = form.find(".cosy-message");
             const serviceId = btn.data("service-id");
@@ -518,12 +522,11 @@ var CosyApp = (function ($) {
             const description = row.find(`textarea[name="service_desc[${serviceId}]"]`).val();
             const duration = row.find(`select[name="service_duration[${serviceId}]"]`).val();
             const price = row.find(`input[name="service_price[${serviceId}]"]`).val();
-            console.log(price);
 
             const checkbox = $(`.service-checkbox[data-id='${serviceId}']`);
             const isChecked = checkbox.is(":checked");
 
-            // Validation
+            // Validate form fields before updating
             if (form.valid()) {
                 btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm"></span>');
                 fetch(COSY_API.base + COSY_API.providerServices.update, {
@@ -558,7 +561,14 @@ var CosyApp = (function ($) {
     }
 
 
-    // -------- SERVICE CHECKBOX -------- //
+    /**
+     * serviceCheckbox
+     * 
+     * Listens for changes on service selection checkboxes.
+     * 1. Updates selection state in database immediately.
+     * 2. Fetches details for newly selected services and adds a row to the table.
+     * 3. Removes the corresponding row if unchecked.
+     */
     function serviceCheckbox() {
         $(document).on("change", ".service-checkbox", function () {
             const checkbox = $(this);
@@ -619,7 +629,12 @@ var CosyApp = (function ($) {
     }
 
 
-    // -------- REMOVE SERVICE -------- //
+    /**
+     * removeService
+     * 
+     * Handles dynamic removal/deletion of a service when a provider clicks the trash icon.
+     * Asks for confirmation using SweetAlert2 before executing the AJAX request.
+     */
     function removeService() {
         $(document).on("click", ".remove-service", function () {
             const serviceId = $(this).data("service-id");
@@ -646,42 +661,42 @@ var CosyApp = (function ($) {
                         },
                         body: JSON.stringify({ service_id: serviceId })
                     })
-                    .then(res => res.json())
-                    .then(resp => {
-                        if (resp.success) {
-                            $("#row-" + serviceId).remove();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: resp.message,
-                                timer: 1500,
-                                showConfirmButton: false,
-                                showClass: { popup: '' },
-                                hideClass: { popup: '' }
-                            });
-                            setTimeout(() => { location.reload(); }, 1600);
-                        } else {
+                        .then(res => res.json())
+                        .then(resp => {
+                            if (resp.success) {
+                                $("#row-" + serviceId).remove();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: resp.message,
+                                    timer: 1500,
+                                    showConfirmButton: false,
+                                    showClass: { popup: '' },
+                                    hideClass: { popup: '' }
+                                });
+                                setTimeout(() => { location.reload(); }, 1600);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: resp.message,
+                                    confirmButtonColor: '#a44390',
+                                    showClass: { popup: '' },
+                                    hideClass: { popup: '' }
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Remove service error:", err);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error!',
-                                text: resp.message,
+                                text: "Something went wrong while deleting.",
                                 confirmButtonColor: '#a44390',
                                 showClass: { popup: '' },
                                 hideClass: { popup: '' }
                             });
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Remove service error:", err);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: "Something went wrong while deleting.",
-                            confirmButtonColor: '#a44390',
-                            showClass: { popup: '' },
-                            hideClass: { popup: '' }
                         });
-                    });
                 }
             });
         });
@@ -689,15 +704,83 @@ var CosyApp = (function ($) {
 
 
     /**
+     * Helper: formatTimeForBadge
+     * 
+     * Converts a 24-hour time string (e.g., "14:30") to a user-friendly 12-hour
+     * format with AM/PM (e.g., "02:30 PM"). This is used for rendering availability badges.
+     * 
+     * @param {string} timeStr - The 24-hour time string to format.
+     * @returns {string} The formatted 12-hour time string.
+     */
+    function formatTimeForBadge(timeStr) {
+        if (!timeStr) return '';
+        const [hour, minute] = timeStr.split(':');
+        const h = parseInt(hour);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return `${h12}:${minute} ${ampm}`;
+    }
+
+    /**
+     * Helper: renderAvailabilityBadges
+     * 
+     * Dynamically updates the 'Weekly Preview' container badges based on the global
+     * `window.savedAvailability` schedule object. It clears previous badges and builds
+     * new ones for days that have working hours set.
+     */
+    function renderAvailabilityBadges() {
+        const container = jQuery('#weekly_preview_badges');
+        if (!container.length) return;
+        
+        container.empty();
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        
+        days.forEach(day => {
+            const avail = window.savedAvailability && window.savedAvailability[day];
+            if (avail && avail.start_time && avail.end_time) {
+                const s = formatTimeForBadge(avail.start_time);
+                const e = formatTimeForBadge(avail.end_time);
+                const shortDay = day.substring(0, 3);
+                container.append(`<span class="badge availability-badge">${shortDay}: ${s} - ${e}</span>`);
+            }
+        });
+    }
+
+    /**
      * initAvailability
      * 
-     * Handles the 'Availability' management system.
-     * 1. Validates required fields (Day, Start/End time).
-     * 2. Saves data to backend via AJAX.
-     * 3. Updates the 'Weekly Preview' badges in real-time on success.
-     * 4. Resets form fields after a successful save.
+     * Manages the 'Availability' tab interactive features.
+     * 1. Uses event delegation to listen for day selection dropdown changes to automatically
+     *    auto-fill the inputs if there is already a saved schedule for that day.
+     * 2. Handles the AJAX saving of provider availability with SweetAlert2 notifications,
+     *    real-time preview badge updates, and form resetting upon successful save.
+     * 
+     * @param {HTMLElement|Document} container - The wrapper element (useful for dynamic/AJAX loaded tabs).
      */
     function initAvailability(container = document) {
+        // Day Selection Handler (via event delegation to survive dynamic DOM load/reloads)
+        $(container).off('change', '#availability_day').on('change', '#availability_day', function() {
+            const day = $(this).val();
+            if (!day) return;
+
+            const data = window.savedAvailability && window.savedAvailability[day];
+            if (data && typeof data === 'object') {
+                $('#start_time').val(data.start_time || '');
+                $('#end_time').val(data.end_time || '');
+                $('#slot_duration').val(data.slot_duration || '10');
+                $('#break_start_time').val(data.break_start || '');
+                $('#break_end_time').val(data.break_end || '');
+            } else {
+                // Clear fields if no schedule exists for the selected day
+                $('#start_time').val('');
+                $('#end_time').val('');
+                $('#slot_duration').val('10');
+                $('#break_start_time').val('');
+                $('#break_end_time').val('');
+            }
+        });
+
+        // Save Availability AJAX Handler (via event delegation)
         $(container).off("click", "#save_availability_btn").on("click", "#save_availability_btn", function (e) {
             e.preventDefault();
             const $btn = $(this);
@@ -712,14 +795,15 @@ var CosyApp = (function ($) {
                 break_end: $('#break_end_time').val()
             };
 
+            // Basic frontend validation to verify day and times are selected
             if (!data.day || !data.start_time || !data.end_time) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Incomplete Information',
                     text: 'Please fill all required fields before saving.',
                     confirmButtonColor: '#a44390',
-                    showClass: { popup: '' }, // No bounce animation
-                    hideClass: { popup: '' }  // No bounce animation
+                    showClass: { popup: '' }, // Disable bounce animation for a premium feel
+                    hideClass: { popup: '' }  // Disable bounce animation for a premium feel
                 });
                 return;
             }
@@ -729,11 +813,12 @@ var CosyApp = (function ($) {
                 type: "POST",
                 data: data,
                 beforeSend() {
+                    // Disable button and show a clean loading spinner
                     $btn.prop("disabled", true).html(`<span class="spinner-border spinner-border-sm"></span> Saving...`);
                 },
                 success(res) {
                     if (res.success) {
-                        // Update local data for real-time preview using the 'data' object from outer scope
+                        // Update dynamic schedule dictionary in client memory
                         const dayName = data.day;
                         if (!window.savedAvailability) window.savedAvailability = {};
                         window.savedAvailability[dayName] = {
@@ -744,12 +829,12 @@ var CosyApp = (function ($) {
                             break_end: data.break_end
                         };
 
-                        // Trigger re-render of badges
+                        // Trigger dynamic re-render of availability preview badges
                         if (typeof renderAvailabilityBadges === 'function') {
                             renderAvailabilityBadges();
                         }
 
-                        // Clear fields after success
+                        // Reset form fields back to default state
                         $('#availability_day').val('');
                         $('#start_time').val('');
                         $('#end_time').val('');
@@ -757,7 +842,7 @@ var CosyApp = (function ($) {
                         $('#break_start_time').val('');
                         $('#break_end_time').val('');
 
-                        // Success Notification
+                        // Show success alert
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -767,7 +852,7 @@ var CosyApp = (function ($) {
                             timerProgressBar: true
                         });
                     } else {
-                        // Error Notification
+                        // Show error alert on request failure
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
@@ -777,6 +862,7 @@ var CosyApp = (function ($) {
                     }
                 },
                 complete() {
+                    // Restore save button state
                     $btn.prop("disabled", false).html("Save Availability");
                 }
             });

@@ -10,8 +10,6 @@ $average_rating_db = $reviews_data['average_rating'];
 $rating_counts = $reviews_data['rating_counts'];
 ?>
 
-
-
 <div class="card cosy-reviews-card mb-4">
     <div class="card-body p-0">
         <div class="d-flex align-items-center gap-3 mb-2">

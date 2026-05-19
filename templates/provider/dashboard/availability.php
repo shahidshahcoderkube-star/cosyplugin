@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AVAILABILITY TEMPLATE
  * 
@@ -16,118 +17,7 @@ if (!isset($availability)) {
     }
 }
 ?>
-<style>
-    .cosy-availability-card {
-        background: #ffffff;
-        border-radius: 20px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
-        border: none !important;
-        padding: 30px;
-    }
 
-    .cosy-availability-card h3 {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 1.5rem;
-        color: #1e293b;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .cosy-availability-card .form-label {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        color: #475569;
-        font-size: 0.9rem;
-        margin-bottom: 10px;
-    }
-
-    .cosy-availability-card .form-control,
-    .cosy-availability-card .form-select {
-        border: 1.5px solid #e2e8f0 !important;
-        border-radius: 12px !important;
-        background-color: #f8fafc !important;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.95rem;
-        padding: 10px 15px !important;
-        transition: all 0.3s ease;
-    }
-
-    .cosy-availability-card .form-control:focus,
-    .cosy-availability-card .form-select:focus {
-        border-color: #a44390 !important;
-        background-color: #fff !important;
-        box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.1) !important;
-    }
-
-    .cosy-availability-card .preview-container {
-        background: #f8fafc;
-        border-radius: 15px;
-        border: 1px solid #e2e8f0;
-        padding: 25px;
-    }
-
-    .cosy-availability-card .preview-container h5 {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 1rem;
-        color: #1e293b;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 15px;
-    }
-
-    .cosy-availability-card .availability-badge {
-        background: #fff !important;
-        color: #a44390 !important;
-        border: 1px solid rgba(164, 67, 144, 0.2) !important;
-        padding: 8px 15px !important;
-        border-radius: 10px !important;
-        font-weight: 600;
-        font-size: 0.85rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-    }
-
-    .cosy-availability-card .custom-btn {
-        background: linear-gradient(135deg, #a44390 0%, #833573 100%) !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 14px 45px !important;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2) !important;
-    }
-
-    /* SweetAlert2 Font Customization */
-    .swal2-popup {
-        font-family: 'Poppins', sans-serif !important;
-        border-radius: 20px !important;
-    }
-    
-    .swal2-title {
-        font-weight: 700 !important;
-        color: #1e293b !important;
-    }
-    
-    .swal2-html-container {
-        color: #64748b !important;
-    }
-
-    .swal2-confirm,
-    .swal2-cancel {
-        box-shadow: none !important;
-        outline: none !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 10px 25px !important;
-        font-weight: 600 !important;
-    }
-
-    .swal2-styled:focus {
-        box-shadow: none !important;
-    }
-</style>
 
 <div class="card cosy-availability-card mb-4">
     <div class="card-body p-0">
@@ -196,75 +86,6 @@ if (!isset($availability)) {
              */
             window.savedAvailability = <?php echo json_encode($availability); ?> || {};
             if (Array.isArray(window.savedAvailability)) window.savedAvailability = {}; // Ensure it's always an object
-
-            /**
-             * formatTimeForBadge
-             * 
-             * Converts 24-hour time (e.g., 14:00) to 12-hour format with AM/PM (e.g., 02:00 PM).
-             * This makes the 'Weekly Preview' badges easy to read.
-             */
-            function formatTimeForBadge(timeStr) {
-                if (!timeStr) return '';
-                const [hour, minute] = timeStr.split(':');
-                const h = parseInt(hour);
-                const ampm = h >= 12 ? 'PM' : 'AM';
-                const h12 = h % 12 || 12;
-                return `${h12}:${minute} ${ampm}`;
-            }
-
-            /**
-             * renderAvailabilityBadges
-             * 
-             * This function updates the 'Weekly Preview' section.
-             * It clears the current badges and re-creates them based on the 'savedAvailability' object.
-             * Called whenever a new schedule is saved.
-             */
-            function renderAvailabilityBadges() {
-                const container = jQuery('#weekly_preview_badges');
-                if (!container.length) return;
-                
-                container.empty();
-                const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                
-                days.forEach(day => {
-                    const avail = window.savedAvailability[day];
-                    if (avail && avail.start_time && avail.end_time) {
-                        const s = formatTimeForBadge(avail.start_time);
-                        const e = formatTimeForBadge(avail.end_time);
-                        const shortDay = day.substring(0, 3);
-                        container.append(`<span class="badge availability-badge">${shortDay}: ${s} - ${e}</span>`);
-                    }
-                });
-            }
-
-            jQuery(document).ready(function($) {
-                /**
-                 * Day Selection Handler
-                 * 
-                 * When a provider selects a day from the dropdown, this script checks if
-                 * there's already a saved schedule for that day and fills the inputs automatically.
-                 */
-                $('#availability_day').on('change', function() {
-                    const day = $(this).val();
-                    if (!day) return;
-
-                    const data = window.savedAvailability[day];
-                    if (data && typeof data === 'object') {
-                        $('#start_time').val(data.start_time || '');
-                        $('#end_time').val(data.end_time || '');
-                        $('#slot_duration').val(data.slot_duration || '10');
-                        $('#break_start_time').val(data.break_start || '');
-                        $('#break_end_time').val(data.break_end || '');
-                    } else {
-                        // Clear fields if no schedule exists for the selected day
-                        $('#start_time').val('');
-                        $('#end_time').val('');
-                        $('#slot_duration').val('10');
-                        $('#break_start_time').val('');
-                        $('#break_end_time').val('');
-                    }
-                });
-            });
         </script>
 
         <!-- Calendar Preview -->

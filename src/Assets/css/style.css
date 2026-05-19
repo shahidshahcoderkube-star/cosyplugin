@@ -1304,3 +1304,89 @@ body .swal2-icon {
     background: var(--cosy-primary) !important;
     color: var(--cosy-white) !important;
 }
+
+/* ============================================================
+   COSY PROVIDER DASHBOARD: AVAILABILITY CARD
+   ============================================================ */
+.cosy-availability-card {
+    background: var(--cosy-white);
+    border-radius: var(--cosy-border-radius-lg) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    padding: 30px;
+}
+
+.cosy-availability-card h3 {
+    font-family: var(--cosy-font-family);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--cosy-text);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cosy-availability-card .form-label {
+    font-family: var(--cosy-font-family);
+    font-weight: 600;
+    color: var(--cosy-subtext);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.cosy-availability-card .form-control,
+.cosy-availability-card .form-select {
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: var(--cosy-border-radius) !important;
+    background-color: var(--cosy-bg) !important;
+    font-family: var(--cosy-font-family);
+    font-size: 0.95rem;
+    padding: 10px 15px !important;
+    transition: all 0.3s ease;
+}
+
+.cosy-availability-card .form-control:focus,
+.cosy-availability-card .form-select:focus {
+    border-color: var(--cosy-primary) !important;
+    background-color: var(--cosy-white) !important;
+    box-shadow: 0 0 0 4px rgba(155, 69, 147, 0.1) !important;
+}
+
+.cosy-availability-card .preview-container {
+    background: var(--cosy-bg);
+    border-radius: 15px;
+    border: 1px solid #e2e8f0;
+    padding: 25px;
+}
+
+.cosy-availability-card .preview-container h5 {
+    font-family: var(--cosy-font-family);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--cosy-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.cosy-availability-card .availability-badge {
+    background: var(--cosy-white) !important;
+    color: var(--cosy-primary) !important;
+    border: 1px solid rgba(155, 69, 147, 0.2) !important;
+    padding: 8px 15px !important;
+    border-radius: 10px !important;
+    font-weight: 600;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.cosy-availability-card .custom-btn {
+    background: var(--cosy-gradient) !important;
+    border: none !important;
+    border-radius: var(--cosy-border-radius) !important;
+    padding: 14px 45px !important;
+    font-weight: 600;
+    color: var(--cosy-white) !important;
+    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
+}
