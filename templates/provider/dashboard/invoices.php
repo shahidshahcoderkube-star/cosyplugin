@@ -36,6 +36,14 @@ $appointments = $appointments_query->posts;
         <p class="text-muted mb-4" style="margin-left: 58px; font-size: 0.9rem;">Generate, view and manage your invoices below.</p>
 
         <!-- Invoice Table -->
+        <style>
+            #providerInvoicesTable,
+            #providerInvoicesTable th, 
+            #providerInvoicesTable td {
+                border-left: 0 !important;
+                border-right: 0 !important;
+            }
+        </style>
         <div class="table-responsive">
             <table class="table align-middle" id="providerInvoicesTable">
                 <thead>
@@ -132,7 +140,7 @@ $appointments = $appointments_query->posts;
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content cosy-modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <div class="modal-header cosy-modal-header text-white p-4" style="background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); border-top-left-radius: 20px; border-top-right-radius: 20px;">
-                <h5 class="modal-title fw-bold" id="modalInvoiceTitle" style="font-family: 'Outfit', sans-serif;">Invoice Details</h5>
+                <h5 class="modal-title fw-bold text-white" id="modalInvoiceTitle" style="font-family: 'Outfit', sans-serif; color: #ffffff !important;">Invoice Details</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">

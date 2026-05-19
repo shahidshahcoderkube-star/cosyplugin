@@ -199,7 +199,7 @@ $appointments = $appointments_query->posts;
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content cosy-modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <div class="modal-header cosy-modal-header text-white p-4" style="background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); border-top-left-radius: 20px; border-top-right-radius: 20px;">
-                <h5 class="modal-title fw-bold" id="modalOrderTitle" style="font-family: 'Outfit', sans-serif;">Order Details</h5>
+                <h5 class="modal-title fw-bold text-white" id="modalOrderTitle" style="font-family: 'Outfit', sans-serif; color: #ffffff !important;">Order Details</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
