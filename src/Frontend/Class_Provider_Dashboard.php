@@ -63,6 +63,30 @@ class Dashboard
     }
 
     /**
+     * Fetch all appointments for a given provider ID
+     * Centralized OOP method to avoid raw WP_Query calls in templates
+     */
+    public static function get_provider_appointments(int $provider_id): array
+    {
+        $args = [
+            'post_type'      => 'cosy_appointment',
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'meta_query'     => [
+                [
+                    'key'     => 'cosy_provider_id',
+                    'value'   => $provider_id,
+                    'compare' => '='
+                ]
+            ],
+            'orderby'        => 'date',
+            'order'          => 'DESC'
+        ];
+
+        return (new \WP_Query($args))->posts;
+    }
+
+    /**
      * handle_profile_update
      * 
      * This function saves the provider's profile information (Name, Email, Bio, etc.)

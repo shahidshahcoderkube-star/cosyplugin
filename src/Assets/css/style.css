@@ -711,6 +711,16 @@ label.error {
     }
 }
 
+.time-block.booked {
+    background: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    border-color: #cbd5e1 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 /* Premium Dropdown Styles */
 .cosy-header-dropdown-wrapper,
 .cosy-header-simple-link {
@@ -1897,9 +1907,7 @@ body .swal2-icon {
 
 .badge-completed { background: #e6fcf5 !important; color: #0ca678 !important; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
 .badge-cancelled { background: #fff5f5 !important; color: #fa5252 !important; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
-.badge-pending { background: #fdf2fb !important; color: #a44390 !important; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
-
-.cosy-modal-content { border-radius: 20px; }
+.badge-pending { background: #fdf2fb !important; color: #a44390 !important; padding: 6px 12px; border-radius: 20px; font-weight: 600; }.cosy-modal-content { border-radius: 20px; }
 .cosy-modal-header-gradient { background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); border-top-left-radius: 20px; border-top-right-radius: 20px; }
 .cosy-modal-title { font-family: 'Outfit', sans-serif; color: #ffffff !important; }
 .modal-info-box-primary { background-color: #fdf2fb; border: 1px solid #f1e4ef; }
@@ -1915,3 +1923,5 @@ body .swal2-icon {
 .btn-modal-close { background: #cbd5e1 !important; border: none; color: #475569 !important; }
 .btn-modal-complete { background: #0ca678 !important; border: none; color: #ffffff !important; }
 .btn-modal-cancel { background: #fa5252 !important; border: none; color: #ffffff !important; }
+
+.order-empty-icon { color: #cbd5e1; }

@@ -68,6 +68,7 @@ if (!empty($provider_data['ID'])) {
         id: <?php echo json_encode($current_user->ID); ?>
     };
     window.providerId = <?php echo json_encode($provider_data['ID'] ?? 0); ?>;
+    window.ajaxUrl = <?php echo json_encode(admin_url('admin-ajax.php')); ?>;
 </script>
 <?php
 
@@ -513,6 +514,7 @@ if (!empty($provider_data['ID'])) {
     let selectedDate = null;
     let selectedTimeSlotsByDay = {};
     let selectedService = null;
+    let currentModalDate = '';
 
     function selectServiceItem(el, title, price, duration) {
         // Reset all services
@@ -689,13 +691,21 @@ if (!empty($provider_data['ID'])) {
     document.addEventListener('DOMContentLoaded', renderCalendar);
 
     // ===== Modal Booking Logic =====
-    let currentModalDate = '';
-
     function openTimeSlotModal(dateStr) {
         currentModalDate = dateStr;
         const modal = new bootstrap.Modal(document.getElementById('timeSlotModal'));
         const grid = document.getElementById('timeGrid');
-        grid.innerHTML = '';
+        
+        // Show spinner / loading state
+        grid.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status" style="color: #a44390 !important;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted small mt-2 mb-0">Checking slot availability...</p>
+            </div>
+        `;
+        modal.show();
 
         const dateObj = new Date(dateStr);
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -704,88 +714,111 @@ if (!empty($provider_data['ID'])) {
 
         if (!avail) {
             grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No availability set for this day.</div>';
-            modal.show();
             return;
         }
 
-        const startStr = avail.start_time; // e.g. "09:00"
-        const endStr = avail.end_time; // e.g. "17:00"
-        const slotDuration = parseInt(avail.slot_duration) || (selectedService ? selectedService.duration : 30);
-
-        const baseDateStr = '1970-01-01T';
-        let startTime = new Date(`${baseDateStr}${startStr}:00`);
-        let endTime = new Date(`${baseDateStr}${endStr}:00`);
-
-        // Handle overnight shifts
-        if (endTime <= startTime) {
-            endTime.setDate(endTime.getDate() + 1);
-        }
-
-        let breakStart = null;
-        let breakEnd = null;
-
-        if (avail.break_start && avail.break_end) {
-            breakStart = new Date(`${baseDateStr}${avail.break_start}:00`);
-            breakEnd = new Date(`${baseDateStr}${avail.break_end}:00`);
-
-            // Adjust break times for overnight shifts
-            if (breakStart < startTime) {
-                breakStart.setDate(breakStart.getDate() + 1);
-            }
-            if (breakEnd < breakStart) {
-                breakEnd.setDate(breakEnd.getDate() + 1);
-            }
-        }
-
-        let currentTime = new Date(startTime);
-        let slotsCount = 0;
-
-        while (currentTime < endTime) {
-            const timeStr = currentTime.toTimeString().substring(0, 5); // "HH:MM"
-            const displayTime = currentTime.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            // Calculate the end of THIS slot
-            const currentSlotEnd = new Date(currentTime);
-            currentSlotEnd.setMinutes(currentSlotEnd.getMinutes() + slotDuration);
-
-            // Don't create the slot if it exceeds the shift end time
-            if (currentSlotEnd > endTime) {
-                break;
-            }
-
-            // Check if this slot falls within a break (overlap logic)
-            let isInBreak = false;
-            if (breakStart && breakEnd) {
-                if (currentTime < breakEnd && currentSlotEnd > breakStart) {
-                    isInBreak = true;
+        // Fetch booked slots via AJAX
+        jQuery.ajax({
+            url: window.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'cosy_get_booked_slots',
+                provider_id: window.providerId,
+                date: dateStr
+            },
+            success: function(response) {
+                grid.innerHTML = '';
+                let bookedSlots = [];
+                if (response.success && Array.isArray(response.data)) {
+                    bookedSlots = response.data;
                 }
+
+                const startStr = avail.start_time; // e.g. "09:00"
+                const endStr = avail.end_time; // e.g. "17:00"
+                const slotDuration = parseInt(avail.slot_duration) || (selectedService ? selectedService.duration : 30);
+
+                const baseDateStr = '1970-01-01T';
+                let startTime = new Date(`${baseDateStr}${startStr}:00`);
+                let endTime = new Date(`${baseDateStr}${endStr}:00`);
+
+                // Handle overnight shifts
+                if (endTime <= startTime) {
+                    endTime.setDate(endTime.getDate() + 1);
+                }
+
+                let breakStart = null;
+                let breakEnd = null;
+
+                if (avail.break_start && avail.break_end) {
+                    breakStart = new Date(`${baseDateStr}${avail.break_start}:00`);
+                    breakEnd = new Date(`${baseDateStr}${avail.break_end}:00`);
+
+                    // Adjust break times for overnight shifts
+                    if (breakStart < startTime) {
+                        breakStart.setDate(breakStart.getDate() + 1);
+                    }
+                    if (breakEnd < breakStart) {
+                        breakEnd.setDate(breakEnd.getDate() + 1);
+                    }
+                }
+
+                let currentTime = new Date(startTime);
+                let slotsCount = 0;
+
+                while (currentTime < endTime) {
+                    const timeStr = currentTime.toTimeString().substring(0, 5); // "HH:MM"
+                    const displayTime = currentTime.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    // Calculate the end of THIS slot
+                    const currentSlotEnd = new Date(currentTime);
+                    currentSlotEnd.setMinutes(currentSlotEnd.getMinutes() + slotDuration);
+
+                    // Don't create the slot if it exceeds the shift end time
+                    if (currentSlotEnd > endTime) {
+                        break;
+                    }
+
+                    // Check if this slot falls within a break (overlap logic)
+                    let isInBreak = false;
+                    if (breakStart && breakEnd) {
+                        if (currentTime < breakEnd && currentSlotEnd > breakStart) {
+                            isInBreak = true;
+                        }
+                    }
+
+                    if (!isInBreak) {
+                        slotsCount++;
+                        const isSelected = selectedTimeSlotsByDay[dateStr] && selectedTimeSlotsByDay[dateStr].includes(timeStr);
+                        const isBooked = bookedSlots.includes(timeStr);
+                        
+                        grid.innerHTML += `
+                            <div class="time-block p-2 text-center small fw-bold ${isSelected ? 'selected' : ''} ${isBooked ? 'booked' : ''}" 
+                                 onclick="${isBooked ? '' : `toggleTimeSlot('${timeStr}', this)`}">
+                                ${displayTime}
+                            </div>
+                        `;
+                    }
+
+                    // Move to next slot
+                    currentTime = new Date(currentSlotEnd);
+                }
+
+                if (slotsCount === 0) {
+                    grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No slots available for the selected range.</div>';
+                }
+
+                updateModalDuration();
+            },
+            error: function() {
+                grid.innerHTML = '<div class="col-12 text-center py-4 text-danger">Failed to check slot availability. Please try again.</div>';
             }
-
-            if (!isInBreak) {
-                slotsCount++;
-                const isSelected = selectedTimeSlotsByDay[dateStr] && selectedTimeSlotsByDay[dateStr].includes(timeStr);
-                grid.innerHTML += `
-                    <div class="time-block p-2 text-center small fw-bold ${isSelected ? 'selected' : ''}" 
-                         onclick="toggleTimeSlot('${timeStr}', this)">
-                        ${displayTime}
-                    </div>
-                `;
-            }
-
-            // Move to next slot
-            currentTime = new Date(currentSlotEnd);
-        }
-
-        if (slotsCount === 0) {
-            grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No slots available for the selected range.</div>';
-        }
-
-        updateModalDuration();
-        modal.show();
+        });
     }
+
+
 
     function toggleTimeSlot(time, el) {
         if (!selectedTimeSlotsByDay[currentModalDate]) selectedTimeSlotsByDay[currentModalDate] = [];

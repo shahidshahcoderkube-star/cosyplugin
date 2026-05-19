@@ -27,7 +27,8 @@ class Frontend
         // Register AJAX handlers for booking creation
         $this->register_ajax_handlers([
             'cosy_create_booking' => 'handle_create_booking',
-            'cosy_update_booking_status' => 'handle_update_booking_status'
+            'cosy_update_booking_status' => 'handle_update_booking_status',
+            'cosy_get_booked_slots' => 'handle_get_booked_slots'
         ], $this);
     }
 
@@ -491,5 +492,73 @@ class Frontend
         update_post_meta($appointment_id, 'cosy_booking_status', $new_status);
 
         wp_send_json_success(['message' => 'Status updated successfully to ' . ucfirst($new_status)]);
+     }
+
+    /**
+     * handle_get_booked_slots
+     * 
+     * Retrieves already booked time slots for a given provider on a specific date.
+     */
+    public function handle_get_booked_slots(): void
+    {
+        $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
+        $date_str    = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : ''; // e.g. "Wed May 20 2026"
+
+        if (empty($provider_id) || empty($date_str)) {
+            wp_send_json_error(['message' => 'Missing provider or date parameter.']);
+        }
+
+        $args = [
+            'post_type'      => 'cosy_appointment',
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'meta_query'     => [
+                'relation' => 'AND',
+                [
+                    'key'     => 'cosy_provider_id',
+                    'value'   => $provider_id,
+                    'compare' => '='
+                ],
+                [
+                    'key'     => 'cosy_booking_status',
+                    'value'   => 'cancelled',
+                    'compare' => '!='
+                ]
+            ]
+        ];
+
+        $query = new \WP_Query($args);
+        $booked_slots = [];
+
+        if ($query->have_posts()) {
+            foreach ($query->posts as $appt) {
+                $slots_meta = get_post_meta($appt->ID, 'cosy_slots', true);
+                if (!empty($slots_meta)) {
+                    // slots_meta is expected to be a JSON string like:
+                    // [{"date":"Wed May 20 2026","time":"09:00"}]
+                    // Decoded with html_entity_decode to handle any WordPress escaping
+                    $decoded = html_entity_decode($slots_meta);
+                    $slots = json_decode($decoded, true);
+                    
+                    // Fallback to normal json_decode if decode fails
+                    if (!is_array($slots)) {
+                        $slots = json_decode($slots_meta, true);
+                    }
+
+                    if (is_array($slots)) {
+                        foreach ($slots as $slot) {
+                            if (isset($slot['date']) && $slot['date'] === $date_str) {
+                                if (isset($slot['time'])) {
+                                    $booked_slots[] = $slot['time']; // "HH:MM" e.g. "09:00"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        wp_send_json_success(array_values(array_unique($booked_slots)));
     }
 }
+

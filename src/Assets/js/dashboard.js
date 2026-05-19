@@ -6,7 +6,21 @@
  *
  * Sections:
  * 1. Non Working Days (Holidays) — AJAX add & delete
+ * 2. Provider Orders — search, filter, export, modal, status update
  */
+
+/* ============================================================
+   GLOBAL SHARED VARIABLES
+   Accessible by all sections in this file.
+   Resolved from wp_localize_script output.
+   ============================================================ */
+var ajaxUrl = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.ajax_url
+    : (typeof cosyAjax !== 'undefined') ? cosyAjax.ajax_url
+        : '';
+
+var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
+    : (typeof cosyAjax !== 'undefined') ? cosyAjax.nonce
+        : '';
 
 (function () {
     'use strict';
@@ -14,20 +28,6 @@
     /* ============================================================
        HELPERS — shared across all dashboard sections
        ============================================================ */
-
-    /**
-     * Read AJAX URL and nonce from the global cosyAjax object
-     * (localized by Assets.php via wp_localize_script).
-     * Falls back to cosyDashboard if both are available.
-     */
-    var ajaxUrl = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.ajax_url
-        : (typeof cosyAjax !== 'undefined') ? cosyAjax.ajax_url
-            : '';
-
-    var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
-        : (typeof cosyAjax !== 'undefined') ? cosyAjax.nonce
-            : '';
-
     /* ============================================================
        NON WORKING DAYS (HOLIDAYS)
        ============================================================ */
@@ -491,3 +491,187 @@
     });
 
 }());
+
+/* ============================================================
+   PROVIDER ORDERS TAB
+   ============================================================ */
+jQuery(document).ready(function ($) {
+
+    // 1. Live Search
+    $(document).on('keyup', '#orderSearchInput', function () {
+        var value = $(this).val().toLowerCase().trim();
+        $('#providerOrdersTable tbody tr.order-table-row').filter(function () {
+            $(this).toggle($(this).attr('data-search').indexOf(value) > -1);
+        });
+    });
+
+    // 2. Filter by status
+    $(document).on('change', '#orderStatusFilter', function () {
+        var val = $(this).val();
+        $('#providerOrdersTable tbody tr.order-table-row').filter(function () {
+            if (val === '') {
+                $(this).show();
+            } else {
+                $(this).toggle($(this).attr('data-status') === val);
+            }
+        });
+    });
+
+    // 3. Export to CSV
+    $(document).on('click', '#exportOrdersBtn', function (e) {
+        e.preventDefault();
+        var csvContent = 'data:text/csv;charset=utf-8,';
+        csvContent += 'Order ID,Customer,Service,Date,Status\n';
+
+        $('#providerOrdersTable tbody tr.order-table-row').each(function () {
+            if ($(this).is(':visible')) {
+                var id       = $(this).find('td:nth-child(1)').text().replace('#', '');
+                var customer = $(this).find('td:nth-child(2)').text().trim();
+                var service  = $(this).find('td:nth-child(3)').text().trim();
+                var date     = $(this).find('td:nth-child(4)').text().trim();
+                var status   = $(this).attr('data-status').toUpperCase();
+                csvContent += '"' + id + '","' + customer + '","' + service + '","' + date + '","' + status + '"\n';
+            }
+        });
+
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'provider_orders_' + new Date().toISOString().slice(0, 10) + '.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
+    // 4. Populate order details modal
+    $(document).on('click', '.btn-view-order-details', function () {
+        var id      = $(this).data('id');
+        var customer = $(this).data('customer');
+        var email   = $(this).data('email');
+        var service = $(this).data('service');
+        var start   = $(this).data('start');
+        var end     = $(this).data('end');
+        var weekly  = $(this).data('weekly');
+        var weeks   = $(this).data('weeks');
+        var slots   = $(this).data('slots');
+        var cost    = $(this).data('cost');
+        var total   = $(this).data('total');
+        var status  = $(this).attr('data-status');
+
+        $('#modalOrderTitle').text('Order Details - #' + id);
+        $('#modalCustomerName').text(customer);
+        $('#modalCustomerEmail').text(email);
+        $('#modalServiceName').text(service);
+        $('#modalScheduleInfo').html('<strong>Schedule:</strong> ' + weekly + '<br><strong>Duration:</strong> ' + start + ' to ' + end);
+        $('#modalWeeksInfo').html('<strong>Weeks:</strong> ' + weeks + ' week(s) (' + slots + ' slots)');
+        $('#modalCostInfo').text('£' + cost + ' (Total Paid: £' + total + ')');
+
+        var badge = '';
+        if (status === 'completed') {
+            badge = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+            $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
+        } else if (status === 'cancelled') {
+            badge = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+            $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
+        } else {
+            badge = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
+            $('#modalFooterActions').html(
+                '<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>' +
+                '<button type="button" class="btn btn-success rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-complete" data-id="' + id + '" data-status="completed" data-bs-dismiss="modal">Mark Completed</button>' +
+                '<button type="button" class="btn btn-danger rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-cancel" data-id="' + id + '" data-status="cancelled" data-bs-dismiss="modal">Cancel Order</button>'
+            );
+        }
+        $('#modalStatusContainer').html(badge);
+    });
+
+    // 5. Handle Status Update AJAX
+    $(document).on('click', '.action-update-status', function (e) {
+        e.preventDefault();
+        var btn       = $(this);
+        var orderId   = btn.data('id');
+        var newStatus = btn.data('status');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to mark this booking as ' + newStatus + '?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#a44390',
+            cancelButtonColor: '#cbd5e1',
+            confirmButtonText: 'Yes, change it!',
+            background: '#ffffff',
+            customClass: {
+                popup: 'swal2-bento-popup',
+                title: 'swal2-bento-title',
+                htmlContainer: 'swal2-bento-text',
+                confirmButton: 'swal2-bento-btn'
+            }
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: 'cosy_update_booking_status',
+                        appointment_id: orderId,
+                        status: newStatus
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.data.message,
+                                confirmButtonColor: '#a44390',
+                                background: '#ffffff',
+                                customClass: {
+                                    popup: 'swal2-bento-popup',
+                                    title: 'swal2-bento-title',
+                                    htmlContainer: 'swal2-bento-text',
+                                    confirmButton: 'swal2-bento-btn'
+                                }
+                            });
+
+                            var row = $('#order-row-' + orderId);
+                            if (row.length) {
+                                row.attr('data-status', newStatus);
+
+                                var badgeHtml = '';
+                                if (newStatus === 'completed') {
+                                    badgeHtml = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+                                } else if (newStatus === 'cancelled') {
+                                    badgeHtml = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+                                } else {
+                                    badgeHtml = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
+                                }
+                                row.find('.status-cell').html(badgeHtml);
+                                var detailsBtn = row.find('.btn-view-order-details');
+                                detailsBtn.attr('data-status', newStatus);
+                                detailsBtn.data('status', newStatus);
+                                row.find('.action-update-status').remove();
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed',
+                                text: response.data.message,
+                                confirmButtonColor: '#a44390',
+                                background: '#ffffff'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to communicate with the server.',
+                            confirmButtonColor: '#a44390',
+                            background: '#ffffff'
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+});
