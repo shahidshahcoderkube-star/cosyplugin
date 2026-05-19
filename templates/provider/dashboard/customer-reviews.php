@@ -33,87 +33,8 @@ if ($total_approved > 0) {
     $average_rating_db = round($sum_ratings / $total_approved, 1);
 }
 ?>
-<style>
-.cosy-reviews-card {
-    background: #ffffff;
-    border-radius: 20px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
-    border: none !important;
-    padding: 30px;
-}
 
-.cosy-reviews-card h3 {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: #1e293b;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
 
-.cosy-reviews-card .rating-number {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 800;
-    font-size: 3.5rem;
-    color: #a44390;
-    line-height: 1;
-}
-
-.cosy-reviews-card .progress {
-    height: 8px !important;
-    border-radius: 10px !important;
-    background-color: #f1f5f9 !important;
-}
-
-.cosy-reviews-card .progress-bar {
-    background-color: #a44390 !important;
-    border-radius: 10px !important;
-}
-
-.cosy-reviews-card .review-item {
-    background: #f8fafc;
-    border: 1.5px solid #f1f5f9;
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 15px;
-    transition: all 0.3s ease;
-}
-
-.cosy-reviews-card .review-item:hover {
-    border-color: #a44390;
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.cosy-reviews-card .verified-badge {
-    background: rgba(34, 197, 94, 0.1) !important;
-    color: #22c55e !important;
-    font-size: 0.65rem !important;
-    padding: 4px 8px !important;
-    border-radius: 6px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase;
-    margin-left: 8px;
-}
-
-.cosy-reviews-card .star-active { color: #f59e0b; }
-.cosy-reviews-card .star-inactive { color: #e2e8f0; }
-
-.cosy-reviews-card .custom-btn-outline {
-    border: 1.5px solid #a44390 !important;
-    color: #a44390 !important;
-    border-radius: 12px !important;
-    padding: 10px 30px !important;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.cosy-reviews-card .custom-btn-outline:hover {
-    background: #a44390 !important;
-    color: #fff !important;
-}
-</style>
 
 <div class="card cosy-reviews-card mb-4">
     <div class="card-body p-0">

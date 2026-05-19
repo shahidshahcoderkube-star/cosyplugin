@@ -1223,3 +1223,84 @@ body .swal2-icon {
     border: 3px solid var(--cosy-white);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
+
+/* Customer Reviews Dashboard Card Styling */
+.cosy-reviews-card {
+    background: var(--cosy-white);
+    border-radius: 20px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    padding: 30px;
+}
+
+.cosy-reviews-card h3 {
+    font-family: var(--cosy-font-family);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--cosy-text);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cosy-reviews-card .rating-number {
+    font-family: var(--cosy-font-family);
+    font-weight: 800;
+    font-size: 3.5rem;
+    color: var(--cosy-primary);
+    line-height: 1;
+}
+
+.cosy-reviews-card .progress {
+    height: 8px !important;
+    border-radius: 10px !important;
+    background-color: #f1f5f9 !important;
+}
+
+.cosy-reviews-card .progress-bar {
+    background-color: var(--cosy-primary) !important;
+    border-radius: 10px !important;
+}
+
+.cosy-reviews-card .review-item {
+    background: #f8fafc;
+    border: 1.5px solid #f1f5f9;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.cosy-reviews-card .review-item:hover {
+    border-color: var(--cosy-primary);
+    background: var(--cosy-white);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.cosy-reviews-card .verified-badge {
+    background: rgba(34, 197, 94, 0.1) !important;
+    color: #22c55e !important;
+    font-size: 0.65rem !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    margin-left: 8px;
+}
+
+.cosy-reviews-card .star-active { color: #f59e0b; }
+.cosy-reviews-card .star-inactive { color: #e2e8f0; }
+
+.cosy-reviews-card .custom-btn-outline {
+    border: 1.5px solid var(--cosy-primary) !important;
+    color: var(--cosy-primary) !important;
+    border-radius: 12px !important;
+    padding: 10px 30px !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cosy-reviews-card .custom-btn-outline:hover {
+    background: var(--cosy-primary) !important;
+    color: var(--cosy-white) !important;
+}
