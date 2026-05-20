@@ -675,3 +675,58 @@ jQuery(document).ready(function ($) {
     });
 
 });
+
+/* ============================================================
+   PROVIDER INVOICES TAB
+   ============================================================ */
+jQuery(document).ready(function ($) {
+
+    // 1. Populate dynamic invoice details modal (delegated for AJAX load compatibility)
+    $(document).on('click', '.btn-view-invoice', function() {
+        const id = $(this).data('id');
+        const customer = $(this).data('customer');
+        const email = $(this).data('email');
+        const service = $(this).data('service');
+        const start = $(this).data('start');
+        const total = $(this).data('total');
+
+        $('#modalInvoiceTitle').text('Invoice Details - INV-' + id);
+        $('#modalInvCustomerName').text(customer);
+        $('#modalInvCustomerEmail').text(email);
+        $('#modalInvServiceName').text('Service: ' + service);
+        $('#modalInvDate').text('Billing Date: ' + start);
+        $('#modalInvCostInfo').text('Amount Received: £' + total);
+        
+        // Save ID on download button
+        $('#btnDownloadInvoicePdf').data('id', id).data('customer', customer).data('service', service).data('total', total);
+    });
+
+    // 2. Download invoice function helper (delegated for AJAX load compatibility)
+    $(document).on('click', '.btn-download-invoice, #btnDownloadInvoicePdf', function(e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        const customer = $(this).data('customer');
+        const service = $(this).data('service');
+        const total = $(this).data('total');
+
+        let invoiceDoc = `COSY APPOINTMENTS INVOICE RECEIPT\n`;
+        invoiceDoc += `===================================\n`;
+        invoiceDoc += `Invoice Reference: INV-${id}\n`;
+        invoiceDoc += `Customer Name: ${customer}\n`;
+        invoiceDoc += `Service: ${service}\n`;
+        invoiceDoc += `Amount Paid: £${total}\n`;
+        invoiceDoc += `Status: PAID / SECURED\n`;
+        invoiceDoc += `Payment Method: Worldpay FIS\n`;
+        invoiceDoc += `===================================\n`;
+        invoiceDoc += `Thank you for your business!`;
+
+        const element = document.createElement("a");
+        const file = new Blob([invoiceDoc], {type: 'text/plain'});
+        element.href = URL.createObjectURL(file);
+        element.download = "invoice_INV_" + id + ".txt";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    });
+
+});
