@@ -48,6 +48,14 @@ class Assets
             return;
         }
 
+        // Google Fonts
+        wp_enqueue_style(
+            'cosy-outfit-jakarta-font',
+            'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap',
+            [],
+            null
+        );
+
         // Bootstrap CSS
         wp_enqueue_style(
             'cosy-bootstrap',
@@ -63,6 +71,11 @@ class Assets
             ['jquery'],
             '5.3.2',
             true
+        );
+
+        wp_enqueue_style(
+            'cosy-font-awesome',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
         );
 
         wp_enqueue_style(
