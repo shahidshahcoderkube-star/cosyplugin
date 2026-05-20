@@ -182,11 +182,11 @@ let currentDate = new Date();
         
         // Show spinner / loading state
         grid.innerHTML = `
-            <div class="col-12 text-center py-5">
-                <div class="spinner-border text-primary" role="status" class="cosy-date-text">
+            <div class="col-12 py-5 d-flex flex-column align-items-center justify-content-center w-100" style="grid-column: 1 / -1;">
+                <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="text-muted small mt-2 mb-0">Checking slot availability...</p>
+                <p class="text-muted small mt-2 mb-0 text-center">Checking slot availability...</p>
             </div>
         `;
         modal.show();
@@ -197,7 +197,7 @@ let currentDate = new Date();
         const avail = window.providerAvailability ? window.providerAvailability[dayName] : null;
 
         if (!avail) {
-            grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No availability set for this day.</div>';
+            grid.innerHTML = '<div class="col-12 text-center py-4 text-muted w-100" style="grid-column: 1 / -1;">No availability set for this day.</div>';
             return;
         }
 

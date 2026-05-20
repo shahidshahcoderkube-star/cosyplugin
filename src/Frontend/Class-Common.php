@@ -353,4 +353,43 @@ trait GlobalCommonFunctions
             'rating_counts'  => $rating_counts,
         ];
     }
+
+    /**
+     * get_provider_availability_data
+     * 
+     * Retrieves the weekly availability schedule and holiday dates for a provider.
+     * 
+     * @param int $provider_id The provider's user ID.
+     * @return array Contains 'availability' array and 'holiday_dates' array.
+     */
+    public function get_provider_availability_data(int $provider_id): array
+    {
+        $days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $availability = [];
+        $holiday_dates = [];
+
+        if (!empty($provider_id)) {
+            foreach ($days_of_week as $day) {
+                // Fetch saved metadata for each specific day
+                $day_data = get_user_meta($provider_id, "cosy_availability_{$day}", true);
+                $availability[$day] = !empty($day_data) ? $day_data : null;
+            }
+
+            // Fetch Holidays
+            $raw_holidays = get_user_meta($provider_id, 'cosy_provider_holidays', true);
+            $holidays_arr = (!empty($raw_holidays)) ? json_decode($raw_holidays, true) : [];
+            if (is_array($holidays_arr)) {
+                foreach ($holidays_arr as $h) {
+                    if (!empty($h['date'])) {
+                        $holiday_dates[] = $h['date'];
+                    }
+                }
+            }
+        }
+
+        return [
+            'availability'  => $availability,
+            'holiday_dates' => $holiday_dates,
+        ];
+    }
 }

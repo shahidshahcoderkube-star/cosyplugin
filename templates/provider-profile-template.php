@@ -23,34 +23,14 @@ if (!empty($provider_data['ID'])) {
 /** 
  * PROVIDER AVAILABILITY DATA FETCHING
  * 
- * This block retrieves the weekly working schedule (Start Time, End Time, Breaks) 
- * for the current service provider from user_meta.
- * 
- * Used for:
- * 1. Rendering the 'Availability' table further down in this template.
- * 2. Providing data to a global JavaScript variable for future booking calendar logic.
+ * Retrieves the weekly schedule and holidays via reusable OOP helper function.
  */
-$days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 $availability = [];
 $holiday_dates = [];
-
 if (!empty($provider_data['ID'])) {
-    foreach ($days_of_week as $day) {
-        // Fetch saved metadata for each specific day
-        $day_data = get_user_meta($provider_data['ID'], "cosy_availability_{$day}", true);
-        $availability[$day] = !empty($day_data) ? $day_data : null;
-    }
-
-    // Fetch Holidays
-    $raw_holidays = get_user_meta($provider_data['ID'], 'cosy_provider_holidays', true);
-    $holidays_arr = (!empty($raw_holidays)) ? json_decode($raw_holidays, true) : [];
-    if (is_array($holidays_arr)) {
-        foreach ($holidays_arr as $h) {
-            if (!empty($h['date'])) {
-                $holiday_dates[] = $h['date'];
-            }
-        }
-    }
+    $availability_data = $common->get_provider_availability_data($provider_data['ID']);
+    $availability      = $availability_data['availability'];
+    $holiday_dates     = $availability_data['holiday_dates'];
 }
 ?>
 
@@ -435,14 +415,14 @@ if (!empty($provider_data['ID'])) {
                                 </div>
 
                                 <?php if ($is_logged_in && $user_role === 'customer'): ?>
-                                <button class="cosy-btn-book-now btn w-100 py-2 fw-bold text-white shadow-sm"
-                                    onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';"
-                                    id="bookServiceBtn">
-                                    Book Service Now
-                                </button>
+                                    <button class="cosy-btn-book-now btn w-100 py-2 fw-bold text-white shadow-sm"
+                                        onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';"
+                                        id="bookServiceBtn">
+                                        Book Service Now
+                                    </button>
                                 <?php else: ?>
-                                    <div class="alert alert-warning py-3 px-3 mb-0 text-center fw-bold d-flex align-items-center justify-content-center gap-2" 
-                                         style="border-radius: 12px; font-size: 0.8rem; background: #fffbeb; border: 1px solid #fef3c7; color: #d97706; font-family: var(--cosy-font-family);">
+                                    <div class="alert alert-warning py-3 px-3 mb-0 text-center fw-bold d-flex align-items-center justify-content-center gap-2"
+                                        style="border-radius: 12px; font-size: 0.8rem; background: #fffbeb; border: 1px solid #fef3c7; color: #d97706; font-family: var(--cosy-font-family);">
                                         <i class="cosy-login-alert-icon fas fa-lock"></i>
                                         <span>Please log in as a Customer to book this service.</span>
                                     </div>
@@ -482,7 +462,7 @@ if (!empty($provider_data['ID'])) {
 <?php
 wp_enqueue_script(
     'provider-profile-js',
-    COSY_APPT_URL . 'src/assets/js/provider-profile.js',
+    COSY_APPT_URL . 'src/assets/js/calendar.js',
     ['jquery', 'bootstrap-bundle', 'sweetalert2'],
     COSY_APPT_VER,
     true
