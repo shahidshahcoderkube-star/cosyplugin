@@ -120,6 +120,14 @@ class Assets
             null
         );
 
+        // 3.5. Outfit & Plus Jakarta Sans Typography Web Fonts (For headings and checkout)
+        wp_enqueue_style(
+            'cosy-outfit-jakarta-font',
+            'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap',
+            [],
+            null
+        );
+
         // 4. Bootstrap 5 Framework CSS (Responsive grid and styling structure)
         wp_enqueue_style(
             'bootstrap',
@@ -252,10 +260,29 @@ class Assets
             true
         );
 
-        // 21. Localization map for dashboard.js script (Sends AJAX endpoint destination and security verification nonce)
+        // 21. Localization map for dashboard.js script
         wp_localize_script('cosy-dashboard', 'cosyDashboard', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('cosy_dashboard_nonce'),
+        ]);
+
+        // 22. Checkout JS Controller (Handles dynamic rendering and payment processing on checkout)
+        wp_enqueue_script(
+            'cosy-checkout',
+            COSY_APPT_URL . 'src/assets/js/checkout.js',
+            ['jquery', 'sweetalert2'],
+            COSY_APPT_VER,
+            true
+        );
+        
+        // Pass necessary PHP variables safely to checkout JS to prevent inline injections
+        $current_user = wp_get_current_user();
+        wp_localize_script('cosy-checkout', 'cosyCheckout', [
+            'ajaxUrl'       => admin_url('admin-ajax.php'),
+            'providerUrl'   => esc_url(site_url('/service-provider')),
+            'profileUrl'    => esc_url(site_url('/customer-profile')),
+            'customerName'  => $current_user->exists() ? esc_html($current_user->display_name) : '',
+            'customerEmail' => $current_user->exists() ? esc_html($current_user->user_email) : ''
         ]);
     }
 }
