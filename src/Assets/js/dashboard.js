@@ -326,7 +326,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                     action: 'cosy_approve_provider_review',
                     review_id: reviewId
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         Swal.fire({
                             title: 'Approved!',
@@ -340,7 +340,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                                 htmlContainer: 'swal2-bento-text',
                                 confirmButton: 'swal2-bento-btn'
                             }
-                        }).then(function() {
+                        }).then(function () {
                             // DOM Update without reload:
                             var card = document.getElementById('cosy-review-' + reviewId);
                             if (card) {
@@ -358,7 +358,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                                 // 3. Update moderation buttons
                                 var controls = card.querySelector('.d-flex.gap-2');
                                 if (controls) {
-                                    controls.innerHTML = 
+                                    controls.innerHTML =
                                         '<button class="btn btn-sm btn-outline-danger delete-review-btn" data-id="' + reviewId + '" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem;">' +
                                         '<i class="fas fa-trash-alt me-1"></i> Delete' +
                                         '</button>';
@@ -376,7 +376,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                         });
                     }
                 },
-                error: function() {
+                error: function () {
                     approveBtn.disabled = false;
                     approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
                     Swal.fire({
@@ -411,7 +411,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                     htmlContainer: 'swal2-bento-text',
                     confirmButton: 'swal2-bento-btn'
                 }
-            }).then(function(result) {
+            }).then(function (result) {
                 if (result.isConfirmed) {
                     deleteBtn.disabled = true;
                     var originalHTML = deleteBtn.innerHTML;
@@ -424,7 +424,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                             action: 'cosy_delete_provider_review',
                             review_id: reviewId
                         },
-                        success: function(response) {
+                        success: function (response) {
                             if (response.success) {
                                 Swal.fire({
                                     title: 'Deleted!',
@@ -438,14 +438,14 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                                         htmlContainer: 'swal2-bento-text',
                                         confirmButton: 'swal2-bento-btn'
                                     }
-                                }).then(function() {
+                                }).then(function () {
                                     // DOM Update without reload:
                                     var card = document.getElementById('cosy-review-' + reviewId);
                                     if (card) {
                                         card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                                         card.style.opacity = '0';
                                         card.style.transform = 'translateY(10px)';
-                                        setTimeout(function() {
+                                        setTimeout(function () {
                                             card.remove();
                                             syncReviewsEmptyState();
                                         }, 300);
@@ -462,7 +462,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                                 });
                             }
                         },
-                        error: function() {
+                        error: function () {
                             deleteBtn.disabled = false;
                             deleteBtn.innerHTML = originalHTML;
                             Swal.fire({
@@ -525,11 +525,11 @@ jQuery(document).ready(function ($) {
 
         $('#providerOrdersTable tbody tr.order-table-row').each(function () {
             if ($(this).is(':visible')) {
-                var id       = $(this).find('td:nth-child(1)').text().replace('#', '');
+                var id = $(this).find('td:nth-child(1)').text().replace('#', '');
                 var customer = $(this).find('td:nth-child(2)').text().trim();
-                var service  = $(this).find('td:nth-child(3)').text().trim();
-                var date     = $(this).find('td:nth-child(4)').text().trim();
-                var status   = $(this).attr('data-status').toUpperCase();
+                var service = $(this).find('td:nth-child(3)').text().trim();
+                var date = $(this).find('td:nth-child(4)').text().trim();
+                var status = $(this).attr('data-status').toUpperCase();
                 csvContent += '"' + id + '","' + customer + '","' + service + '","' + date + '","' + status + '"\n';
             }
         });
@@ -545,18 +545,18 @@ jQuery(document).ready(function ($) {
 
     // 4. Populate order details modal
     $(document).on('click', '.btn-view-order-details', function () {
-        var id      = $(this).data('id');
+        var id = $(this).data('id');
         var customer = $(this).data('customer');
-        var email   = $(this).data('email');
+        var email = $(this).data('email');
         var service = $(this).data('service');
-        var start   = $(this).data('start');
-        var end     = $(this).data('end');
-        var weekly  = $(this).data('weekly');
-        var weeks   = $(this).data('weeks');
-        var slots   = $(this).data('slots');
-        var cost    = $(this).data('cost');
-        var total   = $(this).data('total');
-        var status  = $(this).attr('data-status');
+        var start = $(this).data('start');
+        var end = $(this).data('end');
+        var weekly = $(this).data('weekly');
+        var weeks = $(this).data('weeks');
+        var slots = $(this).data('slots');
+        var cost = $(this).data('cost');
+        var total = $(this).data('total');
+        var status = $(this).attr('data-status');
 
         $('#modalOrderTitle').text('Order Details - #' + id);
         $('#modalCustomerName').text(customer);
@@ -587,8 +587,8 @@ jQuery(document).ready(function ($) {
     // 5. Handle Status Update AJAX
     $(document).on('click', '.action-update-status', function (e) {
         e.preventDefault();
-        var btn       = $(this);
-        var orderId   = btn.data('id');
+        var btn = $(this);
+        var orderId = btn.data('id');
         var newStatus = btn.data('status');
 
         Swal.fire({
@@ -682,7 +682,7 @@ jQuery(document).ready(function ($) {
 jQuery(document).ready(function ($) {
 
     // 1. Populate dynamic invoice details modal (delegated for AJAX load compatibility)
-    $(document).on('click', '.btn-view-invoice', function() {
+    $(document).on('click', '.btn-view-invoice', function () {
         const id = $(this).data('id');
         const customer = $(this).data('customer');
         const email = $(this).data('email');
@@ -696,13 +696,13 @@ jQuery(document).ready(function ($) {
         $('#modalInvServiceName').text('Service: ' + service);
         $('#modalInvDate').text('Billing Date: ' + start);
         $('#modalInvCostInfo').text('Amount Received: £' + total);
-        
+
         // Save ID on download button
         $('#btnDownloadInvoicePdf').data('id', id).data('customer', customer).data('service', service).data('total', total);
     });
 
     // 2. Download invoice function helper (delegated for AJAX load compatibility)
-    $(document).on('click', '.btn-download-invoice, #btnDownloadInvoicePdf', function(e) {
+    $(document).on('click', '.btn-download-invoice, #btnDownloadInvoicePdf', function (e) {
         e.preventDefault();
         const id = $(this).data('id');
         const customer = $(this).data('customer');
@@ -721,7 +721,7 @@ jQuery(document).ready(function ($) {
         invoiceDoc += `Thank you for your business!`;
 
         const element = document.createElement("a");
-        const file = new Blob([invoiceDoc], {type: 'text/plain'});
+        const file = new Blob([invoiceDoc], { type: 'text/plain' });
         element.href = URL.createObjectURL(file);
         element.download = "invoice_INV_" + id + ".txt";
         document.body.appendChild(element);
