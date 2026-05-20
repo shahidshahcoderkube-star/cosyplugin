@@ -9,6 +9,7 @@ $provider_data = $common->get_provider_with_services($author_slug);
 $current_user = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
 $user_role = !empty($current_user->roles) ? reset($current_user->roles) : '';
+$is_customer = in_array('customer', (array) $current_user->roles);
 
 $approved_reviews = [];
 $total_reviews = 0;
@@ -414,7 +415,7 @@ if (!empty($provider_data['ID'])) {
                                     </h4>
                                 </div>
 
-                                <?php if ($is_logged_in && $user_role === 'customer'): ?>
+                                <?php if ($is_logged_in && $is_customer): ?>
                                     <button class="cosy-btn-book-now btn w-100 py-2 fw-bold text-white shadow-sm"
                                         onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';"
                                         id="bookServiceBtn">

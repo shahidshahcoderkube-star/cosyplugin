@@ -279,11 +279,20 @@ class Assets
             'nonce'    => wp_create_nonce('cosy_dashboard_nonce'),
         ]);
 
+        // Register Stripe JS Library
+        wp_register_script(
+            'stripe-js',
+            'https://js.stripe.com/v3/',
+            [],
+            null,
+            false // load in header so it is available before other scripts
+        );
+
         // 22. Checkout JS Controller (Handles dynamic rendering and payment processing on checkout)
         wp_enqueue_script(
             'cosy-checkout',
             COSY_APPT_URL . 'src/assets/js/checkout.js',
-            ['jquery', 'sweetalert2'],
+            ['jquery', 'sweetalert2', 'stripe-js'],
             COSY_APPT_VER,
             true
         );
@@ -291,11 +300,12 @@ class Assets
         // Pass necessary PHP variables safely to checkout JS to prevent inline injections
         $current_user = wp_get_current_user();
         wp_localize_script('cosy-checkout', 'cosyCheckout', [
-            'ajaxUrl'       => admin_url('admin-ajax.php'),
-            'providerUrl'   => esc_url(site_url('/service-provider')),
-            'profileUrl'    => esc_url(site_url('/customer-profile')),
-            'customerName'  => $current_user->exists() ? esc_html($current_user->display_name) : '',
-            'customerEmail' => $current_user->exists() ? esc_html($current_user->user_email) : ''
+            'ajaxUrl'              => admin_url('admin-ajax.php'),
+            'providerUrl'          => esc_url(site_url('/service-provider')),
+            'profileUrl'           => esc_url(site_url('/customer-profile')),
+            'customerName'         => $current_user->exists() ? esc_html($current_user->display_name) : '',
+            'customerEmail'        => $current_user->exists() ? esc_html($current_user->user_email) : '',
+            'stripePublishableKey' => esc_js(get_option('cosy_stripe_publishable_key'))
         ]);
     }
 }

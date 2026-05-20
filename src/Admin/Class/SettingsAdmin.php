@@ -26,6 +26,7 @@ class SettingsAdmin
     {
         // Stripe
         register_setting('cosy_payment_settings', 'cosy_stripe_key');
+        register_setting('cosy_payment_settings', 'cosy_stripe_publishable_key');
         register_setting('cosy_payment_settings', 'cosy_stripe_test_mode');
         register_setting('cosy_payment_settings', 'cosy_stripe_charge');
 
@@ -109,13 +110,21 @@ class SettingsAdmin
                                         </div>
                                     </div>
                                     <div class="row g-4">
-                                        <div class="col-12">
+                                        <div class="col-md-6">
                                             <label for="cosy_stripe_key" class="form-label fw-bold text-secondary">Secret API Key</label>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
                                                 <input type="password" class="form-control border-start-0 py-2" name="cosy_stripe_key" id="cosy_stripe_key" value="<?php echo esc_attr(get_option('cosy_stripe_key')); ?>" placeholder="sk_test_...">
                                             </div>
-                                            <div class="form-text text-muted mt-1">Enter your Stripe secret key from the developer dashboard. Keep this confidential.</div>
+                                            <div class="form-text text-muted mt-1">Enter your Stripe secret key. Keep this confidential.</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cosy_stripe_publishable_key" class="form-label fw-bold text-secondary">Publishable API Key</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
+                                                <input type="text" class="form-control border-start-0 py-2" name="cosy_stripe_publishable_key" id="cosy_stripe_publishable_key" value="<?php echo esc_attr(get_option('cosy_stripe_publishable_key')); ?>" placeholder="pk_test_...">
+                                            </div>
+                                            <div class="form-text text-muted mt-1">Enter your Stripe publishable key for secure frontend transactions.</div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="cosy_stripe_charge" class="form-label fw-bold text-secondary">Transaction Charge (%)</label>

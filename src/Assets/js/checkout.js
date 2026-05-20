@@ -153,17 +153,15 @@ jQuery(document).ready(function($) {
 
         <!-- Disclaimer Paragraph -->
         <div class="cosy-checkout-disclaimer">
-            Once you have selected 'Pay Now' you will be directed to the Secure page of our Global payment provider Worldpay FIS. 
-            Here you will be asked to enter your details in order that your payment be processed on behalf of our company, 
-            Out of Darkness Comes Light Ltd. A UK registered company, office Address Byways House, Ardleighgreen Road, Hornchurch, Essex, RM11 2LE. 
-            Registered Company number 08812437. Below is our <a href="#">Refund Policy</a> and <a href="#">Contact us</a> details. 
-            Please note we are currently only able to accept GBP payments. Thank you.
+            Once you have selected 'Pay Now' you will be redirected to the secure, encrypted payment checkout page powered by Stripe. 
+            Here you will be asked to enter your payment details in order that your booking be completed on behalf of our company, 
+            Out of Darkness Comes Light Ltd. A UK registered company. Please note we are currently only able to accept GBP payments. Thank you.
         </div>
 
         <!-- Payment Logos -->
         <div class="cosy-payment-logos-wrapper">
-            <div class="cosy-worldpay-brand">
-                <span>world</span>pay
+            <div class="cosy-worldpay-brand" style="color: #635bff !important; font-weight: 800;">
+                <span>stripe</span>
             </div>
             <div class="cosy-payment-card-icons">
                 <!-- High definition inline SVGs of Visa, Mastercard, Maestro, JCB -->
@@ -183,16 +181,6 @@ jQuery(document).ready(function($) {
                     <rect width="24" height="15" fill="#003B70" rx="2"/>
                     <circle cx="10" cy="7.5" r="4.5" fill="#00A2E1"/>
                     <circle cx="14" cy="7.5" r="4.5" fill="#EB001B" fill-opacity="0.85"/>
-                </svg>
-                <!-- JCB Logo SVG -->
-                <svg viewBox="0 0 24 15" width="40" height="25" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="24" height="15" fill="#FFFFFF" rx="2" stroke="#e2e8f0" stroke-width="0.5"/>
-                    <rect x="2" y="3" width="6" height="9" fill="#062F87" rx="1"/>
-                    <rect x="9" y="3" width="6" height="9" fill="#D8121A" rx="1"/>
-                    <rect x="16" y="3" width="6" height="9" fill="#008138" rx="1"/>
-                    <text x="5" y="10" font-family="'Outfit', sans-serif" font-weight="800" font-size="6" fill="#FFFFFF" text-anchor="middle">J</text>
-                    <text x="12" y="10" font-family="'Outfit', sans-serif" font-weight="800" font-size="6" fill="#FFFFFF" text-anchor="middle">C</text>
-                    <text x="19" y="10" font-family="'Outfit', sans-serif" font-weight="800" font-size="6" fill="#FFFFFF" text-anchor="middle">B</text>
                 </svg>
             </div>
         </div>
@@ -218,8 +206,19 @@ jQuery(document).ready(function($) {
         if (!bookingDataRaw) return;
         const currentBooking = JSON.parse(bookingDataRaw);
 
+        // Validate that Stripe key is loaded
+        if (!cosyCheckout.stripePublishableKey) {
+            Swal.fire({
+                title: 'Configuration Error',
+                text: 'Stripe is not fully configured. Please configure keys in dashboard.',
+                icon: 'error',
+                confirmButtonColor: '#635bff'
+            });
+            return;
+        }
+
         // Show elegant loading spinner and disable button
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing Secure Payment...');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Initializing Secure Stripe Checkout...');
 
         // Prepare raw slots JSON data to post
         const slotsJson = JSON.stringify(currentBooking.slots);
@@ -229,7 +228,7 @@ jQuery(document).ready(function($) {
             url: cosyCheckout.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'cosy_create_booking',
+                action: 'cosy_create_stripe_session',
                 service: currentBooking.service,
                 providerId: currentBooking.providerId,
                 providerName: currentBooking.providerName,
@@ -244,33 +243,16 @@ jQuery(document).ready(function($) {
                 slots: slotsJson
             },
             success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        title: 'Payment Successful!',
-                        text: 'Your booking has been registered and payment of £' + currentBooking.totalPayable + ' was processed securely via Worldpay FIS.',
-                        icon: 'success',
-                        confirmButtonText: 'View My Bookings',
-                        confirmButtonColor: '#dc2626',
-                        background: '#ffffff',
-                        customClass: {
-                            popup: 'swal2-bento-popup',
-                            title: 'swal2-bento-title',
-                            htmlContainer: 'swal2-bento-text',
-                            confirmButton: 'swal2-bento-btn'
-                        }
-                    }).then((result) => {
-                        // Clear the local storage
-                        localStorage.removeItem('cosy_pending_booking');
-                        // Redirect to the customer profile / orders page safely
-                        window.location.href = cosyCheckout.profileUrl;
-                    });
+                if (response.success && response.data.url) {
+                    // Redirect to the Stripe hosted secure checkout URL
+                    window.location.href = response.data.url;
                 } else {
                     btn.prop('disabled', false).html('Pay Now');
                     Swal.fire({
-                        title: 'Payment Failed',
-                        text: response.data.message || 'Unable to authorize transaction.',
+                        title: 'Stripe Error',
+                        text: response.data.message || 'Unable to create payment session.',
                         icon: 'error',
-                        confirmButtonColor: '#dc2626'
+                        confirmButtonColor: '#635bff'
                     });
                 }
             },
@@ -278,9 +260,9 @@ jQuery(document).ready(function($) {
                 btn.prop('disabled', false).html('Pay Now');
                 Swal.fire({
                     title: 'System Error',
-                    text: 'An error occurred during communication with Worldpay. Please try again.',
+                    text: 'An error occurred during communication with the server. Please try again.',
                     icon: 'error',
-                    confirmButtonColor: '#dc2626'
+                    confirmButtonColor: '#635bff'
                 });
             }
         });
