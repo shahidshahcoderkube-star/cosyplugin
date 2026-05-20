@@ -1,70 +1,37 @@
 /**
  * dashboard.js
  *
- * Centralized JavaScript for the Provider Dashboard tabs.
+ * Centralized, Modular JavaScript for the Provider Dashboard tabs.
+ * Built using the Object-Literal Modular Namespace Pattern.
  * Enqueued via Assets.php on the frontend.
  *
- * Sections:
- * 1. Non Working Days (Holidays) — AJAX add & delete
- * 2. Provider Orders — search, filter, export, modal, status update
+ * Design Architecture Choice:
+ * We use a single global wrapper `jQuery(document).ready` to encapsulate all modules.
+ * This guarantees no global scope namespace pollution and prevents conflicts with other plugins.
+ *
+ * Event Delegation Strategy:
+ * Because dashboard tabs load content dynamically via AJAX, directly binding to elements 
+ * (e.g. $('.btn').on('click')) will fail when tabs switch. 
+ * We bind all listeners using event delegation $(document).on('click', '.selector', ...)
+ * which ensures handlers work perfectly for dynamic DOM elements.
  */
 
-/* ============================================================
-   GLOBAL SHARED VARIABLES
-   Accessible by all sections in this file.
-   Resolved from wp_localize_script output.
-   ============================================================ */
-var ajaxUrl = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.ajax_url
-    : (typeof cosyAjax !== 'undefined') ? cosyAjax.ajax_url
-        : '';
-
-var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
-    : (typeof cosyAjax !== 'undefined') ? cosyAjax.nonce
-        : '';
-
-(function () {
+jQuery(document).ready(function ($) {
     'use strict';
 
-    /* ============================================================
-       HELPERS — shared across all dashboard sections
-       ============================================================ */
-    /* ============================================================
-       NON WORKING DAYS (HOLIDAYS)
-       ============================================================ */
+    // ============================================================
+    // 1. GLOBAL CONFIG & SHARED HELPERS
+    // ============================================================
+    var ajaxUrl = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.ajax_url
+        : (typeof cosyAjax !== 'undefined') ? cosyAjax.ajax_url
+            : '';
+
+    var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
+        : (typeof cosyAjax !== 'undefined') ? cosyAjax.nonce
+            : '';
 
     /**
-     * Build a single holiday-item HTML row for dynamic DOM insertion.
-     * Called after a successful AJAX add.
-     *
-     * @param {string} date        Raw date string  (YYYY-MM-DD)
-     * @param {string} displayDate Formatted date   (01 Jan 2026)
-     * @param {string} reason      Occasion / reason text
-     * @returns {string} HTML string
-     */
-    function buildHolidayRow(date, displayDate, reason) {
-        return '<div class="holiday-item" id="holiday-' + date + '">' +
-            '<div class="holiday-info">' +
-            '<i class="fas fa-calendar-day"></i>' +
-            '<div>' +
-            '<span class="holiday-date">' + displayDate + '</span>' +
-            '<span class="mx-2 text-muted">|</span>' +
-            '<span class="holiday-reason text-muted small">' + escHtml(reason) + '</span>' +
-            '</div>' +
-            '</div>' +
-            '<div class="d-flex align-items-center gap-3">' +
-            '<button class="cosy-delete-holiday-btn" data-date="' + date + '" title="Remove Holiday">' +
-            '<i class="fas fa-trash-alt" style="font-size:0.85rem;"></i>' +
-            '</button>' +
-            '<span class="badge holiday-badge">Holiday</span>' +
-            '</div>' +
-            '</div>';
-    }
-
-    /**
-     * Escape a string to prevent XSS when inserting into innerHTML.
-     *
-     * @param {string} str
-     * @returns {string}
+     * Helper: Escape a string to prevent XSS when inserting dynamic text into innerHTML.
      */
     function escHtml(str) {
         var d = document.createElement('div');
@@ -72,81 +39,118 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
         return d.innerHTML;
     }
 
+    // ============================================================
+    // 2. HOLIDAYS & REVIEWS MODULE
+    // ============================================================
     /**
-     * Show or hide the empty-state placeholder based on how many
-     * holiday rows currently exist in the list.
+     * CosyHolidays: Handles calendar holiday configurations and customer reviews.
+     * Functions are encapsulated within this namespace to isolate state and logic.
      */
-    function syncEmptyState() {
-        var list = document.getElementById('cosyHolidayList');
-        if (!list) return;
+    const CosyHolidays = {
+        init() {
+            // Bind all event handlers inside the Holidays module
+            $(document).on('click', '#cosySaveHolidayBtn', this.saveHoliday);
+            $(document).on('click', '.cosy-delete-holiday-btn', this.deleteHoliday);
+            $(document).on('click', '.approve-review-btn', this.approveReview);
+            $(document).on('click', '.delete-review-btn', this.deleteReview);
+            $(document).on('hidden.bs.modal', '#addHolidayModal', this.handleModalClose);
+        },
 
-        var items = list.querySelectorAll('.holiday-item');
-        var empty = document.getElementById('cosyHolidaysEmpty');
-
-        if (items.length === 0) {
-            if (!empty) {
-                var div = document.createElement('div');
-                div.className = 'holidays-empty-state';
-                div.id = 'cosyHolidaysEmpty';
-                div.innerHTML =
-                    '<i class="fas fa-calendar-check d-block"></i>' +
-                    '<p>No holidays added yet. Click <strong>Add Holiday</strong> to get started.</p>';
-                list.appendChild(div);
-            }
-        } else {
-            if (empty) {
-                empty.remove();
-            }
-        }
-    }
-
-    /**
-     * Show or hide the empty-state placeholder for reviews
-     * if all reviews are deleted.
-     */
-    function syncReviewsEmptyState() {
-        var list = document.querySelector('.reviews-list');
-        if (!list) return;
-
-        var items = list.querySelectorAll('.review-item');
-        if (items.length === 0) {
-            list.innerHTML =
-                '<div class="text-center py-5 rounded-4" style="background: #f8fafc; border: 1.5px dashed #cbd5e1;">' +
-                '<i class="far fa-comments text-muted mb-3" style="font-size: 2.5rem;"></i>' +
-                '<p class="text-muted mb-0">No customer reviews found for your profile yet.</p>' +
+        /**
+         * Dynamically builds the HTML markup for a new holiday row.
+         * Used to instantly insert a row into the DOM after a successful AJAX addition.
+         */
+        buildHolidayRow(date, displayDate, reason) {
+            return '<div class="holiday-item" id="holiday-' + date + '">' +
+                '<div class="holiday-info">' +
+                '<i class="fas fa-calendar-day"></i>' +
+                '<div>' +
+                '<span class="holiday-date">' + displayDate + '</span>' +
+                '<span class="mx-2 text-muted">|</span>' +
+                '<span class="holiday-reason text-muted small">' + escHtml(reason) + '</span>' +
+                '</div>' +
+                '</div>' +
+                '<div class="d-flex align-items-center gap-3">' +
+                '<button class="cosy-delete-holiday-btn" data-date="' + date + '" title="Remove Holiday">' +
+                '<i class="fas fa-trash-alt" style="font-size:0.85rem;"></i>' +
+                '</button>' +
+                '<span class="badge holiday-badge">Holiday</span>' +
+                '</div>' +
                 '</div>';
-        }
-    }
+        },
 
-    /**
-     * Reset the Save Holiday button back to its default enabled state.
-     */
-    function resetSaveBtn() {
-        var btn = document.getElementById('cosySaveHolidayBtn');
-        if (!btn) return;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-calendar-check me-2"></i> SAVE HOLIDAY';
-    }
+        /**
+         * Syncs the empty-state placeholder in the Holidays tab list.
+         * Adds a friendly prompt if no holidays are registered; removes it when one is added.
+         */
+        syncEmptyState() {
+            var list = document.getElementById('cosyHolidayList');
+            if (!list) return;
 
-    /* ============================================================
-       EVENT DELEGATION (Works with AJAX-loaded tabs)
-       ============================================================ */
+            var items = list.querySelectorAll('.holiday-item');
+            var empty = document.getElementById('cosyHolidaysEmpty');
 
-    document.addEventListener('click', function (e) {
+            if (items.length === 0) {
+                if (!empty) {
+                    var div = document.createElement('div');
+                    div.className = 'holidays-empty-state';
+                    div.id = 'cosyHolidaysEmpty';
+                    div.innerHTML =
+                        '<i class="fas fa-calendar-check d-block"></i>' +
+                        '<p>No holidays added yet. Click <strong>Add Holiday</strong> to get started.</p>';
+                    list.appendChild(div);
+                }
+            } else {
+                if (empty) {
+                    empty.remove();
+                }
+            }
+        },
 
-        /* ---------- ADD HOLIDAY ---------- */
-        var saveBtn = e.target.closest('#cosySaveHolidayBtn');
-        if (saveBtn) {
+        /**
+         * Syncs the empty-state placeholder in the customer reviews tab list.
+         * Runs when a provider deletes or rejects a review to update the UI without reloading.
+         */
+        syncReviewsEmptyState() {
+            var list = document.querySelector('.reviews-list');
+            if (!list) return;
+
+            var items = list.querySelectorAll('.review-item');
+            if (items.length === 0) {
+                list.innerHTML =
+                    '<div class="text-center py-5 rounded-4" style="background: #f8fafc; border: 1.5px dashed #cbd5e1;">' +
+                    '<i class="far fa-comments text-muted mb-3" style="font-size: 2.5rem;"></i>' +
+                    '<p class="text-muted mb-0">No customer reviews found for your profile yet.</p>' +
+                    '</div>';
+            }
+        },
+
+        /**
+         * Resets the save button back to its standard clickable state.
+         * Used to restore button visual feedback when an API call finishes or fails.
+         */
+        resetSaveBtn() {
+            var btn = document.getElementById('cosySaveHolidayBtn');
+            if (!btn) return;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-calendar-check me-2"></i> SAVE HOLIDAY';
+        },
+
+        /**
+         * Event: Adds a new custom holiday.
+         * Validates inputs locally, runs a WP AJAX action, updates the DOM with a 
+         * smooth animation, and shows a premium success popup.
+         */
+        saveHoliday(e) {
             e.preventDefault();
+            var saveBtn = $(this);
+            var dateInput = $('#cosyHolidayDate');
+            var reasonInput = $('#cosyHolidayReason');
+            if (!dateInput.length || !reasonInput.length) return;
 
-            var dateInput = document.getElementById('cosyHolidayDate');
-            var reasonInput = document.getElementById('cosyHolidayReason');
-            if (!dateInput || !reasonInput) return;
+            var date = dateInput.val().trim();
+            var reason = reasonInput.val().trim();
 
-            var date = dateInput.value.trim();
-            var reason = reasonInput.value.trim();
-
-            // --- Validation ---
             if (!date) {
                 Swal.fire({
                     icon: 'warning',
@@ -168,7 +172,6 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                 return;
             }
 
-            // --- Duplicate Date Check (Frontend) ---
             if (document.getElementById('holiday-' + date)) {
                 Swal.fire({
                     icon: 'error',
@@ -179,9 +182,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                 return;
             }
 
-            // Disable button while request is in flight
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Saving...';
+            saveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Saving...');
 
             var formData = new FormData();
             formData.append('action', 'cosy_add_holiday');
@@ -193,24 +194,22 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                 .then(function (r) { return r.json(); })
                 .then(function (res) {
                     if (res.success) {
-                        // Close modal — hidden.bs.modal event will call resetSaveBtn()
                         var modalEl = document.getElementById('addHolidayModal');
                         if (modalEl) {
                             var bsModal = bootstrap.Modal.getInstance(modalEl);
                             if (bsModal) bsModal.hide();
                         }
 
-                        // Insert new row at the top of the list
                         var list = document.getElementById('cosyHolidayList');
                         if (list) {
-                            list.insertAdjacentHTML('afterbegin', buildHolidayRow(
+                            list.insertAdjacentHTML('afterbegin', CosyHolidays.buildHolidayRow(
                                 res.data.date,
                                 res.data.display_date,
                                 res.data.reason
                             ));
                         }
 
-                        syncEmptyState();
+                        CosyHolidays.syncEmptyState();
 
                         Swal.fire({
                             icon: 'success',
@@ -222,8 +221,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                             showConfirmButton: false,
                         });
                     } else {
-                        // Keep modal open on error — re-enable button
-                        resetSaveBtn();
+                        CosyHolidays.resetSaveBtn();
                         Swal.fire({
                             icon: 'error',
                             title: 'Could Not Add',
@@ -233,7 +231,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                     }
                 })
                 .catch(function () {
-                    resetSaveBtn();
+                    CosyHolidays.resetSaveBtn();
                     Swal.fire({
                         icon: 'error',
                         title: 'Network Error',
@@ -241,14 +239,17 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                         confirmButtonColor: '#a44390',
                     });
                 });
-            return;
-        }
+        },
 
-        /* ---------- DELETE HOLIDAY ---------- */
-        var deleteBtn = e.target.closest('.cosy-delete-holiday-btn');
-        if (deleteBtn) {
+        /**
+         * Event: Deletes an existing holiday.
+         * Asks for confirmation using SweetAlert, sends an AJAX call to delete metadata, 
+         * and fades out the row cleanly from the active list.
+         */
+        deleteHoliday(e) {
             e.preventDefault();
-            var dateToRemove = deleteBtn.getAttribute('data-date');
+            var deleteBtn = $(this);
+            var dateToRemove = deleteBtn.attr('data-date');
 
             Swal.fire({
                 title: 'Remove Holiday?',
@@ -278,7 +279,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                                 row.style.transform = 'translateX(20px)';
                                 setTimeout(function () {
                                     row.remove();
-                                    syncEmptyState();
+                                    CosyHolidays.syncEmptyState();
                                 }, 300);
                             }
                             Swal.fire({
@@ -308,18 +309,21 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                         });
                     });
             });
-        }
+        },
 
-        /* ---------- APPROVE CUSTOMER REVIEW ---------- */
-        var approveBtn = e.target.closest('.approve-review-btn');
-        if (approveBtn) {
+        /**
+         * Event: Approves a pending customer review.
+         * Sends AJAX request, updates review borders, and replaces moderation actions 
+         * directly in the DOM without requiring a full page refresh.
+         */
+        approveReview(e) {
             e.preventDefault();
-            var reviewId = approveBtn.getAttribute('data-id');
+            var approveBtn = $(this);
+            var reviewId = approveBtn.attr('data-id');
 
-            approveBtn.disabled = true;
-            approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Approving...';
+            approveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Approving...');
 
-            jQuery.ajax({
+            $.ajax({
                 url: ajaxUrl,
                 type: 'POST',
                 data: {
@@ -341,21 +345,17 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                                 confirmButton: 'swal2-bento-btn'
                             }
                         }).then(function () {
-                            // DOM Update without reload:
                             var card = document.getElementById('cosy-review-' + reviewId);
                             if (card) {
-                                // 1. Update border
                                 card.className = card.className.replace('border-start-warning', 'border-start-success');
                                 card.style.setProperty('border-left-color', '#22c55e', 'important');
 
-                                // 2. Update status badge
                                 var badge = card.querySelector('.badge');
                                 if (badge) {
                                     badge.className = 'badge bg-success text-white ms-2';
                                     badge.innerHTML = '<i class="fas fa-check-circle me-1"></i> Approved';
                                 }
 
-                                // 3. Update moderation buttons
                                 var controls = card.querySelector('.d-flex.gap-2');
                                 if (controls) {
                                     controls.innerHTML =
@@ -366,8 +366,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                             }
                         });
                     } else {
-                        approveBtn.disabled = false;
-                        approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
+                        approveBtn.prop('disabled', false).html('<i class="fas fa-check me-1"></i> Approve');
                         Swal.fire({
                             title: 'Error',
                             text: (response.data && response.data.message) || 'Failed to approve review.',
@@ -377,8 +376,7 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                     }
                 },
                 error: function () {
-                    approveBtn.disabled = false;
-                    approveBtn.innerHTML = '<i class="fas fa-check me-1"></i> Approve';
+                    approveBtn.prop('disabled', false).html('<i class="fas fa-check me-1"></i> Approve');
                     Swal.fire({
                         title: 'Error',
                         text: 'Failed to communicate with server.',
@@ -387,13 +385,16 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                     });
                 }
             });
-        }
+        },
 
-        /* ---------- DELETE CUSTOMER REVIEW ---------- */
-        var deleteBtn = e.target.closest('.delete-review-btn');
-        if (deleteBtn) {
+        /**
+         * Event: Deletes or rejects a customer review.
+         * Deletes review post meta dynamically and triggers empty state checks.
+         */
+        deleteReview(e) {
             e.preventDefault();
-            var reviewId = deleteBtn.getAttribute('data-id');
+            var deleteBtn = $(this);
+            var reviewId = deleteBtn.attr('data-id');
 
             Swal.fire({
                 title: 'Are you sure?',
@@ -412,216 +413,25 @@ var nonce = (typeof cosyDashboard !== 'undefined') ? cosyDashboard.nonce
                     confirmButton: 'swal2-bento-btn'
                 }
             }).then(function (result) {
-                if (result.isConfirmed) {
-                    deleteBtn.disabled = true;
-                    var originalHTML = deleteBtn.innerHTML;
-                    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Deleting...';
+                if (!result.isConfirmed) return;
 
-                    jQuery.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'cosy_delete_provider_review',
-                            review_id: reviewId
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    title: 'Deleted!',
-                                    text: 'Review has been removed.',
-                                    icon: 'success',
-                                    confirmButtonColor: '#a44390',
-                                    background: '#ffffff',
-                                    customClass: {
-                                        popup: 'swal2-bento-popup',
-                                        title: 'swal2-bento-title',
-                                        htmlContainer: 'swal2-bento-text',
-                                        confirmButton: 'swal2-bento-btn'
-                                    }
-                                }).then(function () {
-                                    // DOM Update without reload:
-                                    var card = document.getElementById('cosy-review-' + reviewId);
-                                    if (card) {
-                                        card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                                        card.style.opacity = '0';
-                                        card.style.transform = 'translateY(10px)';
-                                        setTimeout(function () {
-                                            card.remove();
-                                            syncReviewsEmptyState();
-                                        }, 300);
-                                    }
-                                });
-                            } else {
-                                deleteBtn.disabled = false;
-                                deleteBtn.innerHTML = originalHTML;
-                                Swal.fire({
-                                    title: 'Error',
-                                    text: (response.data && response.data.message) || 'Failed to delete review.',
-                                    icon: 'error',
-                                    confirmButtonColor: '#a44390'
-                                });
-                            }
-                        },
-                        error: function () {
-                            deleteBtn.disabled = false;
-                            deleteBtn.innerHTML = originalHTML;
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'Failed to communicate with server.',
-                                icon: 'error',
-                                confirmButtonColor: '#a44390'
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    });
+                deleteBtn.prop('disabled', true);
+                var originalHTML = deleteBtn.html();
+                deleteBtn.html('<i class="fas fa-spinner fa-spin me-1"></i> Deleting...');
 
-    /* ---------- MODAL RESET on close ---------- */
-    // Bootstrap events bubble up, so we can listen on document
-    document.addEventListener('hidden.bs.modal', function (e) {
-        if (e.target && e.target.id === 'addHolidayModal') {
-            var dateInput = document.getElementById('cosyHolidayDate');
-            var reasonInput = document.getElementById('cosyHolidayReason');
-            if (dateInput) dateInput.value = '';
-            if (reasonInput) reasonInput.value = '';
-            resetSaveBtn();
-        }
-    });
-
-}());
-
-/* ============================================================
-   PROVIDER ORDERS TAB
-   ============================================================ */
-jQuery(document).ready(function ($) {
-
-    // 1. Live Search
-    $(document).on('keyup', '#orderSearchInput', function () {
-        var value = $(this).val().toLowerCase().trim();
-        $('#providerOrdersTable tbody tr.order-table-row').filter(function () {
-            $(this).toggle($(this).attr('data-search').indexOf(value) > -1);
-        });
-    });
-
-    // 2. Filter by status
-    $(document).on('change', '#orderStatusFilter', function () {
-        var val = $(this).val();
-        $('#providerOrdersTable tbody tr.order-table-row').filter(function () {
-            if (val === '') {
-                $(this).show();
-            } else {
-                $(this).toggle($(this).attr('data-status') === val);
-            }
-        });
-    });
-
-    // 3. Export to CSV
-    $(document).on('click', '#exportOrdersBtn', function (e) {
-        e.preventDefault();
-        var csvContent = 'data:text/csv;charset=utf-8,';
-        csvContent += 'Order ID,Customer,Service,Date,Status\n';
-
-        $('#providerOrdersTable tbody tr.order-table-row').each(function () {
-            if ($(this).is(':visible')) {
-                var id = $(this).find('td:nth-child(1)').text().replace('#', '');
-                var customer = $(this).find('td:nth-child(2)').text().trim();
-                var service = $(this).find('td:nth-child(3)').text().trim();
-                var date = $(this).find('td:nth-child(4)').text().trim();
-                var status = $(this).attr('data-status').toUpperCase();
-                csvContent += '"' + id + '","' + customer + '","' + service + '","' + date + '","' + status + '"\n';
-            }
-        });
-
-        var encodedUri = encodeURI(csvContent);
-        var link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', 'provider_orders_' + new Date().toISOString().slice(0, 10) + '.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
-
-    // 4. Populate order details modal
-    $(document).on('click', '.btn-view-order-details', function () {
-        var id = $(this).data('id');
-        var customer = $(this).data('customer');
-        var email = $(this).data('email');
-        var service = $(this).data('service');
-        var start = $(this).data('start');
-        var end = $(this).data('end');
-        var weekly = $(this).data('weekly');
-        var weeks = $(this).data('weeks');
-        var slots = $(this).data('slots');
-        var cost = $(this).data('cost');
-        var total = $(this).data('total');
-        var status = $(this).attr('data-status');
-
-        $('#modalOrderTitle').text('Order Details - #' + id);
-        $('#modalCustomerName').text(customer);
-        $('#modalCustomerEmail').text(email);
-        $('#modalServiceName').text(service);
-        $('#modalScheduleInfo').html('<strong>Schedule:</strong> ' + weekly + '<br><strong>Duration:</strong> ' + start + ' to ' + end);
-        $('#modalWeeksInfo').html('<strong>Weeks:</strong> ' + weeks + ' week(s) (' + slots + ' slots)');
-        $('#modalCostInfo').text('£' + cost + ' (Total Paid: £' + total + ')');
-
-        var badge = '';
-        if (status === 'completed') {
-            badge = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
-            $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
-        } else if (status === 'cancelled') {
-            badge = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
-            $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
-        } else {
-            badge = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
-            $('#modalFooterActions').html(
-                '<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>' +
-                '<button type="button" class="btn btn-success rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-complete" data-id="' + id + '" data-status="completed" data-bs-dismiss="modal">Mark Completed</button>' +
-                '<button type="button" class="btn btn-danger rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-cancel" data-id="' + id + '" data-status="cancelled" data-bs-dismiss="modal">Cancel Order</button>'
-            );
-        }
-        $('#modalStatusContainer').html(badge);
-    });
-
-    // 5. Handle Status Update AJAX
-    $(document).on('click', '.action-update-status', function (e) {
-        e.preventDefault();
-        var btn = $(this);
-        var orderId = btn.data('id');
-        var newStatus = btn.data('status');
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to mark this booking as ' + newStatus + '?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#a44390',
-            cancelButtonColor: '#cbd5e1',
-            confirmButtonText: 'Yes, change it!',
-            background: '#ffffff',
-            customClass: {
-                popup: 'swal2-bento-popup',
-                title: 'swal2-bento-title',
-                htmlContainer: 'swal2-bento-text',
-                confirmButton: 'swal2-bento-btn'
-            }
-        }).then(function (result) {
-            if (result.isConfirmed) {
                 $.ajax({
                     url: ajaxUrl,
                     type: 'POST',
                     data: {
-                        action: 'cosy_update_booking_status',
-                        appointment_id: orderId,
-                        status: newStatus
+                        action: 'cosy_delete_provider_review',
+                        review_id: reviewId
                     },
                     success: function (response) {
                         if (response.success) {
                             Swal.fire({
+                                title: 'Deleted!',
+                                text: 'Review has been removed.',
                                 icon: 'success',
-                                title: 'Success',
-                                text: response.data.message,
                                 confirmButtonColor: '#a44390',
                                 background: '#ffffff',
                                 customClass: {
@@ -630,103 +440,338 @@ jQuery(document).ready(function ($) {
                                     htmlContainer: 'swal2-bento-text',
                                     confirmButton: 'swal2-bento-btn'
                                 }
-                            });
-
-                            var row = $('#order-row-' + orderId);
-                            if (row.length) {
-                                row.attr('data-status', newStatus);
-
-                                var badgeHtml = '';
-                                if (newStatus === 'completed') {
-                                    badgeHtml = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
-                                } else if (newStatus === 'cancelled') {
-                                    badgeHtml = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
-                                } else {
-                                    badgeHtml = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
+                            }).then(function () {
+                                var card = document.getElementById('cosy-review-' + reviewId);
+                                if (card) {
+                                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                                    card.style.opacity = '0';
+                                    card.style.transform = 'translateY(10px)';
+                                    setTimeout(function () {
+                                        card.remove();
+                                        CosyHolidays.syncReviewsEmptyState();
+                                    }, 300);
                                 }
-                                row.find('.status-cell').html(badgeHtml);
-                                var detailsBtn = row.find('.btn-view-order-details');
-                                detailsBtn.attr('data-status', newStatus);
-                                detailsBtn.data('status', newStatus);
-                                row.find('.action-update-status').remove();
-                            }
+                            });
                         } else {
+                            deleteBtn.prop('disabled', false).html(originalHTML);
                             Swal.fire({
+                                title: 'Error',
+                                text: (response.data && response.data.message) || 'Failed to delete review.',
                                 icon: 'error',
-                                title: 'Failed',
-                                text: response.data.message,
-                                confirmButtonColor: '#a44390',
-                                background: '#ffffff'
+                                confirmButtonColor: '#a44390'
                             });
                         }
                     },
                     error: function () {
+                        deleteBtn.prop('disabled', false).html(originalHTML);
                         Swal.fire({
-                            icon: 'error',
                             title: 'Error',
-                            text: 'Failed to communicate with the server.',
-                            confirmButtonColor: '#a44390',
-                            background: '#ffffff'
+                            text: 'Failed to communicate with server.',
+                            icon: 'error',
+                            confirmButtonColor: '#a44390'
                         });
                     }
                 });
+            });
+        },
+
+        /**
+         * Event: Modal Reset on Close.
+         * Automatically flushes input fields in the add holiday modal upon closure.
+         */
+        handleModalClose() {
+            var dateInput = document.getElementById('cosyHolidayDate');
+            var reasonInput = document.getElementById('cosyHolidayReason');
+            if (dateInput) dateInput.value = '';
+            if (reasonInput) reasonInput.value = '';
+            CosyHolidays.resetSaveBtn();
+        }
+    };
+
+    // ============================================================
+    // 3. PROVIDER ORDERS MODULE
+    // ============================================================
+    /**
+     * CosyOrders: Manages live filtering, search, CSV exports, modal detail mapping,
+     * and status update actions for provider appointments.
+     */
+    const CosyOrders = {
+        init() {
+            $(document).on('keyup', '#orderSearchInput', this.search);
+            $(document).on('change', '#orderStatusFilter', this.filter);
+            $(document).on('click', '#exportOrdersBtn', this.export);
+            $(document).on('click', '.btn-view-order-details', this.viewDetails);
+            $(document).on('click', '.action-update-status', this.updateStatus);
+        },
+
+        /**
+         * Keyup Search: Filters the table rows instantly matching user inputs against 
+         * pre-compiled searchable row attributes.
+         */
+        search() {
+            var value = $(this).val().toLowerCase().trim();
+            $('#providerOrdersTable tbody tr.order-table-row').filter(function () {
+                $(this).toggle($(this).attr('data-search').indexOf(value) > -1);
+            });
+        },
+
+        /**
+         * Change Filter: Shows or hides order table rows based on active appointment status.
+         */
+        filter() {
+            var val = $(this).val();
+            $('#providerOrdersTable tbody tr.order-table-row').filter(function () {
+                if (val === '') {
+                    $(this).show();
+                } else {
+                    $(this).toggle($(this).attr('data-status') === val);
+                }
+            });
+        },
+
+        /**
+         * Export CSV: Parses active table rows and generates an instant, downloadable 
+         * CSV file without hitting the database.
+         */
+        export(e) {
+            e.preventDefault();
+            var csvContent = 'data:text/csv;charset=utf-8,';
+            csvContent += 'Order ID,Customer,Service,Date,Status\n';
+
+            $('#providerOrdersTable tbody tr.order-table-row').each(function () {
+                if ($(this).is(':visible')) {
+                    var id = $(this).find('td:nth-child(1)').text().replace('#', '');
+                    var customer = $(this).find('td:nth-child(2)').text().trim();
+                    var service = $(this).find('td:nth-child(3)').text().trim();
+                    var date = $(this).find('td:nth-child(4)').text().trim();
+                    var status = $(this).attr('data-status').toUpperCase();
+                    csvContent += '"' + id + '","' + customer + '","' + service + '","' + date + '","' + status + '"\n';
+                }
+            });
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'provider_orders_' + new Date().toISOString().slice(0, 10) + '.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+
+        /**
+         * Populator: Maps appointment data-attributes to elements inside the Details Modal.
+         * Ensures that status indicators show clean bootstrap badges.
+         */
+        viewDetails() {
+            var id = $(this).data('id');
+            var customer = $(this).data('customer');
+            var email = $(this).data('email');
+            var service = $(this).data('service');
+            var start = $(this).data('start');
+            var end = $(this).data('end');
+            var weekly = $(this).data('weekly');
+            var weeks = $(this).data('weeks');
+            var slots = $(this).data('slots');
+            var cost = $(this).data('cost');
+            var total = $(this).data('total');
+            var status = $(this).attr('data-status');
+
+            $('#modalOrderTitle').text('Order Details - #' + id);
+            $('#modalCustomerName').text(customer);
+            $('#modalCustomerEmail').text(email);
+            $('#modalServiceName').text(service);
+            $('#modalScheduleInfo').html('<strong>Schedule:</strong> ' + weekly + '<br><strong>Duration:</strong> ' + start + ' to ' + end);
+            $('#modalWeeksInfo').html('<strong>Weeks:</strong> ' + weeks + ' week(s) (' + slots + ' slots)');
+            $('#modalCostInfo').text('£' + cost + ' (Total Paid: £' + total + ')');
+
+            var badge = '';
+            if (status === 'completed') {
+                badge = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+                $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
+            } else if (status === 'cancelled') {
+                badge = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+                $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
+            } else {
+                badge = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
+                $('#modalFooterActions').html(
+                    '<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>' +
+                    '<button type="button" class="btn btn-success rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-complete" data-id="' + id + '" data-status="completed" data-bs-dismiss="modal">Mark Completed</button>' +
+                    '<button type="button" class="btn btn-danger rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-cancel" data-id="' + id + '" data-status="cancelled" data-bs-dismiss="modal">Cancel Order</button>'
+                );
             }
-        });
-    });
+            $('#modalStatusContainer').html(badge);
+        },
 
-});
+        /**
+         * AJAX Action: Updates an appointment's status (completed / cancelled / pending).
+         * Runs secure background updates, updates status badges, and deletes action controls
+         * immediately upon validation.
+         */
+        updateStatus(e) {
+            e.preventDefault();
+            var btn = $(this);
+            var orderId = btn.data('id');
+            var newStatus = btn.data('status');
 
-/* ============================================================
-   PROVIDER INVOICES TAB
-   ============================================================ */
-jQuery(document).ready(function ($) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to mark this booking as ' + newStatus + '?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#a44390',
+                cancelButtonColor: '#cbd5e1',
+                confirmButtonText: 'Yes, change it!',
+                background: '#ffffff',
+                customClass: {
+                    popup: 'swal2-bento-popup',
+                    title: 'swal2-bento-title',
+                    htmlContainer: 'swal2-bento-text',
+                    confirmButton: 'swal2-bento-btn'
+                }
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: ajaxUrl,
+                        type: 'POST',
+                        data: {
+                            action: 'cosy_update_booking_status',
+                            appointment_id: orderId,
+                            status: newStatus
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: response.data.message,
+                                    confirmButtonColor: '#a44390',
+                                    background: '#ffffff',
+                                    customClass: {
+                                        popup: 'swal2-bento-popup',
+                                        title: 'swal2-bento-title',
+                                        htmlContainer: 'swal2-bento-text',
+                                        confirmButton: 'swal2-bento-btn'
+                                    }
+                                });
 
-    // 1. Populate dynamic invoice details modal (delegated for AJAX load compatibility)
-    $(document).on('click', '.btn-view-invoice', function () {
-        const id = $(this).data('id');
-        const customer = $(this).data('customer');
-        const email = $(this).data('email');
-        const service = $(this).data('service');
-        const start = $(this).data('start');
-        const total = $(this).data('total');
+                                var row = $('#order-row-' + orderId);
+                                if (row.length) {
+                                    row.attr('data-status', newStatus);
 
-        $('#modalInvoiceTitle').text('Invoice Details - INV-' + id);
-        $('#modalInvCustomerName').text(customer);
-        $('#modalInvCustomerEmail').text(email);
-        $('#modalInvServiceName').text('Service: ' + service);
-        $('#modalInvDate').text('Billing Date: ' + start);
-        $('#modalInvCostInfo').text('Amount Received: £' + total);
+                                    var badgeHtml = '';
+                                    if (newStatus === 'completed') {
+                                        badgeHtml = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+                                    } else if (newStatus === 'cancelled') {
+                                        badgeHtml = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+                                    } else {
+                                        badgeHtml = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
+                                    }
+                                    row.find('.status-cell').html(badgeHtml);
+                                    var detailsBtn = row.find('.btn-view-order-details');
+                                    detailsBtn.attr('data-status', newStatus);
+                                    detailsBtn.data('status', newStatus);
+                                    row.find('.action-update-status').remove();
+                                }
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Failed',
+                                    text: response.data.message,
+                                    confirmButtonColor: '#a44390',
+                                    background: '#ffffff'
+                                });
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to communicate with the server.',
+                                confirmButtonColor: '#a44390',
+                                background: '#ffffff'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    };
 
-        // Save ID on download button
-        $('#btnDownloadInvoicePdf').data('id', id).data('customer', customer).data('service', service).data('total', total);
-    });
+    // ============================================================
+    // 4. PROVIDER INVOICES MODULE
+    // ============================================================
+    /**
+     * CosyInvoices: Handles rendering invoice metadata inside detail modals
+     * and dynamic client-side TXT/PDF payment receipt downloads.
+     */
+    const CosyInvoices = {
+        init() {
+            $(document).on('click', '.btn-view-invoice', this.viewInvoice);
+            $(document).on('click', '.btn-download-invoice, #btnDownloadInvoicePdf', this.download);
+        },
 
-    // 2. Download invoice function helper (delegated for AJAX load compatibility)
-    $(document).on('click', '.btn-download-invoice, #btnDownloadInvoicePdf', function (e) {
-        e.preventDefault();
-        const id = $(this).data('id');
-        const customer = $(this).data('customer');
-        const service = $(this).data('service');
-        const total = $(this).data('total');
+        /**
+         * Populator: Maps invoice details into the designated dynamic modal placeholders.
+         * Saves invoice attributes directly to the download button as DOM data-references.
+         */
+        viewInvoice() {
+            const id = $(this).data('id');
+            const customer = $(this).data('customer');
+            const email = $(this).data('email');
+            const service = $(this).data('service');
+            const start = $(this).data('start');
+            const total = $(this).data('total');
 
-        let invoiceDoc = `COSY APPOINTMENTS INVOICE RECEIPT\n`;
-        invoiceDoc += `===================================\n`;
-        invoiceDoc += `Invoice Reference: INV-${id}\n`;
-        invoiceDoc += `Customer Name: ${customer}\n`;
-        invoiceDoc += `Service: ${service}\n`;
-        invoiceDoc += `Amount Paid: £${total}\n`;
-        invoiceDoc += `Status: PAID / SECURED\n`;
-        invoiceDoc += `Payment Method: Worldpay FIS\n`;
-        invoiceDoc += `===================================\n`;
-        invoiceDoc += `Thank you for your business!`;
+            $('#modalInvoiceTitle').text('Invoice Details - INV-' + id);
+            $('#modalInvCustomerName').text(customer);
+            $('#modalInvCustomerEmail').text(email);
+            $('#modalInvServiceName').text('Service: ' + service);
+            $('#modalInvDate').text('Billing Date: ' + start);
+            $('#modalInvCostInfo').text('Amount Received: £' + total);
 
-        const element = document.createElement("a");
-        const file = new Blob([invoiceDoc], { type: 'text/plain' });
-        element.href = URL.createObjectURL(file);
-        element.download = "invoice_INV_" + id + ".txt";
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-    });
+            // Cascade references to the print/download button inside the modal footer
+            $('#btnDownloadInvoicePdf').data('id', id).data('customer', customer).data('service', service).data('total', total);
+        },
+
+        /**
+         * Receipt Generator: Builds a structured payment receipt locally, packs it into 
+         * a safe browser Binary Large Object (Blob), and programmatically downloads it.
+         */
+        download(e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+            const customer = $(this).data('customer');
+            const service = $(this).data('service');
+            const total = $(this).data('total');
+
+            let invoiceDoc = `COSY APPOINTMENTS INVOICE RECEIPT\n`;
+            invoiceDoc += `===================================\n`;
+            invoiceDoc += `Invoice Reference: INV-${id}\n`;
+            invoiceDoc += `Customer Name: ${customer}\n`;
+            invoiceDoc += `Service: ${service}\n`;
+            invoiceDoc += `Amount Paid: £${total}\n`;
+            invoiceDoc += `Status: PAID / SECURED\n`;
+            invoiceDoc += `Payment Method: Worldpay FIS\n`;
+            invoiceDoc += `===================================\n`;
+            invoiceDoc += `Thank you for your business!`;
+
+            // Build receipt blob download pipeline
+            const element = document.createElement("a");
+            const file = new Blob([invoiceDoc], { type: 'text/plain' });
+            element.href = URL.createObjectURL(file);
+            element.download = "invoice_INV_" + id + ".txt";
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+    };
+
+    // ============================================================
+    // 5. INITIALIZE ALL MODULES
+    // ============================================================
+    // Bootstraps all registered dashboard modules upon document ready
+    CosyHolidays.init();
+    CosyOrders.init();
+    CosyInvoices.init();
 
 });
