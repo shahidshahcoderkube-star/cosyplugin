@@ -116,6 +116,7 @@ require_once COSY_APPT_PATH . 'src/Admin/Class/SettingsAdmin.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/OrdersAdmin.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/DashboardAdmin.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Provider_Verification.php';
+require_once COSY_APPT_PATH . 'src/Admin/Class/DeactivationHandler.php';
 require_once COSY_APPT_PATH . 'src/PostTypes/ServiceCPT.php';
 require_once COSY_APPT_PATH . 'src/Assets/Assets.php';
 require_once COSY_APPT_PATH . 'src/Frontend/Class_Frontend.php';
@@ -221,7 +222,10 @@ cosy_create_reviews_table();
 //-------Register activation hook--------//
 register_activation_hook(__FILE__, 'cosy_plugin_activate');
 
-//-------Register roles--------//
+//-------Register deactivation hook--------//
+register_deactivation_hook(__FILE__, 'cosy_plugin_deactivate');
+
+//-------Register roles & database tables on activation--------//
 function cosy_plugin_activate()
 {
     // Call all activation tasks here
@@ -231,6 +235,17 @@ function cosy_plugin_activate()
     cosy_create_media_table();
     cosy_create_reviews_table();
     update_option('cosy_plugin_version', COSY_APPT_VER);
+
+    // Flush rewrite rules on activation to ensure custom links work immediately
+    cosyplugin_author_rewrite();
+    flush_rewrite_rules();
+}
+
+//-------Clean up rewrite rules on deactivation--------//
+function cosy_plugin_deactivate()
+{
+    // Clean up custom rewrite rules on deactivation to prevent conflicts
+    flush_rewrite_rules();
 }
 
 /**
@@ -243,6 +258,7 @@ function cosy_appt_start()
 {
     $plugin = new \Cosy\Appointments\Plugin();
     new \Cosy\Appointments\Admin\Backend_Actions_Handler();
+    new \Cosy\Appointments\Admin\DeactivationHandler();
     $plugin->run();
 }
 cosy_appt_start();
