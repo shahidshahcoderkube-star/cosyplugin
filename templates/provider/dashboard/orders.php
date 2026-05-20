@@ -67,7 +67,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                             </td>
                         </tr>
                     <?php else : ?>
-                        <?php foreach ($appointments as $appt) : 
+                        <?php foreach ($appointments as $appt) :
                             $appt_id = $appt->ID;
                             $customer_name   = get_post_meta($appt_id, 'cosy_customer_name', true);
                             $customer_email  = get_post_meta($appt_id, 'cosy_customer_email', true);
@@ -83,7 +83,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                             if (empty($booking_status)) {
                                 $booking_status = 'pending';
                             }
-                            
+
                             // Generate initials for avatar
                             $initials = '';
                             if (!empty($customer_name)) {
@@ -125,35 +125,35 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                 <td>
                                     <div class="d-flex gap-2">
                                         <?php if ($booking_status === 'pending') : ?>
-                                            <button class="btn-action action-update-status bg-success text-white order-action-btn" 
-                                                    data-id="<?php echo $appt_id; ?>" 
-                                                    data-status="completed" 
-                                                    title="Mark Completed">
+                                            <button class="btn-action action-update-status bg-success text-white order-action-btn"
+                                                data-id="<?php echo $appt_id; ?>"
+                                                data-status="completed"
+                                                title="Mark Completed">
                                                 <i class="fas fa-check"></i>
                                             </button>
-                                            <button class="btn-action action-update-status bg-danger text-white order-action-btn" 
-                                                    data-id="<?php echo $appt_id; ?>" 
-                                                    data-status="cancelled" 
-                                                    title="Cancel Order">
+                                            <button class="btn-action action-update-status bg-danger text-white order-action-btn"
+                                                data-id="<?php echo $appt_id; ?>"
+                                                data-status="cancelled"
+                                                title="Cancel Order">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         <?php endif; ?>
-                                        <button class="btn-action btn-view-order-details bg-light text-secondary order-action-btn" 
-                                                data-id="<?php echo $appt_id; ?>"
-                                                data-customer="<?php echo esc_attr($customer_name); ?>"
-                                                data-email="<?php echo esc_attr($customer_email); ?>"
-                                                data-service="<?php echo esc_attr($service_name); ?>"
-                                                data-start="<?php echo esc_attr($start_date); ?>"
-                                                data-end="<?php echo esc_attr($end_date); ?>"
-                                                data-weekly="<?php echo esc_attr($weekly_booking); ?>"
-                                                data-weeks="<?php echo esc_attr($number_of_weeks); ?>"
-                                                data-slots="<?php echo esc_attr($number_of_slots); ?>"
-                                                data-cost="<?php echo esc_attr($service_cost); ?>"
-                                                data-total="<?php echo esc_attr($total_payable); ?>"
-                                                data-status="<?php echo esc_attr($booking_status); ?>"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#orderDetailsModal" 
-                                                title="View Details">
+                                        <button class="btn-action btn-view-order-details bg-light text-secondary order-action-btn"
+                                            data-id="<?php echo $appt_id; ?>"
+                                            data-customer="<?php echo esc_attr($customer_name); ?>"
+                                            data-email="<?php echo esc_attr($customer_email); ?>"
+                                            data-service="<?php echo esc_attr($service_name); ?>"
+                                            data-start="<?php echo esc_attr($start_date); ?>"
+                                            data-end="<?php echo esc_attr($end_date); ?>"
+                                            data-weekly="<?php echo esc_attr($weekly_booking); ?>"
+                                            data-weeks="<?php echo esc_attr($number_of_weeks); ?>"
+                                            data-slots="<?php echo esc_attr($number_of_slots); ?>"
+                                            data-cost="<?php echo esc_attr($service_cost); ?>"
+                                            data-total="<?php echo esc_attr($total_payable); ?>"
+                                            data-status="<?php echo esc_attr($booking_status); ?>"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#orderDetailsModal"
+                                            title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
