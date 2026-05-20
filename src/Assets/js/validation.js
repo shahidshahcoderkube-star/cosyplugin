@@ -291,8 +291,8 @@ var CosyApp = (function ($) {
         // Delete
         $(document).on("click.cosyVideo", ".remove-video", function () {
             const $btn = $(this);
-            const videoId = $btn.data("id");
-            const $container = $btn.closest(".video-item, .video-preview-card");
+            const userId = $btn.data("id");  // data-id holds the WordPress user_id
+            const $container = $btn.closest('[id^="existing-video-"]'); // matches existing-video-{userId} in template
 
             Swal.fire({
                 title: 'Are you sure?',
@@ -310,8 +310,8 @@ var CosyApp = (function ($) {
                         url: cosy_ajax.ajax_url,
                         type: "POST",
                         data: {
-                            action: "cosy_delete_provider_video",
-                            video_id: videoId,
+                            action: "delete_video",   // Matches PHP registered action in Class_Provider_Dashboard.php
+                            user_id: userId,           // PHP ajax_delete_video() expects 'user_id'
                             nonce: $("#cosy_dashboard_nonce_field").val()
                         },
                         beforeSend() {
@@ -328,6 +328,9 @@ var CosyApp = (function ($) {
                                     showConfirmButton: false,
                                     showClass: { popup: '' },
                                     hideClass: { popup: '' }
+                                }).then(() => {
+                                    // Reload page so the upload form reappears
+                                    location.reload();
                                 });
                             } else {
                                 Swal.fire({

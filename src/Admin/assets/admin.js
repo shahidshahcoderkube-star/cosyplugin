@@ -1,232 +1,235 @@
-// //----------------- AJAX Helper Function ----------------//
-// function cosyAjax(action, userId, $btn, onSuccess, onError) {
-//     jQuery.ajax({
-//         url: ajaxurl,
-//         type: "POST",
-//         data: { action: action, user_id: userId },
-//         beforeSend: function () {
-//             if ($btn && $btn.length) {
-//                 $btn.prop("disabled", true);
-//                 $btn.data("original-text", $btn.html());
-//                 $btn.html(`
-//                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-//                     Loading...
-//                 `);
-//             }
-//         },
-//         success: function (res) {
-//             if (res.success) {
-//                 if (typeof onSuccess === "function") onSuccess(res);
-//             } else {
-//                 if (typeof onError === "function") onError(res);
-//             }
-//         },
-//         complete: function () {
-//             if ($btn && $btn.length) {
-//                 $btn.prop("disabled", false);
-//                 $btn.html($btn.data("original-text"));
-//             }
-//         }
-//     });
-// }
-
-// //----------- Approve/Reject Media Handlers ----------------//
-// jQuery(document).ready(function ($) {
-//     // Approve
-//     $(document).on('click', '.approve-media', function () {
-//         // alert('clicked');
-//         let row = $(this).closest('tr');
-//         let $btn = $(this);
-//         let userId = $btn.data('id');
-
-//         cosyAjax("video_approve", userId, $btn, function (res) {
-//             row.find('.status-badge')
-//                 .removeClass('bg-warning text-dark')
-//                 .addClass('bg-success')
-//                 .text('Approved');
-
-//             // Hide approve button
-//             row.find('.approve-media').remove();
-//         });
-//     });
-
-//     // Reject
-//     $(document).on('click', '.reject-media', function () {
-//         let row = $(this).closest('tr');
-//         let $btn = $(this);
-//         let userId = $btn.data('id');
-
-//         cosyAjax("video_reject", userId, $btn, function (res) {
-//             row.fadeOut(500, function () { $(this).remove(); });
-//         });
-//     });
-// });
-
-
-// jQuery(document).ready(function ($) {
-
-//     // Approve
-//     $(document).on('click', '.approve-media', function () {
-//         let row = $(this).closest('tr');
-//         let $btn = $(this);
-//         let userId = $btn.data('id');
-
-//         $.ajax({
-//             url: ajaxurl,
-//             type: "POST",
-//             dataType: "json",
-//             data: {
-//                 action: "video_approve",
-//                 user_id: userId
-//             },
-//             beforeSend: function () {
-//                 $btn.prop("disabled", true).text("Approving...");
-//             },
-//             success: function (res) {
-//                 if (res.success) {
-//                     // ✅ Update status instantly
-//                     row.find('td:nth-child(6)')
-//                         .html('<span class="badge bg-success status-badge">Approved</span>');
-
-//                     // ✅ Remove approve button
-//                     row.find('.approve-media').remove();
-//                 } else {
-//                     alert(res.data.message || "Error approving");
-//                 }
-//             },
-//             complete: function () {
-//                 $btn.prop("disabled", false).text("Approve");
-//             }
-//         });
-//     });
-
-//     // Reject
-//     $(document).on('click', '.reject-media', function () {
-//         let row = $(this).closest('tr');
-//         let $btn = $(this);
-//         let userId = $btn.data('id');
-
-//         $.ajax({
-//             url: ajaxurl,
-//             type: "POST",
-//             dataType: "json",
-//             data: {
-//                 action: "video_reject",
-//                 user_id: userId
-//             },
-//             beforeSend: function () {
-//                 $btn.prop("disabled", true).text("Rejecting...");
-//             },
-//             success: function (res) {
-//                 if (res.success) {
-//                     // ✅ Option 1: Update status badge
-//                     // row.find('td:nth-child(6)')
-//                     //     .html('<span class="badge bg-danger status-badge">Rejected</span>');
-
-//                     // ✅ Option 2: Remove row completely
-//                     row.fadeOut(500, function () { $(this).remove(); });
-//                 } else {
-//                     alert(res.data.message || "Error rejecting");
-//                 }
-//             },
-//             complete: function () {
-//                 $btn.prop("disabled", false).text("Reject");
-//             }
-//         });
-//     });
-
-// });
-
+/**
+ * admin.js
+ * Central admin JavaScript controller for the Cosy Appointments plugin.
+ *
+ * Organized using the Object-Literal Namespace pattern inside a single
+ * secure jQuery ready wrapper to prevent global scope pollution and
+ * avoid duplicate event handler conflicts.
+ *
+ * Modules:
+ *  - CosyMediaAdmin   : Handles approve/reject actions for provider media uploads.
+ *  - CosyOrdersAdmin  : Handles the order details modal (open, populate, close).
+ */
 jQuery(document).ready(function ($) {
+    'use strict';
 
-    // Approve
-    $(document).on('click', '.approve-media', function () {
-        let row = $(this).closest('tr');
-        let $btn = $(this);
-        let userId = $btn.data('id');
+    // =========================================================================
+    // MODULE: CosyMediaAdmin
+    // Handles approve and reject actions for provider-submitted media content.
+    // Uses Event Delegation so it works even on dynamically loaded rows.
+    // =========================================================================
+    const CosyMediaAdmin = {
 
-        $.ajax({
-            url: ajaxurl,
-            type: "POST",
-            dataType: "json",
-            data: {
-                action: "video_approve",
-                user_id: userId,
-                nonce: $('#cosy_media_nonce_field').val()
-            },
-            beforeSend: function () {
-                $btn.prop("disabled", true).text("Approving...");
-            },
-            success: function (res) {
-                if (res.success) {
-                    row.find('td:nth-child(6)')
-                        .html('<span class="badge bg-success status-badge">Approved</span>');
-                    row.find('.approve-media').remove();
+        /**
+         * init
+         * Binds all event listeners for the media admin module.
+         */
+        init: function () {
+            // Use event delegation on document to support dynamically rendered rows
+            $(document).on('click', '.approve-media', this.handleApprove);
+            $(document).on('click', '.reject-media', this.handleReject);
+        },
 
-                    // ✅ Direct success message
-                    $(".admin-succes").html(`
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            ${res.data.message || "Video approved successfully!"}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    `);
-                } else {
-                    $(".admin-succes").html(`
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            ${res.data.message || "Error approving"}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    `);
+        /**
+         * showAlert
+         * Renders a Bootstrap dismissible alert in the .admin-succes container.
+         *
+         * @param {string} message - The message to display.
+         * @param {string} type    - Bootstrap alert type: 'success' or 'danger'.
+         */
+        showAlert: function (message, type) {
+            $('.admin-succes').html(`
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+        },
+
+        /**
+         * handleApprove
+         * Fires an AJAX request to approve a provider's media upload.
+         * On success, updates the status badge and removes the approve button.
+         */
+        handleApprove: function () {
+            const row    = $(this).closest('tr');
+            const $btn   = $(this);
+            const userId = $btn.data('id');
+
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'video_approve',
+                    user_id: userId,
+                    nonce: $('#cosy_media_nonce_field').val()
+                },
+                beforeSend: function () {
+                    $btn.prop('disabled', true).text('Approving...');
+                },
+                success: function (res) {
+                    if (res.success) {
+                        // Update status badge in the table row immediately
+                        row.find('td:nth-child(6)').html('<span class="badge bg-success status-badge">Approved</span>');
+                        row.find('.approve-media').remove();
+                        CosyMediaAdmin.showAlert(res.data.message || 'Video approved successfully!', 'success');
+                    } else {
+                        CosyMediaAdmin.showAlert(res.data.message || 'Error approving video.', 'danger');
+                    }
+                },
+                complete: function () {
+                    $btn.prop('disabled', false).text('Approve');
                 }
-            },
-            complete: function () {
-                $btn.prop("disabled", false).text("Approve");
-            }
-        });
-    });
+            });
+        },
 
-    // Reject
-    $(document).on('click', '.reject-media', function () {
-        let row = $(this).closest('tr');
-        let $btn = $(this);
-        let userId = $btn.data('id');
+        /**
+         * handleReject
+         * Fires an AJAX request to reject a provider's media upload.
+         * On success, fades out and removes the table row.
+         */
+        handleReject: function () {
+            const row    = $(this).closest('tr');
+            const $btn   = $(this);
+            const userId = $btn.data('id');
 
-        $.ajax({
-            url: ajaxurl,
-            type: "POST",
-            dataType: "json",
-            data: {
-                action: "video_reject",
-                user_id: userId,
-                nonce: $('#cosy_media_nonce_field').val()
-            },
-            beforeSend: function () {
-                $btn.prop("disabled", true).text("Rejecting...");
-            },
-            success: function (res) {
-                if (res.success) {
-                    row.fadeOut(500, function () { $(this).remove(); });
-
-                    // ✅ Direct success message
-                    $(".admin-succes").html(`
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            ${res.data.message || "Video rejected successfully!"}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    `);
-                } else {
-                    $(".admin-succes").html(`
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            ${res.data.message || "Error rejecting"}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    `);
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'video_reject',
+                    user_id: userId,
+                    nonce: $('#cosy_media_nonce_field').val()
+                },
+                beforeSend: function () {
+                    $btn.prop('disabled', true).text('Rejecting...');
+                },
+                success: function (res) {
+                    if (res.success) {
+                        row.fadeOut(500, function () { $(this).remove(); });
+                        CosyMediaAdmin.showAlert(res.data.message || 'Video rejected successfully!', 'danger');
+                    } else {
+                        CosyMediaAdmin.showAlert(res.data.message || 'Error rejecting video.', 'danger');
+                    }
+                },
+                complete: function () {
+                    $btn.prop('disabled', false).text('Reject');
                 }
-            },
-            complete: function () {
-                $btn.prop("disabled", false).text("Reject");
+            });
+        }
+    };
+
+    // =========================================================================
+    // MODULE: CosyOrdersAdmin
+    // Handles the order details modal on the admin Orders page.
+    // Reads booking data from HTML data-* attributes and populates modal fields.
+    // =========================================================================
+    const CosyOrdersAdmin = {
+
+        /**
+         * init
+         * Binds all event listeners for the orders modal module.
+         */
+        init: function () {
+            $(document).on('click', '.btn-view-admin-order-details', this.openModal);
+            $(document).on('click', '.cosy-admin-modal-close, .cosy-admin-modal-close-btn', this.closeModal);
+
+            // Close modal when clicking outside its bounds (on the dark overlay)
+            $(window).on('click', function (event) {
+                if ($(event.target).is('#cosyAdminOrderModal')) {
+                    CosyOrdersAdmin.closeModal();
+                }
+            });
+        },
+
+        /**
+         * openModal
+         * Reads data-* attributes from the clicked button and populates
+         * all fields inside the order details modal, then fades it in.
+         */
+        openModal: function (e) {
+            e.preventDefault();
+
+            // Read all booking data from the HTML data attributes
+            const id      = $(this).data('id');
+            const customer = $(this).data('customer');
+            const email   = $(this).data('customer-email');
+            const provider = $(this).data('provider');
+            const service  = $(this).data('service');
+            const start   = $(this).data('start');
+            const end     = $(this).data('end');
+            const weekly  = $(this).data('weekly');
+            const weeks   = $(this).data('weeks');
+            const slots   = $(this).data('slots');
+            const cost    = $(this).data('cost');
+            const fee     = $(this).data('fee');
+            const total   = $(this).data('total');
+            const status  = $(this).data('status');
+
+            // Populate modal text fields
+            $('#modalAdminOrderTitle').text('Order Details - #' + id);
+            $('#modalAdminCustomerName').text(customer);
+            $('#modalAdminCustomerEmail').text(email || 'N/A');
+            $('#modalAdminProviderName').text(provider);
+            $('#modalAdminServiceName').text(service);
+            $('#modalAdminSchedule').text(weekly);
+
+            // Display date range or a single start date if end date is missing
+            if (start && end) {
+                $('#modalAdminDuration').text(start + ' to ' + end);
+            } else {
+                $('#modalAdminDuration').text(start || 'N/A');
             }
-        });
-    });
+
+            $('#modalAdminWeeks').text(weeks + ' week(s) (' + slots + ' slots booked)');
+            $('#modalAdminCost').text('£' + cost);
+            $('#modalAdminFee').text('£' + fee);
+            $('#modalAdminTotal').text('£' + total);
+
+            // Apply colour-coded status badge consistent with WordPress admin styles
+            CosyOrdersAdmin.applyStatusStyle(status);
+
+            $('#cosyAdminOrderModal').fadeIn(150);
+        },
+
+        /**
+         * closeModal
+         * Hides the order details modal with a smooth fade-out animation.
+         */
+        closeModal: function () {
+            $('#cosyAdminOrderModal').fadeOut(120);
+        },
+
+        /**
+         * applyStatusStyle
+         * Sets the background, text, and border colour of the status indicator
+         * inside the modal based on the order's current status value.
+         *
+         * @param {string} status - The booking status string (e.g. 'completed', 'cancelled', 'pending').
+         */
+        applyStatusStyle: function (status) {
+            let bg, color, border;
+
+            if (status === 'completed' || status === 'confirmed') {
+                bg = '#e6fcf5'; color = '#0ca678'; border = '#c3fae8';
+            } else if (status === 'cancelled') {
+                bg = '#fff5f5'; color = '#fa5252'; border = '#ffe3e3';
+            } else {
+                // Default: pending
+                bg = '#fcf0e1'; color = '#d97706'; border = '#fcd34d';
+            }
+
+            $('#modalAdminStatusBg').css({ 'background-color': bg, 'color': color, 'border-color': border });
+            $('#modalAdminStatusText').text(status.toUpperCase());
+        }
+    };
+
+    // =========================================================================
+    // BOOT: Initialize all admin modules
+    // =========================================================================
+    CosyMediaAdmin.init();
+    CosyOrdersAdmin.init();
 
 });
