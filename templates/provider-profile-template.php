@@ -77,17 +77,15 @@ if (!empty($provider_data['ID'])) {
     <div class="row g-4">
         <div class="col-lg-7">
 
-            <div class="card border-0 shadow-sm mb-4 overflow-hidden" style="border-radius: 24px;">
-                <div class="card-header border-0 py-4 px-5"
-                    style="background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: white;">
+            <div class="cosy-card-rounded card border-0 shadow-sm mb-4 overflow-hidden">
+                <div class="cosy-gradient-bg card-header border-0 py-4 px-5">
                     <div class="d-flex align-items-center flex-wrap gap-4">
-                        <div class="profile-avatar-wrapper-premium"
-                            style="position: relative; width: 110px; height: 110px;">
+                        <div class="cosy-profile-img-wrap profile-avatar-wrapper-premium">
                             <?php
                             $profile_image = !empty($provider_data['profile_image']) ? $provider_data['profile_image'] : 'https://via.placeholder.com/120';
                             ?>
                             <img src="<?php echo esc_url($profile_image); ?>"
-                                style="width: 100%; height: 100%; object-fit: cover; border-radius: 30px; border: 4px solid rgba(255,255,255,0.3); box-shadow: 0 0 20px rgba(0,0,0,0.15);"
+                                class="cosy-profile-img"
                                 alt="<?php echo esc_attr($provider_data['prov_mname']); ?>">
                         </div>
                         <div class="profile-info-top">
@@ -109,7 +107,7 @@ if (!empty($provider_data['ID'])) {
                 </div>
 
                 <div class="card-body p-0">
-                    <div class="row text-center g-0 border-bottom" style="background: #fafbfc;">
+                    <div class="cosy-bg-fafbfc row text-center g-0 border-bottom">
                         <div class="col-4 py-3">
                             <?php
                             if (!empty($provider_data['services'])):
@@ -117,29 +115,26 @@ if (!empty($provider_data['ID'])) {
                                 $prices = array_column($provider_data['services'], 'price');
                                 $min_price = !empty($prices) ? min($prices) : '0.00';
                             ?>
-                                <div class="h5 fw-bold mb-1" style="color: #a44390; letter-spacing: -0.5px;">
+                                <div class="cosy-price-min h5 fw-bold mb-1">
                                     £<?php echo esc_html($min_price); ?>
                                 </div>
-                                <small class="text-muted text-uppercase fw-bold"
-                                    style="font-size: 0.6rem; letter-spacing: 0.8px;">
+                                <small class="cosy-price-label text-muted text-uppercase fw-bold">
                                     Starting From Hourly Rate
                                 </small>
                             <?php endif; ?>
                         </div>
                         <div class="col-4 py-3 border-start border-end">
-                            <div class="h5 fw-bold mb-1 text-warning" style="letter-spacing: -0.5px;"><i
-                                    class="fas fa-star me-1" style="font-size: 1rem;"></i><?php echo ($average_rating > 0) ? number_format($average_rating, 1) : '0.0'; ?></div>
+                            <div class="cosy-section-title h5 fw-bold mb-1 text-warning"><i
+                                    class="cosy-rating-star fas fa-star me-1"></i><?php echo ($average_rating > 0) ? number_format($average_rating, 1) : '0.0'; ?></div>
 
-                            <small class="text-muted text-uppercase fw-bold"
-                                style="font-size: 0.6rem; letter-spacing: 0.8px;">(<?php echo $total_reviews; ?> Reviews)</small>
+                            <small class="cosy-price-label text-muted text-uppercase fw-bold">(<?php echo $total_reviews; ?> Reviews)</small>
                         </div>
                         <div class="col-4 py-3">
                             <?php if (!empty($provider_data['age_group'])) { ?>
-                                <div class="h5 fw-bold mb-1" style="color: #1e293b; letter-spacing: -0.5px;">
+                                <div class="cosy-age-group h5 fw-bold mb-1">
                                     <?php echo esc_html($provider_data['age_group']); ?>
                                 </div>
-                                <small class="text-muted text-uppercase fw-bold"
-                                    style="font-size: 0.6rem; letter-spacing: 0.8px;">Age Group</small>
+                                <small class="cosy-price-label text-muted text-uppercase fw-bold">Age Group</small>
                             <?php } ?>
                         </div>
                     </div>
@@ -152,15 +147,13 @@ if (!empty($provider_data['ID'])) {
 
             <!-- Separate Services Section -->
             <?php if (!empty($provider_data['services'])): ?>
-                <div class="card border-0 shadow-sm mb-4" style="border-radius: 24px;">
+                <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
                     <div class="card-body p-4 px-5">
-                        <div class="d-flex align-items-center gap-3 mb-3 pb-2 border-bottom"
-                            style="border-color: #f1f5f9 !important;">
-                            <div
-                                style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-concierge-bell" style="color: #a44390;"></i>
+                        <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-3 pb-2 border-bottom">
+                            <div class="cosy-icon-box">
+                                <i class="cosy-total-price fas fa-concierge-bell"></i>
                             </div>
-                            <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Offered Services</h5>
+                            <h5 class="cosy-price-min fw-bold mb-0">Offered Services</h5>
                         </div>
                         <div class="services-list-premium">
                             <?php foreach ($provider_data['services'] as $service):
@@ -168,24 +161,21 @@ if (!empty($provider_data['ID'])) {
                                 $s_price = esc_js($service['price']);
                                 $s_time = esc_js($service['time'] ?? '60');
                             ?>
-                                <div class="service-item-row d-flex justify-content-between align-items-center p-3 mb-3 cursor-pointer"
-                                    onclick="selectServiceItem(this, '<?php echo $s_title; ?>', <?php echo $s_price; ?>, <?php echo $s_time; ?>)"
-                                    style="background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; transition: all 0.3s ease; cursor: pointer;">
+                                <div class="cosy-service-row service-item-row d-flex justify-content-between align-items-center p-3 mb-3 cursor-pointer"
+                                    onclick="selectServiceItem(this, '<?php echo $s_title; ?>', <?php echo $s_price; ?>, <?php echo $s_time; ?>)">
                                     <div class="d-flex align-items-center gap-3">
-                                        <div
-                                            style="width: 40px; height: 40px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                                            <i class="fas fa-check-circle service-check-icon" style="color: #cbd5e1; transition: color 0.3s;"></i>
+                                        <div class="cosy-service-check-box">
+                                            <i class="cosy-service-check-icon fas fa-check-circle service-check-icon"></i>
                                         </div>
                                         <div>
-                                            <h6 class="mb-0 fw-bold" style="color: #1e293b;">
+                                            <h6 class="cosy-service-title mb-0 fw-bold">
                                                 <?php echo esc_html($service['title']); ?>
                                             </h6>
                                             <small class="text-muted"><?php echo esc_html($service['time'] ?? '60'); ?> mins
                                                 session</small>
                                         </div>
                                     </div>
-                                    <div
-                                        style="background: #a44390; color: #fff; padding: 8px 15px; border-radius: 10px; font-weight: 700;">
+                                    <div class="cosy-service-price-box">
                                         £<?php echo esc_html($service['price']); ?>
                                     </div>
                                 </div>
@@ -195,31 +185,27 @@ if (!empty($provider_data['ID'])) {
                 </div>
             <?php endif; ?>
 
-            <div class="card border-0 shadow-sm mb-4" style="border-radius: 24px;">
+            <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
                 <div class="card-body p-4 px-5">
-                    <div class="d-flex align-items-center gap-3 mb-3 pb-2 border-bottom"
-                        style="border-color: #f1f5f9 !important;">
-                        <div
-                            style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-user" style="color: #a44390;"></i>
+                    <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-3 pb-2 border-bottom">
+                        <div class="cosy-icon-box">
+                            <i class="cosy-total-price fa-solid fa-user"></i>
                         </div>
-                        <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">About Me</h5>
+                        <h5 class="cosy-price-min fw-bold mb-0">About Me</h5>
                     </div>
-                    <p class="text-muted lh-lg mb-0" style="font-size: 1.05rem; color: #475569 !important;">
+                    <p class="cosy-about-desc text-muted lh-lg mb-0">
                         <?php echo nl2br(esc_html($provider_data['description'])); ?>
                     </p>
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm mb-4" style="border-radius: 24px;">
+            <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
                 <div class="card-body p-4 px-5">
-                    <div class="d-flex align-items-center gap-3 mb-3 pb-2 border-bottom"
-                        style="border-color: #f1f5f9 !important;">
-                        <div
-                            style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-calendar-check" style="color: #a44390;"></i>
+                    <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-3 pb-2 border-bottom">
+                        <div class="cosy-icon-box">
+                            <i class="cosy-total-price fa-solid fa-calendar-check"></i>
                         </div>
-                        <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Availability</h5>
+                        <h5 class="cosy-price-min fw-bold mb-0">Availability</h5>
                     </div>
                     <div class="table-responsive">
                         <table class="table border-0 mb-0">
@@ -259,42 +245,36 @@ if (!empty($provider_data['ID'])) {
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm mb-4" style="border-radius: 24px;">
+            <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
                 <div class="card-body p-4 px-5">
-                    <div class="d-flex align-items-center justify-content-between gap-3 mb-3 pb-2 border-bottom"
-                        style="border-color: #f1f5f9 !important;">
+                    <div class="cosy-border-f1f5f9 d-flex align-items-center justify-content-between gap-3 mb-3 pb-2 border-bottom">
                         <div class="d-flex align-items-center gap-3">
-                            <div
-                                style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa-solid fa-comment-dots" style="color: #a44390;"></i>
+                            <div class="cosy-icon-box">
+                                <i class="cosy-total-price fa-solid fa-comment-dots"></i>
                             </div>
-                            <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Reviews</h5>
+                            <h5 class="cosy-price-min fw-bold mb-0">Reviews</h5>
                         </div>
-                        <button class="btn btn-sm text-white px-3"
-                            style="background-color: #a44390; border-radius: 10px;" id="addReviewBtn">
+                        <button class="cosy-btn-add-review btn btn-sm text-white px-3" id="addReviewBtn">
                             + Add Review
                         </button>
                     </div>
 
                     <div class="collapse mb-4" id="reviewForm">
-                        <div class="p-4 rounded-4" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="cosy-review-form-box p-4 rounded-4">
                             <label class="small fw-bold text-muted mb-2 d-block">Rating</label>
                             <div class="star-rating-input d-flex gap-2 mb-3">
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <i class="fa-star far cursor-pointer rating-star" data-rating="<?php echo $i; ?>"
-                                        style="color: #cbd5e1; font-size: 1.2rem; cursor: pointer; transition: all 0.2s;"></i>
+                                    <i class="cosy-rating-star-btn fa-star far cursor-pointer rating-star" data-rating="<?php echo $i; ?>"></i>
                                 <?php endfor; ?>
                                 <input type="hidden" name="rating" id="selectedRating" value="0">
                             </div>
 
                             <label class="small fw-bold text-muted mb-2 d-block">Your Review</label>
-                            <textarea class="form-control mb-3 border-0 shadow-sm" rows="3"
+                            <textarea class="cosy-review-textarea form-control mb-3 border-0 shadow-sm" rows="3"
                                 id="reviewText"
-                                placeholder="Share your experience..."
-                                style="border-radius: 14px; padding: 15px; font-size: 0.95rem; resize: none;"></textarea>
+                                placeholder="Share your experience..."></textarea>
 
-                            <button class="btn w-100 py-2 fw-bold text-white shadow-sm" id="postReviewBtn"
-                                style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 12px; border: none; font-size: 0.9rem; transition: all 0.3s;">
+                            <button class="cosy-btn-primary btn w-100 py-2 fw-bold text-white shadow-sm" id="postReviewBtn">
                                 Post Review
                             </button>
                         </div>
@@ -303,9 +283,8 @@ if (!empty($provider_data['ID'])) {
                     <div class="reviews-list-container d-flex flex-column gap-3">
                         <?php if (!empty($approved_reviews)): ?>
                             <?php foreach ($approved_reviews as $rev): ?>
-                                <div class="d-flex gap-3 pb-3 border-bottom animate__animated animate__fadeIn" style="border-color: #f1f5f9 !important;">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-uppercase"
-                                        style="width: 45px; height: 45px; background: #fdf2fb; color: #a44390;">
+                                <div class="cosy-border-f1f5f9 d-flex gap-3 pb-3 border-bottom animate__animated animate__fadeIn">
+                                    <div class="cosy-review-avatar rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-uppercase">
                                         <?php echo esc_html(substr($rev['customer_name'], 0, 1)); ?>
                                     </div>
                                     <div>
@@ -315,7 +294,7 @@ if (!empty($provider_data['ID'])) {
                                                 <i class="<?php echo ($star <= $rev['rating']) ? 'fa-solid' : 'fa-regular'; ?> fa-star"></i>
                                             <?php endfor; ?>
                                         </small>
-                                        <p class="small text-muted mb-0 mt-1" style="font-size: 0.85rem; line-height: 1.4;"><?php echo esc_html($rev['review']); ?></p>
+                                        <p class="cosy-review-text small text-muted mb-0 mt-1"><?php echo esc_html($rev['review']); ?></p>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -329,15 +308,13 @@ if (!empty($provider_data['ID'])) {
         <div class="col-lg-5">
             <div class="sticky-top" style="top: 20px;">
                 <!-- Calendar Card -->
-                <div class="card border-0 shadow-sm mb-4" style="border-radius: 24px; overflow: hidden;">
+                <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
                     <div class="p-4 pb-0">
-                        <div class="d-flex align-items-center gap-3 mb-4 pb-2 border-bottom"
-                            style="border-color: #f1f5f9 !important;">
-                            <div
-                                style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-calendar-alt" style="color: #a44390;"></i>
+                        <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-4 pb-2 border-bottom">
+                            <div class="cosy-icon-box">
+                                <i class="cosy-total-price fas fa-calendar-alt"></i>
                             </div>
-                            <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Select Date</h5>
+                            <h5 class="cosy-price-min fw-bold mb-0">Select Date</h5>
                         </div>
 
                         <!-- Month Navigation -->
@@ -367,7 +344,7 @@ if (!empty($provider_data['ID'])) {
                         <div id="calendarGrid"
                             style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 8px;">
                             <?php foreach (['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as $d): ?>
-                                <div style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; padding: 6px 0;">
+                                <div class="cosy-cal-day-header">
                                     <?php echo $d; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -401,27 +378,22 @@ if (!empty($provider_data['ID'])) {
                 <div id="bookingTimeSlots" class="card border-0 shadow-sm"
                     style="display: none; border-radius: 24px; overflow: hidden; background: #fff;">
                     <div class="card-body p-4 pb-2">
-                        <div class="d-flex align-items-center gap-3 mb-4 pb-2 border-bottom"
-                            style="border-color: #f1f5f9 !important;">
-                            <div
-                                style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-clock" style="color: #a44390;"></i>
+                        <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-4 pb-2 border-bottom">
+                            <div class="cosy-icon-box">
+                                <i class="cosy-total-price fas fa-clock"></i>
                             </div>
-                            <h5 class="fw-bold mb-0" style="color: #a44390; letter-spacing: -0.5px;">Call Schedule</h5>
+                            <h5 class="cosy-price-min fw-bold mb-0">Call Schedule</h5>
                         </div>
 
                         <div class="d-flex align-items-center gap-2 mb-3 p-2 bg-light rounded-3 border"
                             style="border-color: #edf2f7 !important;">
-                            <input type="checkbox" id="bookingForAnother"
-                                style="width: 18px; height: 18px; cursor: pointer; accent-color: #a44390;">
-                            <label for="bookingForAnother" class="small text-muted fw-bold mb-0 cursor-pointer"
-                                style="font-size: 0.75rem;">Booking for another person</label>
+                            <input class="cosy-checkbox" type="checkbox" id="bookingForAnother">
+                            <label for="bookingForAnother" class="cosy-slot-duration-text small text-muted fw-bold mb-0 cursor-pointer">Booking for another person</label>
                         </div>
 
-                        <div class="p-2 px-3 fw-bold text-dark mb-3 d-flex align-items-center justify-content-between"
-                            style="background: #fdf2fb; border: 1px solid #f9e6f5; border-radius: 10px; font-size: 0.8rem;">
+                        <div class="cosy-date-display-box p-2 px-3 fw-bold text-dark mb-3 d-flex align-items-center justify-content-between">
                             <span><i class="fas fa-calendar-day me-2 text-muted"></i> Start Date:</span>
-                            <span id="displaySelectedDate" style="color: #a44390 !important;">May 13, 2026</span>
+                            <span class="cosy-date-text" id="displaySelectedDate">May 13, 2026</span>
                         </div>
 
                         <div id="timeSlotsList" class="d-flex flex-column gap-2 mb-0">
@@ -431,8 +403,7 @@ if (!empty($provider_data['ID'])) {
                         <!-- DYNAMIC WEEKLY PRICING SECTION -->
                         <div id="weeklyPricingSection" style="display: none;" class="mt-4 pt-4 border-top">
                             <div class="text-center">
-                                <p class="small text-muted fw-bold mb-3 text-uppercase"
-                                    style="letter-spacing: 0.8px; font-size: 0.7rem;">Select Booking Duration</p>
+                                <p class="cosy-duration-label small text-muted fw-bold mb-3 text-uppercase">Select Booking Duration</p>
 
                                 <div class="px-2 mb-3 position-relative">
                                     <select id="totalBookingWeeks"
@@ -454,18 +425,15 @@ if (!empty($provider_data['ID'])) {
                                     </select>
                                 </div>
 
-                                <div class="p-2 mb-3 rounded-4"
-                                    style="background: #fdf2fb; border: 1px dashed #a44390;">
-                                    <span class="text-muted d-block mb-1 fw-bold"
-                                        style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Total Service
+                                <div class="cosy-total-amount-box p-2 mb-3 rounded-4">
+                                    <span class="cosy-total-label text-muted d-block mb-1 fw-bold">Total Service
                                         Amount</span>
-                                    <h4 class="fw-bold mb-0" id="finalTotalAmountText" style="color: #a44390;">£ 0.00
+                                    <h4 class="cosy-total-price fw-bold mb-0" id="finalTotalAmountText">£ 0.00
                                     </h4>
                                 </div>
 
                                 <?php if ($is_logged_in && $user_role === 'customer'): ?>
-                                <button class="btn w-100 py-2 fw-bold text-white shadow-sm"
-                                    style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 12px; border: none; font-size: 0.95rem; transition: all 0.2s;"
+                                <button class="cosy-btn-book-now btn w-100 py-2 fw-bold text-white shadow-sm"
                                     onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';"
                                     id="bookServiceBtn">
                                     Book Service Now
@@ -473,11 +441,11 @@ if (!empty($provider_data['ID'])) {
                                 <?php else: ?>
                                     <div class="alert alert-warning py-3 px-3 mb-0 text-center fw-bold d-flex align-items-center justify-content-center gap-2" 
                                          style="border-radius: 12px; font-size: 0.8rem; background: #fffbeb; border: 1px solid #fef3c7; color: #d97706; font-family: var(--cosy-font-family);">
-                                        <i class="fas fa-lock" style="font-size: 0.9rem;"></i>
+                                        <i class="cosy-login-alert-icon fas fa-lock"></i>
                                         <span>Please log in as a Customer to book this service.</span>
                                     </div>
                                 <?php endif; ?>
-                                <p class="small text-muted mt-3 mb-0" style="font-size: 0.7rem;">Secure payment via
+                                <p class="cosy-secure-payment-text small text-muted mt-3 mb-0">Secure payment via
                                     CosyChats Checkout</p>
                             </div>
                         </div>
@@ -498,7 +466,7 @@ if (!empty($provider_data['ID'])) {
                     aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
-                <div class="ratio ratio-16x9 shadow-lg" style="border-radius: 15px; overflow: hidden;">
+                <div class="cosy-video-modal-ratio ratio ratio-16x9 shadow-lg">
                     <iframe id="videoIframe" src="" title="Video Intro" frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen></iframe>
@@ -520,15 +488,13 @@ if (!empty($provider_data['ID'])) {
         // Reset all services
         const allRows = document.querySelectorAll('.service-item-row');
         allRows.forEach(row => {
-            row.style.background = '#f8fafc';
-            row.style.border = '1px solid #e2e8f0';
+            row.classList.remove('selected');
             const icon = row.querySelector('.service-check-icon');
             if (icon) icon.style.color = '#cbd5e1';
         });
 
         // Highlight selected service
-        el.style.background = '#fdf2fb';
-        el.style.border = '1px solid #a44390';
+        el.classList.add('selected');
         const activeIcon = el.querySelector('.service-check-icon');
         if (activeIcon) activeIcon.style.color = '#a44390';
 
@@ -667,14 +633,12 @@ if (!empty($provider_data['ID'])) {
                 const duration = selectedTimeSlotsByDay[dateStr] ? selectedTimeSlotsByDay[dateStr].length * 15 : 0;
 
                 slotsList.innerHTML += `
-                <div class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-4 border bg-white" 
-                     style="border-color: #f1f5f9 !important; transition: all 0.2s;">
+                <div class="cosy-slot-row-bg d-flex align-items-center justify-content-between p-3 mb-2 rounded-4 border bg-white">
                     <div class="text-start">
-                        <h6 class="fw-bold mb-1" style="color: #1e293b; font-size: 0.9rem;">${dayNames[dayIndex]}</h6>
-                        <p class="small text-muted mb-0" id="duration-${dateStr}" style="font-size: 0.75rem;">${duration} minutes Call Duration</p>
+                        <h6 class="cosy-slot-day-text fw-bold mb-1">${dayNames[dayIndex]}</h6>
+                        <p class="cosy-slot-duration-text small text-muted mb-0" id="duration-${dateStr}">${duration} minutes Call Duration</p>
                     </div>
-                    <button onclick="openTimeSlotModal('${dateStr}')" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm" 
-                            style="background: linear-gradient(135deg, #a44390, #c25ca9); border-radius: 12px; border: none; font-size: 0.7rem;">
+                    <button onclick="openTimeSlotModal('${dateStr}')" class="cosy-btn-select-time btn btn-sm px-3 py-2 fw-bold text-white shadow-sm">
                         ${duration > 0 ? 'Edit Time' : 'Select Time'}
                     </button>
                 </div>
@@ -698,8 +662,8 @@ if (!empty($provider_data['ID'])) {
         
         // Show spinner / loading state
         grid.innerHTML = `
-            <div class="col-12 text-center py-5">
-                <div class="spinner-border text-primary" role="status" style="color: #a44390 !important;">
+            <div class="col-12 text-center py-5 w-100" style="grid-column: 1 / -1;">
+                <div class="cosy-date-text spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
                 <p class="text-muted small mt-2 mb-0">Checking slot availability...</p>
@@ -713,7 +677,7 @@ if (!empty($provider_data['ID'])) {
         const avail = window.providerAvailability ? window.providerAvailability[dayName] : null;
 
         if (!avail) {
-            grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No availability set for this day.</div>';
+            grid.innerHTML = '<div class="col-12 text-center py-4 text-muted w-100" style="grid-column: 1 / -1;">No availability set for this day.</div>';
             return;
         }
 
@@ -807,13 +771,13 @@ if (!empty($provider_data['ID'])) {
                 }
 
                 if (slotsCount === 0) {
-                    grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No slots available for the selected range.</div>';
+                    grid.innerHTML = '<div class="col-12 text-center py-4 text-muted w-100" style="grid-column: 1 / -1;">No slots available for the selected range.</div>';
                 }
 
                 updateModalDuration();
             },
             error: function() {
-                grid.innerHTML = '<div class="col-12 text-center py-4 text-danger">Failed to check slot availability. Please try again.</div>';
+                grid.innerHTML = '<div class="col-12 text-center py-4 text-danger w-100" style="grid-column: 1 / -1;">Failed to check slot availability. Please try again.</div>';
             }
         });
     }
@@ -1209,8 +1173,13 @@ if (!empty($provider_data['ID'])) {
                 
                 localStorage.setItem('cosy_pending_booking', JSON.stringify(pendingBooking));
                 
-                // 4. Redirect to Checkout page
-                window.location.href = <?php echo json_encode(site_url('/cosy-checkout')); ?>;
+                // 4. Disable button and show processing spinner, then redirect to Checkout page after 1.5 seconds
+                bookServiceBtn.disabled = true;
+                bookServiceBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing Checkout...`;
+                
+                setTimeout(() => {
+                    window.location.href = <?php echo json_encode(site_url('/cosy-checkout')); ?>;
+                }, 1500);
             });
         }
     });
@@ -1219,15 +1188,14 @@ if (!empty($provider_data['ID'])) {
 <!-- Time Slot Selection Modal -->
 <div class="modal fade" id="timeSlotModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+        <div class="cosy-card-rounded modal-content border-0 shadow-lg">
             <div class="modal-header border-0 pb-0 justify-content-between align-items-center p-4">
                 <div class="d-flex align-items-center gap-3">
-                    <div
-                        style="width: 40px; height: 40px; background: #fdf2fb; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-clock" style="color: #a44390;"></i>
+                    <div class="cosy-modal-icon-box">
+                        <i class="cosy-total-price fas fa-clock"></i>
                     </div>
                     <div>
-                        <h5 class="fw-bold mb-0" style="color: #1e293b; letter-spacing: -0.5px;">Select Call Start Time
+                        <h5 class="cosy-age-group fw-bold mb-0">Select Call Start Time
                         </h5>
                         <small class="text-muted fw-medium">Additional call blocks can be selected</small>
                     </div>
@@ -1250,22 +1218,19 @@ if (!empty($provider_data['ID'])) {
                     </span>
                 </div>
 
-                <div id="timeGrid" class="time-grid-container p-3 rounded-4"
-                    style="background: #f8fafc; border: 1px solid #edf2f7;">
+                <div id="timeGrid" class="cosy-modal-time-grid time-grid-container p-3 rounded-4">
                     <!-- Time blocks generated by JS -->
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-2">
                 <div class="d-flex justify-content-between align-items-center w-100">
                     <div class="text-start">
-                        <small class="text-muted d-block fw-bold text-uppercase"
-                            style="font-size: 0.65rem; letter-spacing: 0.5px;">Total Duration</small>
-                        <span id="modalTotalDuration" class="fw-bold" style="color: #a44390; font-size: 1.1rem;">0
+                        <small class="cosy-modal-total-duration-label text-muted d-block fw-bold text-uppercase">Total Duration</small>
+                        <span id="modalTotalDuration" class="cosy-modal-total-duration-val fw-bold">0
                             minutes</span>
                     </div>
-                    <button type="button" class="btn px-4 py-2 fw-bold text-white shadow-sm"
-                        onclick="confirmTimeSlots()"
-                        style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 12px; border: none; min-width: 140px;">
+                    <button type="button" class="cosy-modal-confirm-btn btn px-4 py-2 fw-bold text-white shadow-sm"
+                        onclick="confirmTimeSlots()">
                         Confirm
                     </button>
                 </div>

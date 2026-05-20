@@ -245,3 +245,391 @@
     cursor: pointer;
     z-index: 10;
 }
+
+/* Service Provider Profile Layout Custom Premium Styles */
+.cosy-card-rounded {
+    border-radius: 24px !important;
+    overflow: hidden !important;
+}
+
+.cosy-gradient-bg {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%) !important;
+    color: white !important;
+}
+
+.cosy-profile-img-wrap {
+    position: relative !important;
+    width: 110px !important;
+    height: 110px !important;
+}
+
+.cosy-profile-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 30px !important;
+    border: 4px solid rgba(255,255,255,0.3) !important;
+    box-shadow: 0 0 20px rgba(0,0,0,0.15) !important;
+}
+
+.cosy-bg-fafbfc {
+    background: #fafbfc !important;
+}
+
+.cosy-price-min {
+    color: #a44390 !important;
+    letter-spacing: -0.5px !important;
+}
+
+.cosy-price-label {
+    font-size: 0.6rem !important;
+    letter-spacing: 0.8px !important;
+}
+
+.cosy-section-title {
+    letter-spacing: -0.5px !important;
+}
+
+.cosy-rating-star {
+    font-size: 1rem !important;
+}
+
+.cosy-age-group {
+    color: #1e293b !important;
+    letter-spacing: -0.5px !important;
+}
+
+.cosy-about-desc {
+    font-size: 1.05rem !important;
+    color: #475569 !important;
+}
+
+.cosy-border-f1f5f9 {
+    border-color: #f1f5f9 !important;
+}
+
+.cosy-icon-box {
+    width: 40px !important;
+    height: 40px !important;
+    background: #fdf2fb !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.cosy-icon-color {
+    color: #a44390 !important;
+}
+
+.cosy-service-row {
+    background: #f8fafc !important;
+    border-radius: 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.cosy-service-row:hover {
+    background: #fdf2fb !important;
+    border-color: #a44390 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(164, 67, 144, 0.08) !important;
+}
+
+.cosy-service-row.selected {
+    background: #fdf2fb !important;
+    border: 1.5px solid #a44390 !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.08) !important;
+}
+
+.cosy-service-check-box {
+    width: 40px !important;
+    height: 40px !important;
+    background: #fff !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+}
+
+.cosy-service-check-icon {
+    color: #cbd5e1 !important;
+    transition: color 0.3s !important;
+}
+
+.cosy-service-row.selected .cosy-service-check-icon {
+    color: #a44390 !important;
+}
+
+.cosy-service-title {
+    color: #1e293b !important;
+}
+
+.cosy-service-price-box {
+    background: #a44390 !important;
+    color: #fff !important;
+    padding: 8px 15px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+}
+
+.cosy-btn-add-review {
+    background-color: #a44390 !important;
+    border-radius: 10px !important;
+}
+
+.cosy-btn-add-review:focus,
+.cosy-btn-add-review:active,
+.cosy-btn-add-review:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
+
+.cosy-review-form-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.cosy-rating-star-btn {
+    color: #cbd5e1;
+    font-size: 1.2rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+}
+
+.cosy-review-textarea {
+    border-radius: 14px !important;
+    padding: 15px !important;
+    font-size: 0.95rem !important;
+    resize: none !important;
+}
+
+.cosy-btn-primary {
+    background: linear-gradient(135deg, #a44390, #6d2e67) !important;
+    border-radius: 12px !important;
+    border: none !important;
+    font-size: 0.9rem !important;
+    transition: all 0.3s !important;
+}
+
+.cosy-review-avatar {
+    width: 45px !important;
+    height: 45px !important;
+    background: #fdf2fb !important;
+    color: #a44390 !important;
+}
+
+.cosy-review-text {
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
+}
+
+.cosy-cal-nav-btn {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    color: #a44390 !important;
+    font-size: 0.7rem !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+    transition: all 0.2s !important;
+    box-sizing: border-box !important;
+}
+
+.cosy-cal-month-title {
+    color: #1e293b !important;
+    font-size: 0.95rem !important;
+}
+
+.cosy-cal-day-header {
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    color: #94a3b8 !important;
+    padding: 6px 0 !important;
+}
+
+.cosy-legend-dot {
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50% !important;
+    display: inline-block !important;
+}
+
+.cosy-legend-selected {
+    background: #a44390 !important;
+}
+
+.cosy-legend-available {
+    background: #e9d5e9 !important;
+}
+
+.cosy-legend-unavailable {
+    background: #e2e8f0 !important;
+}
+
+.cosy-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer !important;
+    accent-color: #a44390 !important;
+}
+
+.cosy-booking-for-another {
+    font-size: 0.75rem !important;
+}
+
+.cosy-date-display-box {
+    background: #fdf2fb !important;
+    border: 1px solid #f9e6f5 !important;
+    border-radius: 10px !important;
+    font-size: 0.8rem !important;
+}
+
+.cosy-date-text {
+    color: #a44390 !important;
+}
+
+.cosy-slot-row-bg {
+    border-color: #f1f5f9 !important;
+    transition: all 0.2s !important;
+}
+
+.cosy-slot-day-text {
+    color: #1e293b !important;
+    font-size: 0.9rem !important;
+}
+
+.cosy-slot-duration-text {
+    font-size: 0.75rem !important;
+}
+
+.cosy-btn-select-time {
+    background: linear-gradient(135deg, #a44390, #c25ca9) !important;
+    border-radius: 12px !important;
+    border: none !important;
+    font-size: 0.7rem !important;
+}
+
+.cosy-duration-label {
+    letter-spacing: 0.8px !important;
+    font-size: 0.7rem !important;
+}
+
+.cosy-duration-select {
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #1e293b !important;
+    font-size: 0.85rem !important;
+    cursor: pointer !important;
+    appearance: none !important;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 1rem center !important;
+    background-size: 1.2em !important;
+}
+
+.cosy-total-amount-box {
+    background: #fdf2fb !important;
+    border: 1px dashed #a44390 !important;
+}
+
+.cosy-total-label {
+    font-size: 0.65rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.cosy-total-price {
+    color: #a44390 !important;
+}
+
+.cosy-btn-book-now {
+    background: linear-gradient(135deg, #a44390, #6d2e67) !important;
+    border-radius: 12px !important;
+    border: none !important;
+    font-size: 0.95rem !important;
+    transition: all 0.2s !important;
+}
+
+.cosy-login-alert {
+    border-radius: 12px !important;
+    font-size: 0.8rem !important;
+    background: #fffbeb !important;
+    border: 1px solid #fef3c7 !important;
+    color: #d97706 !important;
+}
+
+.cosy-secure-payment-text {
+    font-size: 0.7rem !important;
+}
+
+.cosy-video-modal-ratio {
+    border-radius: 15px !important;
+    overflow: hidden !important;
+}
+
+.cosy-modal-icon-box {
+    width: 40px !important;
+    height: 40px !important;
+    background: #fdf2fb !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.cosy-modal-legend-dot {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 3px !important;
+}
+
+.cosy-modal-legend-dot-available {
+    background: #fff !important;
+    border: 1.5px solid #edf2f7 !important;
+}
+
+.cosy-modal-legend-dot-selected {
+    background: #a44390 !important;
+}
+
+.cosy-modal-legend-dot-booked {
+    background: #e2e8f0 !important;
+}
+
+.cosy-modal-time-grid {
+    background: #f8fafc !important;
+    border: 1px solid #edf2f7 !important;
+}
+
+.cosy-modal-total-duration-label {
+    font-size: 0.65rem !important;
+    letter-spacing: 0.5px !important;
+}
+
+.cosy-modal-total-duration-val {
+    color: #a44390 !important;
+    font-size: 1.1rem !important;
+}
+
+.cosy-modal-confirm-btn {
+    background: linear-gradient(135deg, #a44390, #6d2e67) !important;
+    border-radius: 12px !important;
+    border: none !important;
+    min-width: 140px !important;
+}
+
+.cosy-login-alert-icon {
+    font-size: 0.9rem !important;
+}
