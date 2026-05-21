@@ -1,80 +1,88 @@
 cosy-appointments/
-│
 ├── cosy-appointments.php            ← Entry file (header, autoload, activation)
-├── uninstall.php                    ← Optional cleanup
-│
-├── assets/
-│   ├── css/
-│   │   └── frontend.css
-│   ├── js/
-│   │   ├── frontend.js
-│   │   └── provider-dashboard.js
-│   └── img/
+├── COSY-DEVELOPMENT-LOG.md          ← Log of development changes
+├── Folder-structure.tex             ← This file (Current directory structure)
+├── PLUGIN-PLAN.txt                  ← General plan and roadmap
+├── .gitignore
+├── image.png
 │
 ├── src/
-│   ├── Plugin.php                   ← Orchestrator
-│   ├── Loader.php                   ← add_action/add_filter wrapper
+│   ├── Plugin.php                   ← Main orchestrator class
+│   ├── Loader.php                   ← Action/filter registrar
+│   ├── Helpers.php                  ← Global helper functions (e.g., render_popup)
 │   │
-│   ├── Roles/                       ← Custom roles & caps
-│   │   └── Roles.php
+│   ├── Admin/                       ← Backend administration
+│   │   ├── Class/                   ← Admin logic classes
+│   │   │   ├── Class_Admin.php
+│   │   │   ├── Class_Backend.php
+│   │   │   ├── Class_Provider_Verification.php
+│   │   │   ├── DashboardAdmin.php
+│   │   │   ├── DeactivationHandler.php
+│   │   │   ├── MediaApprove.php
+│   │   │   ├── OrdersAdmin.php
+│   │   │   └── SettingsAdmin.php
+│   │   ├── Backend/                 ← Admin backend templates
+│   │   │   └── media-approve.php
+│   │   └── assets/                  ← Admin static assets
+│   │       ├── admin.css
+│   │       ├── admin.js
+│   │       └── deactivation.js
 │   │
-│   ├── PostTypes/                   ← CPTs & taxonomies
-│   │   ├── ServiceCPT.php
+│   ├── Assets/                      ← Frontend Assets management
+│   │   ├── Assets.php               ← Enqueues CSS/JS
+│   │   ├── css/
+│   │   │   ├── style.css
+│   │   │   └── service-provide.css
+│   │   ├── js/                      ← Frontend scripts
+│   │   │   ├── api.js
+│   │   │   ├── calendar.js
+│   │   │   ├── checkout.js
+│   │   │   ├── cosy-alert.js        ← SweetAlert2 utility wrapper
+│   │   │   ├── dashboard.js
+│   │   │   ├── frontend.js
+│   │   │   └── validation.js
+│   │   └── images/
+│   │
+│   ├── Frontend/                    ← Frontend Logic (Shortcodes & Handlers)
+│   │   ├── Class_Forms.php          ← Login, Registration, Forms
+│   │   ├── Class_Frontend.php       ← Shortcodes and Core Frontend Logic
+│   │   ├── Class_Header_Menu.php    
+│   │   ├── Class_Provider_Dashboard.php ← Provider Dashboard AJAX Logic
+│   │   └── Common.php               ← Common Traits & Utilities
+│   │
+│   ├── PostTypes/                   ← CPTs & Taxonomies Definitions
+│   │   ├── AppointmentCPT.php
 │   │   ├── ProviderCPT.php
-│   │   └── Taxonomies.php           ← Service categories
+│   │   ├── ServiceCPT.php
+│   │   └── Taxonomies.php
 │   │
-│   ├── Admin/                       ← Admin settings & dashboards
-│   │   ├── AdminMenu.php            ← Top-level menus
-│   │   ├── ProvidersAdmin.php       ← Approvals, commissions
-│   │   ├── BookingsAdmin.php        ← All bookings list + filters
-│   │   ├── EarningsAdmin.php        ← Platform/provider earnings
-│   │   ├── SettingsAdmin.php        ← Global settings
-│   │   └── CalendarsAdmin.php       ← Admin calendar view
-│   │
-│   ├── Provider/                    ← Provider dashboard
-│   │   ├── Dashboard.php            ← Menu under Provider CPT
-│   │   ├── Profile.php              ← Bio/image/video/categories
-│   │   ├── Availability.php         ← Weekly slots + blocks + holidays
-│   │   ├── Pricing.php              ← Duration-wise pricing
-│   │   └── Bookings.php             ← Upcoming/past bookings
-│   │
-│   ├── Frontend/                    ← Shortcodes/Blocks + views
-│   │   ├── Frontend.php             ← [cosy_booking] entry flow
-│   │   └── Templates/               ← PHP views for steps
-│   │       ├── step-service.php
-│   │       ├── step-provider.php
-│   │       ├── step-datetime.php
-│   │       ├── step-payment.php
-│   │       └── confirmation.php
-│   │
-│   ├── Rest/                        ← REST API
-│   │   ├── Routes.php               ← Registers routes
-│   │   └── Controllers/
-│   │       ├── BookingController.php
-│   │       ├── ProviderController.php
-│   │       ├── AvailabilityController.php
-│   │       └── PricingController.php
-│   │
-│   ├── DB/                          ← Custom tables schema & CRUD
-│   │   ├── Schema.php               ← dbDelta schema builder
-│   │   ├── BookingsTable.php
-│   │   ├── AvailabilityTable.php
-│   │   └── PaymentsTable.php
-│   │
-│   ├── Payments/                    ← Gateways
-│   │   ├── PaymentManager.php       ← Unified interface
-│   │   ├── Gateways/
-│   │   │   ├── StripeGateway.php
-│   │   │   ├── RazorpayGateway.php
-│   │   │   └── PayPalGateway.php
-│   │   └── Webhooks.php
-│   │
-│   ├── Mail/                        ← Emails & notifications
-│   │   ├── Mailer.php               ← wp_mail wrapper + templates
-│   │   └── Templates/
-│   │       ├── booking-confirmation-user.php
-│   │       └── booking-confirmation-provider.php
-│   │
-│   └── Utils/
-│       ├── Helpers.php              ← Sanitization, formatting, time utils
-│       └── Validation.php           ← Input validation rules
+│   └── Rest/                        ← REST API Endpoints
+│       ├── Routes.php
+│       └── Class_Service_Provider.php
+│
+└── templates/                       ← PHP View Templates (Loaded by Shortcodes)
+    ├── provider/
+    │   ├── dashboard/               ← Individual dashboard panels
+    │   │   ├── availability.php
+    │   │   ├── customer-reviews.php
+    │   │   ├── holidays.php
+    │   │   ├── invoices.php
+    │   │   ├── media-upload.php
+    │   │   ├── non-working-days.php
+    │   │   ├── orders.php
+    │   │   ├── profile-information.php
+    │   │   └── services.php
+    │   ├── dashboard.php
+    │   └── provider-verify.php
+    │
+    ├── appointments-template.php
+    ├── checkout-template.php
+    ├── customer-order-template.php
+    ├── customer-profile-template.php
+    ├── customer-registration-template.php
+    ├── login-template.php
+    ├── orders-template.php
+    ├── popup-template.php
+    ├── provider-profile-template.php
+    ├── provider-registration-template.php
+    └── service-provider-template.php

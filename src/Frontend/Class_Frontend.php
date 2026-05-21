@@ -414,23 +414,29 @@ class Frontend
         $this->cosy_payment_log("Draft Appointment created successfully with ID: $appointment_id. Proceeding to Stripe API.");
 
         // Save metadata
-        update_post_meta($appointment_id, 'cosy_service_name', $service);
-        update_post_meta($appointment_id, 'cosy_provider_id', $provider_id);
-        update_post_meta($appointment_id, 'cosy_provider_name', $provider_name);
-        update_post_meta($appointment_id, 'cosy_customer_id', $current_user->ID);
-        update_post_meta($appointment_id, 'cosy_customer_name', $current_user->display_name);
-        update_post_meta($appointment_id, 'cosy_customer_email', $current_user->user_email);
-        update_post_meta($appointment_id, 'cosy_start_date', $start_date);
-        update_post_meta($appointment_id, 'cosy_end_date', $end_date);
-        update_post_meta($appointment_id, 'cosy_weekly_booking', $weekly_booking);
-        update_post_meta($appointment_id, 'cosy_number_of_weeks', $number_of_weeks);
-        update_post_meta($appointment_id, 'cosy_number_of_bookings', $number_of_bookings);
-        update_post_meta($appointment_id, 'cosy_service_cost', $service_cost);
-        update_post_meta($appointment_id, 'cosy_service_fee', $service_fee);
-        update_post_meta($appointment_id, 'cosy_total_payable', $total_payable);
-        update_post_meta($appointment_id, 'cosy_slots', sanitize_textarea_field($slots_json));
-        update_post_meta($appointment_id, 'cosy_payment_status', 'Pending');
-        update_post_meta($appointment_id, 'cosy_booking_status', 'pending');
+        $meta_data = [
+            'cosy_service_name'       => $service,
+            'cosy_provider_id'        => $provider_id,
+            'cosy_provider_name'      => $provider_name,
+            'cosy_customer_id'        => $current_user->ID,
+            'cosy_customer_name'      => $current_user->display_name,
+            'cosy_customer_email'     => $current_user->user_email,
+            'cosy_start_date'         => $start_date,
+            'cosy_end_date'           => $end_date,
+            'cosy_weekly_booking'     => $weekly_booking,
+            'cosy_number_of_weeks'    => $number_of_weeks,
+            'cosy_number_of_bookings' => $number_of_bookings,
+            'cosy_service_cost'       => $service_cost,
+            'cosy_service_fee'        => $service_fee,
+            'cosy_total_payable'      => $total_payable,
+            'cosy_slots'              => sanitize_textarea_field($slots_json),
+            'cosy_payment_status'     => 'Pending',
+            'cosy_booking_status'     => 'pending',
+        ];
+
+        foreach ($meta_data as $key => $value) {
+            update_post_meta($appointment_id, $key, $value);
+        }
 
         // Fetch Stripe keys
         $secret_key = get_option('cosy_stripe_key');
