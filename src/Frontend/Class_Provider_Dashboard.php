@@ -502,6 +502,7 @@ class Dashboard
      */
     public function handle_add_review(): void
     {
+        check_ajax_referer('cosy_calendar_nonce', 'nonce');
         // 1. Enforce active user session
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'Please login as a Customer to submit a review.']);
@@ -571,6 +572,7 @@ class Dashboard
      */
     public function handle_approve_review(): void
     {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
         // 1. Enforce active user session
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'Unauthorized']);
@@ -638,6 +640,7 @@ class Dashboard
      */
     public function handle_delete_review(): void
     {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
         // 1. Enforce active user session
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'Unauthorized']);

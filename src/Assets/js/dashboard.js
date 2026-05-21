@@ -328,6 +328,7 @@ jQuery(document).ready(function ($) {
                 type: 'POST',
                 data: {
                     action: 'cosy_approve_provider_review',
+                    nonce: nonce,
                     review_id: reviewId
                 },
                 success: function (response) {
@@ -424,6 +425,7 @@ jQuery(document).ready(function ($) {
                     type: 'POST',
                     data: {
                         action: 'cosy_delete_provider_review',
+                        nonce: nonce,
                         review_id: reviewId
                     },
                     success: function (response) {
@@ -635,6 +637,7 @@ jQuery(document).ready(function ($) {
                         type: 'POST',
                         data: {
                             action: 'cosy_update_booking_status',
+                            nonce: nonce,
                             appointment_id: orderId,
                             status: newStatus
                         },

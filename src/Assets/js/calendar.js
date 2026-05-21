@@ -207,6 +207,7 @@ let currentDate = new Date();
             type: 'POST',
             data: {
                 action: 'cosy_get_booked_slots',
+                nonce: window.nonce,
                 provider_id: window.providerId,
                 date: dateStr
             },
@@ -483,10 +484,11 @@ let currentDate = new Date();
 
                 // Send AJAX request
                 jQuery.ajax({
-                    url: 'window.ajaxUrl',
+                    url: window.ajaxUrl,
                     type: 'POST',
                     data: {
                         action: 'cosy_add_provider_review',
+                        nonce: window.nonce,
                         rating: ratingVal,
                         review: reviewVal,
                         provider_id: window.providerId

@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
  */
 define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Absolute path to the plugin folder
 define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // URL to the plugin folder
-define('COSY_APPT_VER', '1.0.0');  // Current version
+define('COSY_APPT_VER', '1.0.1');  // Current version
 
 /**
  * register_role
@@ -93,6 +93,7 @@ function cosy_create_pages_on_activation()
     foreach ($pages as $page) {
         // Only create the page if it doesn't already exist
         $existing = get_page_by_path($page['slug']);
+
         if (!$existing) {
             wp_insert_post([
                 'post_title' => $page['title'],

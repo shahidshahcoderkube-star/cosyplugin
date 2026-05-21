@@ -27,6 +27,25 @@ trait GlobalCommonFunctions
         }
     }
 
+    /**
+     * cosy_payment_log
+     * Logs payment activity into a file.
+     */
+    public function cosy_payment_log(string $message, $data = null): void
+    {
+        $log_file = COSY_APPT_PATH . 'payment.log';
+        $timestamp = current_time('mysql');
+        
+        $entry = "[$timestamp] $message";
+        if ($data !== null) {
+            $entry .= " | DATA: " . wp_json_encode($data);
+        }
+        
+        // Append to file safely
+        file_put_contents($log_file, $entry . PHP_EOL, FILE_APPEND);
+    }
+
+
 
     ///------ Utility: Get User Data -----//
     public function get_user_data(int $user_id): array

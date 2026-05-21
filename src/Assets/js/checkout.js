@@ -229,6 +229,7 @@ jQuery(document).ready(function($) {
             type: 'POST',
             data: {
                 action: 'cosy_create_stripe_session',
+                nonce: cosyCheckout.nonce,
                 service: currentBooking.service,
                 providerId: currentBooking.providerId,
                 providerName: currentBooking.providerName,

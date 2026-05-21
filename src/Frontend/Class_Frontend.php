@@ -134,6 +134,7 @@ class Frontend
     {
         // Handle Stripe Cancelled
         if (isset($_GET['cosy_stripe_cancel']) && $_GET['cosy_stripe_cancel'] === 'true') {
+            $this->cosy_payment_log("Stripe Checkout CANCELLED by user.");
             return '<div class="cosy-checkout-root">
                         <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
                             <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
@@ -149,8 +150,11 @@ class Frontend
             $appointment_id = intval($_GET['appt_id']);
             $session_id = isset($_GET['session_id']) ? sanitize_text_field($_GET['session_id']) : '';
 
+            $this->cosy_payment_log("Stripe Checkout SUCCESS return for Appointment #$appointment_id. Session ID: $session_id");
+
             $appt = get_post($appointment_id);
             if ($appt && $appt->post_type === 'cosy_appointment' && $appt->post_status === 'draft') {
+                $this->cosy_payment_log("Confirming Appointment #$appointment_id and updating payment status to Paid.");
                 // Update post to publish
                 wp_update_post([
                     'ID' => $appointment_id,
@@ -266,6 +270,7 @@ class Frontend
      */
     public function handle_create_booking(): void
     {
+        check_ajax_referer('cosy_booking_nonce', 'nonce');
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'User must be logged in to book services.']);
         }
@@ -347,6 +352,7 @@ class Frontend
      */
     public function handle_update_booking_status(): void
     {
+        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'User must be logged in.']);
         }
@@ -369,7 +375,7 @@ class Frontend
         update_post_meta($appointment_id, 'cosy_booking_status', $new_status);
 
         wp_send_json_success(['message' => 'Status updated successfully to ' . ucfirst($new_status)]);
-     }
+    }
 
     /**
      * handle_get_booked_slots
@@ -378,6 +384,7 @@ class Frontend
      */
     public function handle_get_booked_slots(): void
     {
+        check_ajax_referer('cosy_calendar_nonce', 'nonce');
         $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
         $date_str    = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : ''; // e.g. "Wed May 20 2026"
 
@@ -416,7 +423,7 @@ class Frontend
                     // Decoded with html_entity_decode to handle any WordPress escaping
                     $decoded = html_entity_decode($slots_meta);
                     $slots = json_decode($decoded, true);
-                    
+
                     // Fallback to normal json_decode if decode fails
                     if (!is_array($slots)) {
                         $slots = json_decode($slots_meta, true);
@@ -446,6 +453,7 @@ class Frontend
      */
     public function handle_create_stripe_session(): void
     {
+        check_ajax_referer('cosy_booking_nonce', 'nonce');
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'User must be logged in to book services.']);
         }
@@ -470,8 +478,11 @@ class Frontend
         $slots_json         = isset($_POST['slots']) ? wp_unslash($_POST['slots']) : ''; // raw JSON string
 
         if (empty($service) || empty($provider_id)) {
+            $this->cosy_payment_log("Stripe Session Creation FAILED: Missing service or provider details.", $_POST);
             wp_send_json_error(['message' => 'Missing required service or provider details.']);
         }
+
+        $this->cosy_payment_log("Initiating Stripe Session Creation for Service: $service, Provider ID: $provider_id", $_POST);
 
         // Create booking in draft/pending status first
         $appointment_title = sprintf(
@@ -489,8 +500,11 @@ class Frontend
         ]);
 
         if (is_wp_error($appointment_id)) {
+            $this->cosy_payment_log("Stripe Session FAILED: Could not create draft appointment.", $appointment_id->get_error_message());
             wp_send_json_error(['message' => 'Failed to create pending booking: ' . $appointment_id->get_error_message()]);
         }
+        
+        $this->cosy_payment_log("Draft Appointment created successfully with ID: $appointment_id. Proceeding to Stripe API.");
 
         // Save metadata
         update_post_meta($appointment_id, 'cosy_service_name', $service);
@@ -514,6 +528,7 @@ class Frontend
         // Fetch Stripe keys
         $secret_key = get_option('cosy_stripe_key');
         if (empty($secret_key)) {
+            $this->cosy_payment_log("Stripe API ERROR: Secret Key is empty. Admin needs to configure Stripe.");
             wp_send_json_error(['message' => 'Stripe is not configured by the admin yet.']);
         }
 
@@ -556,6 +571,7 @@ class Frontend
         ]);
 
         if (is_wp_error($response)) {
+            $this->cosy_payment_log("Stripe API HTTP Request FAILED", $response->get_error_message());
             wp_send_json_error(['message' => 'Stripe API communication failed: ' . $response->get_error_message()]);
         }
 
@@ -565,8 +581,11 @@ class Frontend
 
         if ($response_code !== 200) {
             $error_msg = isset($decoded['error']['message']) ? $decoded['error']['message'] : 'Unknown error from Stripe.';
+            $this->cosy_payment_log("Stripe API ERROR RESPONSE (Code $response_code)", $decoded);
             wp_send_json_error(['message' => 'Stripe Checkout creation failed: ' . $error_msg]);
         }
+
+        $this->cosy_payment_log("Stripe Session Created SUCCESSFULLY for Appointment #$appointment_id. Session ID: {$decoded['id']}");
 
         wp_send_json_success([
             'sessionId' => $decoded['id'],
@@ -773,4 +792,3 @@ class Frontend
         remove_filter('wp_mail_content_type', $html_email_filter);
     }
 }
-

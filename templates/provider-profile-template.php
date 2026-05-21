@@ -52,6 +52,7 @@ if (!empty($provider_data['ID'])) {
     window.providerName = <?php echo json_encode($provider_data['prov_mname'] ?? ''); ?>;
     window.ajaxUrl = <?php echo json_encode(admin_url('admin-ajax.php')); ?>;
     window.checkoutUrl = <?php echo json_encode(site_url('/cosy-checkout')); ?>;
+    window.nonce = <?php echo json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
 </script>
 <?php
 

@@ -25,26 +25,79 @@ class SettingsAdmin
     public function register_settings(): void
     {
         // Stripe
-        register_setting('cosy_payment_settings', 'cosy_stripe_key');
-        register_setting('cosy_payment_settings', 'cosy_stripe_publishable_key');
-        register_setting('cosy_payment_settings', 'cosy_stripe_test_mode');
-        register_setting('cosy_payment_settings', 'cosy_stripe_charge');
+        register_setting('cosy_payment_settings', 'cosy_stripe_key', [
+            'sanitize_callback' => [$this, 'sanitize_stripe_secret_key']
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_stripe_publishable_key', [
+            'sanitize_callback' => [$this, 'sanitize_stripe_publishable_key']
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_stripe_test_mode', [
+            'sanitize_callback' => 'absint'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_stripe_charge', [
+            'sanitize_callback' => [$this, 'sanitize_charge']
+        ]);
 
         // Razorpay
-        register_setting('cosy_payment_settings', 'cosy_razorpay_key');
-        register_setting('cosy_payment_settings', 'cosy_razorpay_test_mode');
-        register_setting('cosy_payment_settings', 'cosy_razorpay_charge');
+        register_setting('cosy_payment_settings', 'cosy_razorpay_key', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_razorpay_test_mode', [
+            'sanitize_callback' => 'absint'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_razorpay_charge', [
+            'sanitize_callback' => [$this, 'sanitize_charge']
+        ]);
 
         // PayPal
-        register_setting('cosy_payment_settings', 'cosy_paypal_id');
-        register_setting('cosy_payment_settings', 'cosy_paypal_test_mode');
-        register_setting('cosy_payment_settings', 'cosy_paypal_charge');
+        register_setting('cosy_payment_settings', 'cosy_paypal_id', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_paypal_test_mode', [
+            'sanitize_callback' => 'absint'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_paypal_charge', [
+            'sanitize_callback' => [$this, 'sanitize_charge']
+        ]);
 
         // WorldPay
-        register_setting('cosy_payment_settings', 'cosy_worldpay_token');
-        register_setting('cosy_payment_settings', 'cosy_worldpay_client_key');
-        register_setting('cosy_payment_settings', 'cosy_worldpay_test_mode');
-        register_setting('cosy_payment_settings', 'cosy_worldpay_charge');
+        register_setting('cosy_payment_settings', 'cosy_worldpay_token', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_worldpay_client_key', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_worldpay_test_mode', [
+            'sanitize_callback' => 'absint'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_worldpay_charge', [
+            'sanitize_callback' => [$this, 'sanitize_charge']
+        ]);
+    }
+
+    public function sanitize_stripe_secret_key($value)
+    {
+        $value = sanitize_text_field($value);
+        if (!empty($value) && !preg_match('/^(sk_live_|sk_test_|rk_live_|rk_test_)/', $value)) {
+            add_settings_error('cosy_stripe_key', 'invalid_stripe_key', 'Stripe Secret Key must start with sk_live_ or sk_test_.', 'error');
+            return get_option('cosy_stripe_key');
+        }
+        return $value;
+    }
+
+    public function sanitize_stripe_publishable_key($value)
+    {
+        $value = sanitize_text_field($value);
+        if (!empty($value) && !preg_match('/^(pk_live_|pk_test_)/', $value)) {
+            add_settings_error('cosy_stripe_publishable_key', 'invalid_stripe_pk', 'Stripe Publishable Key must start with pk_live_ or pk_test_.', 'error');
+            return get_option('cosy_stripe_publishable_key');
+        }
+        return $value;
+    }
+
+    public function sanitize_charge($value)
+    {
+        return empty($value) ? '0.00' : number_format((float)$value, 2, '.', '');
     }
 
     public function render_settings(): void
