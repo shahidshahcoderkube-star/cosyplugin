@@ -26,7 +26,6 @@ class Frontend
 
         // Register AJAX handlers for booking creation
         $this->register_ajax_handlers([
-            'cosy_create_booking' => 'handle_create_booking',
             'cosy_create_stripe_session' => 'handle_create_stripe_session',
             'cosy_update_booking_status' => 'handle_update_booking_status',
             'cosy_get_booked_slots' => 'handle_get_booked_slots'
@@ -251,88 +250,7 @@ class Frontend
         }
     }
 
-    /**
-     * handle_create_booking
-     * 
-     * AJAX handler to process checkout payment submission.
-     * Inserts a post of type 'cosy_appointment' and saves all booking/pricing details in postmeta.
-     */
-    public function handle_create_booking(): void
-    {
-        check_ajax_referer('cosy_booking_nonce', 'nonce');
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => 'User must be logged in to book services.']);
-        }
 
-        $current_user = wp_get_current_user();
-        if (!in_array('customer', (array) $current_user->roles)) {
-            wp_send_json_error(['message' => 'Only customers are authorized to book appointments.']);
-        }
-
-        // Retrieve and validate POST data
-        $service            = isset($_POST['service']) ? sanitize_text_field($_POST['service']) : '';
-        $provider_id        = isset($_POST['providerId']) ? intval($_POST['providerId']) : 0;
-        $provider_name      = isset($_POST['providerName']) ? sanitize_text_field($_POST['providerName']) : '';
-        $start_date         = isset($_POST['startDate']) ? sanitize_text_field($_POST['startDate']) : '';
-        $end_date           = isset($_POST['endDate']) ? sanitize_text_field($_POST['endDate']) : '';
-        $weekly_booking     = isset($_POST['weeklyBooking']) ? sanitize_text_field($_POST['weeklyBooking']) : '';
-        $number_of_weeks    = isset($_POST['numberOfWeeks']) ? intval($_POST['numberOfWeeks']) : 1;
-        $number_of_bookings = isset($_POST['numberOfBookings']) ? intval($_POST['numberOfBookings']) : 1;
-        $service_cost       = isset($_POST['serviceCost']) ? sanitize_text_field($_POST['serviceCost']) : '0.00';
-        $service_fee        = isset($_POST['serviceFee']) ? sanitize_text_field($_POST['serviceFee']) : '0.00';
-        $total_payable      = isset($_POST['totalPayable']) ? sanitize_text_field($_POST['totalPayable']) : '0.00';
-        $slots_json         = isset($_POST['slots']) ? wp_unslash($_POST['slots']) : ''; // raw JSON string
-
-        if (empty($service) || empty($provider_id)) {
-            wp_send_json_error(['message' => 'Missing required service or provider details.']);
-        }
-
-        // Insert new cosy_appointment post
-        $appointment_title = sprintf(
-            '%s booked %s by %s',
-            $current_user->display_name,
-            $service,
-            $provider_name
-        );
-
-        $appointment_id = wp_insert_post([
-            'post_title'   => $appointment_title,
-            'post_type'    => 'cosy_appointment',
-            'post_status'  => 'publish',
-            'post_author'  => $current_user->ID
-        ]);
-
-        if (is_wp_error($appointment_id)) {
-            wp_send_json_error(['message' => 'Failed to create booking: ' . $appointment_id->get_error_message()]);
-        }
-
-        // Save metadata
-        update_post_meta($appointment_id, 'cosy_service_name', $service);
-        update_post_meta($appointment_id, 'cosy_provider_id', $provider_id);
-        update_post_meta($appointment_id, 'cosy_provider_name', $provider_name);
-        update_post_meta($appointment_id, 'cosy_customer_id', $current_user->ID);
-        update_post_meta($appointment_id, 'cosy_customer_name', $current_user->display_name);
-        update_post_meta($appointment_id, 'cosy_customer_email', $current_user->user_email);
-        update_post_meta($appointment_id, 'cosy_start_date', $start_date);
-        update_post_meta($appointment_id, 'cosy_end_date', $end_date);
-        update_post_meta($appointment_id, 'cosy_weekly_booking', $weekly_booking);
-        update_post_meta($appointment_id, 'cosy_number_of_weeks', $number_of_weeks);
-        update_post_meta($appointment_id, 'cosy_number_of_bookings', $number_of_bookings);
-        update_post_meta($appointment_id, 'cosy_service_cost', $service_cost);
-        update_post_meta($appointment_id, 'cosy_service_fee', $service_fee);
-        update_post_meta($appointment_id, 'cosy_total_payable', $total_payable);
-        update_post_meta($appointment_id, 'cosy_slots', sanitize_textarea_field($slots_json));
-        update_post_meta($appointment_id, 'cosy_payment_status', 'Paid');
-        update_post_meta($appointment_id, 'cosy_booking_status', 'pending');
-
-        // Send Emails (Refactored to separate method)
-        $this->send_booking_emails($appointment_id);
-
-        wp_send_json_success([
-            'message' => 'Booking and payment processed successfully!',
-            'appointment_id' => $appointment_id
-        ]);
-    }
 
     /**
      * handle_update_booking_status
@@ -492,7 +410,7 @@ class Frontend
             $this->cosy_payment_log("Stripe Session FAILED: Could not create draft appointment.", $appointment_id->get_error_message());
             wp_send_json_error(['message' => 'Failed to create pending booking: ' . $appointment_id->get_error_message()]);
         }
-        
+
         $this->cosy_payment_log("Draft Appointment created successfully with ID: $appointment_id. Proceeding to Stripe API.");
 
         // Save metadata

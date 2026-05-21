@@ -107,7 +107,6 @@ function cosy_create_pages_on_activation()
 }
 
 // Require classes (no autoloader, so manual requires)
-// require_once COSY_APPT_PATH . 'src/PostTypes/AppointmentCPT.php';
 require_once COSY_APPT_PATH . 'src/Frontend/Class-Common.php';
 require_once COSY_APPT_PATH . 'src/Loader.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Admin.php';
@@ -217,8 +216,6 @@ function cosy_create_reviews_table()
     }
 }
 
-// Execute immediately on load to guarantee table presence for active environments
-cosy_create_reviews_table();
 
 //-------Register activation hook--------//
 register_activation_hook(__FILE__, 'cosy_plugin_activate');
@@ -258,7 +255,6 @@ function cosy_plugin_deactivate()
 function cosy_appt_start()
 {
     $plugin = new \Cosy\Appointments\Plugin();
-    new \Cosy\Appointments\Admin\Backend_Actions_Handler();
     new \Cosy\Appointments\Admin\DeactivationHandler();
     $plugin->run();
 }
