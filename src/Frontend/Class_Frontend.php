@@ -47,17 +47,6 @@ class Frontend
         add_shortcode('cosy_customer_order', [$this, 'customer_order_page']);
         add_shortcode('cosy_service_provider_list', [$this, 'service_provider_shortcode']);
         add_shortcode('cosy_checkout', [$this, 'checkout_page']);
-
-        // Auto-create cosy-checkout page if it doesn't exist
-        if (!get_page_by_path('cosy-checkout')) {
-            wp_insert_post([
-                'post_title'   => 'Checkout',
-                'post_name'    => 'cosy-checkout',
-                'post_content' => '[cosy_checkout]',
-                'post_status'  => 'publish',
-                'post_type'    => 'page'
-            ]);
-        }
     }
 
 
