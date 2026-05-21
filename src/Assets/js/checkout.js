@@ -208,12 +208,7 @@ jQuery(document).ready(function($) {
 
         // Validate that Stripe key is loaded
         if (!cosyCheckout.stripePublishableKey) {
-            Swal.fire({
-                title: 'Configuration Error',
-                text: 'Stripe is not fully configured. Please configure keys in dashboard.',
-                icon: 'error',
-                confirmButtonColor: '#635bff'
-            });
+            CosyAlert.error('Configuration Error', 'Stripe is not fully configured. Please configure keys in dashboard.');
             return;
         }
 
@@ -249,22 +244,12 @@ jQuery(document).ready(function($) {
                     window.location.href = response.data.url;
                 } else {
                     btn.prop('disabled', false).html('Pay Now');
-                    Swal.fire({
-                        title: 'Stripe Error',
-                        text: response.data.message || 'Unable to create payment session.',
-                        icon: 'error',
-                        confirmButtonColor: '#635bff'
-                    });
+                    CosyAlert.error('Stripe Error', response.data.message || 'Unable to create payment session.');
                 }
             },
             error: function() {
                 btn.prop('disabled', false).html('Pay Now');
-                Swal.fire({
-                    title: 'System Error',
-                    text: 'An error occurred during communication with the server. Please try again.',
-                    icon: 'error',
-                    confirmButtonColor: '#635bff'
-                });
+                CosyAlert.error('System Error', 'An error occurred during communication with the server. Please try again.');
             }
         });
     });

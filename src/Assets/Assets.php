@@ -223,11 +223,20 @@ class Assets
             true
         );
 
+        // 16.5. CosyAlert Utility Script
+        wp_enqueue_script(
+            'cosy-alert',
+            COSY_APPT_URL . 'src/assets/js/cosy-alert.js',
+            ['sweetalert2'],
+            COSY_APPT_VER,
+            true
+        );
+
         // 17. Cosy Forms Controller script (Binds form events, AJAX saves, and updates for availability and profile details)
         wp_enqueue_script(
             'cosy-validation',
             COSY_APPT_URL . 'src/assets/js/validation.js',
-            ['cosy-api', 'jquery', 'jquery-validate'],
+            ['cosy-api', 'jquery', 'jquery-validate', 'cosy-alert'],
             COSY_APPT_VER,
             true
         );

@@ -152,33 +152,18 @@ jQuery(document).ready(function ($) {
             var reason = reasonInput.val().trim();
 
             if (!date) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Date Required',
-                    text: 'Please select a date before saving.',
-                    confirmButtonColor: '#a44390',
-                });
+                CosyAlert.warning('Date Required', 'Please select a date before saving.');
                 return;
             }
 
             if (!reason) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Reason Required',
-                    text: 'Please enter a reason or occasion for this holiday.',
-                    confirmButtonColor: '#a44390',
-                });
+                CosyAlert.warning('Reason Required', 'Please enter a reason or occasion for this holiday.');
                 reasonInput.focus();
                 return;
             }
 
             if (document.getElementById('holiday-' + date)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Already Marked',
-                    text: 'This date is already marked as a holiday. Please choose another date.',
-                    confirmButtonColor: '#a44390',
-                });
+                CosyAlert.error('Already Marked', 'This date is already marked as a holiday. Please choose another date.');
                 return;
             }
 
@@ -211,33 +196,15 @@ jQuery(document).ready(function ($) {
 
                         CosyHolidays.syncEmptyState();
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Holiday Added!',
-                            text: res.data.message,
-                            confirmButtonColor: '#a44390',
-                            timer: 2500,
-                            timerProgressBar: true,
-                            showConfirmButton: false,
-                        });
+                        CosyAlert.success('Holiday Added!', res.data.message);
                     } else {
                         CosyHolidays.resetSaveBtn();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Could Not Add',
-                            text: res.data.message || 'Something went wrong.',
-                            confirmButtonColor: '#a44390',
-                        });
+                        CosyAlert.error('Could Not Add', res.data.message || 'Something went wrong.');
                     }
                 })
                 .catch(function () {
                     CosyHolidays.resetSaveBtn();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Network Error',
-                        text: 'Could not reach the server. Please try again.',
-                        confirmButtonColor: '#a44390',
-                    });
+                    CosyAlert.error('Network Error', 'Could not reach the server. Please try again.');
                 });
         },
 
@@ -251,17 +218,11 @@ jQuery(document).ready(function ($) {
             var deleteBtn = $(this);
             var dateToRemove = deleteBtn.attr('data-date');
 
-            Swal.fire({
-                title: 'Remove Holiday?',
-                text: 'Are you sure you want to remove this holiday from your schedule?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#94a3b8',
-                confirmButtonText: 'Yes, Remove It',
-                cancelButtonText: 'Cancel',
-            }).then(function (result) {
-                if (!result.isConfirmed) return;
+            CosyAlert.confirm(
+                'Remove Holiday?',
+                'Are you sure you want to remove this holiday from your schedule?',
+                'Yes, Remove It'
+            ).then(function () {
 
                 var formData = new FormData();
                 formData.append('action', 'cosy_delete_holiday');
@@ -282,33 +243,15 @@ jQuery(document).ready(function ($) {
                                     CosyHolidays.syncEmptyState();
                                 }, 300);
                             }
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Removed!',
-                                text: res.data.message,
-                                confirmButtonColor: '#a44390',
-                                timer: 2000,
-                                timerProgressBar: true,
-                                showConfirmButton: false,
-                            });
+                            CosyAlert.success('Removed!', res.data.message);
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: res.data.message || 'Could not remove the holiday.',
-                                confirmButtonColor: '#a44390',
-                            });
+                            CosyAlert.error('Error', res.data.message || 'Could not remove the holiday.');
                         }
                     })
                     .catch(function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Network Error',
-                            text: 'Could not reach the server. Please try again.',
-                            confirmButtonColor: '#a44390',
-                        });
+                        CosyAlert.error('Network Error', 'Could not reach the server. Please try again.');
                     });
-            });
+            }).catch(function() { /* Cancelled */ });
         },
 
         /**
@@ -333,19 +276,7 @@ jQuery(document).ready(function ($) {
                 },
                 success: function (response) {
                     if (response.success) {
-                        Swal.fire({
-                            title: 'Approved!',
-                            text: 'Review successfully approved and displayed on your profile.',
-                            icon: 'success',
-                            confirmButtonColor: '#a44390',
-                            background: '#ffffff',
-                            customClass: {
-                                popup: 'swal2-bento-popup',
-                                title: 'swal2-bento-title',
-                                htmlContainer: 'swal2-bento-text',
-                                confirmButton: 'swal2-bento-btn'
-                            }
-                        }).then(function () {
+                        CosyAlert.success('Approved!', 'Review successfully approved and displayed on your profile.').then(function () {
                             var card = document.getElementById('cosy-review-' + reviewId);
                             if (card) {
                                 card.className = card.className.replace('border-start-warning', 'border-start-success');
@@ -368,22 +299,12 @@ jQuery(document).ready(function ($) {
                         });
                     } else {
                         approveBtn.prop('disabled', false).html('<i class="fas fa-check me-1"></i> Approve');
-                        Swal.fire({
-                            title: 'Error',
-                            text: (response.data && response.data.message) || 'Failed to approve review.',
-                            icon: 'error',
-                            confirmButtonColor: '#a44390'
-                        });
+                        CosyAlert.error('Error', (response.data && response.data.message) || 'Failed to approve review.');
                     }
                 },
                 error: function () {
                     approveBtn.prop('disabled', false).html('<i class="fas fa-check me-1"></i> Approve');
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Failed to communicate with server.',
-                        icon: 'error',
-                        confirmButtonColor: '#a44390'
-                    });
+                    CosyAlert.error('Error', 'Failed to communicate with server.');
                 }
             });
         },
@@ -397,24 +318,10 @@ jQuery(document).ready(function ($) {
             var deleteBtn = $(this);
             var reviewId = deleteBtn.attr('data-id');
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to delete or reject this review? This action cannot be undone.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-                background: '#ffffff',
-                customClass: {
-                    popup: 'swal2-bento-popup',
-                    title: 'swal2-bento-title',
-                    htmlContainer: 'swal2-bento-text',
-                    confirmButton: 'swal2-bento-btn'
-                }
-            }).then(function (result) {
-                if (!result.isConfirmed) return;
+            CosyAlert.confirm(
+                'Are you sure?',
+                'Do you want to delete or reject this review? This action cannot be undone.'
+            ).then(function () {
 
                 deleteBtn.prop('disabled', true);
                 var originalHTML = deleteBtn.html();
@@ -430,19 +337,7 @@ jQuery(document).ready(function ($) {
                     },
                     success: function (response) {
                         if (response.success) {
-                            Swal.fire({
-                                title: 'Deleted!',
-                                text: 'Review has been removed.',
-                                icon: 'success',
-                                confirmButtonColor: '#a44390',
-                                background: '#ffffff',
-                                customClass: {
-                                    popup: 'swal2-bento-popup',
-                                    title: 'swal2-bento-title',
-                                    htmlContainer: 'swal2-bento-text',
-                                    confirmButton: 'swal2-bento-btn'
-                                }
-                            }).then(function () {
+                            CosyAlert.success('Deleted!', 'Review has been removed.').then(function () {
                                 var card = document.getElementById('cosy-review-' + reviewId);
                                 if (card) {
                                     card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -456,25 +351,15 @@ jQuery(document).ready(function ($) {
                             });
                         } else {
                             deleteBtn.prop('disabled', false).html(originalHTML);
-                            Swal.fire({
-                                title: 'Error',
-                                text: (response.data && response.data.message) || 'Failed to delete review.',
-                                icon: 'error',
-                                confirmButtonColor: '#a44390'
-                            });
+                            CosyAlert.error('Error', (response.data && response.data.message) || 'Failed to delete review.');
                         }
                     },
                     error: function () {
                         deleteBtn.prop('disabled', false).html(originalHTML);
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'Failed to communicate with server.',
-                            icon: 'error',
-                            confirmButtonColor: '#a44390'
-                        });
+                        CosyAlert.error('Error', 'Failed to communicate with server.');
                     }
                 });
-            });
+            }).catch(function() { /* Cancelled */ });
         },
 
         /**
@@ -615,23 +500,11 @@ jQuery(document).ready(function ($) {
             var orderId = btn.data('id');
             var newStatus = btn.data('status');
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to mark this booking as ' + newStatus + '?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#a44390',
-                cancelButtonColor: '#cbd5e1',
-                confirmButtonText: 'Yes, change it!',
-                background: '#ffffff',
-                customClass: {
-                    popup: 'swal2-bento-popup',
-                    title: 'swal2-bento-title',
-                    htmlContainer: 'swal2-bento-text',
-                    confirmButton: 'swal2-bento-btn'
-                }
-            }).then(function (result) {
-                if (result.isConfirmed) {
+            CosyAlert.confirm(
+                'Are you sure?',
+                'Do you want to mark this booking as ' + newStatus + '?',
+                'Yes, change it!'
+            ).then(function () {
                     $.ajax({
                         url: ajaxUrl,
                         type: 'POST',
@@ -643,19 +516,7 @@ jQuery(document).ready(function ($) {
                         },
                         success: function (response) {
                             if (response.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Success',
-                                    text: response.data.message,
-                                    confirmButtonColor: '#a44390',
-                                    background: '#ffffff',
-                                    customClass: {
-                                        popup: 'swal2-bento-popup',
-                                        title: 'swal2-bento-title',
-                                        htmlContainer: 'swal2-bento-text',
-                                        confirmButton: 'swal2-bento-btn'
-                                    }
-                                });
+                                CosyAlert.success('Success', response.data.message);
 
                                 var row = $('#order-row-' + orderId);
                                 if (row.length) {
@@ -676,27 +537,14 @@ jQuery(document).ready(function ($) {
                                     row.find('.action-update-status').remove();
                                 }
                             } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Failed',
-                                    text: response.data.message,
-                                    confirmButtonColor: '#a44390',
-                                    background: '#ffffff'
-                                });
+                                CosyAlert.error('Failed', response.data.message);
                             }
                         },
                         error: function () {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Failed to communicate with the server.',
-                                confirmButtonColor: '#a44390',
-                                background: '#ffffff'
-                            });
+                            CosyAlert.error('Error', 'Failed to communicate with the server.');
                         }
                     });
-                }
-            });
+            }).catch(function() { /* Cancelled */ });
         }
     };
 

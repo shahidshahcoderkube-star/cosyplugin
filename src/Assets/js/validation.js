@@ -227,14 +227,7 @@ var CosyApp = (function ($) {
 
             const file = this.files[0];
             if (!file || !file.type.startsWith("video/")) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid File',
-                    text: 'Please upload a valid video file.',
-                    confirmButtonColor: '#a44390',
-                    showClass: { popup: '' },
-                    hideClass: { popup: '' }
-                });
+                CosyAlert.warning('Invalid File', 'Please upload a valid video file.');
                 this.value = "";
                 return;
             }
@@ -294,18 +287,10 @@ var CosyApp = (function ($) {
             const userId = $btn.data("id");  // data-id holds the WordPress user_id
             const $container = $btn.closest('[id^="existing-video-"]'); // matches existing-video-{userId} in template
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you really want to delete this video?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#22c55e',
-                confirmButtonText: 'Yes, delete it!',
-                showClass: { popup: '' },
-                hideClass: { popup: '' }
-            }).then((result) => {
-                if (result.isConfirmed) {
+            CosyAlert.confirm(
+                'Are you sure?',
+                'Do you really want to delete this video?'
+            ).then(() => {
                     $.ajax({
                         url: cosy_ajax.ajax_url,
                         type: "POST",
@@ -320,35 +305,19 @@ var CosyApp = (function ($) {
                         success(res) {
                             if (res.success) {
                                 $container.fadeOut(300, function () { $(this).remove(); });
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Deleted!',
-                                    text: 'Video has been deleted.',
-                                    timer: 1500,
-                                    showConfirmButton: false,
-                                    showClass: { popup: '' },
-                                    hideClass: { popup: '' }
-                                }).then(() => {
+                                CosyAlert.success('Deleted!', 'Video has been deleted.').then(() => {
                                     // Reload page so the upload form reappears
                                     location.reload();
                                 });
                             } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: res.data || "Could not delete video.",
-                                    confirmButtonColor: '#a44390',
-                                    showClass: { popup: '' },
-                                    hideClass: { popup: '' }
-                                });
+                                CosyAlert.error('Error!', res.data || "Could not delete video.");
                             }
                         },
                         complete() {
                             $btn.prop("disabled", false).html('<i class="fas fa-trash"></i>');
                         }
                     });
-                }
-            });
+            }).catch(() => { /* Cancelled */ });
         });
     }
 
@@ -646,18 +615,10 @@ var CosyApp = (function ($) {
             const serviceId = $(this).data("service-id");
             const slug = $(this).data("slug");
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you really want to delete this service?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#22c55e',
-                confirmButtonText: 'Yes, delete it!',
-                showClass: { popup: '' },
-                hideClass: { popup: '' }
-            }).then((result) => {
-                if (result.isConfirmed) {
+            CosyAlert.confirm(
+                'Are you sure?',
+                'Do you really want to delete this service?'
+            ).then(() => {
                     fetch(COSY_API.base + COSY_API.providerServices.delete, {
                         method: 'POST',
                         credentials: 'same-origin',
@@ -671,40 +632,17 @@ var CosyApp = (function ($) {
                         .then(resp => {
                             if (resp.success) {
                                 $("#row-" + serviceId).remove();
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Deleted!',
-                                    text: resp.message,
-                                    timer: 1500,
-                                    showConfirmButton: false,
-                                    showClass: { popup: '' },
-                                    hideClass: { popup: '' }
-                                });
+                                CosyAlert.success('Deleted!', resp.message);
                                 setTimeout(() => { location.reload(); }, 1600);
                             } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: resp.message,
-                                    confirmButtonColor: '#a44390',
-                                    showClass: { popup: '' },
-                                    hideClass: { popup: '' }
-                                });
+                                CosyAlert.error('Error!', resp.message);
                             }
                         })
                         .catch(err => {
                             console.error("Remove service error:", err);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: "Something went wrong while deleting.",
-                                confirmButtonColor: '#a44390',
-                                showClass: { popup: '' },
-                                hideClass: { popup: '' }
-                            });
+                            CosyAlert.error('Error!', 'Something went wrong while deleting.');
                         });
-                }
-            });
+            }).catch(() => { /* Cancelled */ });
         });
     }
 
@@ -803,14 +741,7 @@ var CosyApp = (function ($) {
 
             // Basic frontend validation to verify day and times are selected
             if (!data.day || !data.start_time || !data.end_time) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Incomplete Information',
-                    text: 'Please fill all required fields before saving.',
-                    confirmButtonColor: '#a44390',
-                    showClass: { popup: '' }, // Disable bounce animation for a premium feel
-                    hideClass: { popup: '' }  // Disable bounce animation for a premium feel
-                });
+                CosyAlert.warning('Incomplete Information', 'Please fill all required fields before saving.');
                 return;
             }
 
@@ -849,22 +780,10 @@ var CosyApp = (function ($) {
                         $('#break_end_time').val('');
 
                         // Show success alert
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Your availability has been saved.',
-                            showConfirmButton: false,
-                            timer: 2000,
-                            timerProgressBar: true
-                        });
+                        CosyAlert.success('Success!', 'Your availability has been saved.');
                     } else {
                         // Show error alert on request failure
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: res.data || 'Something went wrong while saving.',
-                            confirmButtonColor: '#a44390'
-                        });
+                        CosyAlert.error('Error!', res.data || 'Something went wrong while saving.');
                     }
                 },
                 complete() {
@@ -908,27 +827,13 @@ var CosyApp = (function ($) {
             const tableBody = $('#daysTable tbody');
 
             if (!date) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Date Required',
-                    text: 'Please select a valid date first!',
-                    confirmButtonColor: '#a44390',
-                    showClass: { popup: '' },
-                    hideClass: { popup: '' }
-                });
+                CosyAlert.warning('Date Required', 'Please select a valid date first!');
                 return;
             }
 
             // Prevent duplicate dates
             if ($('#day-' + date).length) {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Date Already Marked',
-                    text: 'This date is already present in your non-working days list.',
-                    confirmButtonColor: '#a44390',
-                    showClass: { popup: '' },
-                    hideClass: { popup: '' }
-                });
+                CosyAlert.warning('Date Already Marked', 'This date is already present in your non-working days list.');
                 return;
             }
 
