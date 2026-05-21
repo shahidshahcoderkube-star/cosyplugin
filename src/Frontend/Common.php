@@ -28,6 +28,33 @@ trait GlobalCommonFunctions
     }
 
     /**
+     * verify_ajax_request
+     *
+     * Combines nonce verification, role authorization, and login check into one call.
+     * Use this at the start of any AJAX handler to avoid repeating the same 3 checks.
+     *
+     * @param string $nonce_action  The nonce action name (e.g., 'cosy_dashboard_nonce').
+     * @param string $nonce_field   The POST field containing the nonce (default: 'nonce').
+     * @param string $required_role The role required to proceed (default: 'provider').
+     * @return int                  The current user ID (guaranteed to be valid).
+     */
+    protected function verify_ajax_request(string $nonce_action, string $nonce_field = 'nonce', string $required_role = 'provider'): int
+    {
+        check_ajax_referer($nonce_action, $nonce_field);
+
+        if (!current_user_can('manage_cosy_appointments') && !in_array($required_role, (array) wp_get_current_user()->roles)) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+        }
+
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            wp_send_json_error(['message' => 'User not logged in']);
+        }
+
+        return $user_id;
+    }
+
+    /**
      * cosy_payment_log
      * Logs payment activity into a file.
      */

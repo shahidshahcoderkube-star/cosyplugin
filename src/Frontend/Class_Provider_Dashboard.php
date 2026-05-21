@@ -95,19 +95,9 @@ class Dashboard
      */
     public function handle_profile_update(): void
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-
-        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
-
-        $user_id = get_current_user_id();
-        if (!$user_id) {
-            wp_send_json_error(['message' => 'User not logged in']);
-        }
+        $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
 
         if (isset($_POST['update_provider_profile']) || !isset($_POST['action']) || $_POST['action'] !== 'cosy_customer_register') {
-            $user_id = get_current_user_id();
 
             $provider_meta = [
                 'prov_username' => sanitize_text_field($_POST['prov_username']),
@@ -160,16 +150,7 @@ class Dashboard
      */
     public function handle_video_upload(): void
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-
-        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
-
-        $user_id = get_current_user_id();
-        if (!$user_id) {
-            wp_send_json_error(['message' => 'User not logged in']);
-        }
+        $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
 
         // ✅ Check if user already has a pending video
         $current_status = get_user_meta($user_id, 'video_status', true);
@@ -253,11 +234,7 @@ class Dashboard
     //----------------- Delete Video Handler ----------------//
     public function ajax_delete_video()
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-
-        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
+        $this->verify_ajax_request('cosy_dashboard_nonce');
 
         $user_id = intval($_POST['user_id']);
         if (!$user_id) {
@@ -292,17 +269,7 @@ class Dashboard
      */
     public function cosy_load_dashboard_tab()
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-
-        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
-
-        $user_id = get_current_user_id();
-
-        if (!$user_id) {
-            wp_send_json_error(['message' => 'User not logged in']);
-        }
+        $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
 
 
         if (empty($_POST['tab'])) {
@@ -357,16 +324,7 @@ class Dashboard
      */
     public function handle_add_holiday(): void
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-
-        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
-
-        $user_id = get_current_user_id();
-        if (!$user_id) {
-            wp_send_json_error(['message' => 'User not logged in']);
-        }
+        $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
 
         $date   = sanitize_text_field($_POST['holiday_date'] ?? '');
         $reason = sanitize_text_field($_POST['holiday_reason'] ?? '');
@@ -420,16 +378,7 @@ class Dashboard
      */
     public function handle_delete_holiday(): void
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-
-        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
-
-        $user_id = get_current_user_id();
-        if (!$user_id) {
-            wp_send_json_error(['message' => 'User not logged in']);
-        }
+        $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
 
         $date = sanitize_text_field($_POST['holiday_date'] ?? '');
 
@@ -460,13 +409,7 @@ class Dashboard
      */
     public function handle_availability_save(): void
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-
-        if (!current_user_can('manage_cosy_appointments') && !in_array('provider', (array) wp_get_current_user()->roles)) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
-
-        $user_id = get_current_user_id();
+        $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
         $day = sanitize_text_field($_POST['day']);
         
         if (!$day) {
@@ -502,17 +445,9 @@ class Dashboard
      */
     public function handle_add_review(): void
     {
-        check_ajax_referer('cosy_calendar_nonce', 'nonce');
-        // 1. Enforce active user session
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => 'Please login as a Customer to submit a review.']);
-        }
+        $this->verify_ajax_request('cosy_calendar_nonce', 'nonce', 'customer');
  
-        // 2. Strict Role Authorization: Only allow 'customer' role to post reviews
         $current_user = wp_get_current_user();
-        if (!in_array('customer', (array) $current_user->roles)) {
-            wp_send_json_error(['message' => 'Only registered customers are allowed to submit reviews.']);
-        }
  
         // 3. Extract and sanitize inputs
         $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
@@ -572,20 +507,12 @@ class Dashboard
      */
     public function handle_approve_review(): void
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-        // 1. Enforce active user session
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
+        $this->verify_ajax_request('cosy_dashboard_nonce');
  
-        // 2. Role Check: Only allow administrator or provider
+        // Role scoping for DB query (provider can only approve their own reviews)
         $current_user = wp_get_current_user();
         $is_admin = current_user_can('manage_cosy_appointments');
         $is_provider = in_array('provider', (array) $current_user->roles);
- 
-        if (!$is_admin && !$is_provider) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
  
         // 3. Extract and validate review ID
         $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
@@ -640,20 +567,12 @@ class Dashboard
      */
     public function handle_delete_review(): void
     {
-        check_ajax_referer('cosy_dashboard_nonce', 'nonce');
-        // 1. Enforce active user session
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
+        $this->verify_ajax_request('cosy_dashboard_nonce');
  
-        // 2. Role Check: Only allow administrator or provider
+        // Role scoping for DB query (provider can only delete their own reviews)
         $current_user = wp_get_current_user();
         $is_admin = current_user_can('manage_cosy_appointments');
         $is_provider = in_array('provider', (array) $current_user->roles);
- 
-        if (!$is_admin && !$is_provider) {
-            wp_send_json_error(['message' => 'Unauthorized']);
-        }
  
         // 3. Extract and validate review ID
         $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;

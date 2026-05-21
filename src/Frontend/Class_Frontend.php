@@ -519,17 +519,24 @@ class Frontend
         $current_user = get_userdata($appt->post_author);
         if (!$current_user) return;
 
-        $service = get_post_meta($appointment_id, 'cosy_service_name', true);
-        $provider_id = get_post_meta($appointment_id, 'cosy_provider_id', true);
-        $provider_name = get_post_meta($appointment_id, 'cosy_provider_name', true);
-        $start_date = get_post_meta($appointment_id, 'cosy_start_date', true);
-        $end_date = get_post_meta($appointment_id, 'cosy_end_date', true);
-        $weekly_booking = get_post_meta($appointment_id, 'cosy_weekly_booking', true);
-        $number_of_weeks = get_post_meta($appointment_id, 'cosy_number_of_weeks', true);
-        $number_of_bookings = get_post_meta($appointment_id, 'cosy_number_of_bookings', true);
-        $service_cost = get_post_meta($appointment_id, 'cosy_service_cost', true);
-        $service_fee = get_post_meta($appointment_id, 'cosy_service_fee', true);
-        $total_payable = get_post_meta($appointment_id, 'cosy_total_payable', true);
+        // Fetch all booking meta in one clean block
+        $meta_keys = [
+            'service'            => 'cosy_service_name',
+            'provider_id'        => 'cosy_provider_id',
+            'provider_name'      => 'cosy_provider_name',
+            'start_date'         => 'cosy_start_date',
+            'end_date'           => 'cosy_end_date',
+            'weekly_booking'     => 'cosy_weekly_booking',
+            'number_of_weeks'    => 'cosy_number_of_weeks',
+            'number_of_bookings' => 'cosy_number_of_bookings',
+            'service_cost'       => 'cosy_service_cost',
+            'service_fee'        => 'cosy_service_fee',
+            'total_payable'      => 'cosy_total_payable',
+        ];
+
+        foreach ($meta_keys as $var => $meta_key) {
+            $$var = get_post_meta($appointment_id, $meta_key, true);
+        }
 
         // Set email content type to HTML
         $html_email_filter = function () {
