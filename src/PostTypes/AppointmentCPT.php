@@ -6,7 +6,9 @@ use Cosy\Appointments\Loader;
 
 class AppointmentCPT
 {
-    //--------------- Register Actions ----------------//
+    /**
+     * Hooks into WordPress to register the Custom Post Type (CPT) and its admin menus.
+     */
     public function register(Loader $loader): void
     {
         // CPT register karne ke liye init hook use karo
@@ -22,7 +24,10 @@ class AppointmentCPT
         $loader->add_action('admin_menu', $this, 'register_payment_token_and_key');
     }
 
-    //--------------- Register Custom Post Type ----------------//
+    /**
+     * Registers the "Appointments" Custom Post Type.
+     * This creates a new section in the WP Admin menu where all bookings are stored.
+     */
     public function register_post_type(): void
     {
         register_post_type('cosy_appointment', [
@@ -40,7 +45,9 @@ class AppointmentCPT
         ]);
     }
 
-    //--------------- Register Admin Menus ----------------//
+    /**
+     * Adds the "Orders" submenu page under the Appointments menu in WP Admin.
+     */
     public function register_admin_menu(): void
     {
         add_submenu_page(
@@ -53,7 +60,10 @@ class AppointmentCPT
         );
     }
 
-    //--------------- Register Video Menu ----------------//
+    /**
+     * Adds the "Video Approve" submenu page under the Appointments menu.
+     * Used by admins to review and approve provider introductory videos.
+     */
     public function register_video_menu(): void
     {
         add_submenu_page(
@@ -66,7 +76,10 @@ class AppointmentCPT
         );
     }
 
-    //--------------- Register Payment Token & Key Menu ----------------//
+    /**
+     * Adds the "Payment Token & Key" submenu page.
+     * Used to configure Stripe API keys and other payment credentials.
+     */
     public function register_payment_token_and_key(): void
     {
         add_submenu_page(
@@ -79,20 +92,26 @@ class AppointmentCPT
         );
     }
 
-    //--------------- Render Callback Functions ----------------//
+    /**
+     * Renders the HTML layout for the Orders management page in the backend.
+     */
     public function render_orders_page(): void
     {
         echo '<div class="wrap"><h1>Orders</h1><p>Here you can manage appointment orders.</p></div>';
     }
 
 
-    //--------------- Video Approve Page Render Function ----------------//
+    /**
+     * Renders the HTML layout for the Video Approval page in the backend.
+     */
     public function render_video_approve_page(): void
     {
         echo '<div class="wrap"><h1>Video Approve</h1><p>Here you can manage video approvals.</p></div>';
     }
 
-    //--------------- Payment Token & Key Page Render Function ----------------//
+    /**
+     * Renders the HTML layout for the Settings (Payment Keys) page.
+     */
     public function render_payment_token_and_key_page(): void
     {
         echo '<div class="wrap"><h1>Payment Token & Key</h1><p>Here you can manage payment tokens and keys.</p></div>';

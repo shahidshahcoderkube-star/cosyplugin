@@ -8,7 +8,10 @@ use Cosy\Appointments\Loader;
 class ProviderServices
 {
 
-    //---------- Get service --------------//
+    /**
+     * Retrieves all services that the currently logged-in provider has added to their profile.
+     * This is used to populate the "My Services" list in the Provider Dashboard.
+     */
     public static function get_service(WP_REST_Request $request)
     {
         global $wpdb;
@@ -42,7 +45,11 @@ class ProviderServices
         }
     }
 
-    //---------- Save service --------------//
+    /**
+     * Saves a new service or updates an existing one for the logged-in provider.
+     * It checks if the service already exists in the custom database table, 
+     * and either inserts a new row or updates the existing one with new price/duration details.
+     */
     public static function save_service(WP_REST_Request $request)
     {
         global $wpdb;
@@ -51,7 +58,7 @@ class ProviderServices
         $provider_id   = get_current_user_id();
         $user = wp_get_current_user();
 
-        // ✅ Ensure only provider role can access
+        // Ensure only provider role can access
         if (!in_array('provider', (array) $user->roles, true)) {
             return rest_ensure_response(['success' => false, 'message' => 'Unauthorized']);
         }
@@ -71,7 +78,7 @@ class ProviderServices
         $message = '';
         $status  = false;
 
-        // ✅ Check if record exists
+        // Check if record exists
         $exists = $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT id FROM $table WHERE service_id = %d AND provider_id = %d",
@@ -81,7 +88,7 @@ class ProviderServices
         );
 
         if (!$exists) {
-            // ✅ Insert new record
+            // Insert new record
             $inserted = $wpdb->insert(
                 $table,
                 [
@@ -106,7 +113,7 @@ class ProviderServices
                 $message = 'Failed to insert service';
             }
         } else {
-            // ✅ Decide update fields
+            // Decide update fields
             $update_data = [
                 'checkbox_status' => $checked,
                 'service'         => $service,
@@ -133,7 +140,7 @@ class ProviderServices
                 $update_format[] = '%s';
             }
 
-            // ✅ Update existing record
+            // Update existing record
             $updated = $wpdb->update(
                 $table,
                 $update_data,
@@ -166,7 +173,10 @@ class ProviderServices
     }
 
 
-    //---------- Delete service --------------//
+    /**
+     * Deletes a specific service from the provider's profile.
+     * Removes the service from the custom database table.
+     */
     public static function  delete_service(WP_REST_Request $request)
     {
         global $wpdb;
@@ -176,7 +186,7 @@ class ProviderServices
         $user = wp_get_current_user();
         $service_id  = intval($request->get_param('service_id'));
 
-        // ✅ Only provider role allowed
+        // Only provider role allowed
         if (!in_array('provider', (array) $user->roles, true)) {
             return rest_ensure_response(['success' => false, 'message' => 'Unauthorized']);
         }
@@ -207,7 +217,10 @@ class ProviderServices
         }
     }
 
-    //---------- Get service by id --------------//
+    /**
+     * Retrieves the details of a single specific service for the logged-in provider.
+     * Used when a provider clicks "Edit" on a service to load its current details into the form.
+     */
     public static function get_service_by_id(WP_REST_Request $request)
     {
 
@@ -218,7 +231,7 @@ class ProviderServices
         $user = wp_get_current_user();
         $service_id  = intval($request->get_param('service_id'));
 
-        // ✅ Ensure user is logged in and has provider role
+        // Ensure user is logged in and has provider role
         if (!$provider_id || !in_array('provider', (array) $user->roles, true)) {
             return rest_ensure_response(['success' => false, 'message' => 'Unauthorized access']);
         }

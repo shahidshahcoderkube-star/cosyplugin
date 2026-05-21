@@ -9,7 +9,10 @@ class FormsData
 {
     use GlobalCommonFunctions;
 
-    //---------------- Constructor ----------------//
+    /**
+     * Constructor: Initializes the form handler.
+     * Hooks up AJAX actions for login, registration, and password recovery.
+     */
     public function __construct()
     {
         // Register all AJAX handlers dynamically
@@ -25,7 +28,10 @@ class FormsData
         add_action('init', [$this, 'handle_provider_verification']);
     }
 
-    //----------------- Utility: Send JSON response ----------------//
+    /**
+     * Utility method to send a standard JSON response to the frontend.
+     * Used by AJAX handlers to return success or error messages.
+     */
     public function send_response($success, $message)
     {
         if ($success) {
@@ -35,7 +41,9 @@ class FormsData
         }
     }
 
-    //----------------- Utility: Send JSON response for multiple messages ----------------//
+    /**
+     * Utility method to send JSON responses containing an array of messages.
+     */
     public function send_multiple_response($success, $message)
     {
         if ($success) {
@@ -45,7 +53,10 @@ class FormsData
         }
     }
 
-    //----------------- Customer Registration ----------------//
+    /**
+     * Handles AJAX requests for new Customer registrations.
+     * Validates input, creates a WordPress user with the 'customer' role, and sends a response.
+     */
     public function handle_customer_registration()
     {
         // Security check: verify nonce
@@ -95,7 +106,10 @@ class FormsData
         $this->send_response(true, 'Customer registered successfully! Please login now');
     }
 
-    //----------------- Provider Registration ----------------//
+    /**
+     * Handles AJAX requests for new Service Provider registrations.
+     * Creates a user with the 'provider' role, saves additional metadata, and sends an email verification link.
+     */
     public function handle_provider_registration()
     {
         // Security check: verify nonce
@@ -119,12 +133,12 @@ class FormsData
             return;
         }
 
-        // ✅ Create user with provider role
+        // Create user with provider role
         $user_id = wp_insert_user([
             'user_login' => $username,
             'user_pass'  => $pass,
             'user_email' => $email,
-            'role'       => 'provider', // 👈 actual WP role set
+            'role'       => 'provider', // actual WP role set
         ]);
 
         if (is_wp_error($user_id)) {
@@ -152,29 +166,32 @@ class FormsData
             update_user_meta($user_id, $key, $value);
         }
 
-        // ✅ Generate verification token
+        // Generate verification token
         $token = wp_generate_password(32, false);
         update_user_meta($user_id, 'verification_token', $token);
 
-        // ✅ Build verification link
+        // Build verification link
         $verify_url = add_query_arg([
             'action' => 'cosy_verify_provider',
             'uid'    => $user_id,
             'token'  => $token,
         ], home_url('/provider-verify'));
 
-        // ✅ Send verification email
+        // Send verification email
         wp_mail(
             $email,
             'Confirm Your Provider Account',
             "Hello $username,\n\nClick below to activate your account:\n\n$verify_url"
         );
 
-        // ✅ Response
+        // Response
         $this->send_response(true, 'Registration successful! Please check your email to confirm.');
     }
 
-    //----------------- Login Form Handler ----------------//
+    /**
+     * Handles AJAX requests for user login (both customers and providers).
+     * Signs the user in securely using WordPress authentication.
+     */
     public function handle_login()
     {
         $received_nonce = $_POST['cosy_nonce'] ?? 'MISSING';
@@ -195,13 +212,16 @@ class FormsData
         if (is_wp_error($user)) {
             $this->send_response(false, 'Invalid username or password.');
         } else {
-            // ✅ Instead of just message, send home_url for redirect 
+            // Instead of just message, send home_url for redirect 
             $this->send_response(true, home_url());
             $this->send_response(true, 'Login successful!');
         }
     }
 
-    //----------------- Forgot Password Handler ----------------//
+    /**
+     * Handles AJAX requests for the "Forgot Password" feature.
+     * Generates a new random password and emails it to the user.
+     */
     public function handle_forgot_password()
     {
         // Ensure request is POST + correct action
@@ -240,7 +260,10 @@ class FormsData
     }
 
 
-    //----------------- Provider Verification Handler ----------------//
+    /**
+     * Verifies a Provider's email address when they click the link in their registration email.
+     * Activates their account and automatically logs them in.
+     */
     public function handle_provider_verification()
     {
         $uid   = isset($_GET['uid']) ? intval($_GET['uid']) : 0;
@@ -257,11 +280,11 @@ class FormsData
             update_user_meta($uid, 'account_status', 'active');
             delete_user_meta($uid, 'verification_token');
 
-            // ✅ Auto login
+            // Auto login
             wp_set_current_user($uid);
             wp_set_auth_cookie($uid);
 
-            // ✅ Redirect after setting cookie
+            // Redirect after setting cookie
             wp_safe_redirect(home_url('/provider-verify?verified=1'));
             exit;
         } else {

@@ -10,7 +10,11 @@ class Frontend
 {
     use GlobalCommonFunctions;
 
-    //--------------- Register Actions ----------------//
+    /**
+     * Initializes all frontend hooks and shortcodes.
+     * This function is called when the plugin starts. It registers shortcodes, 
+     * template redirects (for page security), and AJAX endpoints.
+     */
     public function register(Loader $loader): void
     {
         /* Register shortcode and footer action*/
@@ -33,7 +37,11 @@ class Frontend
     }
 
 
-    //--------------- Registering the shortcode for appointments----------------//
+    /**
+     * Registers all the shortcodes used by the plugin.
+     * Shortcodes allow admins to place functionality (like forms or dashboards) 
+     * on any WordPress page by typing text like [cosy_appointments].
+     */
     public function register_shortcode(): void
     {
         add_shortcode('cosy_appointments', [$this, 'appointments_shortcode']);
@@ -62,7 +70,10 @@ class Frontend
     }
 
 
-    //------------- Rendering the shortcode content */
+    /**
+     * Renders the main appointment booking calendar.
+     * Used by shortcode: [cosy_appointments]
+     */
     public function appointments_shortcode(): string
     {
         ob_start();
@@ -71,7 +82,10 @@ class Frontend
     }
 
 
-    //------------- Rendering the customer registration shortcode content -------------//
+    /**
+     * Renders the registration form for new customers.
+     * Used by shortcode: [cosy_customer_registration]
+     */
     public function customer_registration_shortcode(): string
     {
         ob_start();
@@ -80,7 +94,10 @@ class Frontend
     }
 
 
-    //------------- Rendering the provider registration shortcode content -------------//
+    /**
+     * Renders the registration form for new service providers.
+     * Used by shortcode: [cosy_provider_registration]
+     */
     public function provider_registration_shortcode(): string
     {
         ob_start();
@@ -89,7 +106,10 @@ class Frontend
     }
 
 
-    //------------- Rendering the customer profile shortcode content -------------//
+    /**
+     * Renders the customer's account dashboard and profile page.
+     * Used by shortcode: [customer_profile]
+     */
     public function customer_profile_shortcode(): string
     {
         ob_start();
@@ -98,7 +118,10 @@ class Frontend
     }
 
 
-    //------------- Rendering the login form shortcode content -------------//
+    /**
+     * Renders the login form for both customers and providers.
+     * Used by shortcode: [cosy_login_form]
+     */
     public function login_form(): string
     {
 
@@ -108,7 +131,10 @@ class Frontend
     }
 
 
-    //------------- Rendering the customer order shortcode content -------------//
+    /**
+     * Renders the customer order history page.
+     * Used by shortcode: [cosy_customer_order]
+     */
     public function customer_order_page(): string
     {
         ob_start();
@@ -117,7 +143,11 @@ class Frontend
     }
 
 
-    //------------- Rendering the checkout shortcode content -------------//
+    /**
+     * Renders the secure Stripe checkout page.
+     * This page handles both the checkout view and the Stripe Success/Cancel return logic.
+     * Used by shortcode: [cosy_checkout]
+     */
     public function checkout_page(): string
     {
         // Handle Stripe Cancelled
@@ -173,7 +203,10 @@ class Frontend
     }
 
 
-    //------------- Rendering the provider dashboard shortcode content -------------//
+    /**
+     * Renders the identity verification form for service providers.
+     * Used by shortcode: [cosy_verify_provider]
+     */
     public function provider_verify_shortcode(): string
     {
         ob_start();
@@ -189,7 +222,11 @@ class Frontend
         return ob_get_clean();
     }
 
-    //------------- Rendering the provider profile dashboard content it open single page when user click on provider profile view profile button -------------//
+    /**
+     * Custom template redirect for the Provider's Public Profile page.
+     * If a user clicks to view a provider's profile, it loads a custom PHP template 
+     * instead of the default WordPress author page.
+     */
     public function provider_profile_dashboard_shortcode($template): string
     {
         if (is_author()) {
@@ -200,7 +237,11 @@ class Frontend
         }
         return $template;
     }
-    //------------- Hide Admin Menu for specific roles -------------//
+    /**
+     * Hides the top black WordPress Admin Bar for specific roles.
+     * We don't want regular customers or providers to see the WordPress backend bar 
+     * when they are browsing the frontend website.
+     */
     public function hide_admin_menu()
     {
 
@@ -217,7 +258,11 @@ class Frontend
     }
 
 
-    //------------- Restrict Direct Page Access -------------//
+    /**
+     * Prevents users from accessing specific private pages if they are not logged in.
+     * If a guest tries to visit the dashboard, checkout, or profile pages, 
+     * they are automatically redirected to the login page.
+     */
     public function restrict_direct_page_access()
     {
         // Pages that require login

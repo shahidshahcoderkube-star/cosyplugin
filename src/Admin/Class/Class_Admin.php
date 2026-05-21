@@ -85,7 +85,7 @@ class Admin
     {
         ob_start();
         include COSY_APPT_PATH . 'src/Admin/Backend/media-approve.php';
-        echo ob_get_clean(); // ✅ echo instead of return
+        echo ob_get_clean(); // echo instead of return
     }
 
 

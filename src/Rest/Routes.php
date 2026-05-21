@@ -12,10 +12,17 @@ class Routes
         $loader->add_action('rest_api_init', $this, 'register_routes');
     }
 
-    //--------------- Register Routes ----------------//
+    /**
+     * Registers custom REST API endpoints for the plugin.
+     * These endpoints allow the frontend JavaScript to communicate with the server
+     * (e.g., getting, saving, or deleting services) securely.
+     */
     public function register_routes(): void
     {
-        //---------- Get all services --------------//
+        /**
+         * Endpoint: GET /cosy/v1/provider-services/get
+         * Fetches all the services that belong to the logged-in provider.
+         */
         register_rest_route('cosy/v1', '/provider-services/get', [
             'methods'  => 'GET',
             'callback' => [ProviderServices::class, 'get_service'],
@@ -24,7 +31,10 @@ class Routes
             }
         ]);
 
-        //---------- Save service --------------//
+        /**
+         * Endpoint: POST /cosy/v1/provider-services/update
+         * Saves or updates a service for the logged-in provider.
+         */
         register_rest_route('cosy/v1', '/provider-services/update', [
             'methods'  => 'POST',
             'callback' => [ProviderServices::class, 'save_service'],
@@ -33,7 +43,10 @@ class Routes
             }
         ]);
 
-        //---------- Delete service --------------//
+        /**
+         * Endpoint: POST /cosy/v1/provider-services/delete
+         * Deletes a specific service belonging to the logged-in provider.
+         */
         register_rest_route('cosy/v1', '/provider-services/delete', [
             'methods'  => 'POST',
             'callback' => [ProviderServices::class, 'delete_service'],
@@ -42,7 +55,10 @@ class Routes
             }
         ]);
 
-        //---------- Get service by id --------------//
+        /**
+         * Endpoint: GET /cosy/v1/provider-services/get-one
+         * Fetches details of a single specific service using its ID.
+         */
         register_rest_route('cosy/v1', '/provider-services/get-one', [
             'methods' => 'GET',
             'callback' => [ProviderServices::class, 'get_service_by_id'],
@@ -61,7 +77,7 @@ class Routes
     }
 
     /**
-     * ✅ Centralized permission check
+     * Centralized permission check
      */
     private function check_provider_permission($request): bool
     {
@@ -71,12 +87,12 @@ class Routes
 
         $user = wp_get_current_user();
 
-        // ✅ Only allow provider role
+        // Only allow provider role
         if (!in_array('provider', (array) $user->roles, true)) {
             return false;
         }
 
-        // ✅ Verify REST nonce
+        // Verify REST nonce
         $nonce = $request->get_header('X-WP-Nonce');
         if (!$nonce || !wp_verify_nonce($nonce, 'wp_rest')) {
             return false;

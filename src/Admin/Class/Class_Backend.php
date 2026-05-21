@@ -32,7 +32,7 @@ class Backend_Actions_Handler
     //--------------- Approve video ---------------//
     public function ajax_approve_video()
     {
-        // ✅ Security check
+        // Security check
         check_ajax_referer('cosy_media_nonce', 'nonce');
         if (!current_user_can('approve_cosy_media')) {
             wp_send_json_error(['message' => 'Unauthorized access']);
@@ -46,7 +46,7 @@ class Backend_Actions_Handler
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_media_approvals';
 
-        // ✅ Update DB table status
+        // Update DB table status
         $wpdb->update(
             $table_name,
             ['status' => 'approved', 'reviewed_at' => current_time('mysql')],
@@ -77,7 +77,7 @@ class Backend_Actions_Handler
     //--------------- Reject video ---------------//
     public function ajax_reject_video()
     {
-        // ✅ Security check
+        // Security check
         check_ajax_referer('cosy_media_nonce', 'nonce');
         if (!current_user_can('approve_cosy_media')) {
             wp_send_json_error(['message' => 'Unauthorized access']);
@@ -91,7 +91,7 @@ class Backend_Actions_Handler
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_media_approvals';
 
-        // ✅ Update DB table status
+        // Update DB table status
         $wpdb->update(
             $table_name,
             ['status' => 'rejected', 'reviewed_at' => current_time('mysql')],

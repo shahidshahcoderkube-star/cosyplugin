@@ -19,42 +19,49 @@ class Plugin
 {
     protected Loader $loader;
 
-    //--------------- Constructor ----------------//
+    /**
+     * Constructor
+     * This runs when the plugin is initialized. It registers all the 
+     * necessary components like Admin area, Frontend logic, Custom Post Types, and API routes.
+     */
     public function __construct()
     {
-        //--------------- Initialize Loader ----------------//
+        // Initialize the Loader class which helps register all WordPress hooks cleanly.
         $this->loader = new Loader();
 
-        //--------------- Register Admin Components ----------------//
+        // Register Admin Panel Menus and Settings Pages.
         (new Admin())->register($this->loader);
         (new \Cosy\Appointments\Admin\Class_Provider_Verification())->register($this->loader);
 
-        //--------------- Register Backend AJAX Handlers ----------------//
+        // Register AJAX handlers for backend (Admin area) actions.
         (new Backend_Actions_Handler());
 
-        //--------------- Register Settings & Assets ----------------//
+        // Register the plugin's Global Settings page in WP Admin.
         (new SettingsAdmin())->register($this->loader);
 
-        //--------------- Register Assets ----------------//
+        // Load CSS and JS files for the plugin.
         (new Assets())->register($this->loader);
 
-        //--------------- Register Custom Post Types ----------------//
+        // Register Custom Post Types like Appointments and Services.
         (new ServiceCPT())->register($this->loader);
 
-        //--------------- Register Frontend Components ----------------//
+        // Register Frontend elements like shortcodes, checkout, and forms.
         (new Frontend())->register($this->loader);
 
-        //--------------- Register Provider Dashboard ----------------//
+        // Register the Provider Dashboard interface and logic.
         (new Dashboard())->register($this->loader);
 
-        //--------------- Register Header Menu Dropdown ----------------//
+        // Register the custom header menu dropdown functionality.
         (new Class_Header_Menu())->register($this->loader);
 
-        //--------------- Register REST API Routes ----------------//
+        // Register custom REST API endpoints for external applications.
         (new Routes())->register($this->loader);
     }
 
-    //--------------- Run the Plugin ----------------//
+    /**
+     * Executes all the registered WordPress hooks (actions and filters)
+     * through the Loader class.
+     */
     public function run(): void
     {
         $this->loader->run();

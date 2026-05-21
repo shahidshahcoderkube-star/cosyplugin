@@ -74,7 +74,10 @@ trait GlobalCommonFunctions
 
 
 
-    ///------ Utility: Get User Data -----//
+    /**
+     * Retrieves basic WordPress and custom metadata for a specific user.
+     * Often used to display customer profiles.
+     */
     public function get_user_data(int $user_id): array
     {
         $user = get_userdata($user_id);
@@ -100,7 +103,11 @@ trait GlobalCommonFunctions
     }
 
 
-    //------ Utility: Get Provider Data -----//
+    /**
+     * Retrieves detailed profile data specifically for a Service Provider.
+     * It efficiently fetches only the metadata fields required to display 
+     * a provider's dashboard or public profile.
+     */
     public function get_provider_data(int $user_id): array
     {
         $user = get_userdata($user_id);
@@ -121,7 +128,7 @@ trait GlobalCommonFunctions
             'user_registered' => $user->user_registered,
         ];
 
-        // ✅ OPTIMIZED: Fetch only the specific meta keys actually used across templates.
+        // OPTIMIZED: Fetch only the specific meta keys actually used across templates.
         // Previously used get_user_meta($user_id) with no key — which loaded ALL meta rows
         // (potentially 80-150 DB rows) even though only ~16 fields are needed.
         $meta_keys = [
@@ -152,7 +159,10 @@ trait GlobalCommonFunctions
 
 
 
-    //------ Utility: Get Selected/Checked Services for Provider (By Authorship) -----//
+    /**
+     * Retrieves a list of Service IDs that the logged-in provider has authored.
+     * Returns an array of integers representing service Post IDs.
+     */
     public function get_checked_services(): array
     {
         $provider_id = get_current_user_id();
@@ -173,7 +183,10 @@ trait GlobalCommonFunctions
     }
 
 
-    //------ Utility: Get All Services -----//
+    /**
+     * Retrieves all published services across the entire platform.
+     * Returns an array containing service titles, descriptions, pricing, and provider names.
+     */
     public function get_all_services(): array
     {
         // Fetch all cosy_service posts

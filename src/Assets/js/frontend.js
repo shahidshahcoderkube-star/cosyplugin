@@ -34,7 +34,7 @@ jQuery(document).ready(function ($) {
     });
 
     $(".upload-button").on('click', function () {
-        $(".file-upload")[0].click(); // ✅ use native DOM click
+        $(".file-upload")[0].click(); // use native DOM click
     });
 
 

@@ -14,7 +14,9 @@ use Cosy\Appointments\Common\GlobalCommonFunctions;
  */
 class Dashboard
 {
-    //--------------- Traits ----------------//
+    /**
+     * Includes helper methods that are shared across multiple classes.
+     */
     use GlobalCommonFunctions;
 
     /**
@@ -41,20 +43,28 @@ class Dashboard
         $this->register_ajax_handlers($actions, $this);
     }
 
-    //----- Registering the shortcode for provider dashboard -----//
+    /**
+     * Initializes hooks for the Provider Dashboard.
+     * This function is triggered by the plugin loader.
+     */
     public function register(Loader $loader): void
     {
         /* Registering the shortcode for provider dashboard */
         $loader->add_action('init', $this, 'register_dashboard_shortcode');
     }
 
-    //----- Registering the shortcode for provider dashboard-----//
+    /**
+     * Registers the [cosy_provider_dashboard] shortcode with WordPress.
+     */
     public function register_dashboard_shortcode(): void
     {
         add_shortcode('cosy_provider_dashboard', [$this, 'provider_dashboard_shortcode']);
     }
 
-    //------ Rendering the provider dashboard shortcode content----//
+    /**
+     * Renders the HTML content for the Provider Dashboard when the shortcode is used.
+     * It loads the dashboard.php template file.
+     */
     public function provider_dashboard_shortcode(): void
     {
         ob_start();
@@ -120,7 +130,7 @@ class Dashboard
                 update_user_meta($user_id, $key, $value);
             }
 
-            // ✅ Handle profile image upload correctly
+            // Handle profile image upload correctly
 
             if (!empty($_FILES['profile_image']['name'])) {
                 require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -152,14 +162,14 @@ class Dashboard
     {
         $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
 
-        // ✅ Check if user already has a pending video
+        // Check if user already has a pending video
         $current_status = get_user_meta($user_id, 'video_status', true);
         if ($current_status === 'pending') {
             wp_send_json_error(['message' => 'Your previous video approval is still pending. You cannot upload a new video until it is reviewed.']);
         }
 
         if (!empty($_FILES['video_upload']['name'])) {
-            // ✅ Size check (2 MB)
+            // Size check (2 MB)
             $max_size = 2 * 1024 * 1024;
             if ($_FILES['video_upload']['size'] > $max_size) {
                 wp_send_json_error(['message' => 'Video size must not exceed 2 MB']);
@@ -173,16 +183,16 @@ class Dashboard
             if (!is_wp_error($attachment_id)) {
                 $video_url = wp_get_attachment_url($attachment_id);
 
-                // ✅ Save video URL
+                // Save video URL
                 update_user_meta($user_id, 'introduction_video', $video_url);
 
-                // ✅ Save current date/time
+                // Save current date/time
                 update_user_meta($user_id, 'video_uploaded_on', current_time('mysql'));
 
-                // ✅ Save status as pending
+                // Save status as pending
                 update_user_meta($user_id, 'video_status', 'pending');
 
-                // ✅ Sync with custom table for Admin Dashboard
+                // Sync with custom table for Admin Dashboard
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'cosy_media_approvals';
 
@@ -231,7 +241,10 @@ class Dashboard
         }
     }
 
-    //----------------- Delete Video Handler ----------------//
+    /**
+     * AJAX Handler: Deletes the provider's introductory video.
+     * Removes the video file from the media library and updates the provider's meta data.
+     */
     public function ajax_delete_video()
     {
         $this->verify_ajax_request('cosy_dashboard_nonce');
@@ -248,7 +261,7 @@ class Dashboard
         if ($video_url) {
             $attachment_id = attachment_url_to_postid($video_url);
             if ($attachment_id) {
-                wp_delete_attachment($attachment_id, true); // ✅ delete from media library
+                wp_delete_attachment($attachment_id, true); // delete from media library
             }
             delete_user_meta($user_id, 'introduction_video');
         }
