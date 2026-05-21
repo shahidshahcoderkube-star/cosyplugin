@@ -15,22 +15,22 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
             <div class="header-icon-badge">
                 <i class="fas fa-file-invoice-dollar"></i>
             </div>
-            <h3 class="mb-0 fw-bold cosy-invoices-title">Invoices</h3>
+            <h3 class="mb-0 fw-bold cosy-invoices-title"><?php esc_html_e('Invoices', 'cosy-appointments'); ?></h3>
         </div>
-        <p class="text-muted mb-4 cosy-invoices-subtitle">Generate, view and manage your invoices below.</p>
+        <p class="text-muted mb-4 cosy-invoices-subtitle"><?php esc_html_e('Generate, view and manage your invoices below.', 'cosy-appointments'); ?></p>
 
         <!-- Invoice Table -->
         <div class="table-responsive">
             <table class="table align-middle" id="providerInvoicesTable">
                 <thead>
                     <tr>
-                        <th class="pb-3">#Invoice ID</th>
-                        <th class="pb-3">Customer</th>
-                        <th class="pb-3">Service</th>
-                        <th class="pb-3">Date</th>
-                        <th class="pb-3">Amount</th>
-                        <th class="pb-3">Status</th>
-                        <th class="pb-3">Action</th>
+                        <th class="pb-3"><?php esc_html_e('#Invoice ID', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Customer', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Date', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Amount', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,8 +40,8 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                 <div class="mb-3">
                                     <i class="fas fa-file-invoice fa-3x invoice-empty-icon"></i>
                                 </div>
-                                <h6 class="fw-bold mb-1">No Invoices Found</h6>
-                                <p class="small text-muted mb-0">Completed bookings will automatically generate invoices here.</p>
+                                <h6 class="fw-bold mb-1"><?php esc_html_e('No Invoices Found', 'cosy-appointments'); ?></h6>
+                                <p class="small text-muted mb-0"><?php esc_html_e('Completed bookings will automatically generate invoices here.', 'cosy-appointments'); ?></p>
                             </td>
                         </tr>
                     <?php else : ?>
@@ -115,14 +115,14 @@ ob_start();
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="p-3 rounded-4 invoice-modal-info-box-primary">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-user invoice-modal-icon-primary"></i> Customer Info</h6>
+                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-user invoice-modal-icon-primary"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
                             <p class="mb-1 fw-bold text-slate invoice-modal-customer-name" id="modalInvCustomerName"></p>
                             <p class="mb-0 text-muted small" id="modalInvCustomerEmail"></p>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="p-3 rounded-4 bg-light invoice-modal-info-box-secondary">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-info-circle invoice-modal-icon-primary"></i> Billing Details</h6>
+                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-info-circle invoice-modal-icon-primary"></i> <?php esc_html_e('Billing Details', 'cosy-appointments'); ?></h6>
                             <p class="mb-1 fw-bold text-slate invoice-modal-customer-name" id="modalInvServiceName"></p>
                             <p class="mb-1 text-muted small invoice-modal-small-info" id="modalInvDate"></p>
                             <p class="mb-0 fw-bold invoice-modal-cost-info" id="modalInvCostInfo"></p>
@@ -132,11 +132,11 @@ ob_start();
 <?php
 $modal_body = ob_get_clean();
 
-$footer_html = '<button class="btn btn-primary w-100 rounded-4 py-3 fw-bold invoice-btn-modal-download" id="btnDownloadInvoicePdf">Download PDF Receipt</button>';
+$footer_html = '<button class="btn btn-primary w-100 rounded-4 py-3 fw-bold invoice-btn-modal-download" id="btnDownloadInvoicePdf">' . esc_html__('Download PDF Receipt', 'cosy-appointments') . '</button>';
 
 echo cosy_render_popup(
     'invoiceModal',
-    'Invoice Details',
+    __('Invoice Details', 'cosy-appointments'),
     $modal_body,
     [
         'dialog_class' => 'modal-lg',

@@ -25,42 +25,42 @@
                 </div>
                 <h4 class="m-0"
                     style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem; color: #1e293b; letter-spacing: 0.5px; text-transform: uppercase;">
-                    Provider Dashboard</h4>
+                    <?php esc_html_e('Provider Dashboard', 'cosy-appointments'); ?></h4>
             </div>
 
             <div class="nav flex-column cc__dashboard nav-pills" id="cosyDashboardTabs" role="tablist"
                 aria-orientation="vertical">
                 <button class="nav-link cosy-tab active mb-2" data-tab="profile" id="profile-tab" data-bs-toggle="pill"
                     data-bs-target="#profile" type="button" role="tab">
-                    <i class="fas fa-user-circle"></i> Profile
+                    <i class="fas fa-user-circle"></i> <?php esc_html_e('Profile', 'cosy-appointments'); ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="video" id="video-tab" data-bs-toggle="pill"
                     data-bs-target="#video" type="button" role="tab">
-                    <i class="fas fa-video"></i> Video
+                    <i class="fas fa-video"></i> <?php esc_html_e('Video', 'cosy-appointments'); ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="services" id="services-tab" data-bs-toggle="pill"
                     data-bs-target="#services" type="button" role="tab">
-                    <i class="fas fa-concierge-bell"></i> Services
+                    <i class="fas fa-concierge-bell"></i> <?php esc_html_e('Services', 'cosy-appointments'); ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="availability" id="availability-tab"
                     data-bs-toggle="pill" data-bs-target="#availability" type="button" role="tab">
-                    <i class="fas fa-calendar-alt"></i> Availability
+                    <i class="fas fa-calendar-alt"></i> <?php esc_html_e('Availability', 'cosy-appointments'); ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="orders" id="orders-tab" data-bs-toggle="pill"
                     data-bs-target="#orders" type="button" role="tab">
-                    <i class="fas fa-shopping-bag"></i> Orders
+                    <i class="fas fa-shopping-bag"></i> <?php esc_html_e('Orders', 'cosy-appointments'); ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="nonworking" id="nonworking-tab" data-bs-toggle="pill"
                     data-bs-target="#nonworking" type="button" role="tab">
-                    <i class="fas fa-calendar-times"></i> Holidays
+                    <i class="fas fa-calendar-times"></i> <?php esc_html_e('Holidays', 'cosy-appointments'); ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="reviews" id="reviews-tab" data-bs-toggle="pill"
                     data-bs-target="#reviews" type="button" role="tab">
-                    <i class="fas fa-star"></i> Reviews
+                    <i class="fas fa-star"></i> <?php esc_html_e('Reviews', 'cosy-appointments'); ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="invoices" id="invoices-tab" data-bs-toggle="pill"
                     data-bs-target="#invoices" type="button" role="tab">
-                    <i class="fas fa-file-invoice-dollar"></i> Invoices
+                    <i class="fas fa-file-invoice-dollar"></i> <?php esc_html_e('Invoices', 'cosy-appointments'); ?>
                 </button>
             </div>
         </div>
@@ -79,9 +79,8 @@
                         <i class="fas fa-exclamation-triangle" style="font-size: 1.1rem; color: #d39e00;"></i>
                     </div>
                     <div>
-                        <strong style="font-family: 'Poppins', sans-serif;">Account Under Review:</strong> <span
-                            style="font-size: 0.95rem;">Your profile is currently under review by the administrator. Once
-                            approved, it will be visible to parents.</span>
+                        <strong style="font-family: 'Poppins', sans-serif;"><?php esc_html_e('Account Under Review:', 'cosy-appointments'); ?></strong> <span
+                            style="font-size: 0.95rem;"><?php esc_html_e('Your profile is currently under review by the administrator. Once approved, it will be visible to parents.', 'cosy-appointments'); ?></span>
                     </div>
                 </div>
             <?php endif; ?>
