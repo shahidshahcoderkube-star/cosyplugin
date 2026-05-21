@@ -109,15 +109,9 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
     </div>
 </div>
 
-<!-- Invoice Details Modal -->
-<div class="modal fade" id="invoiceModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content cosy-modal-content border-0 shadow-lg">
-            <div class="modal-header cosy-modal-header text-white p-4 invoice-modal-header-gradient">
-                <h5 class="modal-title fw-bold text-white invoice-modal-title" id="modalInvoiceTitle">Invoice Details</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
+<?php
+ob_start();
+?>
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="p-3 rounded-4 invoice-modal-info-box-primary">
@@ -135,10 +129,20 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer border-0 p-4 pt-0">
-                <button class="btn btn-primary w-100 rounded-4 py-3 fw-bold invoice-btn-modal-download" id="btnDownloadInvoicePdf">Download PDF Receipt</button>
-            </div>
-        </div>
-    </div>
-</div>
+<?php
+$modal_body = ob_get_clean();
+
+$footer_html = '<button class="btn btn-primary w-100 rounded-4 py-3 fw-bold invoice-btn-modal-download" id="btnDownloadInvoicePdf">Download PDF Receipt</button>';
+
+echo cosy_render_popup(
+    'invoiceModal',
+    'Invoice Details',
+    $modal_body,
+    [
+        'dialog_class' => 'modal-lg',
+        'max_width'    => '',
+        'header_class' => 'invoice-modal-header-gradient p-4 text-white',
+        'footer_html'  => $footer_html
+    ]
+);
+?>

@@ -84,20 +84,9 @@ if (!is_array($holidays)) {
 <!-- ============================================================
      ADD HOLIDAY MODAL
      ============================================================ -->
-<div class="modal fade" id="addHolidayModal" tabindex="-1" aria-hidden="true" style="z-index: 99999;">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
-        <div class="modal-content cosy-modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header cosy-modal-header">
-                <h5 class="modal-title fw-bold text-white mb-0">
-                    <i class="fas fa-calendar-plus me-2"></i> Add Non Working Day
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="cosy-modal-body">
+<?php
+ob_start();
+?>
                 <div class="mb-3">
                     <label class="form-label fw-bold d-block mb-2">Date</label>
                     <input
@@ -121,9 +110,13 @@ if (!is_array($holidays)) {
                         <i class="fas fa-calendar-check me-2"></i> SAVE HOLIDAY
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
+<?php
+$modal_body = ob_get_clean();
+echo cosy_render_popup(
+    'addHolidayModal', 
+    '<i class="fas fa-calendar-plus me-2"></i> Add Non Working Day', 
+    $modal_body
+);
+?>
 
 <!-- JavaScript: src/assets/js/dashboard.js (Non Working Days section) -->

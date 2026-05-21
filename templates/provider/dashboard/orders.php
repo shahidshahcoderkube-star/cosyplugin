@@ -167,15 +167,9 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
     </div>
 </div>
 
-<!-- Order Details Modal -->
-<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content cosy-modal-content border-0 shadow-lg">
-            <div class="modal-header cosy-modal-header cosy-modal-header-gradient text-white p-4">
-                <h5 class="modal-title fw-bold text-white cosy-modal-title" id="modalOrderTitle">Order Details</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
+<?php
+ob_start();
+?>
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="p-3 rounded-4 modal-info-box-primary">
@@ -199,10 +193,19 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                     <h6 class="fw-bold mb-2 text-slate modal-status-title">Current Status</h6>
                     <div id="modalStatusContainer"></div>
                 </div>
-            </div>
-            <div class="modal-footer border-0 p-4 pt-0 justify-content-end gap-2" id="modalFooterActions">
-                <!-- Actions populated dynamically -->
-            </div>
-        </div>
-    </div>
-</div>
+<?php
+$modal_body = ob_get_clean();
+
+// Note: Footer actions are populated dynamically via JS, so we pass an empty footer that the JS will target.
+echo cosy_render_popup(
+    'orderDetailsModal',
+    'Order Details',
+    $modal_body,
+    [
+        'dialog_class' => 'modal-lg',
+        'max_width'    => '', // rely on modal-lg
+        'header_class' => 'cosy-modal-header-gradient p-4',
+        'footer_html'  => '<!-- Actions populated dynamically -->' // This ensures the footer div is created
+    ]
+);
+?>

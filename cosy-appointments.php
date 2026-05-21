@@ -109,6 +109,7 @@ function cosy_create_pages_on_activation()
 // Require classes (no autoloader, so manual requires)
 require_once COSY_APPT_PATH . 'src/Frontend/Common.php';
 require_once COSY_APPT_PATH . 'src/Loader.php';
+require_once COSY_APPT_PATH . 'src/Helpers.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Admin.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/MediaApprove.php';
 require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Backend.php';
