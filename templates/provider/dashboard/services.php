@@ -44,7 +44,6 @@
                     <thead>
                         <tr>
                             <th>Service Name</th>
-                            <th>Description</th>
                             <th>Duration</th>
                             <th>Price</th>
                             <th>Action</th>

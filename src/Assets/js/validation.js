@@ -291,32 +291,32 @@ var CosyApp = (function ($) {
                 'Are you sure?',
                 'Do you really want to delete this video?'
             ).then(() => {
-                    $.ajax({
-                        url: cosy_ajax.ajax_url,
-                        type: "POST",
-                        data: {
-                            action: "delete_video",   // Matches PHP registered action in Class_Provider_Dashboard.php
-                            user_id: userId,           // PHP ajax_delete_video() expects 'user_id'
-                            nonce: $("#cosy_dashboard_nonce_field").val()
-                        },
-                        beforeSend() {
-                            $btn.prop("disabled", true).html(`<span class="spinner-border spinner-border-sm"></span>`);
-                        },
-                        success(res) {
-                            if (res.success) {
-                                $container.fadeOut(300, function () { $(this).remove(); });
-                                CosyAlert.success('Deleted!', 'Video has been deleted.').then(() => {
-                                    // Reload page so the upload form reappears
-                                    location.reload();
-                                });
-                            } else {
-                                CosyAlert.error('Error!', res.data || "Could not delete video.");
-                            }
-                        },
-                        complete() {
-                            $btn.prop("disabled", false).html('<i class="fas fa-trash"></i>');
+                $.ajax({
+                    url: cosy_ajax.ajax_url,
+                    type: "POST",
+                    data: {
+                        action: "delete_video",   // Matches PHP registered action in Class_Provider_Dashboard.php
+                        user_id: userId,           // PHP ajax_delete_video() expects 'user_id'
+                        nonce: $("#cosy_dashboard_nonce_field").val()
+                    },
+                    beforeSend() {
+                        $btn.prop("disabled", true).html(`<span class="spinner-border spinner-border-sm"></span>`);
+                    },
+                    success(res) {
+                        if (res.success) {
+                            $container.fadeOut(300, function () { $(this).remove(); });
+                            CosyAlert.success('Deleted!', 'Video has been deleted.').then(() => {
+                                // Reload page so the upload form reappears
+                                location.reload();
+                            });
+                        } else {
+                            CosyAlert.error('Error!', res.data || "Could not delete video.");
                         }
-                    });
+                    },
+                    complete() {
+                        $btn.prop("disabled", false).html('<i class="fas fa-trash"></i>');
+                    }
+                });
             }).catch(() => { /* Cancelled */ });
         });
     }
@@ -348,7 +348,11 @@ var CosyApp = (function ($) {
 
                 beforeSend() {
                     $(targetBox).html(
-                        `<div class="p-4 text-center"><span class="spinner-border"></span></div>`
+                        `<div class="d-flex justify-content-center align-items-center" style="min-height: 600px;">
+                            <span class="spinner-border" style="color: #a44390;" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </span>
+                        </div>`
                     );
                 },
 
@@ -379,7 +383,6 @@ var CosyApp = (function ($) {
         return `
         <tr id="row-${serviceId}">
             <td><span class="service-title">${item?.service ?? serviceTitle}</span></td>
-            <td><textarea class="form-control" name="service_desc[${serviceId}]">${item?.description ?? ''}</textarea></td>
             <td>
                 <select class="form-select" name="service_duration[${serviceId}]">
                     <option value="10" ${item?.duration == 10 ? 'selected' : ''}>10 Minutes</option>
@@ -450,23 +453,13 @@ var CosyApp = (function ($) {
         $(document).ready(function () {
             $("#servicesForm").validate({
                 rules: {
-                    "service_desc[13]": { required: true, minlength: 5 },
                     "service_price[13]": { required: true, number: true, min: 1 },
-
-                    "service_desc[14]": { required: true, minlength: 5 },
                     "service_price[14]": { required: true, number: true, min: 1 },
-
-                    "service_desc[15]": { required: true, minlength: 5 },
                     "service_price[15]": { required: true, number: true, min: 1 }
                 },
                 messages: {
-                    "service_desc[13]": "Description must be at least 5 characters",
                     "service_price[13]": "Please enter a valid price greater than 0",
-
-                    "service_desc[14]": "Description must be at least 5 characters",
                     "service_price[14]": "Please enter a valid price greater than 0",
-
-                    "service_desc[15]": "Description must be at least 5 characters",
                     "service_price[15]": "Please enter a valid price greater than 0"
                 },
                 errorClass: "text-danger",   // error message styling
@@ -494,7 +487,6 @@ var CosyApp = (function ($) {
             const row = $("#row-" + serviceId);
 
             const service = row.find(".service-title").text().trim().replace(/\s+/g, " ");
-            const description = row.find(`textarea[name="service_desc[${serviceId}]"]`).val();
             const duration = row.find(`select[name="service_duration[${serviceId}]"]`).val();
             const price = row.find(`input[name="service_price[${serviceId}]"]`).val();
 
@@ -514,7 +506,6 @@ var CosyApp = (function ($) {
                     body: JSON.stringify({
                         service_id: serviceId,
                         serviceTitle: service,
-                        description: description,
                         duration: duration,
                         price: price,
                         checked: isChecked ? 'yes' : 'no'
@@ -580,7 +571,6 @@ var CosyApp = (function ($) {
                             .then(resp => {
                                 const item = resp?.data ? resp.data : resp;
                                 const hasData = item && (
-                                    (item.description && item.description.trim() !== '') ||
                                     (item.price && Number(item.price) > 0) ||
                                     (item.duration && Number(item.duration) > 0)
                                 );
@@ -619,29 +609,29 @@ var CosyApp = (function ($) {
                 'Are you sure?',
                 'Do you really want to delete this service?'
             ).then(() => {
-                    fetch(COSY_API.base + COSY_API.providerServices.delete, {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-WP-Nonce': cosy_ajax.nonce
-                        },
-                        body: JSON.stringify({ service_id: serviceId })
+                fetch(COSY_API.base + COSY_API.providerServices.delete, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cosy_ajax.nonce
+                    },
+                    body: JSON.stringify({ service_id: serviceId })
+                })
+                    .then(res => res.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            $("#row-" + serviceId).remove();
+                            CosyAlert.success('Deleted!', resp.message);
+                            setTimeout(() => { location.reload(); }, 1600);
+                        } else {
+                            CosyAlert.error('Error!', resp.message);
+                        }
                     })
-                        .then(res => res.json())
-                        .then(resp => {
-                            if (resp.success) {
-                                $("#row-" + serviceId).remove();
-                                CosyAlert.success('Deleted!', resp.message);
-                                setTimeout(() => { location.reload(); }, 1600);
-                            } else {
-                                CosyAlert.error('Error!', resp.message);
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Remove service error:", err);
-                            CosyAlert.error('Error!', 'Something went wrong while deleting.');
-                        });
+                    .catch(err => {
+                        console.error("Remove service error:", err);
+                        CosyAlert.error('Error!', 'Something went wrong while deleting.');
+                    });
             }).catch(() => { /* Cancelled */ });
         });
     }
@@ -675,10 +665,10 @@ var CosyApp = (function ($) {
     function renderAvailabilityBadges() {
         const container = jQuery('#weekly_preview_badges');
         if (!container.length) return;
-        
+
         container.empty();
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        
+
         days.forEach(day => {
             const avail = window.savedAvailability && window.savedAvailability[day];
             if (avail && avail.start_time && avail.end_time) {
@@ -703,7 +693,7 @@ var CosyApp = (function ($) {
      */
     function initAvailability(container = document) {
         // Day Selection Handler (via event delegation to survive dynamic DOM load/reloads)
-        $(container).off('change', '#availability_day').on('change', '#availability_day', function() {
+        $(container).off('change', '#availability_day').on('change', '#availability_day', function () {
             const day = $(this).val();
             if (!day) return;
 
@@ -820,7 +810,7 @@ var CosyApp = (function ($) {
      */
     function initNonWorkingDays(container = document) {
         // Add Non-Working Day via event delegation
-        $(container).off('click', '#add_non_working_day_btn').on('click', '#add_non_working_day_btn', function(e) {
+        $(container).off('click', '#add_non_working_day_btn').on('click', '#add_non_working_day_btn', function (e) {
             e.preventDefault();
             const date = $('#nonWorkingDate').val();
             const reason = $('#nonWorkingReason').val() || 'N/A';
@@ -859,7 +849,7 @@ var CosyApp = (function ($) {
         });
 
         // Remove Non-Working Day via event delegation
-        $(container).off('click', '.remove-day-btn').on('click', '.remove-day-btn', function(e) {
+        $(container).off('click', '.remove-day-btn').on('click', '.remove-day-btn', function (e) {
             e.preventDefault();
             const date = $(this).data('date');
             const row = $('#day-' + date);
