@@ -16,9 +16,9 @@ $rating_counts = $reviews_data['rating_counts'];
             <div class="header-icon-badge" style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-star" style="color: #a44390; font-size: 1.2rem;"></i>
             </div>
-            <h3 class="mb-0">Customer Reviews</h3>
+            <h3 class="mb-0"><?php esc_html_e('Customer Reviews', 'cosy-appointments'); ?></h3>
         </div>
-        <p class="text-muted mb-4" style="margin-left: 58px;">See overall ratings and feedback from your customers.</p>
+        <p class="text-muted mb-4" style="margin-left: 58px;"><?php esc_html_e('See overall ratings and feedback from your customers.', 'cosy-appointments'); ?></p>
 
         <!-- Rating Summary -->
         <div class="row mb-5 align-items-center">
@@ -39,8 +39,8 @@ $rating_counts = $reviews_data['rating_counts'];
                     }
                     ?>
                 </div>
-                <p class="text-muted small fw-bold mb-0">Average Rating</p>
-                <p class="text-muted small">Based on <?php echo $total_approved; ?> reviews</p>
+                <p class="text-muted small fw-bold mb-0"><?php esc_html_e('Average Rating', 'cosy-appointments'); ?></p>
+                <p class="text-muted small"><?php printf( esc_html__('Based on %d reviews', 'cosy-appointments'), $total_approved ); ?></p>
             </div>
             <div class="col-md-8 ps-md-5">
                 <!-- Rating Distribution -->
@@ -60,7 +60,7 @@ $rating_counts = $reviews_data['rating_counts'];
         </div>
 
         <!-- Recent Reviews -->
-        <h5 class="fw-bold mb-3 border-bottom pb-2" style="font-family: 'Poppins', sans-serif; color: #1e293b;">Feedback List</h5>
+        <h5 class="fw-bold mb-3 border-bottom pb-2" style="font-family: 'Poppins', sans-serif; color: #1e293b;"><?php esc_html_e('Feedback List', 'cosy-appointments'); ?></h5>
         <div class="reviews-list">
             <?php if (!empty($all_reviews)): ?>
                 <?php foreach ($all_reviews as $r):
@@ -72,9 +72,9 @@ $rating_counts = $reviews_data['rating_counts'];
                                 <h6 class="mb-0 fw-bold d-flex align-items-center">
                                     <?php echo esc_html($r['customer_name']); ?>
                                     <?php if ($is_pending): ?>
-                                        <span class="badge bg-warning text-dark ms-2" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;"><i class="fas fa-clock me-1"></i> Pending Approval</span>
+                                        <span class="badge bg-warning text-dark ms-2" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;"><i class="fas fa-clock me-1"></i> <?php esc_html_e('Pending Approval', 'cosy-appointments'); ?></span>
                                     <?php else: ?>
-                                        <span class="badge bg-success text-white ms-2" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;"><i class="fas fa-check-circle me-1"></i> Approved</span>
+                                        <span class="badge bg-success text-white ms-2" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;"><i class="fas fa-check-circle me-1"></i> <?php esc_html_e('Approved', 'cosy-appointments'); ?></span>
                                     <?php endif; ?>
                                 </h6>
                                 <small class="text-muted"><?php echo date('d M Y - h:i A', strtotime($r['created_at'])); ?></small>
@@ -91,14 +91,14 @@ $rating_counts = $reviews_data['rating_counts'];
                         <div class="d-flex gap-2">
                             <?php if ($is_pending): ?>
                                 <button class="btn btn-sm btn-success approve-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem; background-color: #22c55e; border-color: #22c55e;">
-                                    <i class="fas fa-check me-1"></i> Approve
+                                    <i class="fas fa-check me-1"></i> <?php esc_html_e('Approve', 'cosy-appointments'); ?>
                                 </button>
                                 <button class="btn btn-sm btn-danger delete-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem; background-color: #ef4444; border-color: #ef4444;">
-                                    <i class="fas fa-times me-1"></i> Reject
+                                    <i class="fas fa-times me-1"></i> <?php esc_html_e('Reject', 'cosy-appointments'); ?>
                                 </button>
                             <?php else: ?>
                                 <button class="btn btn-sm btn-outline-danger delete-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem;">
-                                    <i class="fas fa-trash-alt me-1"></i> Delete
+                                    <i class="fas fa-trash-alt me-1"></i> <?php esc_html_e('Delete', 'cosy-appointments'); ?>
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -107,7 +107,7 @@ $rating_counts = $reviews_data['rating_counts'];
             <?php else: ?>
                 <div class="text-center py-5 rounded-4" style="background: #f8fafc; border: 1.5px dashed #cbd5e1;">
                     <i class="far fa-comments text-muted mb-3" style="font-size: 2.5rem;"></i>
-                    <p class="text-muted mb-0">No customer reviews found for your profile yet.</p>
+                    <p class="text-muted mb-0"><?php esc_html_e('No customer reviews found for your profile yet.', 'cosy-appointments'); ?></p>
                 </div>
             <?php endif; ?>
         </div>

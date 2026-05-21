@@ -15,29 +15,29 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
             <div class="header-icon-badge">
                 <i class="fas fa-box-open"></i>
             </div>
-            <h3 class="mb-0 fw-bold">Orders Management</h3>
+            <h3 class="mb-0 fw-bold"><?php esc_html_e('Orders Management', 'cosy-appointments'); ?></h3>
         </div>
-        <p class="text-muted mb-4 cosy-orders-subtitle">Track and manage your customer bookings and order status.</p>
+        <p class="text-muted mb-4 cosy-orders-subtitle"><?php esc_html_e('Track and manage your customer bookings and order status.', 'cosy-appointments'); ?></p>
 
         <!-- Search & Filter -->
         <div class="row mb-4 gx-3">
             <div class="col-md-6 mb-2 mb-md-0">
                 <div class="position-relative">
                     <i class="fas fa-search position-absolute text-muted search-icon-abs" style="top: 50%; left: 18px; transform: translateY(-50%); pointer-events: none; z-index: 10;"></i>
-                    <input type="text" id="orderSearchInput" class="form-control rounded-4 border-0 bg-light cosy-orders-filter-input" style="padding-left: 48px !important;" placeholder="Search by Order ID or Customer...">
+                    <input type="text" id="orderSearchInput" class="form-control rounded-4 border-0 bg-light cosy-orders-filter-input" style="padding-left: 48px !important;" placeholder="<?php esc_attr_e('Search by Order ID or Customer...', 'cosy-appointments'); ?>">
                 </div>
             </div>
             <div class="col-md-3 mb-2 mb-md-0">
                 <select id="orderStatusFilter" class="form-select rounded-4 border-0 bg-light cosy-orders-filter-select">
-                    <option value="">Filter by Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
+                    <option value=""><?php esc_html_e('Filter by Status', 'cosy-appointments'); ?></option>
+                    <option value="pending"><?php esc_html_e('Pending', 'cosy-appointments'); ?></option>
+                    <option value="completed"><?php esc_html_e('Completed', 'cosy-appointments'); ?></option>
+                    <option value="cancelled"><?php esc_html_e('Cancelled', 'cosy-appointments'); ?></option>
                 </select>
             </div>
             <div class="col-md-3">
                 <button id="exportOrdersBtn" class="btn btn-primary custom-btn w-100 rounded-4 fw-bold d-flex align-items-center justify-content-center gap-2 cosy-orders-export-btn">
-                    <i class="fas fa-file-export"></i> Export Orders
+                    <i class="fas fa-file-export"></i> <?php esc_html_e('Export Orders', 'cosy-appointments'); ?>
                 </button>
             </div>
         </div>
@@ -47,12 +47,12 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
             <table class="table align-middle" id="providerOrdersTable">
                 <thead>
                     <tr>
-                        <th class="pb-3">#Order ID</th>
-                        <th class="pb-3">Customer</th>
-                        <th class="pb-3">Service</th>
-                        <th class="pb-3">Date</th>
-                        <th class="pb-3">Status</th>
-                        <th class="pb-3">Action</th>
+                        <th class="pb-3"><?php esc_html_e('#Order ID', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Customer', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Date', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
+                        <th class="pb-3"><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,8 +62,8 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                 <div class="mb-3">
                                     <i class="fas fa-folder-open fa-3x order-empty-icon"></i>
                                 </div>
-                                <h6 class="fw-bold mb-1">No Orders Found</h6>
-                                <p class="small text-muted mb-0">Newly booked orders will appear automatically here.</p>
+                                <h6 class="fw-bold mb-1"><?php esc_html_e('No Orders Found', 'cosy-appointments'); ?></h6>
+                                <p class="small text-muted mb-0"><?php esc_html_e('Newly booked orders will appear automatically here.', 'cosy-appointments'); ?></p>
                             </td>
                         </tr>
                     <?php else : ?>
@@ -101,13 +101,13 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                             $status_badge = '';
                             $badge_class = '';
                             if ($booking_status === 'completed') {
-                                $status_badge = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+                                $status_badge = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> ' . esc_html__('Completed', 'cosy-appointments') . '</span>';
                                 $badge_class = 'completed';
                             } elseif ($booking_status === 'cancelled') {
-                                $status_badge = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+                                $status_badge = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> ' . esc_html__('Cancelled', 'cosy-appointments') . '</span>';
                                 $badge_class = 'cancelled';
                             } else {
-                                $status_badge = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
+                                $status_badge = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> ' . esc_html__('Pending', 'cosy-appointments') . '</span>';
                                 $badge_class = 'pending';
                             }
                         ?>
@@ -173,14 +173,14 @@ ob_start();
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="p-3 rounded-4 modal-info-box-primary">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-user modal-icon-primary"></i> Customer Info</h6>
+                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-user modal-icon-primary"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
                             <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalCustomerName"></p>
                             <p class="mb-0 text-muted small" id="modalCustomerEmail"></p>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="p-3 rounded-4 bg-light modal-info-box-secondary">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-concierge-bell modal-icon-primary"></i> Service Details</h6>
+                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-concierge-bell modal-icon-primary"></i> <?php esc_html_e('Service Details', 'cosy-appointments'); ?></h6>
                             <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalServiceName"></p>
                             <p class="mb-1 text-muted small modal-small-info" id="modalScheduleInfo"></p>
                             <p class="mb-1 text-muted small modal-small-info" id="modalWeeksInfo"></p>
@@ -190,7 +190,7 @@ ob_start();
                 </div>
 
                 <div class="mt-4 p-3 rounded-4 border modal-status-box">
-                    <h6 class="fw-bold mb-2 text-slate modal-status-title">Current Status</h6>
+                    <h6 class="fw-bold mb-2 text-slate modal-status-title"><?php esc_html_e('Current Status', 'cosy-appointments'); ?></h6>
                     <div id="modalStatusContainer"></div>
                 </div>
 <?php
@@ -199,7 +199,7 @@ $modal_body = ob_get_clean();
 // Note: Footer actions are populated dynamically via JS, so we pass an empty footer that the JS will target.
 echo cosy_render_popup(
     'orderDetailsModal',
-    'Order Details',
+    __('Order Details', 'cosy-appointments'),
     $modal_body,
     [
         'dialog_class' => 'modal-lg',

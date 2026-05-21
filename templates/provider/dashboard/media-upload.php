@@ -1,6 +1,6 @@
 <div class="card cosy-video-card mb-4">
     <div class="card-body p-0">
-        <h3><i class="fas fa-video" style="color: #a44390;"></i> Introduction Video</h3>
+        <h3><i class="fas fa-video" style="color: #a44390;"></i> <?php esc_html_e('Introduction Video', 'cosy-appointments'); ?></h3>
 
         <?php
         $user_id = get_current_user_id();
@@ -12,12 +12,12 @@
 
         <?php if ($video_status === 'pending') : ?>
             <div class="alert alert-warning border-0 rounded-4 shadow-sm py-3" role="alert"> 
-                <i class="fas fa-clock me-2"></i> Your video is currently under review. 
+                <i class="fas fa-clock me-2"></i> <?php esc_html_e('Your video is currently under review.', 'cosy-appointments'); ?> 
             </div>
 
         <?php elseif ($video_status === 'rejected') : ?>
             <div class="alert alert-danger border-0 rounded-4 shadow-sm py-3" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i> Your video was not approved. Please upload a new one.
+                <i class="fas fa-exclamation-circle me-2"></i> <?php esc_html_e('Your video was not approved. Please upload a new one.', 'cosy-appointments'); ?>
             </div>
 
             <!-- Show upload form again -->
@@ -33,8 +33,8 @@
                     class="video-dropzone d-flex align-items-center justify-content-center flex-column p-5"
                     style="cursor:pointer; min-height:220px;">
                     <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
-                    <span class="mt-3 fw-bold">Click to upload your intro video</span>
-                    <p class="text-muted small mt-1">Recommended: MP4 format (Max 20MB)</p>
+                    <span class="mt-3 fw-bold"><?php esc_html_e('Click to upload your intro video', 'cosy-appointments'); ?></span>
+                    <p class="text-muted small mt-1"><?php esc_html_e('Recommended: MP4 format (Max 20MB)', 'cosy-appointments'); ?></p>
                 </div>
 
                 <input type="file" id="video-upload-<?php echo esc_attr($user_id); ?>" class="video-upload" name="video_upload" accept="video/*" hidden>
@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary custom-btn">Save Video</button>
+                    <button type="submit" class="btn btn-primary custom-btn"><?php esc_html_e('Save Video', 'cosy-appointments'); ?></button>
                 </div>
             </form>
 
@@ -80,8 +80,8 @@
                     class="video-dropzone d-flex align-items-center justify-content-center flex-column p-5"
                     style="cursor:pointer; min-height:220px;">
                     <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
-                    <span class="mt-3 fw-bold">Click to upload your intro video</span>
-                    <p class="text-muted small mt-1">Recommended: MP4 format (Max 20MB)</p>
+                    <span class="mt-3 fw-bold"><?php esc_html_e('Click to upload your intro video', 'cosy-appointments'); ?></span>
+                    <p class="text-muted small mt-1"><?php esc_html_e('Recommended: MP4 format (Max 20MB)', 'cosy-appointments'); ?></p>
                 </div>
 
                 <input type="file" id="video-upload-<?php echo esc_attr($user_id); ?>" class="video-upload" name="video_upload" accept="video/*" hidden>
@@ -93,7 +93,7 @@
                 </div>
 
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary custom-btn">Save Video</button>
+                    <button type="submit" class="btn btn-primary custom-btn"><?php esc_html_e('Save Video', 'cosy-appointments'); ?></button>
                 </div>
             </form>
         <?php endif; ?>
