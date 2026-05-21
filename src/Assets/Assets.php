@@ -228,7 +228,7 @@ class Assets
             'cosy-validation',
             COSY_APPT_URL . 'src/assets/js/validation.js',
             ['cosy-api', 'jquery', 'jquery-validate'],
-            rand(),
+            COSY_APPT_VER,
             true
         );
 

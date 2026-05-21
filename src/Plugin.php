@@ -52,13 +52,6 @@ class Plugin
 
         //--------------- Register REST API Routes ----------------//
         (new Routes())->register($this->loader);
-        // (new ProviderServices())->register($this->loader);
-
-        if (class_exists(\Cosy\Appointments\Rest\ProviderServices::class)) {
-            error_log('ProviderServices loaded');
-        } else {
-            error_log('ProviderServices NOT loaded');
-        }
     }
 
     //--------------- Run the Plugin ----------------//
@@ -66,18 +59,6 @@ class Plugin
     {
         $this->loader->run();
     }
-    //--------------- Register Shortcode ----------------//
-    public function register_shortcode(): void
-    {
-        add_shortcode('cosy_appointments', [$this, 'render_shortcode']);
-    }
-
-    //--------------- Shortcode Render Callback ----------------//
-    public function render_shortcode(): string
-    {
-        return '<h2>Welcome to Cosy Appointments</h2>
-                <p>Plugin Path: ' . COSY_APPT_PATH . '</p>
-                <p>Plugin URL: ' . COSY_APPT_URL . '</p>
-                <p>Plugin Version: ' . COSY_APPT_VER . '</p>';
-    }
 }
+
+

@@ -235,7 +235,7 @@ class Frontend
         // Pages that require login
         $restricted_slugs = ['appointments', 'orders', 'customer-order', 'customer-profile', 'provider-dashboard', 'provider-verify', 'cosy-checkout'];
         if (is_page($restricted_slugs) && !is_user_logged_in()) {
-            wp_redirect(site_url('/login'));
+            wp_safe_redirect(site_url('/login'));
             exit;
         }
 
@@ -246,7 +246,7 @@ class Frontend
 
             $blocked_for_provider = ['customer-order', 'customer-profile', 'appointments', 'orders', 'cosy-checkout'];
             if (in_array('provider', (array) $user->roles) && is_page($blocked_for_provider)) {
-                wp_redirect(site_url('/provider-dashboard'));
+                wp_safe_redirect(site_url('/provider-dashboard'));
                 exit;
             }
 
