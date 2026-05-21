@@ -31,7 +31,7 @@ $age_group     = $provider_data['age_group'] ?? '';
             <div class="header-icon-badge" style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-user-circle" style="color: #a44390; font-size: 1.3rem;"></i>
             </div>
-            <h3 class="mb-0" style="margin-bottom: 0 !important;">Profile Information</h3>
+            <h3 class="mb-0" style="margin-bottom: 0 !important;"><?php esc_html_e('Profile Information', 'cosy-appointments'); ?></h3>
         </div>
         <form method="post" class="cosy-form-update" data-action="cosy_provider_information_update" enctype="multipart/form-data">
             <div class="cosy-message"></div>
@@ -54,19 +54,19 @@ $age_group     = $provider_data['age_group'] ?? '';
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Username</label>
+                        <label class="form-label"><?php esc_html_e('Username', 'cosy-appointments'); ?></label>
                         <input type="text" name="prov_username" class="form-control" value="<?php echo esc_attr($prov_username); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">First Name</label>
+                        <label class="form-label"><?php esc_html_e('First Name', 'cosy-appointments'); ?></label>
                         <input type="text" name="prov_fname" class="form-control" value="<?php echo esc_attr($prov_fname); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Middle Name</label>
+                        <label class="form-label"><?php esc_html_e('Middle Name', 'cosy-appointments'); ?></label>
                         <input type="text" name="prov_mname" class="form-control" value="<?php echo esc_attr($prov_mname); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Surname</label>
+                        <label class="form-label"><?php esc_html_e('Surname', 'cosy-appointments'); ?></label>
                         <input type="text" name="prov_sname" class="form-control" value="<?php echo esc_attr($prov_sname); ?>" required>
                     </div>
 
@@ -76,56 +76,56 @@ $age_group     = $provider_data['age_group'] ?? '';
                 <!-- Right Column -->
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
+                        <label class="form-label"><?php esc_html_e('Email', 'cosy-appointments'); ?></label>
                         <input type="email" name="prov_email" class="form-control" value="<?php echo esc_attr($prov_email); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Phone</label>
+                        <label class="form-label"><?php esc_html_e('Phone', 'cosy-appointments'); ?></label>
                         <input type="text" name="prov_phone" class="form-control" value="<?php echo esc_attr($prov_phone); ?>" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Date of Birth</label>
+                        <label class="form-label"><?php esc_html_e('Date of Birth', 'cosy-appointments'); ?></label>
                         <input type="date" name="dob" class="form-control" value="<?php echo esc_attr($dob); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Gender</label>
+                        <label class="form-label"><?php esc_html_e('Gender', 'cosy-appointments'); ?></label>
                         <select name="gender" class="form-select" required>
-                            <option value="">--Select--</option>
-                            <option value="male" <?php selected($gender, 'male'); ?>>Male</option>
-                            <option value="female" <?php selected($gender, 'female'); ?>>Female</option>
+                            <option value="">--<?php esc_html_e('Select', 'cosy-appointments'); ?>--</option>
+                            <option value="male" <?php selected($gender, 'male'); ?>><?php esc_html_e('Male', 'cosy-appointments'); ?></option>
+                            <option value="female" <?php selected($gender, 'female'); ?>><?php esc_html_e('Female', 'cosy-appointments'); ?></option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Age Group</label>
+                        <label class="form-label"><?php esc_html_e('Age Group', 'cosy-appointments'); ?></label>
                         <select name="age_group" class="form-select" required>
-                            <option value="">--Select--</option>
-                            <option value="Teenager" <?php selected($age_group, 'Teenager'); ?>>Teenager</option>
-                            <option value="Young Adult" <?php selected($age_group, 'Young Adult'); ?>>Young Adult</option>
-                            <option value="Middle Aged" <?php selected($age_group, 'Middle Aged'); ?>>Middle Aged</option>
-                            <option value="Senior" <?php selected($age_group, 'Senior'); ?>>Senior</option>
-                            <option value="Golden Senior" <?php selected($age_group, 'Golden Senior'); ?>>Golden Senior</option>
+                            <option value="">--<?php esc_html_e('Select', 'cosy-appointments'); ?>--</option>
+                            <option value="Teenager" <?php selected($age_group, 'Teenager'); ?>><?php esc_html_e('Teenager', 'cosy-appointments'); ?></option>
+                            <option value="Young Adult" <?php selected($age_group, 'Young Adult'); ?>><?php esc_html_e('Young Adult', 'cosy-appointments'); ?></option>
+                            <option value="Middle Aged" <?php selected($age_group, 'Middle Aged'); ?>><?php esc_html_e('Middle Aged', 'cosy-appointments'); ?></option>
+                            <option value="Senior" <?php selected($age_group, 'Senior'); ?>><?php esc_html_e('Senior', 'cosy-appointments'); ?></option>
+                            <option value="Golden Senior" <?php selected($age_group, 'Golden Senior'); ?>><?php esc_html_e('Golden Senior', 'cosy-appointments'); ?></option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Postal Code</label>
+                        <label class="form-label"><?php esc_html_e('Postal Code', 'cosy-appointments'); ?></label>
                         <input type="text" name="postal_code" class="form-control" value="<?php echo esc_attr($postal_code); ?>">
                     </div>
 
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label">Address</label>
+                <label class="form-label"><?php esc_html_e('Address', 'cosy-appointments'); ?></label>
                 <textarea name="prov_address" class="form-control"><?php echo esc_textarea($prov_address); ?></textarea>
             </div>
             <!-- Full Width Fields -->
             <div class="mb-3">
-                <label class="form-label">Bio</label>
+                <label class="form-label"><?php esc_html_e('Bio', 'cosy-appointments'); ?></label>
                 <textarea name="bio" class="form-control" rows="3"><?php echo esc_textarea($bio); ?></textarea>
             </div>
 
             <div class="text-center mt-3">
-                <button type="submit" name="update_provider_profile" class="btn btn-filled custom-btn">Update Profile</button>
+                <button type="submit" name="update_provider_profile" class="btn btn-filled custom-btn"><?php esc_html_e('Update Profile', 'cosy-appointments'); ?></button>
             </div>
         </form>
     </div>

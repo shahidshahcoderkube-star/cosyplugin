@@ -5,10 +5,9 @@
                 style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-tools" style="color: #a44390; font-size: 1.2rem;"></i>
             </div>
-            <h3 class="mb-0" style="margin-bottom: 0 !important;">My Services</h3>
+            <h3 class="mb-0" style="margin-bottom: 0 !important;"><?php esc_html_e('My Services', 'cosy-appointments'); ?></h3>
         </div>
-        <p class="text-muted mb-4" style="margin-left: 58px;">Manage your offerings, pricing, and session durations
-            below.</p>
+        <p class="text-muted mb-4" style="margin-left: 58px;"><?php esc_html_e('Manage your offerings, pricing, and session durations below.', 'cosy-appointments'); ?></p>
 
         <!-- Service Checkbox List -->
         <?php
@@ -17,7 +16,7 @@
 
         if (!empty($services)): ?>
             <div class="service-checkbox-container">
-                <label class="form-label d-block mb-3 fw-bold text-dark">Select Services</label>
+                <label class="form-label d-block mb-3 fw-bold text-dark"><?php esc_html_e('Select Services', 'cosy-appointments'); ?></label>
                 <div class="d-flex flex-wrap gap-3">
                     <?php foreach ($services as $service): ?>
                         <div class="form-check">
@@ -33,7 +32,7 @@
                 </div>
             </div>
         <?php else: ?>
-            <div class="alert alert-warning rounded-4 border-0">No services found in the system.</div>
+            <div class="alert alert-warning rounded-4 border-0"><?php esc_html_e('No services found in the system.', 'cosy-appointments'); ?></div>
         <?php endif; ?>
 
         <!-- Services Table -->
@@ -43,10 +42,10 @@
                 <table class="table align-middle" id="servicesTable">
                     <thead>
                         <tr>
-                            <th>Service Name</th>
-                            <th>Duration</th>
-                            <th>Price</th>
-                            <th>Action</th>
+                            <th><?php esc_html_e('Service Name', 'cosy-appointments'); ?></th>
+                            <th><?php esc_html_e('Duration', 'cosy-appointments'); ?></th>
+                            <th><?php esc_html_e('Price', 'cosy-appointments'); ?></th>
+                            <th><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
                         </tr>
                     </thead>
                     <tbody class="cc__service-body">
