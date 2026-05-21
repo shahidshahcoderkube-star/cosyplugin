@@ -81,26 +81,48 @@ trait GlobalCommonFunctions
             return [];
         }
 
-        // Basic WP user fields
+        // Basic WP user object fields
         $data = [
-            'ID' => $user->ID,
-            'username' => $user->user_login,
-            'email' => $user->user_email,
-            'name' => $user->display_name,
-            'role' => implode(', ', $user->roles),
+            'ID'              => $user->ID,
+            'username'        => $user->user_login,
+            'email'           => $user->user_email,
+            'user_email'      => $user->user_email,
+            'name'            => $user->display_name,
+            'first_name'      => $user->first_name,
+            'last_name'       => $user->last_name,
+            'role'            => implode(', ', $user->roles),
             'user_registered' => $user->user_registered,
         ];
 
-        // ✅ Fetch all user meta in one go
-        $meta = get_user_meta($user_id);
+        // ✅ OPTIMIZED: Fetch only the specific meta keys actually used across templates.
+        // Previously used get_user_meta($user_id) with no key — which loaded ALL meta rows
+        // (potentially 80-150 DB rows) even though only ~16 fields are needed.
+        $meta_keys = [
+            'prov_username',
+            'prov_mname',
+            'prov_email',
+            'prov_phone',
+            'prov_address',
+            'dob',
+            'postal_code',
+            'description',
+            'gender',
+            'age_group',
+            'profile_image',
+            'introduction_video',
+            'video_status',
+            'video_uploaded_on',
+            'cosy_provider_holidays',
+            'cosy_provider_services',
+        ];
 
-        // Flatten meta (each meta key returns array, so take first value)
-        foreach ($meta as $key => $value) {
-            $data[$key] = is_array($value) ? reset($value) : $value;
+        foreach ($meta_keys as $key) {
+            $data[$key] = get_user_meta($user_id, $key, true);
         }
 
         return $data;
     }
+
 
 
     //------ Utility: Get Selected/Checked Services for Provider (By Authorship) -----//
