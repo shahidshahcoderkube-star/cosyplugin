@@ -11,7 +11,7 @@ class Class_Provider_Verification
         $loader->add_filter('manage_users_columns', $this, 'add_verify_column');
         $loader->add_filter('manage_users_custom_column', $this, 'populate_verify_column', 10, 3);
         $loader->add_action('admin_footer', $this, 'add_verify_script');
-        
+
         // AJAX handler for updating status
         $loader->add_action('wp_ajax_cosy_update_provider_status', $this, 'handle_status_update');
     }
@@ -34,10 +34,10 @@ class Class_Provider_Verification
         }
 
         $status = get_user_meta($user_id, 'cosy_provider_status', true);
-        
+
         // Empty means active for existing users before this feature
         if (empty($status)) {
-            $status = 'active'; 
+            $status = 'active';
             // We can opportunistically save it to avoid future empty checks
             update_user_meta($user_id, 'cosy_provider_status', 'active');
         }
@@ -66,39 +66,41 @@ class Class_Provider_Verification
         }
 
         $nonce = wp_create_nonce('cosy_verify_nonce');
-        ?>
+?>
         <script>
-        jQuery(document).ready(function($) {
-            $('.cosy-verify-dropdown').on('change', function() {
-                var select = $(this);
-                var userId = select.data('user-id');
-                var status = select.val();
-                var spinner = select.next('.spinner');
+            jQuery(document).ready(function($) {
+                $('.cosy-verify-dropdown').on('change', function() {
+                    var select = $(this);
+                    var userId = select.data('user-id');
+                    var status = select.val();
+                    var spinner = select.next('.spinner');
 
-                select.prop('disabled', true);
-                spinner.addClass('is-active');
+                    select.prop('disabled', true);
+                    spinner.addClass('is-active');
 
-                $.post(ajaxurl, {
-                    action: 'cosy_update_provider_status',
-                    security: '<?php echo $nonce; ?>',
-                    user_id: userId,
-                    status: status
-                }, function(response) {
-                    select.prop('disabled', false);
-                    spinner.removeClass('is-active');
+                    $.post(ajaxurl, {
+                        action: 'cosy_update_provider_status',
+                        security: <?php echo wp_json_encode($nonce); ?>,
+                        user_id: userId,
+                        status: status
+                    }, function(response) {
+                        select.prop('disabled', false);
+                        spinner.removeClass('is-active');
 
-                    if (response.success) {
-                        var originalColor = select.css('border-color');
-                        select.css('border-color', '#46b450');
-                        setTimeout(function() { select.css('border-color', originalColor); }, 1500);
-                    } else {
-                        alert(response.data || 'Failed to update status.');
-                    }
+                        if (response.success) {
+                            var originalColor = select.css('border-color');
+                            select.css('border-color', '#46b450');
+                            setTimeout(function() {
+                                select.css('border-color', originalColor);
+                            }, 1500);
+                        } else {
+                            alert(response.data || 'Failed to update status.');
+                        }
+                    });
                 });
             });
-        });
         </script>
-        <?php
+<?php
     }
 
     public function handle_status_update()
@@ -117,7 +119,7 @@ class Class_Provider_Verification
         }
 
         $old_status = get_user_meta($user_id, 'cosy_provider_status', true);
-        
+
         update_user_meta($user_id, 'cosy_provider_status', $status);
 
         // Send email if it transitioned to active

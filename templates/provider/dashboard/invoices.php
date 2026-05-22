@@ -63,7 +63,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                             }
                         ?>
                             <tr class="invoice-table-row">
-                                <td class="fw-bold text-dark">INV-<?php echo $appt_id; ?></td>
+                                <td class="fw-bold text-dark"><?php esc_html_e('INV-', 'cosy-appointments'); ?><?php echo esc_html($appt_id); ?></td>
                                 <td class="fw-semibold text-slate invoice-customer-name"><?php echo esc_html($customer_name); ?></td>
                                 <td><span class="badge bg-light text-dark border-0 px-3 py-2 rounded-3 invoice-service-badge"><?php echo esc_html($service_name); ?></span></td>
                                 <td class="invoice-date-cell"><?php echo esc_html($start_date); ?></td>
@@ -76,7 +76,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                 <td>
                                     <div class="d-flex gap-2">
                                         <button class="btn-action btn-view-invoice bg-light text-secondary invoice-action-btn"
-                                            data-id="<?php echo $appt_id; ?>"
+                                            data-id="<?php echo esc_attr($appt_id); ?>"
                                             data-customer="<?php echo esc_attr($customer_name); ?>"
                                             data-email="<?php echo esc_attr($customer_email); ?>"
                                             data-service="<?php echo esc_attr($service_name); ?>"
@@ -91,7 +91,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <button class="btn-action btn-download-invoice bg-light text-secondary invoice-action-btn"
-                                            data-id="<?php echo $appt_id; ?>"
+                                            data-id="<?php echo esc_attr($appt_id); ?>"
                                             data-customer="<?php echo esc_attr($customer_name); ?>"
                                             data-service="<?php echo esc_attr($service_name); ?>"
                                             data-total="<?php echo esc_attr($total_payable); ?>"
@@ -112,23 +112,23 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
 <?php
 ob_start();
 ?>
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4 invoice-modal-info-box-primary">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-user invoice-modal-icon-primary"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
-                            <p class="mb-1 fw-bold text-slate invoice-modal-customer-name" id="modalInvCustomerName"></p>
-                            <p class="mb-0 text-muted small" id="modalInvCustomerEmail"></p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4 bg-light invoice-modal-info-box-secondary">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-info-circle invoice-modal-icon-primary"></i> <?php esc_html_e('Billing Details', 'cosy-appointments'); ?></h6>
-                            <p class="mb-1 fw-bold text-slate invoice-modal-customer-name" id="modalInvServiceName"></p>
-                            <p class="mb-1 text-muted small invoice-modal-small-info" id="modalInvDate"></p>
-                            <p class="mb-0 fw-bold invoice-modal-cost-info" id="modalInvCostInfo"></p>
-                        </div>
-                    </div>
-                </div>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="p-3 rounded-4 invoice-modal-info-box-primary">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-user invoice-modal-icon-primary"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
+            <p class="mb-1 fw-bold text-slate invoice-modal-customer-name" id="modalInvCustomerName"></p>
+            <p class="mb-0 text-muted small" id="modalInvCustomerEmail"></p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="p-3 rounded-4 bg-light invoice-modal-info-box-secondary">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-info-circle invoice-modal-icon-primary"></i> <?php esc_html_e('Billing Details', 'cosy-appointments'); ?></h6>
+            <p class="mb-1 fw-bold text-slate invoice-modal-customer-name" id="modalInvServiceName"></p>
+            <p class="mb-1 text-muted small invoice-modal-small-info" id="modalInvDate"></p>
+            <p class="mb-0 fw-bold invoice-modal-cost-info" id="modalInvCostInfo"></p>
+        </div>
+    </div>
+</div>
 <?php
 $modal_body = ob_get_clean();
 

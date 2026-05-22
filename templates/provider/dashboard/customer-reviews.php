@@ -23,7 +23,7 @@ $rating_counts = $reviews_data['rating_counts'];
         <!-- Rating Summary -->
         <div class="row mb-5 align-items-center">
             <div class="col-md-4 text-center border-end">
-                <div class="rating-number"><?php echo $average_rating_db > 0 ? number_format($average_rating_db, 1) : '0.0'; ?></div>
+                <div class="rating-number"><?php echo esc_html($average_rating_db > 0 ? number_format($average_rating_db, 1) : '0.0'); ?></div>
                 <div class="mb-2">
                     <?php
                     $full_stars = floor($average_rating_db);
@@ -40,7 +40,7 @@ $rating_counts = $reviews_data['rating_counts'];
                     ?>
                 </div>
                 <p class="text-muted small fw-bold mb-0"><?php esc_html_e('Average Rating', 'cosy-appointments'); ?></p>
-                <p class="text-muted small"><?php printf( esc_html__('Based on %d reviews', 'cosy-appointments'), $total_approved ); ?></p>
+                <p class="text-muted small"><?php printf(esc_html__('Based on %d reviews', 'cosy-appointments'), $total_approved); ?></p>
             </div>
             <div class="col-md-8 ps-md-5">
                 <!-- Rating Distribution -->
@@ -48,12 +48,12 @@ $rating_counts = $reviews_data['rating_counts'];
                     $percent = $total_approved > 0 ? round(($rating_counts[$i] / $total_approved) * 100) : 0;
                 ?>
                     <div class="d-flex align-items-center mb-3">
-                        <span class="text-muted small fw-bold" style="width: 25px;"><?php echo $i; ?></span>
+                        <span class="text-muted small fw-bold" style="width: 25px;"><?php echo esc_html($i); ?></span>
                         <i class="fas fa-star star-active small me-3"></i>
                         <div class="progress flex-grow-1">
-                            <div class="progress-bar" style="width: <?php echo $percent; ?>%"></div>
+                            <div class="progress-bar" style="width: <?php echo esc_attr($percent); ?>%"></div>
                         </div>
-                        <span class="ms-3 text-muted small fw-bold" style="width: 30px; text-align: right;"><?php echo $rating_counts[$i]; ?></span>
+                        <span class="ms-3 text-muted small fw-bold" style="width: 30px; text-align: right;"><?php echo esc_html($rating_counts[$i]); ?></span>
                     </div>
                 <?php endfor; ?>
             </div>
@@ -66,7 +66,7 @@ $rating_counts = $reviews_data['rating_counts'];
                 <?php foreach ($all_reviews as $r):
                     $is_pending = ($r['status'] === 'pending');
                 ?>
-                    <div class="review-item border-start border-4 <?php echo $is_pending ? 'border-start-warning' : 'border-start-success'; ?>" id="cosy-review-<?php echo $r['id']; ?>" style="border-left-color: <?php echo $is_pending ? '#ffb800' : '#22c55e'; ?> !important;">
+                    <div class="review-item border-start border-4 <?php echo esc_attr($is_pending ? 'border-start-warning' : 'border-start-success'); ?>" id="cosy-review-<?php echo esc_attr($r['id']); ?>" style="border-left-color: <?php echo esc_attr($is_pending ? '#ffb800' : '#22c55e'); ?> !important;">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <h6 class="mb-0 fw-bold d-flex align-items-center">
@@ -81,7 +81,7 @@ $rating_counts = $reviews_data['rating_counts'];
                             </div>
                             <div class="text-warning small">
                                 <?php for ($star = 1; $star <= 5; $star++): ?>
-                                    <i class="<?php echo ($star <= $r['rating']) ? 'fas fa-star' : 'far fa-star star-inactive'; ?>"></i>
+                                    <i class="<?php echo esc_attr(($star <= $r['rating']) ? 'fas fa-star' : 'far fa-star star-inactive'); ?>"></i>
                                 <?php endfor; ?>
                             </div>
                         </div>
@@ -90,14 +90,14 @@ $rating_counts = $reviews_data['rating_counts'];
                         <!-- Moderation Controls -->
                         <div class="d-flex gap-2">
                             <?php if ($is_pending): ?>
-                                <button class="btn btn-sm btn-success approve-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem; background-color: #22c55e; border-color: #22c55e;">
+                                <button class="btn btn-sm btn-success approve-review-btn" data-id="<?php echo esc_attr($r['id']); ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem; background-color: #22c55e; border-color: #22c55e;">
                                     <i class="fas fa-check me-1"></i> <?php esc_html_e('Approve', 'cosy-appointments'); ?>
                                 </button>
-                                <button class="btn btn-sm btn-danger delete-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem; background-color: #ef4444; border-color: #ef4444;">
+                                <button class="btn btn-sm btn-danger delete-review-btn" data-id="<?php echo esc_attr($r['id']); ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem; background-color: #ef4444; border-color: #ef4444;">
                                     <i class="fas fa-times me-1"></i> <?php esc_html_e('Reject', 'cosy-appointments'); ?>
                                 </button>
                             <?php else: ?>
-                                <button class="btn btn-sm btn-outline-danger delete-review-btn" data-id="<?php echo $r['id']; ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem;">
+                                <button class="btn btn-sm btn-outline-danger delete-review-btn" data-id="<?php echo esc_attr($r['id']); ?>" style="border-radius: 8px; font-weight: 600; font-size: 0.8rem;">
                                     <i class="fas fa-trash-alt me-1"></i> <?php esc_html_e('Delete', 'cosy-appointments'); ?>
                                 </button>
                             <?php endif; ?>

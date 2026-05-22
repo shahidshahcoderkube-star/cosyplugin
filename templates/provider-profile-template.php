@@ -40,19 +40,19 @@ if (!empty($provider_data['ID'])) {
     Allows interactive components (like booking calendars) to access slots in real-time.
 -->
 <script>
-    window.providerAvailability = <?php echo json_encode($availability); ?>;
-    window.providerHolidays = <?php echo json_encode($holiday_dates); ?>;
+    window.providerAvailability = <?php echo wp_json_encode($availability); ?>;
+    window.providerHolidays = <?php echo wp_json_encode($holiday_dates); ?>;
     window.currentUser = {
         isLoggedIn: <?php echo $is_logged_in ? 'true' : 'false'; ?>,
-        role: <?php echo json_encode($user_role); ?>,
-        name: <?php echo json_encode($current_user->display_name); ?>,
-        id: <?php echo json_encode($current_user->ID); ?>
+        role: <?php echo wp_json_encode($user_role); ?>,
+        name: <?php echo wp_json_encode($current_user->display_name); ?>,
+        id: <?php echo wp_json_encode($current_user->ID); ?>
     };
-    window.providerId = <?php echo json_encode($provider_data['ID'] ?? 0); ?>;
-    window.providerName = <?php echo json_encode($provider_data['prov_mname'] ?? ''); ?>;
-    window.ajaxUrl = <?php echo json_encode(admin_url('admin-ajax.php')); ?>;
-    window.checkoutUrl = <?php echo json_encode(site_url('/cosy-checkout')); ?>;
-    window.nonce = <?php echo json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
+    window.providerId = <?php echo wp_json_encode($provider_data['ID'] ?? 0); ?>;
+    window.providerName = <?php echo wp_json_encode($provider_data['prov_mname'] ?? ''); ?>;
+    window.ajaxUrl = <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>;
+    window.checkoutUrl = <?php echo wp_json_encode(site_url('/cosy-checkout')); ?>;
+    window.nonce = <?php echo wp_json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
 </script>
 <?php
 
@@ -84,7 +84,7 @@ if (!empty($provider_data['ID'])) {
                                     <span><i class="fas fa-venus me-1"></i>
                                         <?php echo esc_html(ucwords(strtolower($provider_data['gender']))); ?></span>
                                 <?php endif ?>
-                                <span><i class="fas fa-user-check me-1"></i> Verified Specialist</span>
+                                <span><i class="fas fa-user-check me-1"></i> <?php esc_html_e('Verified Specialist', 'cosy-appointments'); ?></span>
                             </div>
                         </div>
                     </div>
@@ -103,7 +103,7 @@ if (!empty($provider_data['ID'])) {
                                     £<?php echo esc_html($min_price); ?>
                                 </div>
                                 <small class="cosy-price-label text-muted text-uppercase fw-bold">
-                                    Starting From Hourly Rate
+                                    <?php esc_html_e('Starting From Hourly Rate', 'cosy-appointments'); ?>
                                 </small>
                             <?php endif; ?>
                         </div>
@@ -111,21 +111,22 @@ if (!empty($provider_data['ID'])) {
                             <div class="cosy-section-title h5 fw-bold mb-1 text-warning"><i
                                     class="cosy-rating-star fas fa-star me-1"></i><?php echo ($average_rating > 0) ? number_format($average_rating, 1) : '0.0'; ?></div>
 
-                            <small class="cosy-price-label text-muted text-uppercase fw-bold">(<?php echo $total_reviews; ?> Reviews)</small>
+                            <small class="cosy-price-label text-muted text-uppercase fw-bold"><?php echo esc_html(sprintf(_n('(%s Review)', '(%s Reviews)', $total_reviews, 'cosy-appointments'), esc_html($total_reviews))); ?></small>
                         </div>
                         <div class="col-4 py-3">
                             <?php if (!empty($provider_data['age_group'])) { ?>
                                 <div class="cosy-age-group h5 fw-bold mb-1">
                                     <?php echo esc_html($provider_data['age_group']); ?>
                                 </div>
-                                <small class="cosy-price-label text-muted text-uppercase fw-bold">Age Group</small>
+                                <small class="cosy-price-label text-muted text-uppercase fw-bold"><?php esc_html_e('Age Group', 'cosy-appointments'); ?></small>
                             <?php } ?>
                         </div>
                     </div>
                 </div>
                 <div class="card-body py-4 px-5">
-                    <p class="text-muted text-center italic mb-0" style="font-size: 0.95rem;">Experience premium
-                        sessions tailored to your needs with our verified specialists.</p>
+                    <p class="text-muted text-center italic mb-0" style="font-size: 0.95rem;">
+                        <?php esc_html_e('Experience premium sessions tailored to your needs with our verified specialists.', 'cosy-appointments'); ?>
+                    </p>
                 </div>
             </div>
 
@@ -137,7 +138,7 @@ if (!empty($provider_data['ID'])) {
                             <div class="cosy-icon-box">
                                 <i class="cosy-total-price fas fa-concierge-bell"></i>
                             </div>
-                            <h5 class="cosy-price-min fw-bold mb-0">Offered Services</h5>
+                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Offered Services', 'cosy-appointments'); ?></h5>
                         </div>
                         <div class="services-list-premium">
                             <?php foreach ($provider_data['services'] as $service):
@@ -155,8 +156,7 @@ if (!empty($provider_data['ID'])) {
                                             <h6 class="cosy-service-title mb-0 fw-bold">
                                                 <?php echo esc_html($service['title']); ?>
                                             </h6>
-                                            <small class="text-muted"><?php echo esc_html($service['time'] ?? '60'); ?> mins
-                                                session</small>
+                                            <small class="text-muted"><?php printf(esc_html__('%s mins session', 'cosy-appointments'), esc_html($service['time'] ?? '60')); ?></small>
                                         </div>
                                     </div>
                                     <div class="cosy-service-price-box">
@@ -175,7 +175,7 @@ if (!empty($provider_data['ID'])) {
                         <div class="cosy-icon-box">
                             <i class="cosy-total-price fa-solid fa-user"></i>
                         </div>
-                        <h5 class="cosy-price-min fw-bold mb-0">About Me</h5>
+                        <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('About Me', 'cosy-appointments'); ?></h5>
                     </div>
                     <p class="cosy-about-desc text-muted lh-lg mb-0">
                         <?php echo nl2br(esc_html($provider_data['description'])); ?>
@@ -189,7 +189,7 @@ if (!empty($provider_data['ID'])) {
                         <div class="cosy-icon-box">
                             <i class="cosy-total-price fa-solid fa-calendar-check"></i>
                         </div>
-                        <h5 class="cosy-price-min fw-bold mb-0">Availability</h5>
+                        <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Availability', 'cosy-appointments'); ?></h5>
                     </div>
                     <div class="table-responsive">
                         <table class="table border-0 mb-0">
@@ -205,7 +205,7 @@ if (!empty($provider_data['ID'])) {
                                 ?>
                                     <tr>
                                         <td class="border-0 fw-bold py-3 text-dark">
-                                            <?php echo $day; ?>
+                                            <?php echo esc_html($day); ?>
                                         </td>
                                         <td class="border-0 text-end py-3">
                                             <?php
@@ -236,30 +236,30 @@ if (!empty($provider_data['ID'])) {
                             <div class="cosy-icon-box">
                                 <i class="cosy-total-price fa-solid fa-comment-dots"></i>
                             </div>
-                            <h5 class="cosy-price-min fw-bold mb-0">Reviews</h5>
+                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Reviews', 'cosy-appointments'); ?></h5>
                         </div>
                         <button class="cosy-btn-add-review btn btn-sm text-white px-3" id="addReviewBtn">
-                            + Add Review
+                            <?php echo '+ ' . esc_html__('Add Review', 'cosy-appointments'); ?>
                         </button>
                     </div>
 
                     <div class="collapse mb-4" id="reviewForm">
                         <div class="cosy-review-form-box p-4 rounded-4">
-                            <label class="small fw-bold text-muted mb-2 d-block">Rating</label>
+                            <label class="small fw-bold text-muted mb-2 d-block"><?php esc_html_e('Rating', 'cosy-appointments'); ?></label>
                             <div class="star-rating-input d-flex gap-2 mb-3">
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <i class="cosy-rating-star-btn fa-star far cursor-pointer rating-star" data-rating="<?php echo $i; ?>"></i>
+                                    <i class="cosy-rating-star-btn fa-star far cursor-pointer rating-star" data-rating="<?php echo esc_attr($i); ?>"></i>
                                 <?php endfor; ?>
                                 <input type="hidden" name="rating" id="selectedRating" value="0">
                             </div>
 
-                            <label class="small fw-bold text-muted mb-2 d-block">Your Review</label>
+                            <label class="small fw-bold text-muted mb-2 d-block"><?php esc_html_e('Your Review', 'cosy-appointments'); ?></label>
                             <textarea class="cosy-review-textarea form-control mb-3 border-0 shadow-sm" rows="3"
                                 id="reviewText"
-                                placeholder="Share your experience..."></textarea>
+                                placeholder="<?php esc_attr_e('Share your experience...', 'cosy-appointments'); ?>"></textarea>
 
                             <button class="cosy-btn-primary btn w-100 py-2 fw-bold text-white shadow-sm" id="postReviewBtn">
-                                Post Review
+                                <?php esc_html_e('Post Review', 'cosy-appointments'); ?>
                             </button>
                         </div>
                     </div>
@@ -283,7 +283,7 @@ if (!empty($provider_data['ID'])) {
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-muted small mb-0">No reviews yet for this provider.</p>
+                            <p class="text-muted small mb-0"><?php esc_html_e('No reviews yet for this provider.', 'cosy-appointments'); ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -298,7 +298,7 @@ if (!empty($provider_data['ID'])) {
                             <div class="cosy-icon-box">
                                 <i class="cosy-total-price fas fa-calendar-alt"></i>
                             </div>
-                            <h5 class="cosy-price-min fw-bold mb-0">Select Date</h5>
+                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Select Date', 'cosy-appointments'); ?></h5>
                         </div>
 
                         <!-- Month Navigation -->
@@ -329,7 +329,7 @@ if (!empty($provider_data['ID'])) {
                             style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 8px;">
                             <?php foreach (['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as $d): ?>
                                 <div class="cosy-cal-day-header">
-                                    <?php echo $d; ?>
+                                    <?php echo esc_html($d); ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -343,17 +343,17 @@ if (!empty($provider_data['ID'])) {
                             <span style="display: flex; align-items: center; gap: 6px;">
                                 <span
                                     style="width: 10px; height: 10px; border-radius: 50%; background: #a44390; display: inline-block;"></span>
-                                Selected
+                                <?php esc_html_e('Selected', 'cosy-appointments'); ?>
                             </span>
                             <span style="display: flex; align-items: center; gap: 6px;">
                                 <span
                                     style="width: 10px; height: 10px; border-radius: 50%; background: #e9d5e9; display: inline-block;"></span>
-                                Available
+                                <?php esc_html_e('Available', 'cosy-appointments'); ?>
                             </span>
                             <span style="display: flex; align-items: center; gap: 6px;">
                                 <span
                                     style="width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; display: inline-block;"></span>
-                                Unavailable
+                                <?php esc_html_e('Unavailable', 'cosy-appointments'); ?>
                             </span>
                         </div>
                     </div>
@@ -366,18 +366,14 @@ if (!empty($provider_data['ID'])) {
                             <div class="cosy-icon-box">
                                 <i class="cosy-total-price fas fa-clock"></i>
                             </div>
-                            <h5 class="cosy-price-min fw-bold mb-0">Call Schedule</h5>
-                        </div>
-
-                        <div class="d-flex align-items-center gap-2 mb-3 p-2 bg-light rounded-3 border"
-                            style="border-color: #edf2f7 !important;">
+                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Call Schedule', 'cosy-appointments'); ?></h5>
                             <input class="cosy-checkbox" type="checkbox" id="bookingForAnother">
-                            <label for="bookingForAnother" class="cosy-slot-duration-text small text-muted fw-bold mb-0 cursor-pointer">Booking for another person</label>
+                            <label for="bookingForAnother" class="cosy-slot-duration-text small text-muted fw-bold mb-0 cursor-pointer"><?php esc_html_e('Booking for another person', 'cosy-appointments'); ?></label>
                         </div>
 
                         <div class="cosy-date-display-box p-2 px-3 fw-bold text-dark mb-3 d-flex align-items-center justify-content-between">
-                            <span><i class="fas fa-calendar-day me-2 text-muted"></i> Start Date:</span>
-                            <span class="cosy-date-text" id="displaySelectedDate">May 13, 2026</span>
+                            <span><i class="fas fa-calendar-day me-2 text-muted"></i> <?php esc_html_e('Start Date:', 'cosy-appointments'); ?></span>
+                            <span class="cosy-date-text" id="displaySelectedDate"><?php esc_html_e('May 13, 2026', 'cosy-appointments'); ?></span>
                         </div>
 
                         <div id="timeSlotsList" class="d-flex flex-column gap-2 mb-0">
@@ -387,31 +383,30 @@ if (!empty($provider_data['ID'])) {
                         <!-- DYNAMIC WEEKLY PRICING SECTION -->
                         <div id="weeklyPricingSection" style="display: none;" class="mt-4 pt-4 border-top">
                             <div class="text-center">
-                                <p class="cosy-duration-label small text-muted fw-bold mb-3 text-uppercase">Select Booking Duration</p>
+                                <p class="cosy-duration-label small text-muted fw-bold mb-3 text-uppercase"><?php esc_html_e('Select Booking Duration', 'cosy-appointments'); ?></p>
 
                                 <div class="px-2 mb-3 position-relative">
                                     <select id="totalBookingWeeks"
                                         class="form-select border shadow-sm fw-bold py-2 ps-3 pe-5"
                                         style="border-radius: 12px; background: #ffffff; border-color: #e2e8f0 !important; color: #1e293b; font-size: 0.85rem; cursor: pointer; appearance: none !important; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em;"
                                         onchange="updateFinalPrice()">
-                                        <option value="1">1 Week Duration</option>
-                                        <option value="2">2 Weeks Recurring</option>
-                                        <option value="3">3 Weeks Recurring</option>
-                                        <option value="4">4 Weeks (1 Month)</option>
-                                        <option value="5">5 Weeks Recurring</option>
-                                        <option value="6">6 Weeks Recurring</option>
-                                        <option value="7">7 Weeks Recurring</option>
-                                        <option value="8">8 Weeks (2 Months)</option>
-                                        <option value="9">9 Weeks Recurring</option>
-                                        <option value="10">10 Weeks Recurring</option>
-                                        <option value="11">11 Weeks Recurring</option>
-                                        <option value="12">12 Weeks (Quarterly)</option>
+                                        <option value="1"><?php esc_html_e('1 Week Duration', 'cosy-appointments'); ?></option>
+                                        <option value="2"><?php esc_html_e('2 Weeks Recurring', 'cosy-appointments'); ?></option>
+                                        <option value="3"><?php esc_html_e('3 Weeks Recurring', 'cosy-appointments'); ?></option>
+                                        <option value="4"><?php esc_html_e('4 Weeks (1 Month)', 'cosy-appointments'); ?></option>
+                                        <option value="5"><?php esc_html_e('5 Weeks Recurring', 'cosy-appointments'); ?></option>
+                                        <option value="6"><?php esc_html_e('6 Weeks Recurring', 'cosy-appointments'); ?></option>
+                                        <option value="7"><?php esc_html_e('7 Weeks Recurring', 'cosy-appointments'); ?></option>
+                                        <option value="8"><?php esc_html_e('8 Weeks (2 Months)', 'cosy-appointments'); ?></option>
+                                        <option value="9"><?php esc_html_e('9 Weeks Recurring', 'cosy-appointments'); ?></option>
+                                        <option value="10"><?php esc_html_e('10 Weeks Recurring', 'cosy-appointments'); ?></option>
+                                        <option value="11"><?php esc_html_e('11 Weeks Recurring', 'cosy-appointments'); ?></option>
+                                        <option value="12"><?php esc_html_e('12 Weeks (Quarterly)', 'cosy-appointments'); ?></option>
                                     </select>
                                 </div>
 
                                 <div class="cosy-total-amount-box p-2 mb-3 rounded-4">
-                                    <span class="cosy-total-label text-muted d-block mb-1 fw-bold">Total Service
-                                        Amount</span>
+                                    <span class="cosy-total-label text-muted d-block mb-1 fw-bold"><?php esc_html_e('Total Service Amount', 'cosy-appointments'); ?></span>
                                     <h4 class="cosy-total-price fw-bold mb-0" id="finalTotalAmountText">£ 0.00
                                     </h4>
                                 </div>
@@ -420,17 +415,16 @@ if (!empty($provider_data['ID'])) {
                                     <button class="cosy-btn-book-now btn w-100 py-2 fw-bold text-white shadow-sm"
                                         onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';"
                                         id="bookServiceBtn">
-                                        Book Service Now
+                                        <?php esc_html_e('Book Service Now', 'cosy-appointments'); ?>
                                     </button>
                                 <?php else: ?>
                                     <div class="alert alert-warning py-3 px-3 mb-0 text-center fw-bold d-flex align-items-center justify-content-center gap-2"
                                         style="border-radius: 12px; font-size: 0.8rem; background: #fffbeb; border: 1px solid #fef3c7; color: #d97706; font-family: var(--cosy-font-family);">
                                         <i class="cosy-login-alert-icon fas fa-lock"></i>
-                                        <span>Please log in as a Customer to book this service.</span>
+                                        <span><?php esc_html_e('Please log in as a Customer to book this service.', 'cosy-appointments'); ?></span>
                                     </div>
                                 <?php endif; ?>
-                                <p class="cosy-secure-payment-text small text-muted mt-3 mb-0">Secure payment via
-                                    CosyChats Checkout</p>
+                                <p class="cosy-secure-payment-text small text-muted mt-3 mb-0"><?php esc_html_e('Secure payment via CosyChats Checkout', 'cosy-appointments'); ?></p>
                             </div>
                         </div>
                     </div>
@@ -481,9 +475,9 @@ wp_enqueue_script(
                         <i class="cosy-total-price fas fa-clock"></i>
                     </div>
                     <div>
-                        <h5 class="cosy-age-group fw-bold mb-0">Select Call Start Time
+                        <h5 class="cosy-age-group fw-bold mb-0"><?php esc_html_e('Select Call Start Time', 'cosy-appointments'); ?>
                         </h5>
-                        <small class="text-muted fw-medium">Additional call blocks can be selected</small>
+                        <small class="text-muted fw-medium"><?php esc_html_e('Additional call blocks can be selected', 'cosy-appointments'); ?></small>
                     </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -493,31 +487,27 @@ wp_enqueue_script(
                     <span class="d-flex align-items-center gap-2">
                         <span
                             style="width: 12px; height: 12px; background: #fff; border: 1.5px solid #edf2f7; border-radius: 3px;"></span>
-                        Available
+                        <?php esc_html_e('Available', 'cosy-appointments'); ?>
                     </span>
                     <span class="d-flex align-items-center gap-2">
                         <span style="width: 12px; height: 12px; background: #a44390; border-radius: 3px;"></span>
-                        Selected
+                        <?php esc_html_e('Selected', 'cosy-appointments'); ?>
                     </span>
                     <span class="d-flex align-items-center gap-2">
-                        <span style="width: 12px; height: 12px; background: #e2e8f0; border-radius: 3px;"></span> Booked
-                    </span>
-                </div>
-
-                <div id="timeGrid" class="cosy-modal-time-grid time-grid-container p-3 rounded-4">
-                    <!-- Time blocks generated by JS -->
+                        <span style="width: 12px; height: 12px; background: #e2e8f0; border-radius: 3px;"></span> <?php esc_html_e('Booked', 'cosy-appointments'); ?>
+                        <!-- Time blocks generated by JS -->
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-2">
                 <div class="d-flex justify-content-between align-items-center w-100">
                     <div class="text-start">
-                        <small class="cosy-modal-total-duration-label text-muted d-block fw-bold text-uppercase">Total Duration</small>
+                        <small class="cosy-modal-total-duration-label text-muted d-block fw-bold text-uppercase"><?php esc_html_e('Total Duration', 'cosy-appointments'); ?></small>
                         <span id="modalTotalDuration" class="cosy-modal-total-duration-val fw-bold">0
-                            minutes</span>
+                            <?php esc_html_e('minutes', 'cosy-appointments'); ?></span>
                     </div>
                     <button type="button" class="cosy-modal-confirm-btn btn px-4 py-2 fw-bold text-white shadow-sm"
                         onclick="confirmTimeSlots()">
-                        Confirm
+                        <?php esc_html_e('Confirm', 'cosy-appointments'); ?>
                     </button>
                 </div>
             </div>

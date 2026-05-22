@@ -111,8 +111,8 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                 $badge_class = 'pending';
                             }
                         ?>
-                            <tr class="order-table-row" id="order-row-<?php echo $appt_id; ?>" data-search="<?php echo esc_attr(strtolower("#{$appt_id} {$customer_name}")); ?>" data-status="<?php echo esc_attr($booking_status); ?>">
-                                <td class="fw-bold text-dark">#<?php echo $appt_id; ?></td>
+                            <tr class="order-table-row" id="order-row-<?php echo esc_attr($appt_id); ?>" data-search="<?php echo esc_attr(strtolower("#{$appt_id} {$customer_name}")); ?>" data-status="<?php echo esc_attr($booking_status); ?>">
+                                <td class="fw-bold text-dark">#<?php echo esc_html($appt_id); ?></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="rounded-circle bg-light d-flex align-items-center justify-content-center order-customer-avatar"><?php echo esc_html($initials); ?></div>
@@ -126,20 +126,20 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                     <div class="d-flex gap-2">
                                         <?php if ($booking_status === 'pending') : ?>
                                             <button class="btn-action action-update-status bg-success text-white order-action-btn"
-                                                data-id="<?php echo $appt_id; ?>"
+                                                data-id="<?php echo esc_attr($appt_id); ?>"
                                                 data-status="completed"
                                                 title="Mark Completed">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                             <button class="btn-action action-update-status bg-danger text-white order-action-btn"
-                                                data-id="<?php echo $appt_id; ?>"
+                                                data-id="<?php echo esc_attr($appt_id); ?>"
                                                 data-status="cancelled"
                                                 title="Cancel Order">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         <?php endif; ?>
                                         <button class="btn-action btn-view-order-details bg-light text-secondary order-action-btn"
-                                            data-id="<?php echo $appt_id; ?>"
+                                            data-id="<?php echo esc_attr($appt_id); ?>"
                                             data-customer="<?php echo esc_attr($customer_name); ?>"
                                             data-email="<?php echo esc_attr($customer_email); ?>"
                                             data-service="<?php echo esc_attr($service_name); ?>"
@@ -170,29 +170,29 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
 <?php
 ob_start();
 ?>
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4 modal-info-box-primary">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-user modal-icon-primary"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
-                            <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalCustomerName"></p>
-                            <p class="mb-0 text-muted small" id="modalCustomerEmail"></p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4 bg-light modal-info-box-secondary">
-                            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-concierge-bell modal-icon-primary"></i> <?php esc_html_e('Service Details', 'cosy-appointments'); ?></h6>
-                            <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalServiceName"></p>
-                            <p class="mb-1 text-muted small modal-small-info" id="modalScheduleInfo"></p>
-                            <p class="mb-1 text-muted small modal-small-info" id="modalWeeksInfo"></p>
-                            <p class="mb-0 fw-bold modal-cost-info" id="modalCostInfo"></p>
-                        </div>
-                    </div>
-                </div>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="p-3 rounded-4 modal-info-box-primary">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-user modal-icon-primary"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
+            <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalCustomerName"></p>
+            <p class="mb-0 text-muted small" id="modalCustomerEmail"></p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="p-3 rounded-4 bg-light modal-info-box-secondary">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-concierge-bell modal-icon-primary"></i> <?php esc_html_e('Service Details', 'cosy-appointments'); ?></h6>
+            <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalServiceName"></p>
+            <p class="mb-1 text-muted small modal-small-info" id="modalScheduleInfo"></p>
+            <p class="mb-1 text-muted small modal-small-info" id="modalWeeksInfo"></p>
+            <p class="mb-0 fw-bold modal-cost-info" id="modalCostInfo"></p>
+        </div>
+    </div>
+</div>
 
-                <div class="mt-4 p-3 rounded-4 border modal-status-box">
-                    <h6 class="fw-bold mb-2 text-slate modal-status-title"><?php esc_html_e('Current Status', 'cosy-appointments'); ?></h6>
-                    <div id="modalStatusContainer"></div>
-                </div>
+<div class="mt-4 p-3 rounded-4 border modal-status-box">
+    <h6 class="fw-bold mb-2 text-slate modal-status-title"><?php esc_html_e('Current Status', 'cosy-appointments'); ?></h6>
+    <div id="modalStatusContainer"></div>
+</div>
 <?php
 $modal_body = ob_get_clean();
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Template: Provider Dashboard - Non Working Days (Holidays)
  *
@@ -43,7 +44,7 @@ if (!is_array($holidays)) {
                     $reason       = esc_html($holiday['reason'] ?? 'Holiday');
                     $date_raw     = esc_attr($holiday['date']);
                 ?>
-                    <div class="holiday-item" id="holiday-<?php echo $date_raw; ?>">
+                    <div class="holiday-item" id="holiday-<?php echo esc_attr($date_raw); ?>">
                         <div class="holiday-info">
                             <i class="fas fa-calendar-day"></i>
                             <div>
@@ -55,7 +56,7 @@ if (!is_array($holidays)) {
                         <div class="d-flex align-items-center gap-3">
                             <button
                                 class="cosy-delete-holiday-btn"
-                                data-date="<?php echo $date_raw; ?>"
+                                data-date="<?php echo esc_attr($date_raw); ?>"
                                 title="Remove Holiday">
                                 <i class="fas fa-trash-alt" style="font-size: 0.85rem;"></i>
                             </button>
@@ -87,34 +88,34 @@ if (!is_array($holidays)) {
 <?php
 ob_start();
 ?>
-                <div class="mb-3">
-                    <label class="form-label fw-bold d-block mb-2"><?php esc_html_e('Date', 'cosy-appointments'); ?></label>
-                    <input
-                        type="date"
-                        id="cosyHolidayDate"
-                        class="form-control"
-                        min="<?php echo date('Y-m-d'); ?>"
-                        required>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label fw-bold d-block mb-2"><?php esc_html_e('Reason / Occasion', 'cosy-appointments'); ?></label>
-                    <input
-                        type="text"
-                        id="cosyHolidayReason"
-                        class="form-control"
-                        placeholder="<?php esc_attr_e('e.g. Independence Day', 'cosy-appointments'); ?>"
-                        maxlength="100">
-                </div>
-                <div class="text-center mt-2">
-                    <button type="button" id="cosySaveHolidayBtn" class="btn save-holiday-btn">
-                        <i class="fas fa-calendar-check me-2"></i> <?php esc_html_e('SAVE HOLIDAY', 'cosy-appointments'); ?>
-                    </button>
-                </div>
+<div class="mb-3">
+    <label class="form-label fw-bold d-block mb-2"><?php esc_html_e('Date', 'cosy-appointments'); ?></label>
+    <input
+        type="date"
+        id="cosyHolidayDate"
+        class="form-control"
+        min="<?php echo date('Y-m-d'); ?>"
+        required>
+</div>
+<div class="mb-4">
+    <label class="form-label fw-bold d-block mb-2"><?php esc_html_e('Reason / Occasion', 'cosy-appointments'); ?></label>
+    <input
+        type="text"
+        id="cosyHolidayReason"
+        class="form-control"
+        placeholder="<?php esc_attr_e('e.g. Independence Day', 'cosy-appointments'); ?>"
+        maxlength="100">
+</div>
+<div class="text-center mt-2">
+    <button type="button" id="cosySaveHolidayBtn" class="btn save-holiday-btn">
+        <i class="fas fa-calendar-check me-2"></i> <?php esc_html_e('SAVE HOLIDAY', 'cosy-appointments'); ?>
+    </button>
+</div>
 <?php
 $modal_body = ob_get_clean();
 echo cosy_render_popup(
-    'addHolidayModal', 
-    '<i class="fas fa-calendar-plus me-2"></i> Add Non Working Day', 
+    'addHolidayModal',
+    '<i class="fas fa-calendar-plus me-2"></i> Add Non Working Day',
     $modal_body
 );
 ?>

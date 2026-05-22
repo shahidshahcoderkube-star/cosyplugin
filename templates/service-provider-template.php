@@ -6,8 +6,12 @@ $providers = $this->get_all_service_providers();
         <div class="no-providers-found text-center py-5 w-100"
             style="background: #fdfdfd; border: 1px dashed #d1d5db; border-radius: 12px;">
             <i class="fas fa-search fa-3x mb-3" style="color: #9ca3af;"></i>
-            <h3 style="color: #4b5563; font-weight: 600;">No Providers Found</h3>
-            <p style="color: #6b7280;">Currently, there are no service providers available for this selection.</p>
+            <h3 style="color: #4b5563; font-weight: 600;">
+                <?php esc_html_e('No Providers Found', 'cosy-appointments'); ?>
+            </h3>
+            <p style="color: #6b7280;">
+                <?php esc_html_e('Currently, there are no service providers available for this selection.', 'cosy-appointments'); ?>
+            </p>
         </div>
     <?php else: ?>
         <div class="cosy-premium-grid">
@@ -48,7 +52,7 @@ $providers = $this->get_all_service_providers();
                         <?php if (!empty($provider['price'])): ?>
                             <div class="pricing-premium">
                                 <span class="currency">£</span>
-                                <span class="amount"><?php echo esc_html($provider['price']); ?></span><span class="per">/ hr</span>
+                                <span class="amount"><?php echo esc_html($provider['price']); ?></span><span class="per"><?php esc_html_e('/ hr', 'cosy-appointments'); ?></span>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -57,11 +61,11 @@ $providers = $this->get_all_service_providers();
                         <?php if (!empty($provider['introduction_video'])): ?>
                             <button class="btn-premium btn-intro-v2"
                                 onclick="openVideo('<?php echo esc_url($provider['introduction_video']); ?>')">
-                                <i class="fas fa-play-circle"></i> Intro
+                                <i class="fas fa-play-circle"></i> <?php esc_html_e('Intro', 'cosy-appointments'); ?>
                             </button>
                         <?php endif; ?>
-                        <a href="<?php echo get_author_posts_url($provider['ID']); ?>" class="btn-premium btn-profile-v2">
-                            View Profile <i class="fas fa-arrow-right"></i>
+                        <a href="<?php echo esc_url(get_author_posts_url($provider['ID'])); ?>" class="btn-premium btn-profile-v2">
+                            <?php esc_html_e('View Profile', 'cosy-appointments'); ?> <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -88,7 +92,3 @@ $providers = $this->get_all_service_providers();
         document.getElementById('videoFrame').src = '';
     }
 </script>
-
-</body>
-
-</html>

@@ -84,7 +84,7 @@ if (!isset($availability)) {
              * This global object holds the provider's schedule for all days.
              * It's used to auto-fill the form and update the 'Weekly Preview' in real-time.
              */
-            window.savedAvailability = <?php echo json_encode($availability); ?> || {};
+            window.savedAvailability = <?php echo wp_json_encode($availability); ?> || {};
             if (Array.isArray(window.savedAvailability)) window.savedAvailability = {}; // Ensure it's always an object
         </script>
 
