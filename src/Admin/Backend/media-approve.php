@@ -21,7 +21,9 @@
                 $table_name = $wpdb->prefix . 'cosy_media_approvals';
                 
                 // Fetch only pending or recently active approvals
-                $results = $wpdb->get_results("SELECT * FROM $table_name WHERE status = 'pending' ORDER BY uploaded_at DESC");
+                $results = $wpdb->get_results(
+                    $wpdb->prepare("SELECT * FROM {$table_name} WHERE status = %s ORDER BY uploaded_at DESC", 'pending')
+                );
 
                 if (empty($results)) {
                     echo '<tr><td colspan="7" class="text-center py-4 text-muted">No pending media approvals found.</td></tr>';

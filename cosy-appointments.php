@@ -121,7 +121,7 @@ function cosy_create_services_table()
     $charset_collate = $wpdb->get_charset_collate();
 
     // Check if table exists
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+    if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) != $table_name) {
         $sql = "CREATE TABLE $table_name (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             service_id BIGINT(20) UNSIGNED NOT NULL,
@@ -147,7 +147,7 @@ function cosy_create_media_table()
     $table_name = $wpdb->prefix . 'cosy_media_approvals';
     $charset_collate = $wpdb->get_charset_collate();
 
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+    if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) != $table_name) {
         $sql = "CREATE TABLE $table_name (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             user_id BIGINT(20) UNSIGNED NOT NULL,
@@ -183,7 +183,7 @@ function cosy_create_reviews_table()
     $charset_collate = $wpdb->get_charset_collate();
 
     // Verify if table does not exist yet to prevent overwriting data
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+    if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) != $table_name) {
         $sql = "CREATE TABLE $table_name (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             provider_id BIGINT(20) UNSIGNED NOT NULL,
