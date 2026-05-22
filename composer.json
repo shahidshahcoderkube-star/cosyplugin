@@ -1,0 +1,13 @@
+{
+    "name": "shahid/cosy-appointments",
+    "description": "Multi-provider appointment booking plugin.",
+    "type": "wordpress-plugin",
+    "autoload": {
+        "psr-4": {
+            "Cosy\\Appointments\\": "src/"
+        },
+        "files": [
+            "src/Helpers.php"
+        ]
+    }
+}

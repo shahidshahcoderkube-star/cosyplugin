@@ -106,27 +106,12 @@ function cosy_create_pages_on_activation()
     }
 }
 
-// Require classes (no autoloader, so manual requires)
-require_once COSY_APPT_PATH . 'src/Frontend/Common.php';
-require_once COSY_APPT_PATH . 'src/Loader.php';
-require_once COSY_APPT_PATH . 'src/Helpers.php';
-require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Admin.php';
-require_once COSY_APPT_PATH . 'src/Admin/Class/MediaApprove.php';
-require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Backend.php';
-require_once COSY_APPT_PATH . 'src/Admin/Class/SettingsAdmin.php';
-require_once COSY_APPT_PATH . 'src/Admin/Class/OrdersAdmin.php';
-require_once COSY_APPT_PATH . 'src/Admin/Class/DashboardAdmin.php';
-require_once COSY_APPT_PATH . 'src/Admin/Class/Class_Provider_Verification.php';
-require_once COSY_APPT_PATH . 'src/Admin/Class/DeactivationHandler.php';
-require_once COSY_APPT_PATH . 'src/PostTypes/ServiceCPT.php';
-require_once COSY_APPT_PATH . 'src/Assets/Assets.php';
-require_once COSY_APPT_PATH . 'src/Frontend/Class_Frontend.php';
-require_once COSY_APPT_PATH . 'src/Frontend/Class_Provider_Dashboard.php';
-require_once COSY_APPT_PATH . 'src/Frontend/Class_Forms.php';
-require_once COSY_APPT_PATH . 'src/Rest/Routes.php';
-require_once COSY_APPT_PATH . 'src/Rest/Class_Service_Provider.php';
-require_once COSY_APPT_PATH . 'src/Frontend/Class_Header_Menu.php';
-require_once COSY_APPT_PATH . 'src/Plugin.php';
+// Composer PSR-4 Autoloader
+if (file_exists(COSY_APPT_PATH . 'vendor/autoload.php')) {
+    require_once COSY_APPT_PATH . 'vendor/autoload.php';
+} else {
+    wp_die('Please run <code>composer install</code> in the <code>cosy-appointments</code> plugin directory to generate the required autoloader.');
+}
 
 //-------Create tables--------//
 function cosy_create_services_table()
