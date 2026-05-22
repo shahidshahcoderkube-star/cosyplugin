@@ -2556,3 +2556,10 @@ body .swal2-icon {
     color: var(--cosy-text-muted);
     margin-bottom: 24px;
 }
+/* Booking for another person checkbox section */
+.bookingForAnother {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}

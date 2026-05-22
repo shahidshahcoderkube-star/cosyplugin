@@ -62,12 +62,12 @@ trait GlobalCommonFunctions
     {
         $log_file = COSY_APPT_PATH . 'payment.log';
         $timestamp = current_time('mysql');
-        
+
         $entry = "[$timestamp] $message";
         if ($data !== null) {
             $entry .= " | DATA: " . wp_json_encode($data);
         }
-        
+
         // Append to file safely
         file_put_contents($log_file, $entry . PHP_EOL, FILE_APPEND);
     }
@@ -233,6 +233,11 @@ trait GlobalCommonFunctions
         $url_segments = explode('/', $current_url);
         $service_slug = end($url_segments);
 
+        // Ignore 'service-provider' so it fetches ALL providers when no specific service is given in the URL.
+        if ($service_slug === 'service-provider') {
+            $service_slug = '';
+        }
+
         $include_users = [];
         $provider_prices = []; // Initialize to avoid undefined variable error
         if (!empty($service_slug)) {
@@ -266,6 +271,16 @@ trait GlobalCommonFunctions
                 }
             } else {
                 return []; // Service not found
+            }
+        } else {
+            // No specific service selected. Fetch the minimum price for each provider as a default display price.
+            $table_name = $wpdb->prefix . 'provider_services';
+            $service_results = $wpdb->get_results(
+                "SELECT provider_id, MIN(price) as price FROM $table_name WHERE checkbox_status = 'yes' GROUP BY provider_id",
+                OBJECT_K
+            );
+            if (!empty($service_results)) {
+                $provider_prices = $service_results;
             }
         }
 
@@ -409,7 +424,7 @@ trait GlobalCommonFunctions
         }
 
         // Calculate metrics based on APPROVED reviews
-        $approved_reviews = array_filter($reviews, function($r) {
+        $approved_reviews = array_filter($reviews, function ($r) {
             return $r['status'] === 'approved';
         });
 
