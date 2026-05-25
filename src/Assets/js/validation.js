@@ -553,52 +553,73 @@ var CosyApp = (function ($) {
             const tableBody = $("#servicesTable tbody");
             const isChecked = checkbox.is(":checked");
 
-            if (isChecked && $("#row-" + serviceId).length) return;
+            if (isChecked) {
+                if ($("#row-" + serviceId).length) return;
 
-            fetch(COSY_API.base + COSY_API.providerServices.update, {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-WP-Nonce': cosy_ajax.nonce
-                },
-                body: JSON.stringify({
-                    service_id: serviceId,
-                    serviceTitle: serviceTitle,
-                    checked: isChecked ? 'yes' : 'no'
+                // 1. Optimistic UI: Instantly add the row with placeholder fields
+                const temporaryRow = buildServiceRow(null, serviceId, slug, serviceTitle);
+                tableBody.append(temporaryRow);
+
+                const $row = $("#row-" + serviceId);
+                const $priceInput = $row.find(`input[name="service_price[${serviceId}]"]`);
+                $priceInput.prop("placeholder", "...");
+
+                // 2. Single network request to update and fetch values
+                fetch(COSY_API.base + COSY_API.providerServices.update, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cosy_ajax.nonce
+                    },
+                    body: JSON.stringify({
+                        service_id: serviceId,
+                        serviceTitle: serviceTitle,
+                        checked: 'yes'
+                    })
                 })
-            })
                 .then(res => res.json())
-                .then(() => {
-                    if (isChecked) {
-                        fetch(COSY_API.base + COSY_API.providerServices.getOne + "?service_id=" + serviceId, {
-                            method: 'GET',
-                            credentials: 'same-origin',
-                            headers: { 'X-WP-Nonce': cosy_ajax.nonce }
-                        })
-                            .then(res => res.json())
-                            .then(resp => {
-                                const item = resp?.data ? resp.data : resp;
-                                const hasData = item && (
-                                    (item.price && Number(item.price) > 0) ||
-                                    (item.duration && Number(item.duration) > 0)
-                                );
-
-                                $("#row-" + serviceId).remove();
-                                tableBody.append(
-                                    hasData
-                                        ? buildServiceRow(item, serviceId, slug, serviceTitle)
-                                        : buildServiceRow(null, serviceId, slug, serviceTitle)
-                                );
-                            });
-                    } else {
-                        $("#row-" + serviceId).remove();
+                .then(resp => {
+                    const item = resp?.data ? resp.data : resp;
+                    if (item && item.success !== false) {
+                        if (item.price !== null && item.price !== undefined && item.price !== "") {
+                            $priceInput.val(item.price);
+                        }
+                        if (item.duration) {
+                            $row.find(`select[name="service_duration[${serviceId}]"]`).val(item.duration);
+                        }
                     }
+                    $priceInput.prop("placeholder", "");
                 })
                 .catch(err => {
                     console.error("Service checkbox error:", err);
-                    checkbox.prop("checked", !isChecked); // rollback
+                    checkbox.prop("checked", false); // rollback checkbox
+                    $("#row-" + serviceId).remove(); // rollback row
                 });
+            } else {
+                // 1. Instantly remove row from UI
+                $("#row-" + serviceId).remove();
+
+                // 2. Send background update
+                fetch(COSY_API.base + COSY_API.providerServices.update, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cosy_ajax.nonce
+                    },
+                    body: JSON.stringify({
+                        service_id: serviceId,
+                        serviceTitle: serviceTitle,
+                        checked: 'no'
+                    })
+                })
+                .catch(err => {
+                    console.error("Service checkbox error:", err);
+                    checkbox.prop("checked", true); // rollback checkbox
+                    tableBody.append(buildServiceRow(null, serviceId, slug, serviceTitle));
+                });
+            }
         });
     }
 

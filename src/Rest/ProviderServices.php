@@ -160,6 +160,31 @@ class ProviderServices
             }
         }
 
+        // Fetch the final saved record to return complete details (price, duration, etc.)
+        $final_row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT service_id, service, description, duration, price, checkbox_status 
+                 FROM $table 
+                 WHERE provider_id = %d AND service_id = %d",
+                $provider_id,
+                $service_id
+            ),
+            ARRAY_A
+        );
+
+        if ($final_row) {
+            return rest_ensure_response([
+                'success'         => $status,
+                'message'         => $message,
+                'service_id'      => intval($final_row['service_id']),
+                'service'         => $final_row['service'],
+                'description'     => $final_row['description'],
+                'duration'        => $final_row['duration'],
+                'price'           => $final_row['price'],
+                'checkbox_status' => $final_row['checkbox_status']
+            ]);
+        }
+
         return rest_ensure_response([
             'success'         => $status,
             'message'         => $message,
