@@ -17,10 +17,12 @@ class FormsData
     {
         // Register all AJAX handlers dynamically
         $actions = [
-            'cosy_customer_register' => 'handle_customer_registration',
-            'cosy_provider_register' => 'handle_provider_registration',
-            'cosy_login'             => 'handle_login',
-            'cosy_forgot_password'   => 'handle_forgot_password',
+            'cosy_customer_register'        => 'handle_customer_registration',
+            'cosy_provider_register'        => 'handle_provider_registration',
+            'cosy_login'                    => 'handle_login',
+            'cosy_forgot_password'          => 'handle_forgot_password',
+            'cosy_customer_profile_update'  => 'handle_customer_profile_update',
+            'cosy_customer_password_update' => 'handle_customer_password_update',
         ];
         $this->register_ajax_handlers($actions, $this);
 
@@ -371,5 +373,115 @@ class FormsData
         } else {
             wp_die(__('Invalid or expired verification link.', 'cosy-appointments'));
         }
+    }
+
+    /**
+     * Handles AJAX requests to update Customer profile information.
+     */
+    public function handle_customer_profile_update()
+    {
+        // Security check: verify nonce
+        if (!isset($_POST['cosy_profile_nonce']) || !wp_verify_nonce($_POST['cosy_profile_nonce'], 'cosy_customer_profile_nonce')) {
+            wp_send_json_error(__('Security check failed. Please refresh the page.', 'cosy-appointments'));
+        }
+
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            wp_send_json_error(__('You must be logged in to update your profile.', 'cosy-appointments'));
+        }
+
+        $first_name = !empty($_POST['first_name']) ? sanitize_text_field($_POST['first_name']) : '';
+        $last_name  = !empty($_POST['last_name']) ? sanitize_text_field($_POST['last_name']) : '';
+        $email      = !empty($_POST['email']) ? sanitize_email($_POST['email']) : '';
+
+        if (empty($first_name) || empty($email)) {
+            $this->send_response(false, __('First Name and Email are required.', 'cosy-appointments'));
+            return;
+        }
+
+        if (!is_email($email)) {
+            $this->send_response(false, __('Please enter a valid email address.', 'cosy-appointments'));
+            return;
+        }
+
+        // Check if email is already used by another user
+        $existing_user = get_user_by('email', $email);
+        if ($existing_user && $existing_user->ID !== $user_id) {
+            $this->send_response(false, __('This email address is already in use.', 'cosy-appointments'));
+            return;
+        }
+
+        // Update WordPress user data
+        $userdata = [
+            'ID'         => $user_id,
+            'user_email' => $email,
+            'first_name' => $first_name,
+            'last_name'  => $last_name,
+            'display_name' => $first_name . ' ' . $last_name,
+        ];
+
+        $update_status = wp_update_user($userdata);
+
+        if (is_wp_error($update_status)) {
+            $this->send_response(false, __('Profile update failed: ', 'cosy-appointments') . $update_status->get_error_message());
+        } else {
+            // Save metadata
+            update_user_meta($user_id, 'first_name', $first_name);
+            update_user_meta($user_id, 'last_name', $last_name);
+            $this->send_response(true, __('Profile details updated successfully!', 'cosy-appointments'));
+        }
+    }
+
+    /**
+     * Handles AJAX requests to update Customer password.
+     */
+    public function handle_customer_password_update()
+    {
+        // Security check: verify nonce
+        if (!isset($_POST['cosy_password_nonce']) || !wp_verify_nonce($_POST['cosy_password_nonce'], 'cosy_customer_password_nonce')) {
+            wp_send_json_error(__('Security check failed. Please refresh the page.', 'cosy-appointments'));
+        }
+
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            wp_send_json_error(__('You must be logged in to update your password.', 'cosy-appointments'));
+        }
+
+        $current_pass = !empty($_POST['current_password']) ? $_POST['current_password'] : '';
+        $new_pass     = !empty($_POST['new_password']) ? $_POST['new_password'] : '';
+        $confirm_pass = !empty($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
+
+        if (empty($current_pass) || empty($new_pass) || empty($confirm_pass)) {
+            $this->send_response(false, __('All password fields are required.', 'cosy-appointments'));
+            return;
+        }
+
+        // Verify current password
+        $user = get_userdata($user_id);
+        if (!wp_check_password($current_pass, $user->user_pass, $user_id)) {
+            $this->send_response(false, __('Incorrect current password.', 'cosy-appointments'));
+            return;
+        }
+
+        // Validate new password length (minimum 6 chars)
+        if (strlen($new_pass) < 6) {
+            $this->send_response(false, __('New password must be at least 6 characters long.', 'cosy-appointments'));
+            return;
+        }
+
+        // Check if passwords match
+        if ($new_pass !== $confirm_pass) {
+            $this->send_response(false, __('New passwords do not match.', 'cosy-appointments'));
+            return;
+        }
+
+        // Update password
+        wp_set_password($new_pass, $user_id);
+        
+        // Log user back in automatically as wp_set_password clears session/auth cookies
+        wp_set_current_user($user_id);
+        wp_set_auth_cookie($user_id);
+
+        $this->send_response(true, __('Password changed successfully!', 'cosy-appointments'));
     }
 }

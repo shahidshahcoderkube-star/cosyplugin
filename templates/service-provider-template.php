@@ -55,20 +55,50 @@
 </div>
 
 <div id="videoModal" class="modal" onclick="closeVideo()">
-    <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="cosy-video-modal-content-v2" onclick="event.stopPropagation()">
         <span class="close-modal" onclick="closeVideo()">&times;</span>
-        <iframe id="videoFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe>
+        <iframe id="videoFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen style="display:none; border:none; width:100%; height:100%;"></iframe>
+        <video id="videoPlayer" controls width="100%" height="100%" src="" style="display:none; width:100%; height:100%; object-fit:contain; border-radius:20px; outline:none; background:#000;"></video>
     </div>
 </div>
 
 <script>
     function openVideo(url) {
-        document.getElementById('videoFrame').src = url;
+        var videoFrame = document.getElementById('videoFrame');
+        var videoPlayer = document.getElementById('videoPlayer');
+        
+        // Detect direct video files (mp4, webm, ogg, mov, etc.)
+        var isDirectVideo = url.match(/\.(mp4|webm|ogg|mov|3gp)($|\?)/i) || url.includes('/wp-content/uploads/');
+        
+        if (isDirectVideo) {
+            videoFrame.style.display = 'none';
+            videoFrame.src = '';
+            
+            videoPlayer.src = url;
+            videoPlayer.style.display = 'block';
+            videoPlayer.play().catch(function(e) {
+                console.log("Autoplay was prevented:", e);
+            });
+        } else {
+            videoPlayer.style.display = 'none';
+            videoPlayer.pause();
+            videoPlayer.src = '';
+            
+            videoFrame.src = url;
+            videoFrame.style.display = 'block';
+        }
+        
         document.getElementById('videoModal').style.display = 'flex';
     }
 
     function closeVideo() {
         document.getElementById('videoModal').style.display = 'none';
-        document.getElementById('videoFrame').src = '';
+        
+        var videoFrame = document.getElementById('videoFrame');
+        var videoPlayer = document.getElementById('videoPlayer');
+        
+        videoFrame.src = '';
+        videoPlayer.pause();
+        videoPlayer.src = '';
     }
 </script>

@@ -226,14 +226,16 @@
     backdrop-filter: blur(8px);
 }
 
-.modal-content {
+.cosy-video-modal-content-v2 {
     width: 95%;
     max-width: 900px;
     aspect-ratio: 16/9;
-    background: #000;
+    background: #000 !important;
     border-radius: 20px;
     overflow: hidden;
     position: relative;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .close-modal {
