@@ -169,10 +169,10 @@ class Dashboard
         }
 
         if (!empty($_FILES['video_upload']['name'])) {
-            // Size check (2 MB)
-            $max_size = 2 * 1024 * 1024;
+            // Size check (3 MB)
+            $max_size = 3 * 1024 * 1024;
             if ($_FILES['video_upload']['size'] > $max_size) {
-                wp_send_json_error(['message' => 'Video size must not exceed 2 MB']);
+                wp_send_json_error(['message' => 'Video size must not exceed 3 MB']);
             }
 
             require_once(ABSPATH . 'wp-admin/includes/file.php');

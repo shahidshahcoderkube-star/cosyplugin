@@ -34,7 +34,7 @@
                     style="cursor:pointer; min-height:220px;">
                     <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
                     <span class="mt-3 fw-bold"><?php esc_html_e('Click to upload your intro video', 'cosy-appointments'); ?></span>
-                    <p class="text-muted small mt-1"><?php esc_html_e('Recommended: MP4 format (Max 2 MB)', 'cosy-appointments'); ?></p>
+                    <p class="text-muted small mt-1"><?php esc_html_e('Recommended: MP4 format (Max 3 MB)', 'cosy-appointments'); ?></p>
                 </div>
 
                 <input type="file" id="video-upload-<?php echo esc_attr($user_id); ?>" class="video-upload" name="video_upload" accept="video/*" hidden>
@@ -81,7 +81,7 @@
                     style="cursor:pointer; min-height:220px;">
                     <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
                     <span class="mt-3 fw-bold"><?php esc_html_e('Click to upload your intro video', 'cosy-appointments'); ?></span>
-                    <p class="text-muted small mt-1"><?php esc_html_e('Recommended: MP4 format (Max 2 MB)', 'cosy-appointments'); ?></p>
+                    <p class="text-muted small mt-1"><?php esc_html_e('Recommended: MP4 format (Max 3 MB)', 'cosy-appointments'); ?></p>
                 </div>
 
                 <input type="file" id="video-upload-<?php echo esc_attr($user_id); ?>" class="video-upload" name="video_upload" accept="video/*" hidden>

@@ -232,10 +232,10 @@ var CosyApp = (function ($) {
                 return;
             }
 
-            // Enforce strict 2 MB limit (2 * 1024 * 1024 bytes)
-            const maxSizeBytes = 2 * 1024 * 1024;
+            // Enforce strict 3 MB limit (3 * 1024 * 1024 bytes)
+            const maxSizeBytes = 3 * 1024 * 1024;
             if (file.size > maxSizeBytes) {
-                CosyAlert.warning('File Too Large', 'Video size must not exceed 2 MB. Please compress your video and try again.');
+                CosyAlert.warning('File Too Large', 'Video size must not exceed 3 MB. Please compress your video and try again.');
                 this.value = "";
                 return;
             }
