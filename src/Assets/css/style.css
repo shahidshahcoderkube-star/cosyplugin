@@ -128,9 +128,8 @@
 }
 
 /* Close icon */
-#registerPopup .popup-close {
-    cursor: pointer;
-    font-weight: bold;
+cursor: pointer;
+font-weight: bold;
 }
 
 /* Popup body */
@@ -2279,10 +2278,12 @@ body .swal2-icon {
 /* Premium Checkout Theme Core Override */
 .cosy-checkout-root {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    background-color: transparent; /* Inherit theme background color */
+    background-color: transparent;
+    /* Inherit theme background color */
     color: var(--cosy-text-dark);
     min-height: auto;
-    padding: 0px 0 40px 0; /* Minimized top padding to zero */
+    padding: 0px 0 40px 0;
+    /* Minimized top padding to zero */
 }
 
 .cosy-checkout-root h2,
@@ -2310,13 +2311,15 @@ body .swal2-icon {
 }
 
 .cosy-checkout-back-btn {
-    background: var(--cosy-brand-dark) !important; /* Branded deep purple */
+    background: var(--cosy-brand-dark) !important;
+    /* Branded deep purple */
     color: #ffffff !important;
     border: none !important;
     padding: 10px 24px !important;
     font-size: 0.9rem !important;
     font-weight: 700 !important;
-    border-radius: 12px !important; /* Branded rounded corner */
+    border-radius: 12px !important;
+    /* Branded rounded corner */
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -2327,15 +2330,18 @@ body .swal2-icon {
 }
 
 .cosy-checkout-back-btn:hover {
-    background: var(--cosy-brand-purple) !important; /* Highlight brand purple */
+    background: var(--cosy-brand-purple) !important;
+    /* Highlight brand purple */
     transform: translateY(-1px);
     box-shadow: 0 6px 14px rgba(164, 67, 144, 0.25);
 }
 
 .cosy-checkout-back-btn i,
 .cosy-checkout-back-btn svg {
-    color: #ffffff !important; /* Force white arrow color */
-    font-size: 0.95rem !important; /* Match text size proportions */
+    color: #ffffff !important;
+    /* Force white arrow color */
+    font-size: 0.95rem !important;
+    /* Match text size proportions */
     line-height: 1 !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -2349,7 +2355,8 @@ body .swal2-icon {
 .cosy-checkout-title {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--cosy-brand-dark); /* Branded deep purple */
+    color: var(--cosy-brand-dark);
+    /* Branded deep purple */
     margin: 0;
     letter-spacing: -0.5px;
 }
@@ -2357,7 +2364,8 @@ body .swal2-icon {
 /* Bento Cards Styling */
 .cosy-bento-panel {
     background: #ffffff;
-    border-radius: 18px; /* Elegant curves */
+    border-radius: 18px;
+    /* Elegant curves */
     border: 1px solid var(--cosy-brand-light);
     box-shadow: 0 10px 30px rgba(109, 46, 103, 0.04);
     margin-bottom: 30px;
@@ -2365,12 +2373,14 @@ body .swal2-icon {
 }
 
 .cosy-bento-panel-header {
-    background: var(--cosy-brand-lightest); /* Selected service row color tint */
+    background: var(--cosy-brand-lightest);
+    /* Selected service row color tint */
     border-bottom: 1px solid var(--cosy-brand-light);
     padding: 18px 24px;
     font-weight: 700;
     font-size: 1.1rem;
-    color: var(--cosy-brand-dark); /* Branded purple heading */
+    color: var(--cosy-brand-dark);
+    /* Branded purple heading */
     letter-spacing: -0.3px;
     display: flex;
     align-items: center;
@@ -2445,7 +2455,8 @@ body .swal2-icon {
 }
 
 .total-payable-row td.value-col {
-    color: var(--cosy-brand-purple); /* Brand Accent purple for total */
+    color: var(--cosy-brand-purple);
+    /* Brand Accent purple for total */
     font-size: 1.15rem;
     font-weight: 800;
 }
@@ -2510,13 +2521,15 @@ body .swal2-icon {
 
 /* Pay Now Button (Bottom Left) */
 .cosy-pay-now-btn {
-    background: linear-gradient(135deg, var(--cosy-brand-purple) 0%, var(--cosy-brand-dark) 100%) !important; /* Premium brand purple gradient */
+    background: linear-gradient(135deg, var(--cosy-brand-purple) 0%, var(--cosy-brand-dark) 100%) !important;
+    /* Premium brand purple gradient */
     color: #ffffff !important;
     border: none !important;
     padding: 16px 50px !important;
     font-size: 1rem !important;
     font-weight: 700 !important;
-    border-radius: 12px !important; /* Curvy matching theme */
+    border-radius: 12px !important;
+    /* Curvy matching theme */
     box-shadow: 0 8px 20px rgba(164, 67, 144, 0.25) !important;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -2556,10 +2569,61 @@ body .swal2-icon {
     color: var(--cosy-text-muted);
     margin-bottom: 24px;
 }
+
 /* Booking for another person checkbox section */
 .bookingForAnother {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
+}
+
+/* CUSTOM POPUP BUTTON STYLES FOR THEME DESIGN */
+#registerPopup .button {
+    display: inline-block;
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--cosy-brand-purple, #a44390) 0%, #833573 100%);
+    border-radius: 12px;
+    color: #fff !important;
+    font-family: var(--cosy-font-family, 'Poppins', sans-serif);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.25);
+    border: none;
+}
+
+#registerPopup .button:hover {
+    background: linear-gradient(135deg, #833573 0%, var(--cosy-brand-purple, #a44390) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(164, 67, 144, 0.35);
+}
+
+.cc__choose {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+
+
+
+#registerPopup .popup-body {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 30px 130px !important;
+}
+
+#formContainer {
+    width: 100%;
+}
+
+span#closePopup {
+    cursor: pointer;
 }

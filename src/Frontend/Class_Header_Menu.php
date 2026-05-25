@@ -38,7 +38,7 @@ class Class_Header_Menu
         }
 
         ob_start();
-        ?>
+?>
         <!-- Services Dropdown (Premium Button) -->
         <li class="menu-item menu-item-has-children cosy-header-dropdown-wrapper">
             <a href="#" class="cosy-dropdown-toggle">
@@ -54,11 +54,11 @@ class Class_Header_Menu
                 <?php endforeach; ?>
             </ul>
         </li>
-        
+
         <!-- Auth Buttons -->
         <?php if (!is_user_logged_in()) : ?>
             <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
-                <a href="#" class="btn btn-filled openRegisterPopup" style="margin-left: 10px;">Register</a>
+                <a href="javascript:void(0)" class="btn btn-filled openRegisterPopup" style="margin-left: 10px;">Register</a>
             </li>
             <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
                 <a href="<?php echo site_url('login/'); ?>" class="btn btn-filled" style="margin-left: 10px;">Login</a>
@@ -83,7 +83,7 @@ class Class_Header_Menu
                 </li>
             <?php endif; ?>
         <?php endif; ?>
-        <?php
+<?php
         $dropdown_html = ob_get_clean();
 
         return $items . $dropdown_html;

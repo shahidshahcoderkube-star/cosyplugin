@@ -6,6 +6,6 @@
     <div class="popup-body">
         <a href="<?php echo site_url('/user-registration/'); ?>" id="customerBtn" class="button"><?php esc_html_e('CUSTOMER', 'cosy-appointments'); ?></a>
         <a href="<?php echo site_url('/provider-registration/'); ?>" id="providerBtn" class="button"><?php esc_html_e('SERVICE PROVIDER', 'cosy-appointments'); ?></a>
-        <div id="formContainer" style="margin-top:20px;"></div>
+        <!-- <div id="formContainer" style="margin-top:20px;"></div> -->
     </div>
 </div>

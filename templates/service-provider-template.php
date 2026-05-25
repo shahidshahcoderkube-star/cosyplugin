@@ -1,6 +1,4 @@
-<?php
-$providers = $this->get_all_service_providers();
-?>
+<?php $providers = $this->get_all_service_providers(); ?>
 <div class="cosy-premium-grid-container mb-5 mt-5">
     <?php if (empty($providers)): ?>
         <div class="no-providers-found text-center py-5 w-100"
