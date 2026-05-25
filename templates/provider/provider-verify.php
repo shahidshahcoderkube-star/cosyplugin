@@ -2,14 +2,20 @@
     <?php if (is_user_logged_in()) : ?>
         <div class="alert alert-success text-center" role="alert">
             <h4 class="alert-heading"><?php esc_html_e('🎉 Account Verified!', 'cosy-appointments'); ?></h4>
-            <p><?php esc_html_e('Your provider account has been successfully verified and you are now logged in.', 'cosy-appointments'); ?></p>
+            <p><?php esc_html_e('Your account has been successfully verified and you are now logged in.', 'cosy-appointments'); ?></p>
             <hr>
-            <a href="<?php echo esc_url(home_url('/provider-dashboard/')); ?>" class="btn btn-success mt-3"><?php esc_html_e('Go to Dashboard', 'cosy-appointments'); ?></a>
+            <?php 
+            $user = wp_get_current_user();
+            if (in_array('provider', (array) $user->roles)) : ?>
+                <a href="<?php echo esc_url(home_url('/provider-dashboard/')); ?>" class="btn btn-success mt-3"><?php esc_html_e('Go to Dashboard', 'cosy-appointments'); ?></a>
+            <?php else : ?>
+                <a href="<?php echo esc_url(home_url('/customer-profile/')); ?>" class="btn btn-success mt-3"><?php esc_html_e('Go to Profile', 'cosy-appointments'); ?></a>
+            <?php endif; ?>
         </div>
     <?php else : ?>
         <div class="alert alert-danger text-center" role="alert">
             <h4 class="alert-heading"><?php esc_html_e('⚠️ Access Denied', 'cosy-appointments'); ?></h4>
-            <p><?php esc_html_e('You must verify your account and be logged in to access the dashboard.', 'cosy-appointments'); ?></p>
+            <p><?php esc_html_e('You must verify your account and be logged in to access your profile.', 'cosy-appointments'); ?></p>
             <hr>
             <a href="<?php echo esc_url(home_url('/login/')); ?>" class="btn btn-danger mt-3"><?php esc_html_e('Login', 'cosy-appointments'); ?></a>
         </div>

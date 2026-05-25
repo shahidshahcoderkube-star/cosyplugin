@@ -2,12 +2,12 @@
 <div class="cosy-premium-grid-container mb-5 mt-5">
 
     <!-- Filters Bar -->
-    <div class="cosy-providers-filter-bar mb-4 p-3" style="background: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        <form id="cosyProvidersFilterForm" class="d-flex gap-3 align-items-center justify-content-center">
+    <div class="cosy-providers-filter-bar mb-4 p-3">
+        <form id="cosyProvidersFilterForm" class="d-flex gap-3 align-items-center justify-content-center w-100">
 
-            <input type="text" name="search_name" id="filter_search_name" class="form-control cosy-filter-input" placeholder="<?php esc_attr_e('Search by name', 'cosy-appointments'); ?>" style="min-width: 200px; border-radius: 8px;">
+            <input type="text" name="search_name" id="filter_search_name" class="form-control cosy-filter-input" placeholder="<?php esc_attr_e('Search by name', 'cosy-appointments'); ?>" style="min-width: 220px; height: 46px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #334155; font-weight: 500; padding: 10px 16px; box-shadow: none;">
 
-            <select name="service_category" id="filter_category" class="form-select cosy-filter-select" style="min-width: 150px; background-color: #f1f5f9; border-radius: 8px; border: 1px solid #cbd5e1;">
+            <select name="service_category" id="filter_category" class="form-select cosy-filter-select" style="min-width: 160px; height: 46px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #334155; font-weight: 500; padding: 10px 36px 10px 16px; box-shadow: none;">
                 <option value=""><?php esc_html_e('--Category--', 'cosy-appointments'); ?></option>
                 <?php
                 $services = get_posts(['post_type' => 'cosy_service', 'numberposts' => -1]);
@@ -17,19 +17,19 @@
                 ?>
             </select>
 
-            <select name="price_range" id="filter_price" class="form-select cosy-filter-select" style="min-width: 130px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569;">
+            <select name="price_range" id="filter_price" class="form-select cosy-filter-select" style="min-width: 140px; height: 46px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #334155; font-weight: 500; padding: 10px 36px 10px 16px; box-shadow: none;">
                 <option value=""><?php esc_html_e('--Price--', 'cosy-appointments'); ?></option>
                 <option value="low_high"><?php esc_html_e('Low to High', 'cosy-appointments'); ?></option>
                 <option value="high_low"><?php esc_html_e('High to Low', 'cosy-appointments'); ?></option>
             </select>
 
-            <select name="gender" id="filter_gender" class="form-select cosy-filter-select" style="min-width: 130px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569;">
+            <select name="gender" id="filter_gender" class="form-select cosy-filter-select" style="min-width: 140px; height: 46px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #334155; font-weight: 500; padding: 10px 36px 10px 16px; box-shadow: none;">
                 <option value=""><?php esc_html_e('--Gender--', 'cosy-appointments'); ?></option>
                 <option value="male"><?php esc_html_e('Male', 'cosy-appointments'); ?></option>
                 <option value="female"><?php esc_html_e('Female', 'cosy-appointments'); ?></option>
             </select>
 
-            <select name="age_group" id="filter_age" class="form-select cosy-filter-select" style="min-width: 130px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569;">
+            <select name="age_group" id="filter_age" class="form-select cosy-filter-select" style="min-width: 140px; height: 46px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #334155; font-weight: 500; padding: 10px 36px 10px 16px; box-shadow: none;">
                 <option value=""><?php esc_html_e('--Age--', 'cosy-appointments'); ?></option>
                 <option value="Teenager"><?php esc_html_e('Teenager', 'cosy-appointments'); ?></option>
                 <option value="Young Adult"><?php esc_html_e('Young Adult', 'cosy-appointments'); ?></option>
@@ -38,7 +38,7 @@
                 <option value="Golden Senior"><?php esc_html_e('Golden Senior', 'cosy-appointments'); ?></option>
             </select>
 
-            <select name="rating" id="filter_rating" class="form-select cosy-filter-select" style="min-width: 130px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569;">
+            <select name="rating" id="filter_rating" class="form-select cosy-filter-select" style="min-width: 140px; height: 46px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #334155; font-weight: 500; padding: 10px 36px 10px 16px; box-shadow: none;">
                 <option value=""><?php esc_html_e('--Rating--', 'cosy-appointments'); ?></option>
                 <option value="5">5 Stars</option>
                 <option value="4">4+ Stars</option>

@@ -63,11 +63,11 @@ $age_group     = $provider_data['age_group'] ?? '';
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Middle Name', 'cosy-appointments'); ?></label>
-                        <input type="text" name="prov_mname" class="form-control" value="<?php echo esc_attr($prov_mname); ?>" required>
+                        <input type="text" name="prov_mname" class="form-control" value="<?php echo esc_attr($prov_mname); ?>">
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Surname', 'cosy-appointments'); ?></label>
-                        <input type="text" name="prov_sname" class="form-control" value="<?php echo esc_attr($prov_sname); ?>" required>
+                        <input type="text" name="prov_sname" class="form-control" value="<?php echo esc_attr($prov_sname); ?>">
                     </div>
 
 

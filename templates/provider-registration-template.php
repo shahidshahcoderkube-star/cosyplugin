@@ -19,7 +19,7 @@
 
                         <div class="form-group" style="margin-bottom: 20px;">
                             <label for="prov_mname"><?php esc_html_e('Middle Name', 'cosy-appointments'); ?></label>
-                            <input type="text" name="prov_mname" id="prov_mname" placeholder="<?php esc_attr_e('Middle Name', 'cosy-appointments'); ?>" required>
+                            <input type="text" name="prov_mname" id="prov_mname" placeholder="<?php esc_attr_e('Middle Name', 'cosy-appointments'); ?>">
                         </div>
 
                         <div class="form-group" style="margin-bottom: 20px;">
@@ -55,7 +55,7 @@
 
                         <div class="form-group" style="margin-bottom: 20px;">
                             <label for="prov_sname"><?php esc_html_e('Surname', 'cosy-appointments'); ?></label>
-                            <input type="text" name="prov_sname" id="prov_sname" placeholder="<?php esc_attr_e('Surname', 'cosy-appointments'); ?>" required>
+                            <input type="text" name="prov_sname" id="prov_sname" placeholder="<?php esc_attr_e('Surname', 'cosy-appointments'); ?>">
                         </div>
 
                         <div class="form-group" style="margin-bottom: 20px;">

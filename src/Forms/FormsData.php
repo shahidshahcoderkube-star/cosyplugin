@@ -26,6 +26,29 @@ class FormsData
 
         // Hook for non-AJAX verification (email link)
         add_action('init', [$this, 'handle_provider_verification']);
+
+        // Filter to prevent unverified logins
+        add_filter('wp_authenticate_user', [$this, 'restrict_unverified_login'], 10, 2);
+    }
+
+    /**
+     * Blocks login attempts for users whose email address is not verified.
+     */
+    public function restrict_unverified_login($user, $password)
+    {
+        if (is_wp_error($user)) {
+            return $user;
+        }
+
+        // Get account verification status
+        $status = get_user_meta($user->ID, 'account_status', true);
+
+        // If the account is pending verification, reject the login
+        if ($status === 'pending') {
+            return new \WP_Error('email_not_verified', __('Your email is not verified. Please check your inbox for the activation link.', 'cosy-appointments'));
+        }
+
+        return $user;
     }
 
     /**
@@ -61,7 +84,7 @@ class FormsData
     {
         // Security check: verify nonce
         if (!isset($_POST['cosy_nonce']) || !wp_verify_nonce($_POST['cosy_nonce'], 'cosy_customer_register_nonce')) {
-            wp_send_json_error('Security check failed. Please refresh the page.');
+            wp_send_json_error(__('Security check failed. Please refresh the page.', 'cosy-appointments'));
         }
 
         // Ensure request is POST + correct action
@@ -76,13 +99,18 @@ class FormsData
 
         // Validate required fields
         if (empty($name) || empty($email) || empty($pass)) {
-            $this->send_response(false, 'All fields are required.');
+            $this->send_response(false, __('All fields are required.', 'cosy-appointments'));
+            return;
+        }
+
+        if (!is_email($email)) {
+            $this->send_response(false, __('Please enter a valid email address.', 'cosy-appointments'));
             return;
         }
 
         // Check if email already exists
         if (email_exists($email)) {
-            $this->send_response(false, 'This email is already registered.');
+            $this->send_response(false, __('This email is already registered.', 'cosy-appointments'));
             return;
         }
 
@@ -90,20 +118,43 @@ class FormsData
         $user_id = wp_create_user($email, $pass, $email);
 
         if (is_wp_error($user_id)) {
-            $this->send_response(false, 'Registration failed: ' . $user_id->get_error_message());
+            $this->send_response(false, __('Registration failed: ', 'cosy-appointments') . $user_id->get_error_message());
             return;
         }
 
         // Save extra meta
         update_user_meta($user_id, 'first_name', $name);
         update_user_meta($user_id, 'role_type', 'customer');
+        update_user_meta($user_id, 'account_status', 'pending'); // Set customer status to pending
 
         // Assign role
         $user = new WP_User($user_id);
-        $user->set_role('customer'); // or custom role "customer"
+        $user->set_role('customer'); // assign customer role
+
+        // Generate verification token
+        $token = wp_generate_password(32, false);
+        update_user_meta($user_id, 'verification_token', $token);
+
+        // Build verification link
+        $verify_url = add_query_arg([
+            'action' => 'cosy_verify_provider', // same verification handler handles both
+            'uid'    => $user_id,
+            'token'  => $token,
+        ], home_url('/provider-verify'));
+
+        // Send verification email
+        wp_mail(
+            $email,
+            __('Confirm Your Customer Account', 'cosy-appointments'),
+            sprintf(
+                __("Hello %s,\n\nClick below to activate your account:\n\n%s", 'cosy-appointments'),
+                $name,
+                $verify_url
+            )
+        );
 
         // Success response
-        $this->send_response(true, 'Customer registered successfully! Please login now');
+        $this->send_response(true, __('Registration successful! Please check your email to verify your account.', 'cosy-appointments'));
     }
 
     /**
@@ -114,22 +165,32 @@ class FormsData
     {
         // Security check: verify nonce
         if (!isset($_POST['cosy_nonce']) || !wp_verify_nonce($_POST['cosy_nonce'], 'cosy_provider_register_nonce')) {
-            wp_send_json_error('Security check failed. Please refresh the page.');
+            wp_send_json_error(__('Security check failed. Please refresh the page.', 'cosy-appointments'));
         }
 
         // Sanitize required fields
-        $username = !empty($_POST['prov_username']) ? sanitize_text_field($_POST['prov_username']) : '';
+        $username = !empty($_POST['prov_username']) ? sanitize_user($_POST['prov_username'], true) : '';
         $email    = !empty($_POST['prov_email']) ? sanitize_email($_POST['prov_email']) : '';
         $pass     = !empty($_POST['prov_pass']) ? sanitize_text_field($_POST['prov_pass']) : '';
 
         // Basic validation
         if (empty($username) || empty($email) || empty($pass)) {
-            $this->send_response(false, 'All fields are required.');
+            $this->send_response(false, __('All fields are required.', 'cosy-appointments'));
+            return;
+        }
+
+        if (!is_email($email)) {
+            $this->send_response(false, __('Please enter a valid email address.', 'cosy-appointments'));
+            return;
+        }
+
+        if (username_exists($username)) {
+            $this->send_response(false, __('This username is already taken.', 'cosy-appointments'));
             return;
         }
 
         if (email_exists($email)) {
-            $this->send_response(false, 'This email is already registered.');
+            $this->send_response(false, __('This email is already registered.', 'cosy-appointments'));
             return;
         }
 
@@ -142,7 +203,7 @@ class FormsData
         ]);
 
         if (is_wp_error($user_id)) {
-            $this->send_response(false, 'Registration failed: ' . $user_id->get_error_message());
+            $this->send_response(false, __('Registration failed: ', 'cosy-appointments') . $user_id->get_error_message());
             return;
         }
 
@@ -180,12 +241,16 @@ class FormsData
         // Send verification email
         wp_mail(
             $email,
-            'Confirm Your Provider Account',
-            "Hello $username,\n\nClick below to activate your account:\n\n$verify_url"
+            __('Confirm Your Provider Account', 'cosy-appointments'),
+            sprintf(
+                __("Hello %s,\n\nClick below to activate your account:\n\n%s", 'cosy-appointments'),
+                $username,
+                $verify_url
+            )
         );
 
         // Response
-        $this->send_response(true, 'Registration successful! Please check your email to confirm.');
+        $this->send_response(true, __('Registration successful! Please check your email to confirm.', 'cosy-appointments'));
     }
 
     /**
@@ -198,7 +263,7 @@ class FormsData
         
         // Security check: verify nonce
         if (!isset($_POST['cosy_nonce']) || !wp_verify_nonce($_POST['cosy_nonce'], 'cosy_login_nonce')) {
-            wp_send_json_error("Security check failed. Received: $received_nonce. Expected: cosy_login_nonce");
+            wp_send_json_error(sprintf(__('Security check failed. Received: %s. Expected: cosy_login_nonce', 'cosy-appointments'), $received_nonce));
         }
 
         $creds = [
@@ -210,17 +275,21 @@ class FormsData
         $user = wp_signon($creds, false);
 
         if (is_wp_error($user)) {
-            $this->send_response(false, 'Invalid username or password.');
+            $error_code = $user->get_error_code();
+            if ($error_code === 'email_not_verified') {
+                $this->send_response(false, $user->get_error_message());
+            } else {
+                $this->send_response(false, __('Invalid username or password.', 'cosy-appointments'));
+            }
         } else {
             // Instead of just message, send home_url for redirect 
             $this->send_response(true, home_url());
-            $this->send_response(true, 'Login successful!');
         }
     }
 
     /**
      * Handles AJAX requests for the "Forgot Password" feature.
-     * Generates a new random password and emails it to the user.
+     * Generates a password reset key and emails it to the user.
      */
     public function handle_forgot_password()
     {
@@ -232,36 +301,48 @@ class FormsData
         $email = !empty($_POST['email']) ? sanitize_email($_POST['email']) : '';
 
         if (empty($email)) {
-            $this->send_response(false, 'Email is required.');
+            $this->send_response(false, __('Email is required.', 'cosy-appointments'));
             return;
         }
 
         // Check if user exists
         $user = get_user_by('email', $email);
         if (!$user) {
-            $this->send_response(false, 'No account found with this email.');
+            $this->send_response(false, __('No account found with this email.', 'cosy-appointments'));
             return;
         }
 
-        // Generate random password
-        $new_pass = wp_generate_password(12, true);
+        // Generate password reset key using WordPress built-in secure function
+        $key = get_password_reset_key($user);
+        if (is_wp_error($key)) {
+            $this->send_response(false, __('Unable to generate reset link. Please try again.', 'cosy-appointments'));
+            return;
+        }
 
-        // Set new password
-        wp_set_password($new_pass, $user->ID);
+        // Build the secure reset URL using WordPress's core endpoint
+        $reset_url = add_query_arg([
+            'action' => 'rp',
+            'key'    => $key,
+            'login'  => rawurlencode($user->user_login),
+        ], wp_login_url());
 
         // Send email
-        wp_mail(
-            $email,
-            'Your New Password',
-            'Hello ' . $user->display_name . ",\n\nYour new password is: " . $new_pass . "\n\nPlease login and change it after logging in."
-        );
+        $message = sprintf(__('Hello %s,', 'cosy-appointments'), esc_html($user->display_name)) . "\n\n";
+        $message .= __('You requested a password reset for your account. Please click the link below to set a new password:', 'cosy-appointments') . "\n\n";
+        $message .= esc_url_raw($reset_url) . "\n\n";
+        $message .= __('If you did not request this, please ignore this email.', 'cosy-appointments') . "\n\n";
 
-        $this->send_response(true, 'A new password has been sent to your email.');
+        $mail_sent = wp_mail($email, __('Password Reset Request', 'cosy-appointments'), $message);
+
+        if ($mail_sent) {
+            $this->send_response(true, __('A password reset link has been sent to your email.', 'cosy-appointments'));
+        } else {
+            $this->send_response(false, __('Failed to send password reset email.', 'cosy-appointments'));
+        }
     }
 
-
     /**
-     * Verifies a Provider's email address when they click the link in their registration email.
+     * Verifies a User's email address when they click the link in their registration email.
      * Activates their account and automatically logs them in.
      */
     public function handle_provider_verification()
@@ -288,7 +369,7 @@ class FormsData
             wp_safe_redirect(home_url('/provider-verify?verified=1'));
             exit;
         } else {
-            wp_die('Invalid or expired verification link.');
+            wp_die(__('Invalid or expired verification link.', 'cosy-appointments'));
         }
     }
 }
