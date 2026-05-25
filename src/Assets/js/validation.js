@@ -232,6 +232,14 @@ var CosyApp = (function ($) {
                 return;
             }
 
+            // Enforce strict 2 MB limit (2 * 1024 * 1024 bytes)
+            const maxSizeBytes = 2 * 1024 * 1024;
+            if (file.size > maxSizeBytes) {
+                CosyAlert.warning('File Too Large', 'Video size must not exceed 2 MB. Please compress your video and try again.');
+                this.value = "";
+                return;
+            }
+
             const url = URL.createObjectURL(file);
             const $form = $(this).closest("form");
             const $preview = $form.find(".video-upload-preview");
