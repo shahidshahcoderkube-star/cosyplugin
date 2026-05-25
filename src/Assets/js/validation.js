@@ -7,19 +7,20 @@
  */
 var CosyApp = (function ($) {
 
-    //--------------- ALERTS ---------------//
     function cosyAlert(type, message) {
         // If message is an object, try to get .message property or stringify it
         if (typeof message === "object" && message !== null) {
             message = message.message || JSON.stringify(message);
         }
+        
+        var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        var bg = type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+        var color = type === 'success' ? '#22c55e' : '#ef4444';
+        
         return `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert"
-                        aria-label="Close"></button>
+            <div class="alert d-flex align-items-center border-0 p-3 mb-3" style="background: ${bg}; border-radius: 12px; color: ${color}; font-weight: 500; font-size: 0.9rem;" role="alert">
+                <i class="fas ${icon} me-2" style="font-size: 1.1rem; color: ${color};"></i>
+                <div>${message}</div>
             </div>
         `;
     }
