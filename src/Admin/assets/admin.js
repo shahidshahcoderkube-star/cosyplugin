@@ -87,7 +87,7 @@ jQuery(document).ready(function ($) {
         /**
          * handleReject
          * Fires an AJAX request to reject a provider's media upload.
-         * On success, fades out and removes the table row.
+         * On success, updates the row to reflect rejection and media deletion.
          */
         handleReject: function () {
             const row    = $(this).closest('tr');
@@ -108,7 +108,10 @@ jQuery(document).ready(function ($) {
                 },
                 success: function (res) {
                     if (res.success) {
-                        row.fadeOut(500, function () { $(this).remove(); });
+                        // Update UI to show video has been deleted and rejected
+                        row.find('td:nth-child(1)').html('<span class="text-muted">Deleted</span>');
+                        row.find('td:nth-child(6)').html('<span class="badge bg-danger status-badge">Rejected</span>');
+                        row.find('td:nth-child(7)').html('<span class="text-muted">No Action</span>');
                         CosyMediaAdmin.showAlert(res.data.message || 'Video rejected successfully!', 'danger');
                     } else {
                         CosyMediaAdmin.showAlert(res.data.message || 'Error rejecting video.', 'danger');
