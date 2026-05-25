@@ -6,6 +6,7 @@
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-light">
                 <tr>
+                    <th>No.</th>
                     <th>Media</th>
                     <th>Provider</th>
                     <th>Email</th>
@@ -26,18 +27,21 @@
                 );
 
                 if (empty($results)) {
-                    echo '<tr><td colspan="7" class="text-center py-4 text-muted">No media approvals found.</td></tr>';
+                    echo '<tr><td colspan="8" class="text-center py-4 text-muted">No media approvals found.</td></tr>';
                 }
 
+                $counter = 1;
                 foreach ($results as $media):
                     $user_id = $media->user_id;
                     $data    = $this->get_provider_data($user_id);
                     $status  = $media->status;
                     ?>
                     <tr data-id="<?php echo esc_attr($user_id); ?>">
+                        <!-- No. -->
+                        <td><?php echo esc_html($counter++); ?></td>
                         <!-- Media -->
                         <td style="max-width:220px;">
-                            <?php if ($status !== 'rejected' && !empty($media->media_url)) { ?>
+                            <?php if ($status !== 'rejected' && $status !== 'deleted' && !empty($media->media_url)) { ?>
                                 <video controls class="w-100" style="max-height:140px;">
                                     <source src="<?php echo esc_url($media->media_url); ?>" type="video/mp4">
                                 </video>
@@ -71,6 +75,8 @@
                                 echo '<span class="badge bg-success status-badge">Approved</span>';
                             } elseif ($status === 'rejected') {
                                 echo '<span class="badge bg-danger status-badge">Rejected</span>';
+                            } elseif ($status === 'deleted') {
+                                echo '<span class="badge bg-secondary status-badge">Deleted</span>';
                             } else {
                                 echo '<span class="badge bg-warning text-dark status-badge">Pending</span>';
                             }

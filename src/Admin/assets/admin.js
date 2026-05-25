@@ -71,7 +71,7 @@ jQuery(document).ready(function ($) {
                 success: function (res) {
                     if (res.success) {
                         // Update status badge in the table row immediately
-                        row.find('td:nth-child(6)').html('<span class="badge bg-success status-badge">Approved</span>');
+                        row.find('td:nth-child(7)').html('<span class="badge bg-success status-badge">Approved</span>');
                         row.find('.approve-media').remove();
                         CosyMediaAdmin.showAlert(res.data.message || 'Video approved successfully!', 'success');
                     } else {
@@ -109,9 +109,9 @@ jQuery(document).ready(function ($) {
                 success: function (res) {
                     if (res.success) {
                         // Update UI to show video has been deleted and rejected
-                        row.find('td:nth-child(1)').html('<span class="text-muted">Deleted</span>');
-                        row.find('td:nth-child(6)').html('<span class="badge bg-danger status-badge">Rejected</span>');
-                        row.find('td:nth-child(7)').html('<span class="text-muted">No Action</span>');
+                        row.find('td:nth-child(2)').html('<span class="text-muted">Deleted</span>');
+                        row.find('td:nth-child(7)').html('<span class="badge bg-danger status-badge">Rejected</span>');
+                        row.find('td:nth-child(8)').html('<span class="text-muted">No Action</span>');
                         CosyMediaAdmin.showAlert(res.data.message || 'Video rejected successfully!', 'danger');
                     } else {
                         CosyMediaAdmin.showAlert(res.data.message || 'Error rejecting video.', 'danger');

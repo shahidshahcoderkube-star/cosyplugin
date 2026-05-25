@@ -192,38 +192,20 @@ class Dashboard
                 // Save status as pending
                 update_user_meta($user_id, 'video_status', 'pending');
 
-                // Sync with custom table for Admin Dashboard
+                // Sync with custom table for Admin Dashboard - Always insert a new record to keep logs of all attempts
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'cosy_media_approvals';
 
-                // Check if user already has an entry
-                $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM $table_name WHERE user_id = %d", $user_id));
-
-                if ($existing) {
-                    $wpdb->update(
-                        $table_name,
-                        [
-                            'media_url'   => $video_url,
-                            'status'      => 'pending',
-                            'uploaded_at' => current_time('mysql'),
-                            'reviewed_at' => null
-                        ],
-                        ['user_id' => $user_id],
-                        ['%s', '%s', '%s', '%s'],
-                        ['%d']
-                    );
-                } else {
-                    $wpdb->insert(
-                        $table_name,
-                        [
-                            'user_id'     => $user_id,
-                            'media_url'   => $video_url,
-                            'status'      => 'pending',
-                            'uploaded_at' => current_time('mysql'),
-                        ],
-                        ['%d', '%s', '%s', '%s']
-                    );
-                }
+                $wpdb->insert(
+                    $table_name,
+                    [
+                        'user_id'     => $user_id,
+                        'media_url'   => $video_url,
+                        'status'      => 'pending',
+                        'uploaded_at' => current_time('mysql'),
+                    ],
+                    ['%d', '%s', '%s', '%s']
+                );
 
                 wp_send_json_success([
                     'message' => 'Video uploaded successfully! Awaiting admin approval.',
@@ -267,6 +249,16 @@ class Dashboard
         }
 
         update_user_meta($user_id, 'video_status', 'deleted');
+
+        // Update the status of their latest video entry to 'deleted' in approvals table to keep logs
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_media_approvals';
+        $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE $table_name SET status = 'deleted' WHERE user_id = %d AND status IN ('pending', 'approved') ORDER BY id DESC LIMIT 1",
+                $user_id
+            )
+        );
 
         wp_send_json_success([
             'message' => __('Video deleted successfully!', 'cosy-appointments')
