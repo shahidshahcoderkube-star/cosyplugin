@@ -55,5 +55,33 @@ jQuery(document).ready(function ($) {
     }
 
 
+    // ---------------- AJAX Provider Filtering ----------------
+    let filterTimeout;
+    $('#cosyProvidersFilterForm input, #cosyProvidersFilterForm select').on('change keyup', function(e) {
+        if (e.type === 'keyup' && e.key !== 'Enter') {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(triggerFilter, 500);
+            return;
+        }
+        triggerFilter();
+    });
+
+    function triggerFilter() {
+        $('#cosyProvidersGridWrap').css('opacity', '0.5');
+        $.ajax({
+            url: cosy_ajax.ajax_url,
+            type: 'POST',
+            data: $('#cosyProvidersFilterForm').serialize(),
+            success: function(response) {
+                if (response.success) {
+                    $('#cosyProvidersGridWrap').html(response.data.html);
+                }
+                $('#cosyProvidersGridWrap').css('opacity', '1');
+            },
+            error: function() {
+                $('#cosyProvidersGridWrap').css('opacity', '1');
+            }
+        });
+    }
 });
 

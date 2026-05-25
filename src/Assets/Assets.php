@@ -255,7 +255,7 @@ class Assets
         wp_enqueue_script(
             'cosy-script',
             COSY_APPT_URL . 'src/assets/js/frontend.js',
-            ['jquery'],
+            ['jquery', 'cosy-api'],
             COSY_APPT_VER,
             true
         );

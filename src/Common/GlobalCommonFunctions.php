@@ -223,19 +223,36 @@ trait GlobalCommonFunctions
      * 2. It fetches the provider's specific price for that service from the custom database table.
      * 3. It returns an array with all profile details like Bio, Photo, and Price.
      */
-    public function get_all_service_providers(): array
+    public function get_all_service_providers(array $filters = []): array
     {
         global $wpdb;
 
-        // Get service slug from URL (e.g. "kids" from /service-provider/kids/)
-        $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $current_url = trim($uri_path, '/');
-        $url_segments = explode('/', $current_url);
-        $service_slug = end($url_segments);
+        // Get service slug from URL or filters
+        $service_slug = '';
+        if (!empty($filters['service_category'])) {
+            $service_slug = sanitize_text_field($filters['service_category']);
+        } else {
+            // Get service slug from URL (e.g. "kids" from /service-provider/kids/)
+            $uri_path = '';
+            if (wp_doing_ajax()) {
+                $referer = wp_get_referer();
+                if ($referer) {
+                    $uri_path = parse_url($referer, PHP_URL_PATH);
+                }
+            } else {
+                $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            }
 
-        // Ignore 'service-provider' so it fetches ALL providers when no specific service is given in the URL.
-        if ($service_slug === 'service-provider') {
-            $service_slug = '';
+            if (!empty($uri_path)) {
+                $current_url = trim($uri_path, '/');
+                $url_segments = explode('/', $current_url);
+                $service_slug = end($url_segments);
+
+                // Ignore 'service-provider' so it fetches ALL providers when no specific service is given in the URL.
+                if ($service_slug === 'service-provider') {
+                    $service_slug = '';
+                }
+            }
         }
 
         $include_users = [];
@@ -289,18 +306,41 @@ trait GlobalCommonFunctions
             'number' => -1,
             'order' => 'DESC',
             'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => 'cosy_provider_status',
-                    'value' => 'active',
-                    'compare' => '='
-                ],
-                [
-                    'key' => 'cosy_provider_status',
-                    'compare' => 'NOT EXISTS'
-                ]
+                'relation' => 'AND',
             ]
         ];
+
+        // Provider status must be active (or NOT EXISTS)
+        $args['meta_query'][] = [
+            'relation' => 'OR',
+            [
+                'key' => 'cosy_provider_status',
+                'value' => 'active',
+                'compare' => '='
+            ],
+            [
+                'key' => 'cosy_provider_status',
+                'compare' => 'NOT EXISTS'
+            ]
+        ];
+
+        // Filter by gender
+        if (!empty($filters['gender'])) {
+            $args['meta_query'][] = [
+                'key' => 'gender',
+                'value' => sanitize_text_field($filters['gender']),
+                'compare' => '='
+            ];
+        }
+
+        // Filter by age group
+        if (!empty($filters['age_group'])) {
+            $args['meta_query'][] = [
+                'key' => 'age_group',
+                'value' => sanitize_text_field($filters['age_group']),
+                'compare' => '='
+            ];
+        }
 
         if (!empty($include_users)) {
             $args['include'] = array_unique($include_users);
@@ -315,6 +355,19 @@ trait GlobalCommonFunctions
 
         foreach ($service_providers as $provider) {
             $user_id = $provider->ID;
+            
+            // Calculate average rating
+            $rating_data = $this->get_provider_reviews($user_id, true);
+            $avg_rating = isset($rating_data['average_rating']) ? floatval($rating_data['average_rating']) : 0.0;
+
+            // Filter by rating
+            if (!empty($filters['rating'])) {
+                $min_rating = floatval($filters['rating']);
+                if ($avg_rating < $min_rating) {
+                    continue; // Skip if rating is too low
+                }
+            }
+
             $data[] = [
                 'ID' => $provider->ID,
                 'username' => $provider->user_login,
@@ -337,9 +390,39 @@ trait GlobalCommonFunctions
                 'age_group' => get_user_meta($user_id, 'age_group', true),
                 'introduction_video' => get_user_meta($user_id, 'introduction_video', true),
                 'price' => isset($provider_prices[$user_id]) ? $provider_prices[$user_id]->price : '0.00',
+                'rating' => $avg_rating
             ];
         }
 
+        // Filter by Search Name in PHP
+        if (!empty($filters['search_name'])) {
+            $search_val = strtolower(sanitize_text_field($filters['search_name']));
+            $data = array_filter($data, function ($item) use ($search_val) {
+                $full_name = strtolower($item['first_name'] . ' ' . $item['last_name']);
+                return (strpos(strtolower($item['name']), $search_val) !== false) || 
+                       (strpos(strtolower($item['first_name']), $search_val) !== false) ||
+                       (strpos(strtolower($item['last_name']), $search_val) !== false) ||
+                       (strpos($full_name, $search_val) !== false);
+            });
+            $data = array_values($data); // Reindex array
+        }
+
+        // Sort by price if requested
+        if (!empty($filters['price_range'])) {
+            $price_order = $filters['price_range'];
+            usort($data, function ($a, $b) use ($price_order) {
+                $price_a = floatval($a['price']);
+                $price_b = floatval($b['price']);
+                if ($price_a == $price_b) {
+                    return 0;
+                }
+                if ($price_order === 'low_high') {
+                    return ($price_a < $price_b) ? -1 : 1;
+                } else {
+                    return ($price_a > $price_b) ? -1 : 1;
+                }
+            });
+        }
 
         return $data;
     }

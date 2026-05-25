@@ -32,7 +32,8 @@ class Frontend
         $this->register_ajax_handlers([
             'cosy_create_stripe_session' => 'handle_create_stripe_session',
             'cosy_update_booking_status' => 'handle_update_booking_status',
-            'cosy_get_booked_slots' => 'handle_get_booked_slots'
+            'cosy_get_booked_slots' => 'handle_get_booked_slots',
+            'filter_service_providers' => 'handle_filter_service_providers'
         ], $this);
     }
 
@@ -755,5 +756,28 @@ class Frontend
 
         // Remove HTML filter to restore defaults for other system emails
         remove_filter('wp_mail_content_type', $html_email_filter);
+    }
+
+    /**
+     * AJAX handler for filtering service providers.
+     */
+    public function handle_filter_service_providers(): void
+    {
+        $filters = [
+            'search_name'      => isset($_POST['search_name']) ? sanitize_text_field($_POST['search_name']) : '',
+            'service_category' => isset($_POST['service_category']) ? sanitize_text_field($_POST['service_category']) : '',
+            'price_range'      => isset($_POST['price_range']) ? sanitize_text_field($_POST['price_range']) : '',
+            'gender'           => isset($_POST['gender']) ? sanitize_text_field($_POST['gender']) : '',
+            'age_group'        => isset($_POST['age_group']) ? sanitize_text_field($_POST['age_group']) : '',
+            'rating'           => isset($_POST['rating']) ? sanitize_text_field($_POST['rating']) : '',
+        ];
+
+        $providers = $this->get_all_service_providers($filters);
+
+        ob_start();
+        include COSY_APPT_PATH . 'templates/service-provider-grid-template.php';
+        $html = ob_get_clean();
+
+        wp_send_json_success(['html' => $html]);
     }
 }

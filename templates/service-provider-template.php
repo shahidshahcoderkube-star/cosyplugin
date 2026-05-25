@@ -1,75 +1,57 @@
 <?php $providers = $this->get_all_service_providers(); ?>
 <div class="cosy-premium-grid-container mb-5 mt-5">
-    <?php if (empty($providers)): ?>
-        <div class="no-providers-found text-center py-5 w-100"
-            style="background: #fdfdfd; border: 1px dashed #d1d5db; border-radius: 12px;">
-            <i class="fas fa-search fa-3x mb-3" style="color: #9ca3af;"></i>
-            <h3 style="color: #4b5563; font-weight: 600;">
-                <?php esc_html_e('No Providers Found', 'cosy-appointments'); ?>
-            </h3>
-            <p style="color: #6b7280;">
-                <?php esc_html_e('Currently, there are no service providers available for this selection.', 'cosy-appointments'); ?>
-            </p>
-        </div>
-    <?php else: ?>
-        <div class="cosy-premium-grid">
-            <?php foreach ($providers as $provider): ?>
-                <div class="cosy-card-v2">
-                    <div class="card-top-header">
-                        <div class="header-inner-flex">
-                            <div class="profile-avatar-wrapper">
-                                <?php if (!empty($provider['profile_image'])): ?>
-                                    <img src="<?php echo esc_url($provider['profile_image']); ?>"
-                                        alt="<?php echo esc_attr($provider['first_name']); ?>" class="avatar">
-                                <?php else: ?>
-                                    <img src="<?php echo plugin_dir_url(__FILE__); ?>../images/profile.avif"
-                                        alt="<?php echo esc_attr($provider['first_name']); ?>" class="avatar">
-                                <?php endif; ?>
-                            </div>
-                            <div class="profile-details-top">
-                                <h3 class="provider-name">
-                                    <?php echo esc_html($provider['first_name']); ?>
-                                    <i class="fas fa-check-circle verified-tick"></i>
-                                </h3>
-                                <div class="rating-box-premium">
-                                    <div class="stars-flex">
-                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                                            class="fas fa-star"></i><i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-val">5.0</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="card-main-content">
-                        <p class="description-text">
-                            <?php echo esc_html(wp_trim_words($provider['description'], 25)); ?>
-                        </p>
+    <!-- Filters Bar -->
+    <div class="cosy-providers-filter-bar mb-4 p-3" style="background: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <form id="cosyProvidersFilterForm" class="d-flex gap-3 align-items-center justify-content-center">
 
-                        <?php if (!empty($provider['price'])): ?>
-                            <div class="pricing-premium">
-                                <span class="currency">£</span>
-                                <span class="amount"><?php echo esc_html($provider['price']); ?></span><span class="per"><?php esc_html_e('/ hr', 'cosy-appointments'); ?></span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
+            <input type="text" name="search_name" id="filter_search_name" class="form-control cosy-filter-input" placeholder="<?php esc_attr_e('Search by name', 'cosy-appointments'); ?>" style="min-width: 200px; border-radius: 8px;">
 
-                    <div class="card-action-footer">
-                        <?php if (!empty($provider['introduction_video'])): ?>
-                            <button class="btn-premium btn-intro-v2"
-                                onclick="openVideo('<?php echo esc_url($provider['introduction_video']); ?>')">
-                                <i class="fas fa-play-circle"></i> <?php esc_html_e('Intro', 'cosy-appointments'); ?>
-                            </button>
-                        <?php endif; ?>
-                        <a href="<?php echo esc_url(get_author_posts_url($provider['ID'])); ?>" class="btn-premium btn-profile-v2">
-                            <?php esc_html_e('View Profile', 'cosy-appointments'); ?> <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+            <select name="service_category" id="filter_category" class="form-select cosy-filter-select" style="min-width: 150px; background-color: #f1f5f9; border-radius: 8px; border: 1px solid #cbd5e1;">
+                <option value=""><?php esc_html_e('--Category--', 'cosy-appointments'); ?></option>
+                <?php
+                $services = get_posts(['post_type' => 'cosy_service', 'numberposts' => -1]);
+                foreach ($services as $srv) {
+                    echo '<option value="' . esc_attr($srv->post_name) . '">' . esc_html($srv->post_title) . '</option>';
+                }
+                ?>
+            </select>
+
+            <select name="price_range" id="filter_price" class="form-select cosy-filter-select" style="min-width: 130px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569;">
+                <option value=""><?php esc_html_e('--Price--', 'cosy-appointments'); ?></option>
+                <option value="low_high"><?php esc_html_e('Low to High', 'cosy-appointments'); ?></option>
+                <option value="high_low"><?php esc_html_e('High to Low', 'cosy-appointments'); ?></option>
+            </select>
+
+            <select name="gender" id="filter_gender" class="form-select cosy-filter-select" style="min-width: 130px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569;">
+                <option value=""><?php esc_html_e('--Gender--', 'cosy-appointments'); ?></option>
+                <option value="male"><?php esc_html_e('Male', 'cosy-appointments'); ?></option>
+                <option value="female"><?php esc_html_e('Female', 'cosy-appointments'); ?></option>
+            </select>
+
+            <select name="age_group" id="filter_age" class="form-select cosy-filter-select" style="min-width: 130px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569;">
+                <option value=""><?php esc_html_e('--Age--', 'cosy-appointments'); ?></option>
+                <option value="Teenager"><?php esc_html_e('Teenager', 'cosy-appointments'); ?></option>
+                <option value="Young Adult"><?php esc_html_e('Young Adult', 'cosy-appointments'); ?></option>
+                <option value="Middle Aged"><?php esc_html_e('Middle Aged', 'cosy-appointments'); ?></option>
+                <option value="Senior"><?php esc_html_e('Senior', 'cosy-appointments'); ?></option>
+                <option value="Golden Senior"><?php esc_html_e('Golden Senior', 'cosy-appointments'); ?></option>
+            </select>
+
+            <select name="rating" id="filter_rating" class="form-select cosy-filter-select" style="min-width: 130px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569;">
+                <option value=""><?php esc_html_e('--Rating--', 'cosy-appointments'); ?></option>
+                <option value="5">5 Stars</option>
+                <option value="4">4+ Stars</option>
+                <option value="3">3+ Stars</option>
+            </select>
+
+            <input type="hidden" name="action" value="filter_service_providers">
+        </form>
+    </div>
+
+    <div id="cosyProvidersGridWrap">
+        <?php include COSY_APPT_PATH . 'templates/service-provider-grid-template.php'; ?>
+    </div> <!-- /#cosyProvidersGridWrap -->
 </div>
 
 <div id="videoModal" class="modal" onclick="closeVideo()">
