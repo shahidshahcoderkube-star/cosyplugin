@@ -131,10 +131,10 @@ a:focus {
     font-size: 16px;
     font-weight: bold;
 }
-
 /* Close icon */
-cursor: pointer;
-font-weight: bold;
+#registerPopup .popup-close {
+    cursor: pointer;
+    font-weight: bold;
 }
 
 /* Popup body */

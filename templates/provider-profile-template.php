@@ -6,6 +6,7 @@ $common = new class {
 };
 $provider_data = $common->get_provider_with_services($author_slug);
 
+
 $current_user = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
 $user_role = !empty($current_user->roles) ? reset($current_user->roles) : '';
@@ -49,7 +50,7 @@ if (!empty($provider_data['ID'])) {
         id: <?php echo wp_json_encode($current_user->ID); ?>
     };
     window.providerId = <?php echo wp_json_encode($provider_data['ID'] ?? 0); ?>;
-    window.providerName = <?php echo wp_json_encode($provider_data['prov_mname'] ?? ''); ?>;
+    window.providerName = <?php echo wp_json_encode($provider_data['first_name'] ?? ''); ?>;
     window.ajaxUrl = <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>;
     window.checkoutUrl = <?php echo wp_json_encode(site_url('/cosy-checkout')); ?>;
     window.nonce = <?php echo wp_json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
@@ -70,13 +71,13 @@ if (!empty($provider_data['ID'])) {
                             ?>
                             <img src="<?php echo esc_url($profile_image); ?>"
                                 class="cosy-profile-img"
-                                alt="<?php echo esc_attr($provider_data['prov_mname']); ?>">
+                                alt="<?php echo esc_attr($provider_data['first_name']); ?>">
                         </div>
                         <div class="profile-info-top">
                             <?php
-                            if (!empty($provider_data['prov_mname'])) { ?>
+                            if (!empty($provider_data['first_name'])) { ?>
                                 <h2 class="mb-2 fw-bold h4">
-                                    <?php echo esc_html($provider_data['prov_mname']); ?>
+                                    <?php echo esc_html($provider_data['first_name']); ?>
                                 </h2>
                             <?php } ?>
                             <div class="d-flex gap-3 opacity-75 small fw-medium">

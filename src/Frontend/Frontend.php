@@ -193,7 +193,7 @@ class Frontend
                             <i class="fas fa-check-circle" style="font-size: 4rem; color: #198754; margin-bottom: 20px;"></i>
                             <h2 style="color: #198754; margin-bottom: 10px;">Payment Successful!</h2>
                             <p style="color: #6c757d; margin-bottom: 25px;">Thank you for your booking. Your appointment has been confirmed.</p>
-                            <a href="' . site_url('/customer-profile') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;" onmouseover="this.style.opacity=\'0.9\';" onmouseout="this.style.opacity=\'1\';">View My Bookings</a>
+                            <a href="' . site_url('/customer-order') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;" onmouseover="this.style.opacity=\'0.9\';" onmouseout="this.style.opacity=\'1\';">View My Bookings</a>
                         </div>
                     </div>';
         }
