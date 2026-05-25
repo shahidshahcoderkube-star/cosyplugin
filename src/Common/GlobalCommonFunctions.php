@@ -298,6 +298,9 @@ trait GlobalCommonFunctions
             );
             if (!empty($service_results)) {
                 $provider_prices = $service_results;
+                $include_users = array_map('intval', array_keys($provider_prices));
+            } else {
+                return []; // No providers have set up services!
             }
         }
 
@@ -355,6 +358,30 @@ trait GlobalCommonFunctions
 
         foreach ($service_providers as $provider) {
             $user_id = $provider->ID;
+
+            // Profile Information Check: Must have filled basic profile details
+            $has_profile_info = !empty(get_user_meta($user_id, 'first_name', true)) &&
+                                !empty(get_user_meta($user_id, 'prov_phone', true)) &&
+                                !empty(get_user_meta($user_id, 'dob', true)) &&
+                                !empty(get_user_meta($user_id, 'gender', true)) &&
+                                !empty(get_user_meta($user_id, 'age_group', true));
+            if (!$has_profile_info) {
+                continue; // Skip listing provider if profile information is incomplete
+            }
+
+            // Availability check: Provider must have set up availability (working hours) for at least one day
+            $has_availability = false;
+            $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            foreach ($days as $day) {
+                $day_data = get_user_meta($user_id, "cosy_availability_{$day}", true);
+                if (!empty($day_data) && !empty($day_data['start_time']) && !empty($day_data['end_time'])) {
+                    $has_availability = true;
+                    break;
+                }
+            }
+            if (!$has_availability) {
+                continue; // Skip listing provider if no availability is set up
+            }
             
             // Calculate average rating
             $rating_data = $this->get_provider_reviews($user_id, true);

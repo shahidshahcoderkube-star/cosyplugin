@@ -70,8 +70,77 @@
             <?php
             $user_id = get_current_user_id();
             $provider_status = get_user_meta($user_id, 'cosy_provider_status', true);
-            if ($provider_status === 'deactive'):
+            
+            // Check Profile Information
+            $has_profile_info = !empty(get_user_meta($user_id, 'first_name', true)) &&
+                                !empty(get_user_meta($user_id, 'prov_phone', true)) &&
+                                !empty(get_user_meta($user_id, 'dob', true)) &&
+                                !empty(get_user_meta($user_id, 'gender', true)) &&
+                                !empty(get_user_meta($user_id, 'age_group', true));
+
+            // Check Services
+            global $wpdb;
+            $services_table = $wpdb->prefix . 'provider_services';
+            $has_services = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM $services_table WHERE provider_id = %d AND checkbox_status = 'yes'",
+                    $user_id
+                )
+            );
+
+            // Check Availability
+            $has_availability = false;
+            $days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            foreach ($days_of_week as $day) {
+                $day_data = get_user_meta($user_id, "cosy_availability_{$day}", true);
+                if (!empty($day_data) && !empty($day_data['start_time']) && !empty($day_data['end_time'])) {
+                    $has_availability = true;
+                    break;
+                }
+            }
+
+            $missing_requirements = [];
+            if (!$has_profile_info) {
+                $missing_requirements[] = __('Profile Information', 'cosy-appointments');
+            }
+            if (!$has_services) {
+                $missing_requirements[] = __('My Services', 'cosy-appointments');
+            }
+            if (!$has_availability) {
+                $missing_requirements[] = __('Availability', 'cosy-appointments');
+            }
+
+            if (!empty($missing_requirements)):
+                $count = count($missing_requirements);
+                if ($count === 3) {
+                    $req_text = $missing_requirements[0] . ', ' . $missing_requirements[1] . ' ' . __('and', 'cosy-appointments') . ' ' . $missing_requirements[2];
+                } elseif ($count === 2) {
+                    $req_text = $missing_requirements[0] . ' ' . __('and', 'cosy-appointments') . ' ' . $missing_requirements[1];
+                } else {
+                    $req_text = $missing_requirements[0];
+                }
                 ?>
+                <div class="alert d-flex align-items-center mb-4 border-0 shadow-sm"
+                    style="background: #fff5f5; border-radius: 16px; color: #c53030;" role="alert">
+                    <div
+                        style="width: 40px; height: 40px; background: rgba(229, 62, 62, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 1.1rem; color: #e53e3e;"></i>
+                    </div>
+                    <div>
+                        <strong style="font-family: 'Poppins', sans-serif;"><?php esc_html_e('Profile Incomplete:', 'cosy-appointments'); ?></strong> 
+                        <span style="font-size: 0.95rem;">
+                            <?php 
+                            printf(
+                                esc_html__('Please set up your %s. Your profile will not be visible on the front side until all of these are configured.', 'cosy-appointments'),
+                                '<strong>' . esc_html($req_text) . '</strong>'
+                            ); 
+                            ?>
+                        </span>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($provider_status === 'deactive'): ?>
                 <div class="alert d-flex align-items-center mb-4 border-0 shadow-sm"
                     style="background: #fff8e1; border-radius: 16px; color: #b78103;" role="alert">
                     <div
