@@ -246,7 +246,7 @@
 <div class="cdoc-wrap">
 
     <div class="cdoc-header">
-        <span class="cdoc-version-badge">Version 1.0.2</span>
+        <span class="cdoc-version-badge">Version 1.0.3</span>
         <h1>Cosy Appointments — Documentation</h1>
         <p>A complete guide to setting up, configuring, and managing your multi-provider appointment booking platform.</p>
     </div>

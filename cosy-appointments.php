@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Cosy Appointments
  * Description: A complete multi-provider appointment booking and scheduling solution for WordPress. Manage providers, services, availability, and Stripe payments — all in one place.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Shahid Shah — Coderkube Technology
  * Author URI: https://coderkube.com
  * Text Domain: cosy-appointments
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
  */
 define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Absolute path to the plugin folder
 define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // URL to the plugin folder
-define('COSY_APPT_VER', '1.0.2');  // Current version
+define('COSY_APPT_VER', '1.0.3');  // Current version
 
 /**
  * register_role
@@ -187,7 +187,7 @@ function cosy_create_services_table()
             checkbox_status VARCHAR(10) NOT NULL DEFAULT 'no',
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id)
+            PRIMARY KEY  (id)
         ) $charset_collate;";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -207,9 +207,19 @@ function cosy_create_services_table()
             checkbox_status VARCHAR(10) NOT NULL DEFAULT 'no',
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id)
+            PRIMARY KEY  (id)
         ) $charset_collate;";
         dbDelta($sql);
+    }
+
+    // Fail-safe direct column addition (in case dbDelta parses it incorrectly)
+    $checkbox_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'checkbox_status'");
+    if (empty($checkbox_check)) {
+        $wpdb->query("ALTER TABLE `$table_name` ADD `checkbox_status` VARCHAR(10) NOT NULL DEFAULT 'no'");
+    }
+    $created_at_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'created_at'");
+    if (empty($created_at_check)) {
+        $wpdb->query("ALTER TABLE `$table_name` ADD `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
     }
 }
 

@@ -119,13 +119,8 @@ class ProviderServices
                 'service'         => $service,
                 'updated_at'      => current_time('mysql')
             ];
-            $update_format = ['%s', '%s'];
+            $update_format = ['%s', '%s', '%s'];
 
-            // Agar title/description/duration/price request me aaye hain to hi update karo
-            if (!empty($service)) {
-                $update_data['service'] = $service;
-                $update_format[] = '%s';
-            }
             if (!empty($description)) {
                 $update_data['description'] = $description;
                 $update_format[] = '%s';
@@ -137,7 +132,7 @@ class ProviderServices
 
             if ($price !== '' && $price !== null) {
                 $update_data['price'] = $price;
-                $update_format[] = '%s';
+                $update_format[] = '%f';
             }
 
             // Update existing record
