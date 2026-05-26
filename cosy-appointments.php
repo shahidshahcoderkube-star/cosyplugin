@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Cosy Appointments
  * Description: A complete multi-provider appointment booking and scheduling solution for WordPress. Manage providers, services, availability, and Stripe payments — all in one place.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Shahid Shah — Coderkube Technology
  * Author URI: https://coderkube.com
  * Text Domain: cosy-appointments
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
  */
 define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Absolute path to the plugin folder
 define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // URL to the plugin folder
-define('COSY_APPT_VER', '1.0.1');  // Current version
+define('COSY_APPT_VER', '1.0.2');  // Current version
 
 /**
  * register_role
@@ -153,6 +153,19 @@ if (file_exists(COSY_APPT_PATH . 'src/Helpers.php')) {
 
 
 
+//-------DB Migration: Run on every version update--------//
+add_action('plugins_loaded', 'cosy_run_db_migrations');
+function cosy_run_db_migrations()
+{
+    $installed_ver = get_option('cosy_db_version', '0.0.0');
+    if (version_compare($installed_ver, COSY_APPT_VER, '<')) {
+        cosy_create_services_table();
+        cosy_create_media_table();
+        cosy_create_reviews_table();
+        update_option('cosy_db_version', COSY_APPT_VER);
+    }
+}
+
 //-------Create tables--------//
 function cosy_create_services_table()
 {
@@ -171,11 +184,31 @@ function cosy_create_services_table()
             duration VARCHAR(50),
             provider_id BIGINT(20) UNSIGNED NOT NULL,
             provider VARCHAR(100),
+            checkbox_status VARCHAR(10) NOT NULL DEFAULT 'no',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
         ) $charset_collate;";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    } else {
+        // Safe column migration: add missing columns to existing live tables
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        $sql = "CREATE TABLE $table_name (
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            service_id BIGINT(20) UNSIGNED NOT NULL,
+            service VARCHAR(255) NOT NULL,
+            description TEXT,
+            price DECIMAL(10,2),
+            duration VARCHAR(50),
+            provider_id BIGINT(20) UNSIGNED NOT NULL,
+            provider VARCHAR(100),
+            checkbox_status VARCHAR(10) NOT NULL DEFAULT 'no',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
         dbDelta($sql);
     }
 }

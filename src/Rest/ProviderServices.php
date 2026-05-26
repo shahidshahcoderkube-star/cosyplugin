@@ -103,7 +103,7 @@ class ProviderServices
                     'created_at'      => current_time('mysql'),
                     'updated_at'      => current_time('mysql')
                 ],
-                ['%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s']
+                ['%d', '%s', '%s', '%d', '%s', '%s', '%f', '%s', '%s', '%s']
             );
 
             if ($inserted) {
