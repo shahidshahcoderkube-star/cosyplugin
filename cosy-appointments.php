@@ -76,18 +76,18 @@ function cosy_create_pages_on_activation()
 {
     // List of pages to be created with their respective shortcodes
     $pages = [
-        ['title' => 'Appointments', 'slug' => 'appointments', 'content' => '[cosy_appointments]'],
-        ['title' => 'Orders', 'slug' => 'orders', 'content' => '[cosy_orders]'],
-        ['title' => 'Customer Registration', 'slug' => 'user-registration', 'content' => '[cosy_customer_registration]'],
-        ['title' => 'Provider Registration', 'slug' => 'provider-registration', 'content' => '[cosy_provider_registration]'],
-        ['title' => 'Login form', 'slug' => 'login', 'content' => '[cosy_login_form]'],
-        ['title' => 'Customer Profile', 'slug' => 'customer-profile', 'content' => '[customer_profile]'],
-        ['title' => 'Customer Order', 'slug' => 'customer-order', 'content' => '[cosy_customer_order]'],
-        ['title' => 'Provider Dashboard', 'slug' => 'provider-dashboard', 'content' => '[cosy_provider_dashboard]'],
-        ['title' => 'Provider Verify', 'slug' => 'provider-verify', 'content' => '[cosy_verify_provider]'],
-        ['title' => 'Service Provider', 'slug' => 'service-provider', 'content' => '[cosy_service_provider_list]'],
-        ['title' => 'Provider Profile', 'slug' => 'provider-profile', 'content' => '[cosy_profile_dashboard]'],
-        ['title' => 'Checkout', 'slug' => 'cosy-checkout', 'content' => '[cosy_checkout]'],
+        ['title' => 'Appointments',             'slug' => 'appointments',        'content' => '[cosy_appointments]'],
+        ['title' => 'Orders',                   'slug' => 'orders',              'content' => '[cosy_orders]'],
+        ['title' => 'Customer Registration',    'slug' => 'user-registration',   'content' => '[cosy_customer_registration]'],
+        ['title' => 'Provider Registration',    'slug' => 'provider-registration','content' => '[cosy_provider_registration]'],
+        ['title' => 'Login',                    'slug' => 'login',               'content' => '[cosy_login_form]'],
+        ['title' => 'Customer Profile',         'slug' => 'customer-profile',    'content' => '[customer_profile]'],
+        ['title' => 'My Orders',                'slug' => 'customer-order',      'content' => '[cosy_customer_order]'],
+        ['title' => 'Provider Dashboard',       'slug' => 'provider-dashboard',  'content' => '[cosy_provider_dashboard]'],
+        ['title' => 'Provider Verification',    'slug' => 'provider-verify',     'content' => '[cosy_verify_provider]'],
+        ['title' => 'Service Provider Listing', 'slug' => 'service-provider',    'content' => '[cosy_service_provider_list]'],
+        ['title' => 'Provider Profile',         'slug' => 'provider-profile',    'content' => '[cosy_profile_dashboard]'],
+        ['title' => 'Checkout',                 'slug' => 'cosy-checkout',       'content' => '[cosy_checkout]'],
     ];
 
     foreach ($pages as $page) {
