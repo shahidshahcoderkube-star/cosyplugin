@@ -20,6 +20,22 @@ class SettingsAdmin
             'cosy-settings',
             [$this, 'render_settings']
         );
+
+        add_submenu_page(
+            'cosy-booking-dashboard',
+            __('Documentation', 'cosy-appointments'),
+            __('Documentation', 'cosy-appointments'),
+            'manage_cosy_appointments',
+            'cosy-documentation',
+            [$this, 'render_documentation']
+        );
+    }
+
+    public function render_documentation(): void
+    {
+        ob_start();
+        include COSY_APPT_PATH . 'src/Admin/Backend/documentation.php';
+        echo ob_get_clean();
     }
 
     public function register_settings(): void

@@ -77,6 +77,7 @@ class Admin
             'cosy-media-approve',
             [$this, 'render_media_approve']
         );
+
     }
 
 

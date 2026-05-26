@@ -39,6 +39,7 @@ class Assets
             'cc-booking_page_cosy-orders',
             'cc-booking_page_cosy-settings',
             'cc-booking_page_cosy-media-approve',
+            'cc-booking_page_cosy-documentation',
             'users.php', // Required for the verification dropdown
         ];
 
@@ -176,12 +177,6 @@ class Assets
             true
         );
 
-        // 10. Localization: Pass REST Base Endpoint URL and WP Nonces to cosy-script
-        wp_localize_script('cosy-script', 'cosyAppointments', [
-            'restUrl' => esc_url_raw(rest_url('cosy/v1/')),
-            'nonce' => wp_create_nonce('wp_rest')
-        ]);
-
         // 11. jQuery UI Datepicker (Native WordPress library for interactive calendar date selections)
         wp_enqueue_script('jquery-ui-datepicker');
 
@@ -252,13 +247,21 @@ class Assets
         wp_enqueue_script('cosy-api');
 
         // 19. Core Frontend JS logic script
-        wp_enqueue_script(
+        wp_register_script(
             'cosy-script',
             COSY_APPT_URL . 'src/assets/js/frontend.js',
             ['jquery', 'cosy-api'],
             COSY_APPT_VER,
             true
         );
+
+        // Localization: Pass REST Base Endpoint URL and WP Nonces to cosy-script
+        wp_localize_script('cosy-script', 'cosyAppointments', [
+            'restUrl' => esc_url_raw(rest_url('cosy/v1/')),
+            'nonce'   => wp_create_nonce('wp_rest')
+        ]);
+
+        wp_enqueue_script('cosy-script');
 
         // 20. Dashboard JS Controller (Controls interactive non-reloading reviews approval, fadeouts, and DOM operations)
         if (is_page('provider-dashboard')) {

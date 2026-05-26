@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Cosy Appointments
  * Description: Multi-provider appointment booking plugin.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Shahid
  */
 
