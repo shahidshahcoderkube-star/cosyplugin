@@ -91,16 +91,22 @@ function cosy_create_pages_on_activation()
     ];
 
     foreach ($pages as $page) {
-        // Only create the page if it doesn't already exist
         $existing = get_page_by_path($page['slug']);
 
         if (!$existing) {
+            // Page does not exist — create it fresh
             wp_insert_post([
-                'post_title' => $page['title'],
-                'post_name' => $page['slug'],
+                'post_title'   => $page['title'],
+                'post_name'    => $page['slug'],
                 'post_content' => $page['content'],
-                'post_status' => 'publish',
-                'post_type' => 'page',
+                'post_status'  => 'publish',
+                'post_type'    => 'page',
+            ]);
+        } else {
+            // Page already exists — update title if it has changed
+            wp_update_post([
+                'ID'         => $existing->ID,
+                'post_title' => $page['title'],
             ]);
         }
     }
