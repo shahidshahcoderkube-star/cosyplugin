@@ -7,6 +7,7 @@ use Cosy\Appointments\Frontend\Frontend;
 use Cosy\Appointments\Admin\Admin;
 use Cosy\Appointments\Admin\Backend_Actions_Handler;
 use Cosy\Appointments\Admin\SettingsAdmin;
+use Cosy\Appointments\Admin\DemoImporter;
 use Cosy\Appointments\Rest\Routes;
 use Cosy\Appointments\Assets\Assets;
 use Cosy\Appointments\Frontend\Dashboard;

@@ -8,6 +8,10 @@ class SettingsAdmin
     {
         $loader->add_action('admin_menu', $this, 'add_settings_page');
         $loader->add_action('admin_init', $this, 'register_settings');
+        
+        // AJAX hooks for Demo Importer controls
+        $loader->add_action('wp_ajax_cosy_seed_demo_data', $this, 'ajax_seed_demo_data');
+        $loader->add_action('wp_ajax_cosy_wipe_demo_data', $this, 'ajax_wipe_demo_data');
     }
 
     public function add_settings_page(): void
@@ -155,6 +159,10 @@ class SettingsAdmin
                                 <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-worldpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-worldpay" type="button" role="tab" aria-controls="v-pills-worldpay" aria-selected="false">
                                     <i class="fa-solid fa-globe fs-4 w-20"></i>
                                     <span class="fw-bold">WorldPay</span>
+                                </button>
+                                <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-demo-tab" data-bs-toggle="pill" data-bs-target="#v-pills-demo" type="button" role="tab" aria-controls="v-pills-demo" aria-selected="false">
+                                    <i class="fa-solid fa-rocket fs-4 w-20"></i>
+                                    <span class="fw-bold">Demo Environment</span>
                                 </button>
                             </div>
                         </div>
@@ -319,6 +327,68 @@ class SettingsAdmin
                                     </div>
                                 </div>
 
+                                <!-- Demo Environment Tab -->
+                                <div class="tab-pane fade" id="v-pills-demo" role="tabpanel" aria-labelledby="v-pills-demo-tab">
+                                    <?php $is_seeded = get_option('cosy_demo_data_seeded'); ?>
+                                    <div class="d-flex align-items-center mb-4">
+                                        <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-rocket fs-2" style="color: #9b4593 !important;"></i>
+                                            Demo Environment Setup
+                                        </h3>
+                                    </div>
+                                    <div class="p-4 rounded-4 border mb-4" style="background:linear-gradient(135deg,#fdf4fc 0%,#f5eaf5 100%); border-color:#eedced !important;">
+                                        <p class="mb-1 fw-bold" style="color:#6d2e67;">🚀 Populate your marketplace with beautiful, realistic data</p>
+                                        <p class="mb-0 text-muted" style="font-size:0.92rem;">This will seed <strong>3 verified providers</strong>, <strong>6 professional services</strong>, <strong>5 customers</strong>, and <strong>16 appointments</strong> (past, present, and future) across all three categories.</p>
+                                    </div>
+                                    <div class="p-3 rounded-3 border mb-4" style="background:#fff8e1; border-color:#fcd34d !important;">
+                                        <p class="mb-1 fw-semibold" style="color:#b45309; font-size:0.88rem;">⚠️ Safety Guard: Auto-blocked on live installations</p>
+                                        <p class="mb-0 text-muted" style="font-size:0.83rem;">Demo data will only be imported if <strong>zero</strong> providers, services, or appointments exist in the database. It is 100% safe for production sites — the seeder will silently exit if any existing data is found.</p>
+                                    </div>
+
+                                    <?php if ($is_seeded): ?>
+                                        <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            <span>Demo environment is <strong>active</strong>. You can reset and re-import or wipe all data below.</span>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <!-- Demo Login Credentials -->
+                                    <div class="mb-4">
+                                        <h5 class="fw-bold mb-3" style="color:#1e293b;">🔑 Demo Login Credentials</h5>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="p-3 rounded-3 border" style="background:#f8fafc; border-color:#e2e8f0 !important;">
+                                                    <p class="mb-1 fw-bold text-primary" style="font-size:0.85rem; color:#9b4593 !important;">Provider Account</p>
+                                                    <p class="mb-1 text-muted" style="font-size:0.82rem;"><strong>Username:</strong> <code>demo_provider</code></p>
+                                                    <p class="mb-0 text-muted" style="font-size:0.82rem;"><strong>Password:</strong> <code>demo_provider123</code></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 rounded-3 border" style="background:#f8fafc; border-color:#e2e8f0 !important;">
+                                                    <p class="mb-1 fw-bold" style="font-size:0.85rem; color:#0d9488 !important;">Customer Account</p>
+                                                    <p class="mb-1 text-muted" style="font-size:0.82rem;"><strong>Username:</strong> <code>demo_customer</code></p>
+                                                    <p class="mb-0 text-muted" style="font-size:0.82rem;"><strong>Password:</strong> <code>demo_customer123</code></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <?php wp_nonce_field('cosy_demo_action', 'cosy_demo_nonce_field'); ?>
+
+                                    <div class="d-flex gap-3 flex-wrap">
+                                        <button type="button" id="cosy-btn-seed-demo" class="btn fw-semibold d-flex align-items-center gap-2 py-2 px-4 rounded-3 border-0 text-white shadow-sm" style="background: linear-gradient(135deg, #9b4593 0%, #6d2e67 100%);">
+                                            <i class="fa-solid fa-circle-arrow-down"></i>
+                                            <?php echo $is_seeded ? 'Re-Import Demo Data' : 'Populate Demo Data'; ?>
+                                        </button>
+                                        <?php if ($is_seeded): ?>
+                                        <button type="button" id="cosy-btn-wipe-demo" class="btn btn-outline-danger fw-semibold d-flex align-items-center gap-2 py-2 px-4 rounded-3">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                            Wipe Demo Data
+                                        </button>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <!-- Action Buttons Card Footer -->
@@ -457,5 +527,65 @@ class SettingsAdmin
             }
         </style>
 <?php
+    }
+
+    /**
+     * AJAX Handler: Seed Demo Data
+     * Validates nonce & admin capabilities, then calls DemoImporter::run_seeder().
+     * Responds with JSON success/error so the JS module can update the UI.
+     */
+    public function ajax_seed_demo_data(): void
+    {
+        // Security: Verify nonce
+        check_ajax_referer('cosy_demo_action', 'nonce');
+
+        // Security: Only admins can trigger this
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Unauthorized. You do not have permission to perform this action.']);
+        }
+
+        // Allow re-import by resetting the seeded flag first
+        delete_option('cosy_demo_data_seeded');
+
+        if (class_exists('Cosy\Appointments\Admin\DemoImporter')) {
+            $result = \Cosy\Appointments\Admin\DemoImporter::run_seeder();
+
+            if ($result) {
+                wp_send_json_success([
+                    'message' => '✅ Demo environment seeded successfully! 3 providers, 6 services, 5 customers, and 16 appointments have been created. Reload the dashboard to see the live data.'
+                ]);
+            } else {
+                wp_send_json_error([
+                    'message' => '⚠️ Demo data was NOT imported. This site already has existing providers, services, or appointments. The seeder is blocked to protect your live data.'
+                ]);
+            }
+        } else {
+            wp_send_json_error(['message' => 'DemoImporter class could not be found. Please check the plugin installation.']);
+        }
+    }
+
+    /**
+     * AJAX Handler: Wipe Demo Data
+     * Validates nonce & admin capabilities, then calls DemoImporter::wipe_demo_data().
+     * Permanently deletes all seeded users, posts, and metadata from the database.
+     */
+    public function ajax_wipe_demo_data(): void
+    {
+        // Security: Verify nonce
+        check_ajax_referer('cosy_demo_action', 'nonce');
+
+        // Security: Only admins can trigger this
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Unauthorized. You do not have permission to perform this action.']);
+        }
+
+        if (class_exists('Cosy\Appointments\Admin\DemoImporter')) {
+            \Cosy\Appointments\Admin\DemoImporter::wipe_demo_data();
+            wp_send_json_success([
+                'message' => '🗑️ All demo data has been wiped successfully. The marketplace is now reset to a clean, empty state.'
+            ]);
+        } else {
+            wp_send_json_error(['message' => 'DemoImporter class could not be found. Please check the plugin installation.']);
+        }
     }
 }

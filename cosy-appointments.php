@@ -114,12 +114,44 @@ function cosy_create_pages_on_activation()
     }
 }
 
-// Composer PSR-4 Autoloader
-if (file_exists(COSY_APPT_PATH . 'vendor/autoload.php')) {
-    require_once COSY_APPT_PATH . 'vendor/autoload.php';
-} else {
-    wp_die('Please run <code>composer install</code> in the <code>cosy-appointments</code> plugin directory to generate the required autoloader.');
+// Custom robust PSR-4 autoloader with dual-mode fail-safe for Windows-to-Linux ZIP extraction bugs
+spl_autoload_register(function ($class) {
+    $prefix = 'Cosy\\Appointments\\';
+    $base_dir = COSY_APPT_PATH . 'src/';
+
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+
+    $relative_class = substr($class, $len);
+
+    // 1. Standard cross-platform path (using forward slashes)
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+
+    if (file_exists($file)) {
+        require_once $file;
+        return;
+    }
+
+    // 2. Fail-safe backup for Windows ZIP extraction bug on Linux hosts
+    // If files are extracted flat in the root directory with literal backslashes in their names
+    $flat_file = COSY_APPT_PATH . 'src\\' . $relative_class . '.php';
+    if (file_exists($flat_file)) {
+        require_once $flat_file;
+        return;
+    }
+});
+
+// Manually load the Helpers file with fail-safe check
+if (file_exists(COSY_APPT_PATH . 'src/Helpers.php')) {
+    require_once COSY_APPT_PATH . 'src/Helpers.php';
+} elseif (file_exists(COSY_APPT_PATH . 'src\\Helpers.php')) {
+    require_once COSY_APPT_PATH . 'src\\Helpers.php';
 }
+
+
+
 
 //-------Create tables--------//
 function cosy_create_services_table()
@@ -231,6 +263,11 @@ function cosy_plugin_activate()
     // Flush rewrite rules on activation to ensure custom links work immediately
     cosyplugin_author_rewrite();
     flush_rewrite_rules();
+
+    // Safely seed demo environment ONLY on a completely fresh installation
+    if (class_exists('Cosy\Appointments\Admin\DemoImporter')) {
+        \Cosy\Appointments\Admin\DemoImporter::run_seeder();
+    }
 }
 
 //-------Clean up rewrite rules on deactivation--------//

@@ -113,7 +113,7 @@ class Assets
         // 1. Primary Plugin Stylesheet (Contains theme design system, layout, and Bento utilities)
         wp_enqueue_style(
             'cosy-style',
-            COSY_APPT_URL . 'src/assets/css/style.css',
+            COSY_APPT_URL . 'src/Assets/css/style.css',
             [],
             COSY_APPT_VER
         );
@@ -121,7 +121,7 @@ class Assets
         // 2. Service Provider Profile Stylesheet (For profile layouts, calendar elements, and bios)
         wp_enqueue_style(
             'service-provider-style',
-            COSY_APPT_URL . 'src/assets/css/service-provide.css',
+            COSY_APPT_URL . 'src/Assets/css/service-provide.css',
             [],
             COSY_APPT_VER
         );
@@ -212,7 +212,7 @@ class Assets
         // 16. Cosy API Javascript Mapping Script (Defines core server endpoints for validation.js requests)
         wp_register_script(
             'cosy-api',
-            COSY_APPT_URL . 'src/assets/js/api.js',
+            COSY_APPT_URL . 'src/Assets/js/api.js',
             [],
             '1.0',
             true
@@ -221,7 +221,7 @@ class Assets
         // 16.5. CosyAlert Utility Script
         wp_enqueue_script(
             'cosy-alert',
-            COSY_APPT_URL . 'src/assets/js/cosy-alert.js',
+            COSY_APPT_URL . 'src/Assets/js/cosy-alert.js',
             ['sweetalert2'],
             COSY_APPT_VER,
             true
@@ -230,7 +230,7 @@ class Assets
         // 17. Cosy Forms Controller script (Binds form events, AJAX saves, and updates for availability and profile details)
         wp_enqueue_script(
             'cosy-validation',
-            COSY_APPT_URL . 'src/assets/js/validation.js',
+            COSY_APPT_URL . 'src/Assets/js/validation.js',
             ['cosy-api', 'jquery', 'jquery-validate', 'cosy-alert'],
             COSY_APPT_VER,
             true
@@ -249,7 +249,7 @@ class Assets
         // 19. Core Frontend JS logic script
         wp_register_script(
             'cosy-script',
-            COSY_APPT_URL . 'src/assets/js/frontend.js',
+            COSY_APPT_URL . 'src/Assets/js/frontend.js',
             ['jquery', 'cosy-api'],
             COSY_APPT_VER,
             true
@@ -267,7 +267,7 @@ class Assets
         if (is_page('provider-dashboard')) {
             wp_enqueue_script(
                 'cosy-dashboard',
-                COSY_APPT_URL . 'src/assets/js/dashboard.js',
+                COSY_APPT_URL . 'src/Assets/js/dashboard.js',
                 ['jquery', 'bootstrap-bundle', 'sweetalert2'],
                 COSY_APPT_VER,
                 true
@@ -293,7 +293,7 @@ class Assets
             // 22. Checkout JS Controller (Handles dynamic rendering and payment processing on checkout)
             wp_enqueue_script(
                 'cosy-checkout',
-                COSY_APPT_URL . 'src/assets/js/checkout.js',
+                COSY_APPT_URL . 'src/Assets/js/checkout.js',
                 ['jquery', 'sweetalert2', 'stripe-js'],
                 COSY_APPT_VER,
                 true
