@@ -145,15 +145,24 @@ class FormsData
         ], home_url('/provider-verify'));
 
         // Send verification email
-        wp_mail(
-            $email,
-            __('Confirm Your Customer Account', 'cosy-appointments'),
-            sprintf(
-                __("Hello %s,\n\nClick below to activate your account:\n\n%s", 'cosy-appointments'),
-                $name,
-                $verify_url
-            )
-        );
+        $subject = __('Confirm Your Customer Account', 'cosy-appointments');
+        $html_content = "
+            <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
+            <p>Thank you for registering a customer account with us! Please click the button below to verify your email address and activate your account:</p>
+            <p style='text-align: center; margin: 30px 0;'>
+                <a href='" . esc_url($verify_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Verify & Activate Account</a>
+            </p>
+            <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
+            <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
+        ";
+        $email_body = $this->get_beautiful_html_email($subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
+
+        $html_email_filter = function () {
+            return 'text/html';
+        };
+        add_filter('wp_mail_content_type', $html_email_filter);
+        wp_mail($email, $subject, $email_body);
+        remove_filter('wp_mail_content_type', $html_email_filter);
 
         // Success response
         $this->send_response(true, __('Registration successful! Please check your email to verify your account.', 'cosy-appointments'));
@@ -241,15 +250,24 @@ class FormsData
         ], home_url('/provider-verify'));
 
         // Send verification email
-        wp_mail(
-            $email,
-            __('Confirm Your Provider Account', 'cosy-appointments'),
-            sprintf(
-                __("Hello %s,\n\nClick below to activate your account:\n\n%s", 'cosy-appointments'),
-                $username,
-                $verify_url
-            )
-        );
+        $subject = __('Confirm Your Provider Account', 'cosy-appointments');
+        $html_content = "
+            <p>Hello <strong>" . esc_html($username) . "</strong>,</p>
+            <p>Thank you for joining as a Service Provider! Please click the button below to verify your email address and activate your provider account:</p>
+            <p style='text-align: center; margin: 30px 0;'>
+                <a href='" . esc_url($verify_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Verify & Activate Account</a>
+            </p>
+            <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
+            <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
+        ";
+        $email_body = $this->get_beautiful_html_email($subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
+
+        $html_email_filter = function () {
+            return 'text/html';
+        };
+        add_filter('wp_mail_content_type', $html_email_filter);
+        wp_mail($email, $subject, $email_body);
+        remove_filter('wp_mail_content_type', $html_email_filter);
 
         // Response
         $this->send_response(true, __('Registration successful! Please check your email to confirm.', 'cosy-appointments'));
@@ -329,12 +347,24 @@ class FormsData
         ], wp_login_url());
 
         // Send email
-        $message = sprintf(__('Hello %s,', 'cosy-appointments'), esc_html($user->display_name)) . "\n\n";
-        $message .= __('You requested a password reset for your account. Please click the link below to set a new password:', 'cosy-appointments') . "\n\n";
-        $message .= esc_url_raw($reset_url) . "\n\n";
-        $message .= __('If you did not request this, please ignore this email.', 'cosy-appointments') . "\n\n";
+        $subject = __('Password Reset Request', 'cosy-appointments');
+        $html_content = "
+            <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
+            <p>You requested a password reset for your account. Please click the button below to set a new password:</p>
+            <p style='text-align: center; margin: 30px 0;'>
+                <a href='" . esc_url($reset_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Reset Password</a>
+            </p>
+            <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you did not request this reset, you can safely ignore this email. Your password will remain unchanged.</p>
+            <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($reset_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($reset_url) . "</a></p>
+        ";
+        $email_body = $this->get_beautiful_html_email($subject, $subject, $html_content);
 
-        $mail_sent = wp_mail($email, __('Password Reset Request', 'cosy-appointments'), $message);
+        $html_email_filter = function () {
+            return 'text/html';
+        };
+        add_filter('wp_mail_content_type', $html_email_filter);
+        $mail_sent = wp_mail($email, $subject, $email_body);
+        remove_filter('wp_mail_content_type', $html_email_filter);
 
         if ($mail_sent) {
             $this->send_response(true, __('A password reset link has been sent to your email.', 'cosy-appointments'));
@@ -483,5 +513,48 @@ class FormsData
         wp_set_auth_cookie($user_id);
 
         $this->send_response(true, __('Password changed successfully!', 'cosy-appointments'));
+    }
+
+    /**
+     * Helper to wrap email content in a premium responsive HTML email template.
+     */
+    private function get_beautiful_html_email($title, $heading, $content_html)
+    {
+        $year = date('Y');
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='utf-8'>
+            <title>{$title}</title>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background-color: #faf6f9;
+                }
+            </style>
+        </head>
+        <body style='margin: 0; padding: 0; background-color: #faf6f9; font-family: \"Outfit\", \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>
+            <div style='background-color: #faf6f9; padding: 40px 15px; color: #1e293b;'>
+                <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; border: 1px solid #f1e4ef; box-shadow: 0 10px 25px rgba(109, 46, 103, 0.05); overflow: hidden;'>
+                    <!-- Header -->
+                    <div style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); padding: 30px 20px; text-align: center; color: #ffffff;'>
+                        <h1 style='margin: 0; font-size: 24px; font-weight: 700;'>{$heading}</h1>
+                    </div>
+                    
+                    <!-- Body -->
+                    <div style='padding: 35px 25px; font-size: 15px; line-height: 1.6;'>
+                        {$content_html}
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style='background-color: #fdf2fb; padding: 20px; text-align: center; font-size: 12px; color: #8a7a88; border-top: 1px solid #f1e4ef;'>
+                        &copy; {$year} Cosy Appointments. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>";
     }
 }
