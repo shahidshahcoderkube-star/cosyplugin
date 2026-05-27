@@ -55,3 +55,68 @@ if (!function_exists('cosy_render_popup')) {
         return ob_get_clean();
     }
 }
+
+if (!function_exists('cosy_send_html_email')) {
+    /**
+     * Sends a unified HTML email using a premium design layout.
+     *
+     * @param string $to            Recipient email address.
+     * @param string $subject       Email subject.
+     * @param string $heading       The header title shown in the gradient banner.
+     * @param string $content_html  The core message body (can contain HTML, paragraphs, lists, tables).
+     * @return bool                 Whether the email was successfully sent.
+     */
+    function cosy_send_html_email($to, $subject, $heading, $content_html)
+    {
+        $year = date('Y');
+        
+        $message = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='utf-8'>
+            <title>" . esc_html($subject) . "</title>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background-color: #faf6f9;
+                }
+            </style>
+        </head>
+        <body style='margin: 0; padding: 0; background-color: #faf6f9; font-family: \"Outfit\", \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>
+            <div style='background-color: #faf6f9; padding: 40px 15px; color: #1e293b;'>
+                <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; border: 1px solid #f1e4ef; box-shadow: 0 10px 25px rgba(109, 46, 103, 0.05); overflow: hidden;'>
+                    <!-- Header -->
+                    <div style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); padding: 30px 20px; text-align: center; color: #ffffff;'>
+                        <h1 style='margin: 0; font-size: 24px; font-weight: 700; color: #ffffff;'>" . esc_html($heading) . "</h1>
+                    </div>
+                    
+                    <!-- Body -->
+                    <div style='padding: 35px 25px; font-size: 15px; line-height: 1.6;'>
+                        " . $content_html . "
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style='background-color: #fdf2fb; padding: 20px; text-align: center; font-size: 12px; color: #8a7a88; border-top: 1px solid #f1e4ef;'>
+                        &copy; {$year} Cosy Appointments. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>";
+
+        // Set content type to HTML
+        $html_email_filter = function () {
+            return 'text/html; charset=UTF-8';
+        };
+        add_filter('wp_mail_content_type', $html_email_filter);
+
+        $result = wp_mail($to, $subject, $message);
+
+        // Restore default text/plain content type filter to avoid affecting other emails
+        remove_filter('wp_mail_content_type', $html_email_filter);
+
+        return $result;
+    }
+}

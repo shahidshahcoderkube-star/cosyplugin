@@ -127,8 +127,15 @@ class Class_Provider_Verification
             $user = get_userdata($user_id);
             if ($user) {
                 $subject = "Your Provider Account is Now Active!";
-                $message = "Hello {$user->display_name},\n\nCongratulations! Your account has been reviewed and approved by the administrator. Your profile is now live and visible to parents.\n\nThank you,\nCosy Appointments Team";
-                wp_mail($user->user_email, $subject, $message);
+                $html_content = "
+                    <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
+                    <p>Congratulations! Your account has been reviewed and approved by the administrator. Your profile is now live and visible to parents.</p>
+                    <p style='text-align: center; margin: 30px 0;'>
+                        <a href='" . esc_url(home_url('/login')) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Login to Your Account</a>
+                    </p>
+                    <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Thank you,<br><strong>Cosy Appointments Team</strong></p>
+                ";
+                cosy_send_html_email($user->user_email, $subject, "Account Active!", $html_content);
             }
         }
 

@@ -155,14 +155,7 @@ class FormsData
             <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
             <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
         ";
-        $email_body = $this->get_beautiful_html_email($subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
-
-        $html_email_filter = function () {
-            return 'text/html';
-        };
-        add_filter('wp_mail_content_type', $html_email_filter);
-        wp_mail($email, $subject, $email_body);
-        remove_filter('wp_mail_content_type', $html_email_filter);
+        cosy_send_html_email($email, $subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
 
         // Success response
         $this->send_response(true, __('Registration successful! Please check your email to verify your account.', 'cosy-appointments'));
@@ -260,14 +253,7 @@ class FormsData
             <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
             <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
         ";
-        $email_body = $this->get_beautiful_html_email($subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
-
-        $html_email_filter = function () {
-            return 'text/html';
-        };
-        add_filter('wp_mail_content_type', $html_email_filter);
-        wp_mail($email, $subject, $email_body);
-        remove_filter('wp_mail_content_type', $html_email_filter);
+        cosy_send_html_email($email, $subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
 
         // Response
         $this->send_response(true, __('Registration successful! Please check your email to confirm.', 'cosy-appointments'));
@@ -357,14 +343,7 @@ class FormsData
             <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you did not request this reset, you can safely ignore this email. Your password will remain unchanged.</p>
             <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($reset_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($reset_url) . "</a></p>
         ";
-        $email_body = $this->get_beautiful_html_email($subject, $subject, $html_content);
-
-        $html_email_filter = function () {
-            return 'text/html';
-        };
-        add_filter('wp_mail_content_type', $html_email_filter);
-        $mail_sent = wp_mail($email, $subject, $email_body);
-        remove_filter('wp_mail_content_type', $html_email_filter);
+        $mail_sent = cosy_send_html_email($email, $subject, $subject, $html_content);
 
         if ($mail_sent) {
             $this->send_response(true, __('A password reset link has been sent to your email.', 'cosy-appointments'));
@@ -513,48 +492,5 @@ class FormsData
         wp_set_auth_cookie($user_id);
 
         $this->send_response(true, __('Password changed successfully!', 'cosy-appointments'));
-    }
-
-    /**
-     * Helper to wrap email content in a premium responsive HTML email template.
-     */
-    private function get_beautiful_html_email($title, $heading, $content_html)
-    {
-        $year = date('Y');
-        return "
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset='utf-8'>
-            <title>{$title}</title>
-            <style>
-                body {
-                    margin: 0;
-                    padding: 0;
-                    background-color: #faf6f9;
-                }
-            </style>
-        </head>
-        <body style='margin: 0; padding: 0; background-color: #faf6f9; font-family: \"Outfit\", \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>
-            <div style='background-color: #faf6f9; padding: 40px 15px; color: #1e293b;'>
-                <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; border: 1px solid #f1e4ef; box-shadow: 0 10px 25px rgba(109, 46, 103, 0.05); overflow: hidden;'>
-                    <!-- Header -->
-                    <div style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); padding: 30px 20px; text-align: center; color: #ffffff;'>
-                        <h1 style='margin: 0; font-size: 24px; font-weight: 700;'>{$heading}</h1>
-                    </div>
-                    
-                    <!-- Body -->
-                    <div style='padding: 35px 25px; font-size: 15px; line-height: 1.6;'>
-                        {$content_html}
-                    </div>
-                    
-                    <!-- Footer -->
-                    <div style='background-color: #fdf2fb; padding: 20px; text-align: center; font-size: 12px; color: #8a7a88; border-top: 1px solid #f1e4ef;'>
-                        &copy; {$year} Cosy Appointments. All rights reserved.
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>";
     }
 }
