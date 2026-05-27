@@ -95,6 +95,13 @@ var CosyApp = (function ($) {
                 },
                 errorClass: "cosy-error",
                 errorElement: "span",
+                errorPlacement: function (error, element) {
+                    if (element.parent('.cosy-password-wrapper').length) {
+                        error.insertAfter(element.parent('.cosy-password-wrapper'));
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
 
                 submitHandler: function (formEl) {
 
