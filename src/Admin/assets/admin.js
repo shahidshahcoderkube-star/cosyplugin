@@ -230,89 +230,9 @@ jQuery(document).ready(function ($) {
     };
 
     // =========================================================================
-    // MODULE: CosyDemoAdmin
-    // Handles seeding and wiping operations for the marketplace demo environment.
-    // =========================================================================
-    const CosyDemoAdmin = {
-        init: function () {
-            $(document).on('click', '#cosy-btn-seed-demo', this.handleSeed);
-            $(document).on('click', '#cosy-btn-wipe-demo', this.handleWipe);
-        },
-
-        handleSeed: function () {
-            const $btn = $(this);
-            if (!confirm('Are you sure you want to seed the demo marketplace environment? This will populate providers, services, customers, bookings, and payments.')) {
-                return;
-            }
-
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    action: 'cosy_seed_demo_data',
-                    nonce: $('#cosy_demo_nonce_field').val()
-                },
-                beforeSend: function () {
-                    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-2"></i>Seeding Demo...');
-                },
-                success: function (res) {
-                    if (res.success) {
-                        alert(res.data.message);
-                        window.location.reload();
-                    } else {
-                        alert(res.data.message);
-                    }
-                },
-                error: function () {
-                    alert('An unexpected error occurred during import.');
-                },
-                complete: function () {
-                    $btn.prop('disabled', false).html('<i class="fa-solid fa-circle-arrow-down me-2"></i>Populate Demo Data');
-                }
-            });
-        },
-
-        handleWipe: function () {
-            const $btn = $(this);
-            if (!confirm('WARNING: Are you absolutely sure you want to wipe ALL demo environment data? This will permanently delete seeded providers, services, customers, bookings, and mock logs!')) {
-                return;
-            }
-
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    action: 'cosy_wipe_demo_data',
-                    nonce: $('#cosy_demo_nonce_field').val()
-                },
-                beforeSend: function () {
-                    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-2"></i>Wiping Data...');
-                },
-                success: function (res) {
-                    if (res.success) {
-                        alert(res.data.message);
-                        window.location.reload();
-                    } else {
-                        alert(res.data.message);
-                    }
-                },
-                error: function () {
-                    alert('An unexpected error occurred during database wipe.');
-                },
-                complete: function () {
-                    $btn.prop('disabled', false).html('<i class="fa-solid fa-trash-can me-2"></i>Wipe Demo Data');
-                }
-            });
-        }
-    };
-
-    // =========================================================================
     // BOOT: Initialize all admin modules
     // =========================================================================
     CosyMediaAdmin.init();
     CosyOrdersAdmin.init();
-    CosyDemoAdmin.init();
 
 });

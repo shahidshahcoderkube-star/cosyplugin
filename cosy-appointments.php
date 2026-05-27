@@ -306,11 +306,6 @@ function cosy_plugin_activate()
     // Flush rewrite rules on activation to ensure custom links work immediately
     cosyplugin_author_rewrite();
     flush_rewrite_rules();
-
-    // Safely seed demo environment ONLY on a completely fresh installation
-    if (class_exists('Cosy\Appointments\Admin\DemoImporter')) {
-        \Cosy\Appointments\Admin\DemoImporter::run_seeder();
-    }
 }
 
 //-------Clean up rewrite rules on deactivation--------//
