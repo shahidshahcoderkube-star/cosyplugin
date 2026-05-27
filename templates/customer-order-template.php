@@ -90,41 +90,10 @@ if ($current_user->exists()) {
 							</tr>
 						<?php endforeach; ?>
 					<?php else: ?>
-						<!-- Mock data for demonstration if no custom post exists yet -->
-						<tr style="border-bottom: 1px solid #edf2f7;">
-							<td class="ps-4 py-3 fw-bold text-dark">#1234</td>
-							<td class="py-3 fw-semibold text-dark"><?php esc_html_e('Kids Lesson', 'cosy-appointments'); ?></td>
-							<td class="py-3"><?php esc_html_e('Amanda', 'cosy-appointments'); ?></td>
-							<td class="py-3 text-muted"><?php esc_html_e('Wednesday 9:00 AM 10 Minutes', 'cosy-appointments'); ?></td>
-							<td class="py-3">
-								<span class="badge px-3 py-2 rounded-3 text-success" style="background-color: rgba(34, 197, 94, 0.1); font-weight: 600; font-size: 0.75rem;">
-									<?php esc_html_e('Paid', 'cosy-appointments'); ?>
-								</span>
-							</td>
-							<td class="py-3 fw-bold text-dark">£3.43</td>
-							<td class="py-3 text-muted"><?php esc_html_e('May 20, 2026', 'cosy-appointments'); ?></td>
-							<td class="py-3">
-								<span class="badge px-3 py-2 rounded-3 text-warning" style="background-color: rgba(245, 158, 11, 0.1); font-weight: 600; font-size: 0.75rem; color: #d97706 !important;">
-									<?php esc_html_e('Pending', 'cosy-appointments'); ?>
-								</span>
-							</td>
-						</tr>
 						<tr>
-							<td class="ps-4 py-3 fw-bold text-dark">#1235</td>
-							<td class="py-3 fw-semibold text-dark"><?php esc_html_e('Math Consultation', 'cosy-appointments'); ?></td>
-							<td class="py-3"><?php esc_html_e('Dr. Smith', 'cosy-appointments'); ?></td>
-							<td class="py-3 text-muted"><?php esc_html_e('Friday 2:00 PM 30 Minutes', 'cosy-appointments'); ?></td>
-							<td class="py-3">
-								<span class="badge px-3 py-2 rounded-3 text-success" style="background-color: rgba(34, 197, 94, 0.1); font-weight: 600; font-size: 0.75rem;">
-									<?php esc_html_e('Paid', 'cosy-appointments'); ?>
-								</span>
-							</td>
-							<td class="py-3 fw-bold text-dark">£45.00</td>
-							<td class="py-3 text-muted"><?php esc_html_e('May 22, 2026', 'cosy-appointments'); ?></td>
-							<td class="py-3">
-								<span class="badge px-3 py-2 rounded-3 text-success" style="background-color: rgba(34, 197, 94, 0.1); font-weight: 600; font-size: 0.75rem;">
-									<?php esc_html_e('Completed', 'cosy-appointments'); ?>
-								</span>
+							<td colspan="8" class="text-center py-5 text-muted" style="font-size: 0.95rem;">
+								<i class="fas fa-calendar-times mb-3 d-block" style="font-size: 2rem; color: #cbd5e1;"></i>
+								<?php esc_html_e('No bookings or orders found.', 'cosy-appointments'); ?>
 							</td>
 						</tr>
 					<?php endif; ?>
