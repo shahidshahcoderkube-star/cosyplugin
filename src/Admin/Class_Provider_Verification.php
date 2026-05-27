@@ -119,23 +119,37 @@ class Class_Provider_Verification
         }
 
         $old_status = get_user_meta($user_id, 'cosy_provider_status', true);
+        if (empty($old_status)) {
+            $old_status = 'active';
+        }
 
         update_user_meta($user_id, 'cosy_provider_status', $status);
 
-        // Send email if it transitioned to active
-        if ($old_status !== 'active' && $status === 'active') {
+        // Send email if status transitions
+        if ($old_status !== $status) {
             $user = get_userdata($user_id);
             if ($user) {
-                $subject = "Your Provider Account is Now Active!";
-                $html_content = "
-                    <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
-                    <p>Congratulations! Your account has been reviewed and approved by the administrator. Your profile is now live and visible to parents.</p>
-                    <p style='text-align: center; margin: 30px 0;'>
-                        <a href='" . esc_url(home_url('/login')) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Login to Your Account</a>
-                    </p>
-                    <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Thank you,<br><strong>Cosy Appointments Team</strong></p>
-                ";
-                cosy_send_html_email($user->user_email, $subject, "Account Active!", $html_content);
+                if ($status === 'active') {
+                    $subject = "Your Provider Account is Now Active!";
+                    $html_content = "
+                        <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
+                        <p>Congratulations! Your account has been reviewed and approved by the administrator. Your profile is now live and visible to parents.</p>
+                        <p style='text-align: center; margin: 30px 0;'>
+                            <a href='" . esc_url(home_url('/login')) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Login to Your Account</a>
+                        </p>
+                        <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Thank you,<br><strong>Cosy Appointments Team</strong></p>
+                    ";
+                    cosy_send_html_email($user->user_email, $subject, "Account Active!", $html_content);
+                } elseif ($status === 'deactive') {
+                    $subject = "Your Provider Account is Temporarily Deactivated";
+                    $html_content = "
+                        <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
+                        <p>Your provider account has been temporarily deactivated by the site administrator. During this time, your services will not be bookable and your profile will not be visible to customers.</p>
+                        <p>If you believe this is a mistake or have questions, please reach out to our administration/support team.</p>
+                        <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Thank you,<br><strong>Cosy Appointments Team</strong></p>
+                    ";
+                    cosy_send_html_email($user->user_email, $subject, "Account Deactivated", $html_content);
+                }
             }
         }
 
