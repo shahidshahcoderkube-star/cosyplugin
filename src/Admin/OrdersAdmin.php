@@ -8,6 +8,19 @@ class OrdersAdmin
 {
   public function render_booking_orders(): void
   {
+    // Handle Delete Order Action
+    if (isset($_GET['action']) && $_GET['action'] === 'delete_order' && isset($_GET['order_id'])) {
+      $order_id = intval($_GET['order_id']);
+      if (isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'cosy_delete_order_' . $order_id)) {
+        if (current_user_can('manage_cosy_appointments')) {
+          wp_delete_post($order_id, true);
+          // Redirect to clear URL parameters and reload list
+          wp_safe_redirect(remove_query_arg(['action', 'order_id', '_wpnonce']));
+          exit;
+        }
+      }
+    }
+
     // Fetch filter parameters
     $status_filter   = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';
     $provider_filter = isset($_GET['provider']) ? intval($_GET['provider']) : 0;
@@ -151,6 +164,12 @@ class OrdersAdmin
                     data-status="<?php echo esc_attr($booking_status); ?>">
                     View Details
                   </button>
+                  <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(['action' => 'delete_order', 'order_id' => $appt_id]), 'cosy_delete_order_' . $appt_id)); ?>" 
+                     class="button button-small button-link-delete" 
+                     style="color: #b32d2e; margin-left: 5px; text-decoration: none;" 
+                     onclick="return confirm('Are you sure you want to delete this order?');">
+                     Delete
+                  </a>
                 </td>
               </tr>
             <?php endforeach; ?>
