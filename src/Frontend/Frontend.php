@@ -277,22 +277,30 @@ class Frontend
         if (is_user_logged_in()) {
 
             $user = wp_get_current_user();
+            $roles = (array) $user->roles;
+
+            // Redirect logged-in users away from login/registration pages
+            if (is_page(['login', 'user-registration', 'provider-registration'])) {
+                if (in_array('provider', $roles)) {
+                    wp_safe_redirect(site_url('/provider-dashboard'));
+                    exit;
+                } else {
+                    wp_safe_redirect(site_url('/customer-profile'));
+                    exit;
+                }
+            }
 
             $blocked_for_provider = ['customer-order', 'customer-profile', 'appointments', 'orders', 'cosy-checkout'];
-            if (in_array('provider', (array) $user->roles) && is_page($blocked_for_provider)) {
+            if (in_array('provider', $roles) && is_page($blocked_for_provider)) {
                 wp_safe_redirect(site_url('/provider-dashboard'));
                 exit;
             }
 
             $blocked_for_customer = ['provider-dashboard', 'provider-verify'];
-            if (in_array('customer', (array) $user->roles, true) && is_page($blocked_for_customer)) {
+            if (in_array('customer', $roles, true) && is_page($blocked_for_customer)) {
                 wp_safe_redirect(site_url('/customer-profile'));
                 exit;
             }
-
-            // fallback
-            // wp_redirect(site_url('/login'));
-            // exit;
         }
     }
 

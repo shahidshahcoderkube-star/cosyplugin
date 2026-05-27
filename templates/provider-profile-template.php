@@ -463,7 +463,7 @@ if (!empty($provider_data['ID'])) {
 <?php
 wp_enqueue_script(
     'provider-profile-js',
-    COSY_APPT_URL . 'src/assets/js/calendar.js',
+    COSY_APPT_URL . 'src/Assets/js/calendar.js',
     ['jquery', 'bootstrap-bundle', 'sweetalert2'],
     COSY_APPT_VER,
     true
