@@ -17,6 +17,7 @@ class Backend_Actions_Handler
         $actions = [
             'video_approve' => 'ajax_approve_video',
             'video_reject' => 'ajax_reject_video',
+            'cosy_delete_orders' => 'ajax_delete_orders',
         ];
 
         //------ Register AJAX handlers -----//
@@ -144,6 +145,40 @@ class Backend_Actions_Handler
         wp_send_json_success([
             'message' => 'Video rejected and deleted!',
             'status' => 'rejected'
+        ]);
+    }
+
+    /**
+     * AJAX Handler: Bulk delete selected orders
+     */
+    public function ajax_delete_orders()
+    {
+        // Security check
+        check_ajax_referer('cosy_delete_orders_action', 'nonce');
+        
+        if (!current_user_can('manage_cosy_appointments')) {
+            wp_send_json_error(['message' => __('Unauthorized access', 'cosy-appointments')]);
+        }
+
+        $order_ids = isset($_POST['order_ids']) ? array_map('intval', $_POST['order_ids']) : [];
+        if (empty($order_ids)) {
+            wp_send_json_error(['message' => __('No orders selected for deletion.', 'cosy-appointments')]);
+        }
+
+        $deleted_count = 0;
+        foreach ($order_ids as $id) {
+            if ($id > 0) {
+                // Delete appointment post (permanently)
+                $result = wp_delete_post($id, true);
+                if ($result) {
+                    $deleted_count++;
+                }
+            }
+        }
+
+        wp_send_json_success([
+            'message' => sprintf(_n('Successfully deleted %d order.', 'Successfully deleted %d orders.', $deleted_count, 'cosy-appointments'), $deleted_count),
+            'deleted_count' => $deleted_count
         ]);
     }
 }

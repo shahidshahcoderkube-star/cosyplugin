@@ -145,6 +145,105 @@ jQuery(document).ready(function ($) {
                     CosyOrdersAdmin.closeModal();
                 }
             });
+
+            // Select all top & bottom checkboxes
+            $(document).on('change', '#cosy-select-all-orders, #cosy-select-all-orders-footer', function () {
+                const checked = $(this).prop('checked');
+                $('#cosy-select-all-orders, #cosy-select-all-orders-footer').prop('checked', checked);
+                $('.cosy-order-checkbox').prop('checked', checked).trigger('change');
+            });
+
+            // Monitor row checkboxes to toggle Delete button state
+            $(document).on('change', '.cosy-order-checkbox', function () {
+                const checkedCount = $('.cosy-order-checkbox:checked').length;
+                const totalCount = $('.cosy-order-checkbox').length;
+                
+                // Keep select all state in sync
+                $('#cosy-select-all-orders, #cosy-select-all-orders-footer').prop('checked', checkedCount === totalCount && totalCount > 0);
+                
+                $('#cosy-btn-delete-selected').prop('disabled', checkedCount === 0);
+            });
+
+            // Bulk Delete Click Handler
+            $(document).on('click', '#cosy-btn-delete-selected', this.handleBulkDelete);
+        },
+
+        /**
+         * handleBulkDelete
+         * Collects checked order IDs and sends an AJAX request to delete them.
+         */
+        handleBulkDelete: function () {
+            const $btn = $(this);
+            const selectedIds = [];
+            $('.cosy-order-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete the selected orders? This action cannot be undone.')) {
+                return;
+            }
+
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'cosy_delete_orders',
+                    nonce: $('#cosy_delete_orders_nonce_field').val(),
+                    order_ids: selectedIds
+                },
+                beforeSend: function () {
+                    $btn.prop('disabled', true).text('Deleting...');
+                },
+                success: function (res) {
+                    if (res.success) {
+                        // Fade out and remove the deleted rows
+                        let animationCompleted = 0;
+                        selectedIds.forEach(function(id) {
+                            const $checkbox = $(`.cosy-order-checkbox[value="${id}"]`);
+                            $checkbox.closest('tr').fadeOut(400, function() {
+                                $(this).remove();
+                                animationCompleted++;
+                                
+                                // Once all rows are removed, check count and show placeholder if empty
+                                if (animationCompleted === selectedIds.length) {
+                                    const remainingCount = $('.cosy-order-checkbox').length;
+                                    const countSpan = $('.displaying-num');
+                                    
+                                    if (countSpan.length > 0) {
+                                        countSpan.text(remainingCount + ' item(s)');
+                                    }
+                                    
+                                    if (remainingCount === 0) {
+                                        $('.cosy-orders-table tbody').html(`
+                                            <tr>
+                                                <td colspan="9" class="text-center" style="text-align: center; padding: 40px; color: #64748b;">
+                                                    No orders found matching the filter criteria.
+                                                </td>
+                                            </tr>
+                                        `);
+                                    }
+                                }
+                            });
+                        });
+                        
+                        // Reset checkboxes and delete button state
+                        $('#cosy-select-all-orders, #cosy-select-all-orders-footer').prop('checked', false);
+                        $btn.prop('disabled', true).text('Delete Selected');
+                    } else {
+                        alert(res.data.message || 'Error deleting orders.');
+                        $btn.prop('disabled', false).text('Delete Selected');
+                    }
+                },
+                error: function () {
+                    alert('An unexpected error occurred during order deletion.');
+                    $btn.prop('disabled', false).text('Delete Selected');
+                }
+            });
         },
 
         /**
