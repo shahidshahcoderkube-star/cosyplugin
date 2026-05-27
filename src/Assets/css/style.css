@@ -300,6 +300,36 @@ a:focus {
     box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.15);
 }
 
+.cosy-password-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.cosy-password-wrapper input {
+    margin-top: 0 !important;
+    padding-right: 50px !important;
+}
+
+.cosy-toggle-password {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #64748b;
+    font-size: 1.15rem;
+    z-index: 10;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cosy-toggle-password:hover {
+    color: var(--cosy-brand-purple);
+}
+
 .cosy-form label {
     font-weight: 600;
     color: var(--cosy-text-slate);

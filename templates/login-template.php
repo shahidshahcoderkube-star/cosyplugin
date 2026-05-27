@@ -17,7 +17,12 @@
 
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label for="pwd"><?php esc_html_e('Password', 'cosy-appointments'); ?></label>
-                    <input type="password" name="pwd" id="pwd" placeholder="<?php esc_attr_e('••••••••', 'cosy-appointments'); ?>" required>
+                    <div class="cosy-password-wrapper">
+                        <input type="password" name="pwd" id="pwd" placeholder="<?php esc_attr_e('••••••••', 'cosy-appointments'); ?>" required>
+                        <span class="cosy-toggle-password">
+                            <i class="fa-regular fa-eye"></i>
+                        </span>
+                    </div>
                 </div>
 
                 <p>

@@ -60,13 +60,23 @@
 
                         <div class="form-group" style="margin-bottom: 20px;">
                             <label for="prov_pass"><?php esc_html_e('Password', 'cosy-appointments'); ?></label>
-                            <input type="password" name="prov_pass" id="prov_pass" placeholder="<?php esc_attr_e('••••••••', 'cosy-appointments'); ?>" required>
+                            <div class="cosy-password-wrapper">
+                                <input type="password" name="prov_pass" id="prov_pass" placeholder="<?php esc_attr_e('••••••••', 'cosy-appointments'); ?>" required>
+                                <span class="cosy-toggle-password">
+                                    <i class="fa-regular fa-eye"></i>
+                                </span>
+                            </div>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 20px;">
                             <label for="prov_pass_confirm"><?php esc_html_e('Confirm Password', 'cosy-appointments'); ?></label>
-                            <input type="password" name="prov_pass_confirm" id="prov_pass_confirm"
-                                placeholder="<?php esc_attr_e('••••••••', 'cosy-appointments'); ?>" required>
+                            <div class="cosy-password-wrapper">
+                                <input type="password" name="prov_pass_confirm" id="prov_pass_confirm"
+                                    placeholder="<?php esc_attr_e('••••••••', 'cosy-appointments'); ?>" required>
+                                <span class="cosy-toggle-password">
+                                    <i class="fa-regular fa-eye"></i>
+                                </span>
+                            </div>
                         </div>
 
                         <div class="form-group">

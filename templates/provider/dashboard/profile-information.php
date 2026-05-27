@@ -109,19 +109,19 @@ $age_group     = $provider_data['age_group'] ?? '';
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Postal Code', 'cosy-appointments'); ?></label>
-                        <input type="text" name="postal_code" class="form-control" value="<?php echo esc_attr($postal_code); ?>">
+                        <input type="text" name="postal_code" class="form-control" value="<?php echo esc_attr($postal_code); ?>" required>
                     </div>
 
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label"><?php esc_html_e('Address', 'cosy-appointments'); ?></label>
-                <textarea name="prov_address" class="form-control"><?php echo esc_textarea($prov_address); ?></textarea>
+                <textarea name="prov_address" class="form-control" required><?php echo esc_textarea($prov_address); ?></textarea>
             </div>
             <!-- Full Width Fields -->
             <div class="mb-3">
                 <label class="form-label"><?php esc_html_e('Bio', 'cosy-appointments'); ?></label>
-                <textarea name="bio" class="form-control" rows="3"><?php echo esc_textarea($bio); ?></textarea>
+                <textarea name="bio" class="form-control" rows="3" required><?php echo esc_textarea($bio); ?></textarea>
             </div>
 
             <div class="text-center mt-3">
