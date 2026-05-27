@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Cosy Appointments
  * Description: A complete multi-provider appointment booking and scheduling solution for WordPress. Manage providers, services, availability, and Stripe payments — all in one place.
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author: Shahid Shah — Coderkube Technology
  * Author URI: https://coderkube.com
  * Text Domain: cosy-appointments
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
  */
 define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Absolute path to the plugin folder
 define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // URL to the plugin folder
-define('COSY_APPT_VER', '1.0.7');  // Current version
+define('COSY_APPT_VER', '1.0.8');  // Current version
 
 /**
  * register_role
@@ -350,3 +350,16 @@ function cosy_register_query_vars($vars)
     return $vars;
 }
 add_filter('query_vars', 'cosy_register_query_vars');
+
+/**
+ * Auto-create missing plugin pages on init to handle cases where pages 
+ * were deleted or when updating the plugin via ZIP upload (where activation hook isn't fired).
+ */
+function cosy_check_and_create_missing_pages() {
+    $checkout_page = get_page_by_path('cosy-checkout');
+    if (!$checkout_page) {
+        cosy_create_pages_on_activation();
+        flush_rewrite_rules();
+    }
+}
+add_action('init', 'cosy_check_and_create_missing_pages');
