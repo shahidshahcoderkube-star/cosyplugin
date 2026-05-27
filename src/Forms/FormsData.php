@@ -288,8 +288,19 @@ class FormsData
                 $this->send_response(false, __('Invalid username or password.', 'cosy-appointments'));
             }
         } else {
-            // Instead of just message, send home_url for redirect 
-            $this->send_response(true, home_url());
+            // Determine redirect URL based on user role to bypass homepage cache
+            $roles = (array) $user->roles;
+            $redirect_url = home_url();
+
+            if (in_array('administrator', $roles)) {
+                $redirect_url = admin_url();
+            } elseif (in_array('provider', $roles)) {
+                $redirect_url = home_url('/provider-dashboard/');
+            } elseif (in_array('customer', $roles)) {
+                $redirect_url = home_url('/customer-profile/');
+            }
+
+            $this->send_response(true, $redirect_url);
         }
     }
 
