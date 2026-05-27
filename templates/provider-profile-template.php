@@ -212,14 +212,25 @@ if (!empty($provider_data['ID'])) {
                                             <?php
                                             $start = date("h:i A", strtotime($day_avail['start_time']));
                                             $end = date("h:i A", strtotime($day_avail['end_time']));
+                                             $is_break_valid = false;
+                                             if (!empty($day_avail['break_start']) && !empty($day_avail['break_end'])) {
+                                                 $start_ts = strtotime($day_avail['start_time']);
+                                                 $end_ts = strtotime($day_avail['end_time']);
+                                                 $b_start_ts = strtotime($day_avail['break_start']);
+                                                 $b_end_ts = strtotime($day_avail['break_end']);
+                                                 
+                                                 if ($b_start_ts > $start_ts && $b_end_ts < $end_ts) {
+                                                     $is_break_valid = true;
+                                                 }
+                                             }
 
-                                            if (!empty($day_avail['break_start']) && !empty($day_avail['break_end'])) {
-                                                $b_start = date("h:i A", strtotime($day_avail['break_start']));
-                                                $b_end = date("h:i A", strtotime($day_avail['break_end']));
-                                                echo esc_html($start . " - " . $b_start . " & " . $b_end . " - " . $end);
-                                            } else {
-                                                echo esc_html($start . " - " . $end);
-                                            }
+                                             if ($is_break_valid) {
+                                                 $b_start = date("h:i A", strtotime($day_avail['break_start']));
+                                                 $b_end = date("h:i A", strtotime($day_avail['break_end']));
+                                                 echo esc_html($start . " - " . $b_start . " & " . $b_end . " - " . $end);
+                                             } else {
+                                                 echo esc_html($start . " - " . $end);
+                                             }
                                             ?>
                                         </td>
                                     </tr>

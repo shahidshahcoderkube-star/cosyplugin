@@ -141,17 +141,20 @@ function selectDay(el, day) {
             dayOffset++;
 
             // Skip if no availability set for this day
-            if (!window.providerAvailability || !window.providerAvailability[dayName]) continue;
+            const avail = window.providerAvailability ? window.providerAvailability[dayName] : null;
+            if (!avail || !avail.start_time || !avail.end_time) continue;
 
             addedCount++;
 
-            const duration = selectedTimeSlotsByDay[dateStr] ? selectedTimeSlotsByDay[dateStr].length * 15 : 0;
+            const slotDur = avail.slot_duration ? parseInt(avail.slot_duration) : 15;
+            const duration = selectedTimeSlotsByDay[dateStr] ? selectedTimeSlotsByDay[dateStr].length * slotDur : 0;
+            const formattedDate = nextDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
             slotsList.innerHTML += `
                 <div class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-4 border bg-white cosy-slot-row-bg">
                     <div class="text-start">
-                        <h6 class="fw-bold mb-1 cosy-slot-day-text">${dayNames[dayIndex]}</h6>
-                        <p class="small text-muted mb-0" id="duration-${dateStr}" class="cosy-booking-for-another">${duration} minutes Call Duration</p>
+                        <h6 class="fw-bold mb-1 cosy-slot-day-text">${dayNames[dayIndex]} (${formattedDate})</h6>
+                        <p class="small text-muted mb-0 cosy-booking-for-another" id="duration-${dateStr}">${duration} minutes Call Duration</p>
                     </div>
                     <button onclick="openTimeSlotModal('${dateStr}')" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm cosy-btn-select-time">
                         ${duration > 0 ? 'Edit Time' : 'Select Time'}
