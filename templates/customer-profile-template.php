@@ -88,10 +88,7 @@ $email = $current_user->user_email;
                             <?php wp_nonce_field('cosy_customer_password_nonce', 'cosy_password_nonce_field'); ?>
                             <div class="password-msg mb-3"></div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-muted fw-semibold" style="font-size: 0.85rem;"><?php esc_html_e('Current Password', 'cosy-appointments'); ?></label>
-                                <input type="password" name="current_password" class="form-control px-3 py-2" required style="border-radius: 10px; border: 1.5px solid #e2e8f0; font-size: 0.95rem;">
-                            </div>
+
 
                             <div class="mb-3">
                                 <label class="form-label text-muted fw-semibold" style="font-size: 0.85rem;"><?php esc_html_e('New Password', 'cosy-appointments'); ?></label>
@@ -177,7 +174,6 @@ jQuery(document).ready(function($) {
         var formData = {
             action: 'cosy_customer_password_update',
             cosy_password_nonce: $('#cosy_password_nonce_field').val(),
-            current_password: $form.find("input[name='current_password']").val(),
             new_password: $form.find("input[name='new_password']").val(),
             confirm_password: $form.find("input[name='confirm_password']").val()
         };

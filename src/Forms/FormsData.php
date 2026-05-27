@@ -467,19 +467,11 @@ class FormsData
             wp_send_json_error(__('You must be logged in to update your password.', 'cosy-appointments'));
         }
 
-        $current_pass = !empty($_POST['current_password']) ? $_POST['current_password'] : '';
         $new_pass     = !empty($_POST['new_password']) ? $_POST['new_password'] : '';
         $confirm_pass = !empty($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
 
-        if (empty($current_pass) || empty($new_pass) || empty($confirm_pass)) {
-            $this->send_response(false, __('All password fields are required.', 'cosy-appointments'));
-            return;
-        }
-
-        // Verify current password
-        $user = get_userdata($user_id);
-        if (!wp_check_password($current_pass, $user->user_pass, $user_id)) {
-            $this->send_response(false, __('Incorrect current password.', 'cosy-appointments'));
+        if (empty($new_pass) || empty($confirm_pass)) {
+            $this->send_response(false, __('Both password fields are required.', 'cosy-appointments'));
             return;
         }
 
