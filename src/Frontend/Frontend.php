@@ -167,7 +167,7 @@ class Frontend
         // Handle Stripe Success
         if (isset($_GET['cosy_stripe_success']) && $_GET['cosy_stripe_success'] === 'true' && isset($_GET['appt_id'])) {
             $appointment_id = intval($_GET['appt_id']);
-            $session_id = isset($_GET['session_id']) ? sanitize_text_field($_GET['session_id']) : '';
+            $session_id = isset($_GET['cosy_stripe_session']) ? sanitize_text_field($_GET['cosy_stripe_session']) : '';
 
             $this->cosy_payment_log("Stripe Checkout SUCCESS return for Appointment #$appointment_id. Session ID: $session_id");
 
@@ -506,7 +506,7 @@ class Frontend
         $stripe_endpoint = 'https://api.stripe.com/v1/checkout/sessions';
         $success_url = add_query_arg([
             'cosy_stripe_success' => 'true',
-            'session_id'          => '{CHECKOUT_SESSION_ID}',
+            'cosy_stripe_session' => '{CHECKOUT_SESSION_ID}',
             'appt_id'             => $appointment_id
         ], site_url('/cosy-checkout'));
 
