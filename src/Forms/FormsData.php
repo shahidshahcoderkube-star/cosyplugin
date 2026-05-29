@@ -98,6 +98,9 @@ class FormsData
 
         // Safely fetch POST values
         $name  = !empty($_POST['cust_name']) ? sanitize_text_field($_POST['cust_name']) : '';
+        if (!empty($name)) {
+            $name = ucwords(strtolower($name));
+        }
         $email = !empty($_POST['cust_email']) ? sanitize_email($_POST['cust_email']) : '';
         $pass  = !empty($_POST['cust_pass']) ? sanitize_text_field($_POST['cust_pass']) : '';
 

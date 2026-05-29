@@ -118,12 +118,11 @@ jQuery(document).ready(function ($) {
 
         $('#customerOrderDetailsModalLabel').text('Order Details - #' + id);
         $('#modalCustProviderName').text(provider);
-        $('#modalCustStartDate').text(start);
-        $('#modalCustEndDate').text(end);
+        $('#modalCustServiceName').text(service);
         $('#modalCustWeeklyBooking').text(weekly);
-        $('#modalCustWeeks').text(weeks + ' week(s)');
+        $('#modalCustDurationInfo').text(start + ' to ' + end);
+        $('#modalCustWeeks').text(weeks + ' week(s) (' + slots + ' slots)');
         $('#modalCustWeekDays').text(weekDays);
-        $('#modalCustSlots').text(slots + ' slot(s)');
         $('#modalCustSlotsTimeline').text(slotsTimeline);
         $('#modalCustCost').text('£' + cost);
         $('#modalCustFee').text('£' + fee);

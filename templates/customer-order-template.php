@@ -137,59 +137,78 @@ if ($current_user->exists()) {
 <?php
 ob_start();
 ?>
-<div class="row g-4" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-    <div class="col-md-6">
-        <div class="p-3 rounded-4" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2"><i class="fas fa-user" style="color: #a44390;"></i> <?php esc_html_e('Booking Details', 'cosy-appointments'); ?></h6>
-            <p class="mb-1 text-muted small"><strong>Provider:</strong> <span id="modalCustProviderName" class="text-dark fw-semibold"></span></p>
-            <p class="mb-1 text-muted small"><strong>Start Date:</strong> <span id="modalCustStartDate" class="text-dark fw-semibold"></span></p>
-            <p class="mb-1 text-muted small"><strong>End Date:</strong> <span id="modalCustEndDate" class="text-dark fw-semibold"></span></p>
-            <p class="mb-1 text-muted small"><strong>Weekly Booking:</strong> <span id="modalCustWeeklyBooking" class="text-dark fw-semibold"></span></p>
+<div class="row g-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+    <!-- Booking & Service Details -->
+    <div class="col-md-12">
+        <div class="p-3 rounded-4 bg-light" style="border: 1px solid #e2e8f0;">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-concierge-bell" style="color: #a44390;"></i> <?php esc_html_e('Booking & Service Details', 'cosy-appointments'); ?></h6>
+            <p class="mb-3 fw-bold text-slate" style="font-size: 1.1rem; color: #6d2e67;" id="modalCustServiceName"></p>
+            
+            <div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Provider:</span>
+                    <span id="modalCustProviderName" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Schedule:</span>
+                    <span id="modalCustWeeklyBooking" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Duration:</span>
+                    <span id="modalCustDurationInfo" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Weeks Booked:</span>
+                    <span id="modalCustWeeks" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Week Days:</span>
+                    <span id="modalCustWeekDays" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Selected Slots:</span>
+                    <span id="modalCustSlotsTimeline" class="text-dark fw-semibold" style="word-break: break-word;"></span>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="p-3 rounded-4" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2"><i class="fas fa-clock" style="color: #a44390;"></i> <?php esc_html_e('Schedule & Slots', 'cosy-appointments'); ?></h6>
-            <p class="mb-1 text-muted small"><strong>Number of Weeks:</strong> <span id="modalCustWeeks" class="text-dark fw-semibold"></span></p>
-            <p class="mb-1 text-muted small"><strong>Week Days:</strong> <span id="modalCustWeekDays" class="text-dark fw-semibold"></span></p>
-            <p class="mb-1 text-muted small"><strong>Number of Booking Slots:</strong> <span id="modalCustSlots" class="text-dark fw-semibold"></span></p>
-            <p class="mb-1 text-muted small"><strong>Selected Slots:</strong> <span id="modalCustSlotsTimeline" class="text-dark fw-semibold"></span></p>
-        </div>
-    </div>
-</div>
 
-<div class="mt-4 p-3 rounded-4 border" style="background-color: #ffffff; border-color: #e2e8f0;">
-    <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2"><i class="fas fa-receipt" style="color: #a44390;"></i> <?php esc_html_e('Financial Summary', 'cosy-appointments'); ?></h6>
-    <div class="d-flex justify-content-between mb-2 small text-muted">
-        <span>Service Cost:</span>
-        <strong id="modalCustCost" class="text-dark"></strong>
-    </div>
-    <div class="d-flex justify-content-between mb-2 small text-muted">
-        <span>Service Fee:</span>
-        <strong id="modalCustFee" class="text-dark"></strong>
-    </div>
-    <div class="d-flex justify-content-between border-top pt-2 mt-2">
-        <span class="fw-bold text-dark">Total Paid:</span>
-        <strong id="modalCustTotal" style="color: #a44390; font-size: 1.1rem;"></strong>
+    <!-- Financial Statement -->
+    <div class="col-md-12">
+        <div class="p-3 rounded-4 border bg-white" style="border-color: rgba(164, 67, 144, 0.2) !important;">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-receipt" style="color: #a44390;"></i> <?php esc_html_e('Payment Summary', 'cosy-appointments'); ?></h6>
+            <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
+                <span>Service Cost:</span>
+                <strong id="modalCustCost" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
+                <span>Service Fee:</span>
+                <strong id="modalCustFee" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
+            </div>
+            <div class="d-flex justify-content-between border-top pt-2 mt-2" style="font-size: 0.95rem;">
+                <span class="fw-bold text-dark">Total Paid:</span>
+                <strong id="modalCustTotal" style="color: #a44390; font-size: 1.15rem; font-weight: 800;"></strong>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="mt-4 p-3 rounded-4 border text-center" id="modalCustStatusBg" style="border-radius: 12px;">
-    <strong class="small text-muted" style="letter-spacing: 0.5px;"><?php esc_html_e('ORDER STATUS:', 'cosy-appointments'); ?></strong>
-    <span id="modalCustStatusText" class="fw-bold ms-2" style="font-size: 0.95rem;"></span>
+	<strong class="small text-muted" style="letter-spacing: 0.5px;"><?php esc_html_e('ORDER STATUS:', 'cosy-appointments'); ?></strong>
+	<span id="modalCustStatusText" class="fw-bold ms-2" style="font-size: 0.95rem;"></span>
 </div>
 <?php
 $customer_modal_body = ob_get_clean();
 
 echo cosy_render_popup(
-    'customerOrderDetailsModal',
-    __('Order Details', 'cosy-appointments'),
-    $customer_modal_body,
-    [
-        'dialog_class' => 'modal-lg',
-        'max_width'    => '',
-        'header_class' => 'cosy-modal-header-gradient p-4',
-        'footer_html'  => '<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold" data-bs-dismiss="modal">' . esc_html__('Close', 'cosy-appointments') . '</button>'
-    ]
+	'customerOrderDetailsModal',
+	__('Order Details', 'cosy-appointments'),
+	$customer_modal_body,
+	[
+		'dialog_class' => 'modal-lg',
+		'max_width'    => '',
+		'header_class' => 'cosy-modal-header-gradient p-4',
+		'footer_html'  => '<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold" data-bs-dismiss="modal">' . esc_html__('Close', 'cosy-appointments') . '</button>'
+	]
 );
 ?>

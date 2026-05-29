@@ -2033,6 +2033,7 @@ body .swal2-icon {
 
 .order-customer-name {
     color: #334155;
+    text-transform: capitalize;
 }
 
 .order-service-badge {

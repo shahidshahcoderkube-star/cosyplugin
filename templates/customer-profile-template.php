@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 $current_user = wp_get_current_user();
 if (!$current_user->exists()) {
     // If not logged in, redirect to login page or show login link
-    ?>
+?>
     <div class="container my-5 text-center" style="font-family: 'Plus Jakarta Sans', sans-serif;">
         <div class="card border-0 shadow-sm p-5 mx-auto" style="max-width: 500px; border-radius: 20px;">
             <div class="mb-4">
@@ -19,7 +19,7 @@ if (!$current_user->exists()) {
             </a>
         </div>
     </div>
-    <?php
+<?php
     return;
 }
 
@@ -50,7 +50,7 @@ $email = $current_user->user_email;
                         <h4 class="fw-bold mb-4" style="color: #1e293b; font-size: 1.2rem; font-family: 'Outfit', sans-serif;">
                             <i class="fas fa-id-card me-2 text-primary" style="color: #a44390 !important;"></i> <?php esc_html_e('Personal Information', 'cosy-appointments'); ?>
                         </h4>
-                        
+
                         <form id="cosyCustomerProfileForm" method="post">
                             <?php wp_nonce_field('cosy_customer_profile_nonce', 'cosy_profile_nonce_field'); ?>
                             <div class="profile-msg mb-3"></div>
@@ -88,8 +88,6 @@ $email = $current_user->user_email;
                             <?php wp_nonce_field('cosy_customer_password_nonce', 'cosy_password_nonce_field'); ?>
                             <div class="password-msg mb-3"></div>
 
-
-
                             <div class="mb-3">
                                 <label class="form-label text-muted fw-semibold" style="font-size: 0.85rem;"><?php esc_html_e('New Password', 'cosy-appointments'); ?></label>
                                 <input type="password" name="new_password" class="form-control px-3 py-2" required style="border-radius: 10px; border: 1.5px solid #e2e8f0; font-size: 0.95rem;">
@@ -112,95 +110,95 @@ $email = $current_user->user_email;
 </div>
 
 <script>
-jQuery(document).ready(function($) {
-    // Helper to generate dynamic alert alerts matching the theme
-    function cosyAlert(type, message) {
-        var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-        var bg = type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-        var color = type === 'success' ? '#22c55e' : '#ef4444';
-        
-        return '<div class="alert d-flex align-items-center border-0 p-3 mb-3" style="background: ' + bg + '; border-radius: 12px; color: ' + color + '; font-weight: 500; font-size: 0.9rem;" role="alert">' +
-            '<i class="fas ' + icon + ' me-2" style="font-size: 1.1rem;"></i>' +
-            '<div>' + message + '</div>' +
-            '</div>';
-    }
+    jQuery(document).ready(function($) {
+        // Helper to generate dynamic alert alerts matching the theme
+        function cosyAlert(type, message) {
+            var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            var bg = type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            var color = type === 'success' ? '#22c55e' : '#ef4444';
 
-    // Handle Profile Form Submission
-    $('#cosyCustomerProfileForm').on('submit', function(e) {
-        e.preventDefault();
-        var $form = $(this);
-        var $btn = $form.find("button[type='submit']");
-        var $msg = $form.find(".profile-msg");
+            return '<div class="alert d-flex align-items-center border-0 p-3 mb-3" style="background: ' + bg + '; border-radius: 12px; color: ' + color + '; font-weight: 500; font-size: 0.9rem;" role="alert">' +
+                '<i class="fas ' + icon + ' me-2" style="font-size: 1.1rem;"></i>' +
+                '<div>' + message + '</div>' +
+                '</div>';
+        }
 
-        var formData = {
-            action: 'cosy_customer_profile_update',
-            cosy_profile_nonce: $('#cosy_profile_nonce_field').val(),
-            first_name: $form.find("input[name='first_name']").val(),
-            last_name: $form.find("input[name='last_name']").val(),
-            email: $form.find("input[name='email']").val()
-        };
+        // Handle Profile Form Submission
+        $('#cosyCustomerProfileForm').on('submit', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $btn = $form.find("button[type='submit']");
+            var $msg = $form.find(".profile-msg");
 
-        $.ajax({
-            url: cosy_ajax.ajax_url,
-            type: 'POST',
-            data: formData,
-            beforeSend: function() {
-                $btn.prop('disabled', true).text('Saving...');
-                $msg.html('');
-            },
-            success: function(response) {
-                if (response.success) {
-                    $msg.html(cosyAlert('success', response.data));
-                } else {
-                    $msg.html(cosyAlert('danger', response.data));
+            var formData = {
+                action: 'cosy_customer_profile_update',
+                cosy_profile_nonce: $('#cosy_profile_nonce_field').val(),
+                first_name: $form.find("input[name='first_name']").val(),
+                last_name: $form.find("input[name='last_name']").val(),
+                email: $form.find("input[name='email']").val()
+            };
+
+            $.ajax({
+                url: cosy_ajax.ajax_url,
+                type: 'POST',
+                data: formData,
+                beforeSend: function() {
+                    $btn.prop('disabled', true).text('Saving...');
+                    $msg.html('');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $msg.html(cosyAlert('success', response.data));
+                    } else {
+                        $msg.html(cosyAlert('danger', response.data));
+                    }
+                },
+                error: function() {
+                    $msg.html(cosyAlert('danger', 'An unexpected error occurred. Please try again.'));
+                },
+                complete: function() {
+                    $btn.prop('disabled', false).text('Save Changes');
                 }
-            },
-            error: function() {
-                $msg.html(cosyAlert('danger', 'An unexpected error occurred. Please try again.'));
-            },
-            complete: function() {
-                $btn.prop('disabled', false).text('Save Changes');
-            }
+            });
+        });
+
+        // Handle Password Form Submission
+        $('#cosyCustomerPasswordForm').on('submit', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $btn = $form.find("button[type='submit']");
+            var $msg = $form.find(".password-msg");
+
+            var formData = {
+                action: 'cosy_customer_password_update',
+                cosy_password_nonce: $('#cosy_password_nonce_field').val(),
+                new_password: $form.find("input[name='new_password']").val(),
+                confirm_password: $form.find("input[name='confirm_password']").val()
+            };
+
+            $.ajax({
+                url: cosy_ajax.ajax_url,
+                type: 'POST',
+                data: formData,
+                beforeSend: function() {
+                    $btn.prop('disabled', true).text('Updating...');
+                    $msg.html('');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $msg.html(cosyAlert('success', response.data));
+                        $form[0].reset();
+                    } else {
+                        $msg.html(cosyAlert('danger', response.data));
+                    }
+                },
+                error: function() {
+                    $msg.html(cosyAlert('danger', 'An unexpected error occurred. Please try again.'));
+                },
+                complete: function() {
+                    $btn.prop('disabled', false).text('Update Password');
+                }
+            });
         });
     });
-
-    // Handle Password Form Submission
-    $('#cosyCustomerPasswordForm').on('submit', function(e) {
-        e.preventDefault();
-        var $form = $(this);
-        var $btn = $form.find("button[type='submit']");
-        var $msg = $form.find(".password-msg");
-
-        var formData = {
-            action: 'cosy_customer_password_update',
-            cosy_password_nonce: $('#cosy_password_nonce_field').val(),
-            new_password: $form.find("input[name='new_password']").val(),
-            confirm_password: $form.find("input[name='confirm_password']").val()
-        };
-
-        $.ajax({
-            url: cosy_ajax.ajax_url,
-            type: 'POST',
-            data: formData,
-            beforeSend: function() {
-                $btn.prop('disabled', true).text('Updating...');
-                $msg.html('');
-            },
-            success: function(response) {
-                if (response.success) {
-                    $msg.html(cosyAlert('success', response.data));
-                    $form[0].reset();
-                } else {
-                    $msg.html(cosyAlert('danger', response.data));
-                }
-            },
-            error: function() {
-                $msg.html(cosyAlert('danger', 'An unexpected error occurred. Please try again.'));
-            },
-            complete: function() {
-                $btn.prop('disabled', false).text('Update Password');
-            }
-        });
-    });
-});
 </script>

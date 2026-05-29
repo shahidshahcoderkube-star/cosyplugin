@@ -176,23 +176,65 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
 <?php
 ob_start();
 ?>
-<div class="row g-4">
-    <div class="col-md-6">
-        <div class="p-3 rounded-4 modal-info-box-primary">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-user modal-icon-primary"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
-            <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalCustomerName"></p>
-            <p class="mb-0 text-muted small" id="modalCustomerEmail"></p>
+<div class="row g-3">
+    <!-- Customer Info -->
+    <div class="col-md-12">
+        <div class="p-3 rounded-4 modal-info-box-primary" style="background-color: var(--cosy-brand-lightest); border: 1px solid var(--cosy-brand-light);">
+            <h6 class="fw-bold mb-2 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-user modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-dark" style="font-size: 1.05rem;" id="modalCustomerName"></span>
+                <span class="text-muted small" id="modalCustomerEmail"></span>
+            </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="p-3 rounded-4 bg-light modal-info-box-secondary">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title"><i class="fas fa-concierge-bell modal-icon-primary"></i> <?php esc_html_e('Service Details', 'cosy-appointments'); ?></h6>
-            <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalServiceName"></p>
-            <p class="mb-1 text-muted small modal-small-info" id="modalScheduleInfo"></p>
-            <p class="mb-1 text-muted small modal-small-info" id="modalWeeksInfo"></p>
-            <p class="mb-1 text-muted small modal-small-info" id="modalWeekDaysInfo"></p>
-            <p class="mb-1 text-muted small modal-small-info" id="modalSlotsTimelineInfo"></p>
-            <p class="mb-0 fw-bold modal-cost-info" id="modalCostInfo"></p>
+
+    <!-- Service Details -->
+    <div class="col-md-12">
+        <div class="p-3 rounded-4 bg-light modal-info-box-secondary" style="border: 1px solid var(--cosy-border);">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-concierge-bell modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Service Details', 'cosy-appointments'); ?></h6>
+            <p class="mb-3 fw-bold text-slate" style="font-size: 1.1rem; color: var(--cosy-brand-dark);" id="modalServiceName"></p>
+
+            <div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Schedule:</span>
+                    <span id="modalScheduleInfo" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Duration:</span>
+                    <span id="modalDurationInfo" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Weeks:</span>
+                    <span id="modalWeeksInfo" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Week Days:</span>
+                    <span id="modalWeekDaysInfo" class="text-dark fw-semibold"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Selected slots:</span>
+                    <span id="modalSlotsTimelineInfo" class="text-dark fw-semibold" style="word-break: break-word;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Statement -->
+    <div class="col-md-12">
+        <div class="p-3 rounded-4 border bg-white" style="border-color: var(--cosy-brand-light) !important;">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-receipt modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Payment Summary', 'cosy-appointments'); ?></h6>
+            <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
+                <span>Provider Share:</span>
+                <strong id="modalProviderShare" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
+                <span>Service Fee:</span>
+                <strong id="modalServiceFee" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
+            </div>
+            <div class="d-flex justify-content-between border-top pt-2 mt-2" style="font-size: 0.95rem;">
+                <span class="fw-bold text-dark">Total Paid:</span>
+                <strong id="modalTotalPaid" style="color: var(--cosy-brand-purple); font-size: 1.15rem; font-weight: 800;"></strong>
+            </div>
         </div>
     </div>
 </div>
