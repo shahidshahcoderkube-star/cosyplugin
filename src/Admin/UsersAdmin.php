@@ -97,7 +97,7 @@ class UsersAdmin
 
                     <button type="button" class="cosy-btn-delete-selected-modern" id="cosy-btn-delete-selected" disabled>
                         <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></span>
-                        <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete Selected', 'cosy-appointments'); ?></span>
+                        <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete', 'cosy-appointments'); ?></span>
                     </button>
                 </div>
 
@@ -724,7 +724,7 @@ class UsersAdmin
                         security: <?php echo wp_json_encode($delete_nonce); ?>,
                         user_ids: selectedIds
                     }, function(response) {
-                        btn.find('.cosy-btn-text').text(<?php echo wp_json_encode(__('Delete Selected', 'cosy-appointments')); ?>);
+                        btn.find('.cosy-btn-text').text(<?php echo wp_json_encode(__('Delete', 'cosy-appointments')); ?>);
                         if (response.success) {
                             alert(response.data);
                             // Remove deleted rows from DOM

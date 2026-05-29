@@ -46,6 +46,7 @@ if ($current_user->exists()) {
 						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Total Price', 'cosy-appointments'); ?></th>
 						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Date Booked', 'cosy-appointments'); ?></th>
 						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
+						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -58,6 +59,13 @@ if ($current_user->exists()) {
 							$total_price = get_post_meta($appt->ID, 'cosy_total_payable', true);
 							$start_date = get_post_meta($appt->ID, 'cosy_start_date', true);
 							$status = get_post_meta($appt->ID, 'cosy_booking_status', true);
+							$end_date = get_post_meta($appt->ID, 'cosy_end_date', true);
+							$weeks = get_post_meta($appt->ID, 'cosy_number_of_weeks', true);
+							$slots = get_post_meta($appt->ID, 'cosy_number_of_bookings', true);
+							$cost = get_post_meta($appt->ID, 'cosy_service_cost', true);
+							$fee = get_post_meta($appt->ID, 'cosy_service_fee', true);
+							$week_days = get_post_meta($appt->ID, 'cosy_week_days', true);
+							$slots_timeline = get_post_meta($appt->ID, 'cosy_slots_timeline', true);
 						?>
 							<tr style="border-bottom: 1px solid #edf2f7; transition: all 0.2s;">
 								<td class="ps-4 py-3 fw-bold text-dark" style="font-size: 0.9rem;">#<?php echo esc_html($appt->ID); ?></td>
@@ -87,11 +95,34 @@ if ($current_user->exists()) {
 										</span>
 									<?php endif; ?>
 								</td>
+								<td class="py-3">
+									<button class="btn btn-sm btn-light btn-view-customer-order-details border"
+										data-id="<?php echo esc_attr($appt->ID); ?>"
+										data-service="<?php echo esc_attr($service); ?>"
+										data-provider="<?php echo esc_attr($provider); ?>"
+										data-weekly="<?php echo esc_attr($weekly_booking); ?>"
+										data-total="<?php echo esc_attr($total_price); ?>"
+										data-cost="<?php echo esc_attr($cost); ?>"
+										data-fee="<?php echo esc_attr($fee); ?>"
+										data-start="<?php echo esc_attr($start_date); ?>"
+										data-end="<?php echo esc_attr($end_date); ?>"
+										data-weeks="<?php echo esc_attr($weeks); ?>"
+										data-slots="<?php echo esc_attr($slots); ?>"
+										data-week-days="<?php echo esc_attr($week_days); ?>"
+										data-slots-timeline="<?php echo esc_attr($slots_timeline); ?>"
+										data-status="<?php echo esc_attr($status); ?>"
+										data-bs-toggle="modal"
+										data-bs-target="#customerOrderDetailsModal"
+										title="View Details"
+										style="padding: 4px 8px; border-radius: 6px;">
+										<i class="fas fa-eye"></i>
+									</button>
+								</td>
 							</tr>
 						<?php endforeach; ?>
 					<?php else: ?>
 						<tr>
-							<td colspan="8" class="text-center py-5 text-muted" style="font-size: 0.95rem;">
+							<td colspan="9" class="text-center py-5 text-muted" style="font-size: 0.95rem;">
 								<i class="fas fa-calendar-times mb-3 d-block" style="font-size: 2rem; color: #cbd5e1;"></i>
 								<?php esc_html_e('No bookings or orders found.', 'cosy-appointments'); ?>
 							</td>
@@ -102,3 +133,63 @@ if ($current_user->exists()) {
 		</div>
 	</div>
 </div>
+
+<?php
+ob_start();
+?>
+<div class="row g-4" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+    <div class="col-md-6">
+        <div class="p-3 rounded-4" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2"><i class="fas fa-user" style="color: #a44390;"></i> <?php esc_html_e('Booking Details', 'cosy-appointments'); ?></h6>
+            <p class="mb-1 text-muted small"><strong>Provider:</strong> <span id="modalCustProviderName" class="text-dark fw-semibold"></span></p>
+            <p class="mb-1 text-muted small"><strong>Start Date:</strong> <span id="modalCustStartDate" class="text-dark fw-semibold"></span></p>
+            <p class="mb-1 text-muted small"><strong>End Date:</strong> <span id="modalCustEndDate" class="text-dark fw-semibold"></span></p>
+            <p class="mb-1 text-muted small"><strong>Weekly Booking:</strong> <span id="modalCustWeeklyBooking" class="text-dark fw-semibold"></span></p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="p-3 rounded-4" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2"><i class="fas fa-clock" style="color: #a44390;"></i> <?php esc_html_e('Schedule & Slots', 'cosy-appointments'); ?></h6>
+            <p class="mb-1 text-muted small"><strong>Number of Weeks:</strong> <span id="modalCustWeeks" class="text-dark fw-semibold"></span></p>
+            <p class="mb-1 text-muted small"><strong>Week Days:</strong> <span id="modalCustWeekDays" class="text-dark fw-semibold"></span></p>
+            <p class="mb-1 text-muted small"><strong>Number of Booking Slots:</strong> <span id="modalCustSlots" class="text-dark fw-semibold"></span></p>
+            <p class="mb-1 text-muted small"><strong>Selected Slots:</strong> <span id="modalCustSlotsTimeline" class="text-dark fw-semibold"></span></p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 p-3 rounded-4 border" style="background-color: #ffffff; border-color: #e2e8f0;">
+    <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2"><i class="fas fa-receipt" style="color: #a44390;"></i> <?php esc_html_e('Financial Summary', 'cosy-appointments'); ?></h6>
+    <div class="d-flex justify-content-between mb-2 small text-muted">
+        <span>Service Cost:</span>
+        <strong id="modalCustCost" class="text-dark"></strong>
+    </div>
+    <div class="d-flex justify-content-between mb-2 small text-muted">
+        <span>Service Fee:</span>
+        <strong id="modalCustFee" class="text-dark"></strong>
+    </div>
+    <div class="d-flex justify-content-between border-top pt-2 mt-2">
+        <span class="fw-bold text-dark">Total Paid:</span>
+        <strong id="modalCustTotal" style="color: #a44390; font-size: 1.1rem;"></strong>
+    </div>
+</div>
+
+<div class="mt-4 p-3 rounded-4 border text-center" id="modalCustStatusBg" style="border-radius: 12px;">
+    <strong class="small text-muted" style="letter-spacing: 0.5px;"><?php esc_html_e('ORDER STATUS:', 'cosy-appointments'); ?></strong>
+    <span id="modalCustStatusText" class="fw-bold ms-2" style="font-size: 0.95rem;"></span>
+</div>
+<?php
+$customer_modal_body = ob_get_clean();
+
+echo cosy_render_popup(
+    'customerOrderDetailsModal',
+    __('Order Details', 'cosy-appointments'),
+    $customer_modal_body,
+    [
+        'dialog_class' => 'modal-lg',
+        'max_width'    => '',
+        'header_class' => 'cosy-modal-header-gradient p-4',
+        'footer_html'  => '<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold" data-bs-dismiss="modal">' . esc_html__('Close', 'cosy-appointments') . '</button>'
+    ]
+);
+?>

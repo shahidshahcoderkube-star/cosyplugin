@@ -460,8 +460,11 @@ jQuery(document).ready(function ($) {
             var weeks = $(this).data('weeks');
             var slots = $(this).data('slots');
             var cost = $(this).data('cost');
+            var fee = $(this).data('fee') || '0.00';
             var total = $(this).data('total');
             var status = $(this).attr('data-status');
+            var weekDays = $(this).data('week-days') || '';
+            var slotsTimeline = $(this).data('slots-timeline') || '';
 
             $('#modalOrderTitle').text('Order Details - #' + id);
             $('#modalCustomerName').text(customer);
@@ -469,7 +472,9 @@ jQuery(document).ready(function ($) {
             $('#modalServiceName').text(service);
             $('#modalScheduleInfo').html('<strong>Schedule:</strong> ' + weekly + '<br><strong>Duration:</strong> ' + start + ' to ' + end);
             $('#modalWeeksInfo').html('<strong>Weeks:</strong> ' + weeks + ' week(s) (' + slots + ' slots)');
-            $('#modalCostInfo').text('£' + cost + ' (Total Paid: £' + total + ')');
+            $('#modalWeekDaysInfo').html('<strong>Week Days:</strong> ' + weekDays);
+            $('#modalSlotsTimelineInfo').html('<strong>Selected slots:</strong> ' + slotsTimeline);
+            $('#modalCostInfo').html('<strong>Provider Share:</strong> £' + cost + '<br><strong>Service Fee:</strong> £' + fee + '<br><strong>Total Paid:</strong> £' + total);
 
             var badge = '';
             if (status === 'completed') {

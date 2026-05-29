@@ -330,4 +330,117 @@
     background: #e2e8f0;
     color: #0f172a;
 }
+
+/* Media Approvals Styling */
+.cosy-media-table video {
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    outline: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.cosy-btn-approve {
+    background: #10b981;
+    border: 1.5px solid #10b981;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+    line-height: 1.5;
+}
+.cosy-btn-approve:hover {
+    background: #059669;
+    border-color: #059669;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+.cosy-btn-reject {
+    background: #ffffff;
+    border: 1.5px solid #ef4444;
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+    line-height: 1.5;
+}
+.cosy-btn-reject:hover {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+/* Cozy Badge Styles */
+.cosy-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+    border: 1px solid transparent;
+}
+.cosy-badge-approved {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+.cosy-badge-rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+.cosy-badge-pending {
+    background-color: #fef9c3;
+    color: #854d0e;
+    border: 1px solid #fef08a;
+}
+.cosy-badge-deleted {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+/* Custom Premium Alert Toast */
+.cosy-admin-alert {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    animation: cosyAlertFadeIn 0.3s ease;
+    border: 1px solid transparent;
+}
+.cosy-admin-alert-success {
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border-color: #bbf7d0;
+}
+.cosy-admin-alert-danger {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+.cosy-admin-alert-icon {
+    font-size: 18px;
+    margin-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+@keyframes cosyAlertFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
     

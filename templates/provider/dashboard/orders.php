@@ -78,8 +78,11 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                             $number_of_weeks = get_post_meta($appt_id, 'cosy_number_of_weeks', true);
                             $number_of_slots = get_post_meta($appt_id, 'cosy_number_of_bookings', true);
                             $service_cost    = get_post_meta($appt_id, 'cosy_service_cost', true);
+                            $service_fee     = get_post_meta($appt_id, 'cosy_service_fee', true);
                             $total_payable   = get_post_meta($appt_id, 'cosy_total_payable', true);
                             $booking_status  = get_post_meta($appt_id, 'cosy_booking_status', true);
+                            $week_days       = get_post_meta($appt_id, 'cosy_week_days', true);
+                            $slots_timeline  = get_post_meta($appt_id, 'cosy_slots_timeline', true);
                             if (empty($booking_status)) {
                                 $booking_status = 'pending';
                             }
@@ -149,8 +152,11 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                             data-weeks="<?php echo esc_attr($number_of_weeks); ?>"
                                             data-slots="<?php echo esc_attr($number_of_slots); ?>"
                                             data-cost="<?php echo esc_attr($service_cost); ?>"
+                                            data-fee="<?php echo esc_attr($service_fee); ?>"
                                             data-total="<?php echo esc_attr($total_payable); ?>"
                                             data-status="<?php echo esc_attr($booking_status); ?>"
+                                            data-week-days="<?php echo esc_attr($week_days); ?>"
+                                            data-slots-timeline="<?php echo esc_attr($slots_timeline); ?>"
                                             data-bs-toggle="modal"
                                             data-bs-target="#orderDetailsModal"
                                             title="View Details">
@@ -184,6 +190,8 @@ ob_start();
             <p class="mb-1 fw-bold text-slate modal-customer-name" id="modalServiceName"></p>
             <p class="mb-1 text-muted small modal-small-info" id="modalScheduleInfo"></p>
             <p class="mb-1 text-muted small modal-small-info" id="modalWeeksInfo"></p>
+            <p class="mb-1 text-muted small modal-small-info" id="modalWeekDaysInfo"></p>
+            <p class="mb-1 text-muted small modal-small-info" id="modalSlotsTimelineInfo"></p>
             <p class="mb-0 fw-bold modal-cost-info" id="modalCostInfo"></p>
         </div>
     </div>

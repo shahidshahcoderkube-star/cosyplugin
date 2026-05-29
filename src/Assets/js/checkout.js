@@ -3,11 +3,11 @@
  * Handles dynamic rendering and payment processing for the checkout page.
  * Uses the Modular Pattern and Event Delegation for safe execution.
  */
-jQuery(document).ready(function($) {
+jQuery(document).ready(function ($) {
     'use strict';
 
     const container = document.getElementById('cosyCheckoutContainer');
-    
+
     // Abort if we are not on the checkout page (container doesn't exist)
     if (!container) return;
 
@@ -15,7 +15,7 @@ jQuery(document).ready(function($) {
     document.querySelectorAll('h1, h2, .entry-title, .page-title').forEach(el => {
         if (el.textContent.trim().toLowerCase() === 'checkout' && !el.classList.contains('cosy-checkout-title')) {
             el.style.display = 'none';
-            
+
             // Hide parent entry-header or page-header containers to completely eliminate spacing
             const parentHeader = el.closest('.entry-header, .page-header, header');
             if (parentHeader) {
@@ -43,6 +43,7 @@ jQuery(document).ready(function($) {
     }
 
     const booking = JSON.parse(pendingBookingData);
+    console.log('cosyCheckout', cosyCheckout);
 
     // Fetch logged-in user info safely from the wp_localize_script object (cosyCheckout)
     const customerName = cosyCheckout.customerName || 'Valued Customer';
@@ -96,9 +97,19 @@ jQuery(document).ready(function($) {
                         <td class="value-col">${booking.numberOfWeeks}</td>
                     </tr>
                     <tr>
+                        <td class="label-col">Week days</td>
+                        <td class="separator-col">:</td>
+                        <td class="value-col">${booking.weekDays || ''}</td>
+                    </tr>
+                    <tr>
                         <td class="label-col">Number of Booking slots</td>
                         <td class="separator-col">:</td>
                         <td class="value-col">${booking.numberOfBookings}</td>
+                    </tr>
+                    <tr>
+                        <td class="label-col">Selected slots</td>
+                        <td class="separator-col">:</td>
+                        <td class="value-col">${booking.slotsTimeline || ''}</td>
                     </tr>
                 </table>
             </div>
@@ -192,14 +203,14 @@ jQuery(document).ready(function($) {
     `;
 
     // 3. Bind Events using robust jQuery Event Delegation (replaces onclick="")
-    $(document).on('click', '#cosyCheckoutBackBtn', function(e) {
+    $(document).on('click', '#cosyCheckoutBackBtn', function (e) {
         e.preventDefault();
         window.history.back();
     });
 
-    $(document).on('click', '#cosyPayNowBtn', function(e) {
+    $(document).on('click', '#cosyPayNowBtn', function (e) {
         e.preventDefault();
-        
+
         const btn = $(this);
         const bookingDataRaw = localStorage.getItem('cosy_pending_booking');
 
@@ -236,9 +247,11 @@ jQuery(document).ready(function($) {
                 serviceCost: currentBooking.serviceCost,
                 serviceFee: currentBooking.serviceFee,
                 totalPayable: currentBooking.totalPayable,
-                slots: slotsJson
+                slots: slotsJson,
+                weekDays: currentBooking.weekDays,
+                slotsTimeline: currentBooking.slotsTimeline
             },
-            success: function(response) {
+            success: function (response) {
                 if (response.success && response.data.url) {
                     // Redirect to the Stripe hosted secure checkout URL
                     window.location.href = response.data.url;
@@ -247,7 +260,7 @@ jQuery(document).ready(function($) {
                     CosyAlert.error('Stripe Error', response.data.message || 'Unable to create payment session.');
                 }
             },
-            error: function() {
+            error: function () {
                 btn.prop('disabled', false).html('Pay Now');
                 CosyAlert.error('System Error', 'An error occurred during communication with the server. Please try again.');
             }

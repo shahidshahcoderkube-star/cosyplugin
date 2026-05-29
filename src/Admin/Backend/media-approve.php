@@ -1,19 +1,22 @@
-<div class="container-fluid mt-4">
-    <h4 class="mb-3">📂 Pending Media Approvals</h4>
+<div class="wrap cosy-orders cosy-users-admin cosy-media-approve-page">
+    <h1 class="wp-heading-inline"><?php esc_html_e('Media Approvals', 'cosy-appointments'); ?></h1>
+    <hr class="wp-header-end">
+    
     <?php wp_nonce_field('cosy_media_nonce', 'cosy_media_nonce_field'); ?>
-    <div class="admin-succes"></div>
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover align-middle">
-            <thead class="table-light">
+    <div class="admin-succes" style="margin-top: 15px;"></div>
+    
+    <div class="table-responsive" style="margin-top: 15px;">
+        <table class="wp-list-table widefat fixed striped table-view-list cosy-orders-table cosy-media-table">
+            <thead>
                 <tr>
-                    <th>No.</th>
-                    <th>Media</th>
-                    <th>Provider</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Uploaded On</th>
-                    <th>Status</th>
-                    <th class="text-center">Action</th>
+                    <th scope="col" style="width: 50px;">No.</th>
+                    <th scope="col" style="width: 240px;">Media</th>
+                    <th scope="col">Provider</th>
+                    <th scope="col">Email</th>
+                    <th scope="col" style="width: 150px;">Phone</th>
+                    <th scope="col" style="width: 180px;">Uploaded On</th>
+                    <th scope="col" style="width: 120px;">Status</th>
+                    <th scope="col" class="text-center" style="width: 180px;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,7 +30,7 @@
                 );
 
                 if (empty($results)) {
-                    echo '<tr><td colspan="8" class="text-center py-4 text-muted">No media approvals found.</td></tr>';
+                    echo '<tr><td colspan="8" class="text-center py-4 text-muted" style="text-align: center; padding: 40px; color: #64748b;">No media approvals found.</td></tr>';
                 }
 
                 $counter = 1;
@@ -38,11 +41,11 @@
                     ?>
                     <tr data-id="<?php echo esc_attr($user_id); ?>">
                         <!-- No. -->
-                        <td><?php echo esc_html($counter++); ?></td>
+                        <td><strong><?php echo esc_html($counter++); ?></strong></td>
                         <!-- Media -->
-                        <td style="max-width:220px;">
+                        <td>
                             <?php if ($status !== 'rejected' && $status !== 'deleted' && !empty($media->media_url)) { ?>
-                                <video controls class="w-100" style="max-height:140px;">
+                                <video controls class="w-100" style="max-height:130px; display: block; border-radius: 8px;">
                                     <source src="<?php echo esc_url($media->media_url); ?>" type="video/mp4">
                                 </video>
                             <?php } else { ?>
@@ -52,7 +55,7 @@
 
                         <!-- Provider Name -->
                         <td>
-                            <?php echo esc_html(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? '')); ?>
+                            <strong><?php echo esc_html(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? '')); ?></strong>
                         </td>
 
                         <!-- Email -->
@@ -62,7 +65,7 @@
                         <td><?php echo esc_html($data['prov_phone'] ?? ''); ?></td>
 
                         <!-- Uploaded On -->
-                        <td>
+                        <td style="color:#475569; font-size:12px;">
                             <?php echo !empty($media->uploaded_at)
                                 ? esc_html($media->uploaded_at)
                                 : '<span class="text-muted">N/A</span>'; ?>
@@ -72,36 +75,38 @@
                         <td>
                             <?php
                             if ($status === 'approved') {
-                                echo '<span class="badge bg-success status-badge">Approved</span>';
+                                echo '<span class="cosy-badge cosy-badge-approved">Approved</span>';
                             } elseif ($status === 'rejected') {
-                                echo '<span class="badge bg-danger status-badge">Rejected</span>';
+                                echo '<span class="cosy-badge cosy-badge-rejected">Rejected</span>';
                             } elseif ($status === 'deleted') {
-                                echo '<span class="badge bg-secondary status-badge">Deleted</span>';
+                                echo '<span class="cosy-badge cosy-badge-deleted">Deleted</span>';
                             } else {
-                                echo '<span class="badge bg-warning text-dark status-badge">Pending</span>';
+                                echo '<span class="cosy-badge cosy-badge-pending">Pending</span>';
                             }
                             ?>
                         </td>
 
                         <!-- Actions -->
                         <td class="text-center">
-                            <?php if ($status === 'pending') { ?>
-                                <button class="btn btn-success btn-sm approve-media"
-                                    data-id="<?php echo esc_attr($user_id); ?>">
-                                    Approve
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm reject-media"
-                                    data-id="<?php echo esc_attr($user_id); ?>">
-                                    Reject
-                                </button>
-                            <?php } elseif ($status === 'approved') { ?>
-                                <button class="btn btn-outline-danger btn-sm reject-media"
-                                    data-id="<?php echo esc_attr($user_id); ?>">
-                                    Reject
-                                </button>
-                            <?php } else { ?>
-                                <span class="text-muted">No Action</span>
-                            <?php } ?>
+                            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                <?php if ($status === 'pending') { ?>
+                                    <button class="cosy-btn-approve approve-media"
+                                        data-id="<?php echo esc_attr($user_id); ?>">
+                                        Approve
+                                    </button>
+                                    <button class="cosy-btn-reject reject-media"
+                                        data-id="<?php echo esc_attr($user_id); ?>">
+                                        Reject
+                                    </button>
+                                <?php } elseif ($status === 'approved') { ?>
+                                    <button class="cosy-btn-reject reject-media"
+                                        data-id="<?php echo esc_attr($user_id); ?>">
+                                        Reject
+                                    </button>
+                                <?php } else { ?>
+                                    <span class="text-muted">No Action</span>
+                                <?php } ?>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>

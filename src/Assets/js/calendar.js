@@ -587,6 +587,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const providerName = window.providerName;
             const providerId = window.providerId;
 
+            // Generate Available Week days from provider availability
+            const dayNamesList = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const availableDays = [];
+            dayNamesList.forEach(day => {
+                const avail = window.providerAvailability ? window.providerAvailability[day] : null;
+                if (avail && avail.start_time && avail.end_time) {
+                    availableDays.push(day);
+                }
+            });
+            const weekDaysStr = availableDays.join(', ');
+
+            // Generate slots timeline string (e.g. "09:00 AM, 09:10 AM...")
+            const slotTimes = bookingSlotsList.map(slot => {
+                const [hStr, mStr] = slot.time.split(':');
+                let h = parseInt(hStr);
+                const ap = h >= 12 ? 'PM' : 'AM';
+                h = h % 12;
+                h = h ? h : 12;
+                const hFormatted = String(h).padStart(2, '0');
+                return `${hFormatted}:${mStr} ${ap}`;
+            });
+            // Get unique slot times
+            const uniqueSlotTimes = [...new Set(slotTimes)];
+            const slotsTimelineStr = uniqueSlotTimes.join(', ');
+
             // Save details to localStorage
             const pendingBooking = {
                 service: selectedService.title,
@@ -601,7 +626,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 serviceCost: serviceCost.toFixed(2),
                 serviceFee: serviceFee.toFixed(2),
                 totalPayable: totalPayable.toFixed(2),
-                slots: bookingSlotsList
+                slots: bookingSlotsList,
+                weekDays: weekDaysStr,
+                slotsTimeline: slotsTimelineStr
             };
 
             localStorage.setItem('cosy_pending_booking', JSON.stringify(pendingBooking));

@@ -97,5 +97,55 @@ jQuery(document).ready(function ($) {
             icon.removeClass('fa-eye-slash').addClass('fa-eye');
         }
     });
+
+    // ---------------- Customer Order Details Modal ----------------
+    $(document).on('click', '.btn-view-customer-order-details', function (e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        var service = $(this).data('service');
+        var provider = $(this).data('provider');
+        var weekly = $(this).data('weekly');
+        var total = $(this).data('total');
+        var cost = $(this).data('cost');
+        var fee = $(this).data('fee');
+        var start = $(this).data('start');
+        var end = $(this).data('end');
+        var weeks = $(this).data('weeks');
+        var slots = $(this).data('slots');
+        var weekDays = $(this).data('week-days') || '';
+        var slotsTimeline = $(this).data('slots-timeline') || '';
+        var status = $(this).attr('data-status');
+
+        $('#customerOrderDetailsModalLabel').text('Order Details - #' + id);
+        $('#modalCustProviderName').text(provider);
+        $('#modalCustStartDate').text(start);
+        $('#modalCustEndDate').text(end);
+        $('#modalCustWeeklyBooking').text(weekly);
+        $('#modalCustWeeks').text(weeks + ' week(s)');
+        $('#modalCustWeekDays').text(weekDays);
+        $('#modalCustSlots').text(slots + ' slot(s)');
+        $('#modalCustSlotsTimeline').text(slotsTimeline);
+        $('#modalCustCost').text('£' + cost);
+        $('#modalCustFee').text('£' + fee);
+        $('#modalCustTotal').text('£' + total);
+
+        var statusBg = '';
+        var statusText = '';
+        if (status === 'completed') {
+            statusBg = 'rgba(34, 197, 94, 0.1)';
+            statusText = 'Completed';
+            $('#modalCustStatusText').css('color', '#22c55e');
+        } else if (status === 'cancelled') {
+            statusBg = 'rgba(239, 68, 68, 0.1)';
+            statusText = 'Cancelled';
+            $('#modalCustStatusText').css('color', '#ef4444');
+        } else {
+            statusBg = 'rgba(245, 158, 11, 0.1)';
+            statusText = 'Pending';
+            $('#modalCustStatusText').css('color', '#f59e0b');
+        }
+        $('#modalCustStatusBg').css('background-color', statusBg);
+        $('#modalCustStatusText').text(statusText);
+    });
 });
 

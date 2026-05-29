@@ -32,18 +32,30 @@ jQuery(document).ready(function ($) {
 
         /**
          * showAlert
-         * Renders a Bootstrap dismissible alert in the .admin-succes container.
+         * Renders a custom premium alert in the .admin-succes container.
          *
          * @param {string} message - The message to display.
-         * @param {string} type    - Bootstrap alert type: 'success' or 'danger'.
+         * @param {string} type    - Alert type: 'success' or 'danger'.
          */
         showAlert: function (message, type) {
-            $('.admin-succes').html(`
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            const alertClass = type === 'success' ? 'cosy-admin-alert-success' : 'cosy-admin-alert-danger';
+            const iconClass = type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark';
+            
+            const $alert = $(`
+                <div class="cosy-admin-alert ${alertClass}">
+                    <span class="cosy-admin-alert-icon ${iconClass}"></span>
+                    <span style="vertical-align: middle;">${message}</span>
                 </div>
             `);
+            
+            $('.admin-succes').html($alert);
+            
+            // Auto fade out after 4 seconds
+            setTimeout(function() {
+                $alert.fadeOut(400, function() {
+                    $(this).remove();
+                });
+            }, 4000);
         },
 
         /**
@@ -71,7 +83,7 @@ jQuery(document).ready(function ($) {
                 success: function (res) {
                     if (res.success) {
                         // Update status badge in the table row immediately
-                        row.find('td:nth-child(7)').html('<span class="badge bg-success status-badge">Approved</span>');
+                        row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-approved">Approved</span>');
                         row.find('.approve-media').remove();
                         CosyMediaAdmin.showAlert(res.data.message || 'Video approved successfully!', 'success');
                     } else {
@@ -110,7 +122,7 @@ jQuery(document).ready(function ($) {
                     if (res.success) {
                         // Update UI to show video has been deleted and rejected
                         row.find('td:nth-child(2)').html('<span class="text-muted">Deleted</span>');
-                        row.find('td:nth-child(7)').html('<span class="badge bg-danger status-badge">Rejected</span>');
+                        row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-rejected">Rejected</span>');
                         row.find('td:nth-child(8)').html('<span class="text-muted">No Action</span>');
                         CosyMediaAdmin.showAlert(res.data.message || 'Video rejected successfully!', 'danger');
                     } else {
@@ -235,17 +247,17 @@ jQuery(document).ready(function ($) {
                         // Reset checkboxes and delete button state
                         $('#cosy-select-all-orders, #cosy-select-all-orders-footer').prop('checked', false);
                         $btn.prop('disabled', true);
-                        $btn.find('.cosy-btn-text').text('Delete Selected');
+                        $btn.find('.cosy-btn-text').text('Delete');
                     } else {
                         alert(res.data.message || 'Error deleting orders.');
                         $btn.prop('disabled', false);
-                        $btn.find('.cosy-btn-text').text('Delete Selected');
+                        $btn.find('.cosy-btn-text').text('Delete');
                     }
                 },
                 error: function () {
                     alert('An unexpected error occurred during order deletion.');
                     $btn.prop('disabled', false);
-                    $btn.find('.cosy-btn-text').text('Delete Selected');
+                    $btn.find('.cosy-btn-text').text('Delete');
                 }
             });
         },
@@ -273,6 +285,8 @@ jQuery(document).ready(function ($) {
             const fee     = $(this).data('fee');
             const total   = $(this).data('total');
             const status  = $(this).data('status');
+            const weekDays = $(this).data('week-days');
+            const slotsTimeline = $(this).data('slots-timeline');
 
             // Populate modal text fields
             $('#modalAdminOrderTitle').text('Order Details - #' + id);
@@ -290,6 +304,8 @@ jQuery(document).ready(function ($) {
             }
 
             $('#modalAdminWeeks').text(weeks + ' week(s) (' + slots + ' slots booked)');
+            $('#modalAdminWeekDays').text(weekDays || 'N/A');
+            $('#modalAdminSlotsTimeline').text(slotsTimeline || 'N/A');
             $('#modalAdminCost').text('£' + cost);
             $('#modalAdminFee').text('£' + fee);
             $('#modalAdminTotal').text('£' + total);

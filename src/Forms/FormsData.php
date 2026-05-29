@@ -118,13 +118,32 @@ class FormsData
             return;
         }
 
+        // Generate username from cust_name
+        $username = sanitize_user($name, true);
+        if (empty($username)) {
+            $username = sanitize_user(explode('@', $email)[0], true);
+        }
+
+        // Check if username already exists
+        if (username_exists($username)) {
+            $this->send_response(false, __('This name/username is already taken. Please try a different name.', 'cosy-appointments'));
+            return;
+        }
+
         // Create user (WordPress will hash password automatically)
-        $user_id = wp_create_user($email, $pass, $email);
+        $user_id = wp_create_user($username, $pass, $email);
 
         if (is_wp_error($user_id)) {
             $this->send_response(false, __('Registration failed: ', 'cosy-appointments') . $user_id->get_error_message());
             return;
         }
+
+        // Update user display name and nickname to the full name
+        wp_update_user([
+            'ID'           => $user_id,
+            'display_name' => $name,
+            'nickname'     => $name
+        ]);
 
         // Save extra meta
         update_user_meta($user_id, 'first_name', $name);

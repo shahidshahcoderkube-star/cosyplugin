@@ -91,7 +91,7 @@ class OrdersAdmin
         <div class="cosy-control-right">
           <button type="button" class="cosy-btn-delete-selected-modern" id="cosy-btn-delete-selected" disabled>
             <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></span>
-            <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete Selected', 'cosy-appointments'); ?></span>
+            <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete', 'cosy-appointments'); ?></span>
           </button>
         </div>
       </div>
@@ -136,6 +136,8 @@ class OrdersAdmin
               $service_fee     = get_post_meta($appt_id, 'cosy_service_fee', true);
               $total_payable   = get_post_meta($appt_id, 'cosy_total_payable', true);
               $booking_status  = get_post_meta($appt_id, 'cosy_booking_status', true);
+              $week_days       = get_post_meta($appt_id, 'cosy_week_days', true);
+              $slots_timeline  = get_post_meta($appt_id, 'cosy_slots_timeline', true);
               if (empty($booking_status)) {
                 $booking_status = 'pending';
               }
@@ -164,7 +166,9 @@ class OrdersAdmin
                     data-cost="<?php echo esc_attr($service_cost); ?>"
                     data-fee="<?php echo esc_attr($service_fee); ?>"
                     data-total="<?php echo esc_attr($total_payable); ?>"
-                    data-status="<?php echo esc_attr($booking_status); ?>">
+                    data-status="<?php echo esc_attr($booking_status); ?>"
+                    data-week-days="<?php echo esc_attr($week_days); ?>"
+                    data-slots-timeline="<?php echo esc_attr($slots_timeline); ?>">
                     View Details
                   </button>
                 </td>
@@ -225,6 +229,8 @@ class OrdersAdmin
             <p><strong>Schedule:</strong> <span id="modalAdminSchedule"></span></p>
             <p><strong>Duration:</strong> <span id="modalAdminDuration"></span></p>
             <p><strong>Weeks Booked:</strong> <span id="modalAdminWeeks"></span></p>
+            <p><strong>Week Days:</strong> <span id="modalAdminWeekDays"></span></p>
+            <p><strong>Selected Slots:</strong> <span id="modalAdminSlotsTimeline"></span></p>
           </div>
 
           <div class="cosy-admin-card info-card full" style="margin-top: 12px;">
