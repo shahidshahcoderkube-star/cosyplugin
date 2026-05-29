@@ -9,242 +9,325 @@
     cursor: pointer;
 }
 
-/* Extracted from OrdersAdmin.php */
+/* Premium Admin Layout General & Orders Style Definitions */
 
-      /* Space & Padding Fixes matching WordPress standard */
-      .cosy-orders-filters {
-        display: block !important;
-        width: 100% !important;
-      }
+/* Modern Control Bar & Layouts */
+.cosy-control-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    margin-top: 15px;
+}
+.cosy-control-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.cosy-control-right {
+    display: flex;
+    align-items: center;
+}
 
-      .cosy-orders-filters .tablenav.top {
-        margin: 0 0 16px 0 !important;
-        height: auto !important;
-        padding: 0 !important;
-      }
+/* Modern Select & Filter Form elements */
+.cosy-select-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #ffffff;
+    height: 34px;
+    transition: border-color 0.2s ease;
+}
+.cosy-select-wrapper:focus-within {
+    border-color: #a44390;
+    box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1);
+}
+.cosy-select-wrapper select {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 28px 0 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    background: transparent !important;
+    height: 100% !important;
+    cursor: pointer;
+}
+.cosy-filter-btn {
+    background: #f1f5f9;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    color: #475569;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 0 16px;
+    height: 34px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0;
+}
+.cosy-filter-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
 
-      .cosy-orders-filters select {
-        margin-right: 8px !important;
-        height: 30px !important;
-        padding: 0 24px 0 8px !important;
-        border-radius: 4px !important;
-        border: 1px solid #8c8f94 !important;
-        background-color: #ffffff !important;
-        color: #2c3338 !important;
-        font-size: 13px !important;
-      }
+/* Modern Pill-Style Tabs */
+.cosy-role-tabs {
+    display: flex;
+    background-color: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+}
+.cosy-tab-pill {
+    display: inline-block;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: none;
+}
+.cosy-tab-pill:hover {
+    color: #0f172a;
+    background-color: #e2e8f0;
+}
+.cosy-tab-pill.active {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(164, 67, 144, 0.2);
+}
+.cosy-tab-pill.active:hover {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
+    color: #ffffff;
+}
 
-      /* WordPress Standard Primary Blue Button */
-      .cosy-orders-filters input[type="submit"] {
-        margin-left: 4px !important;
-        height: 30px !important;
-        line-height: 28px !important;
-        padding: 0 14px !important;
-        background: #2271b1 !important;
-        border-color: #2271b1 !important;
-        color: #ffffff !important;
-        text-shadow: none !important;
-        font-weight: 500 !important;
-        border-radius: 4px !important;
-        box-shadow: none !important;
-        cursor: pointer !important;
-        transition: background 0.1s ease-in-out, border-color 0.1s ease-in-out, color 0.1s ease-in-out !important;
-      }
+/* Premium Delete Selected Button */
+.cosy-btn-delete-selected-modern {
+    background: #ffffff;
+    border: 1.5px solid #ef4444;
+    color: #ef4444;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    height: 34px;
+    outline: none;
+}
+.cosy-btn-delete-selected-modern:hover:not(:disabled) {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+.cosy-btn-delete-selected-modern:disabled {
+    border-color: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
 
-      .cosy-orders-filters input[type="submit"]:hover {
-        background: #135e96 !important;
-        border-color: #135e96 !important;
-        color: #ffffff !important;
-      }
+/* Cozy Orders Table Styling */
+.cosy-orders-table {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01) !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #ffffff;
+    margin-top: 16px !important;
+}
+.cosy-orders-table thead th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 14px 10px !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}
+.cosy-orders-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+.cosy-orders-table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+.cosy-orders-table tbody td, .cosy-orders-table tbody th {
+    padding: 14px 10px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+.cosy-orders-table tbody tr:last-child td, .cosy-orders-table tbody tr:last-child th {
+    border-bottom: none !important;
+}
 
-      /* Dynamic Table Spacing Gap */
-      .cosy-orders-table {
-        margin-top: 16px !important;
-        border: 1px solid #c3c4c7 !important;
-        box-shadow: none !important;
-      }
+/* Cozy Orders Status badges */
+.wrap.cosy-orders span.status {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+    border: 1px solid transparent;
+}
+.wrap.cosy-orders span.status.pending {
+    background-color: #fef9c3;
+    color: #854d0e;
+    border: 1px solid #fef08a;
+}
+.wrap.cosy-orders span.status.completed,
+.wrap.cosy-orders span.status.confirmed {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+.wrap.cosy-orders span.status.cancelled {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
 
-      /* Native WordPress status indicator styles */
-      .wrap.cosy-orders span.status {
-        padding: 3px 10px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 11px;
-        display: inline-block;
-        text-align: center;
-        text-transform: capitalize;
-        border: 1px solid transparent;
-      }
-
-      .wrap.cosy-orders span.status.pending {
-        background: #fcf0e1;
-        color: #d97706;
-        border-color: #fcd34d;
-      }
-
-      .wrap.cosy-orders span.status.completed,
-      .wrap.cosy-orders span.status.confirmed {
-        background: #e6fcf5;
-        color: #0ca678;
-        border-color: #c3fae8;
-      }
-
-      .wrap.cosy-orders span.status.cancelled {
-        background: #fff5f5;
-        color: #fa5252;
-        border-color: #ffe3e3;
-      }
-
-      .cosy-orders-table td,
-      .cosy-orders-table th {
-        vertical-align: middle !important;
-      }
-
-      /* Native conforming modal UI */
-      .cosy-admin-modal {
-        display: none;
-        position: fixed;
-        z-index: 99999;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
-      }
-
-      .cosy-admin-modal-content {
-        background-color: #ffffff;
-        margin: 7% auto;
-        padding: 0;
-        border-radius: 4px;
-        width: 90%;
-        max-width: 650px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        overflow: hidden;
-        border: 1px solid #c3c4c7;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-      }
-
-      .cosy-admin-modal-header {
-        background: #1d2327;
-        color: #ffffff;
-        padding: 14px 18px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #c3c4c7;
-      }
-
-      .cosy-admin-modal-header h2 {
-        color: #ffffff !important;
-        margin: 0 !important;
-        font-size: 15px !important;
-        font-weight: 600 !important;
-      }
-
-      .cosy-admin-modal-close {
-        color: #ffffff;
-        font-size: 22px;
-        font-weight: 400;
-        cursor: pointer;
-        line-height: 1;
-        opacity: 0.8;
-      }
-
-      .cosy-admin-modal-close:hover {
-        opacity: 1;
-      }
-
-      .cosy-admin-modal-body {
-        padding: 20px;
-        color: #2c3338;
-      }
-
-      .cosy-admin-grid {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 12px;
-      }
-
-      .cosy-admin-col {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .cosy-admin-card {
-        padding: 12px 14px;
-        border-radius: 4px;
-        border: 1px solid #c3c4c7;
-        background: #f6f7f7;
-      }
-
-      .cosy-admin-card.info-card {
-        background-color: #ffffff;
-      }
-
-      .cosy-admin-card h3 {
-        margin-top: 0 !important;
-        margin-bottom: 10px !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        color: #1d2327 !important;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        border-bottom: 1px solid #dcdcde;
-        padding-bottom: 6px;
-      }
-
-      .cosy-admin-card h3 span.dashicons {
-        color: #2271b1;
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-      }
-
-      .cosy-admin-card p {
-        margin: 6px 0 !important;
-        font-size: 12px !important;
-        color: #2c3338;
-      }
-
-      .cosy-admin-table-details {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 12px;
-      }
-
-      .cosy-admin-table-details td {
-        padding: 6px 0;
-        color: #2c3338;
-      }
-
-      .cosy-admin-modal-footer {
-        padding: 12px 18px;
-        background: #f6f7f7;
-        border-top: 1px solid #c3c4c7;
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      .cosy-admin-modal-btn {
-        background: #2271b1;
-        border: 1px solid #2271b1;
-        color: white;
-        padding: 6px 14px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 500;
-        cursor: pointer;
-      }
-
-      .cosy-admin-modal-btn:hover {
-        background: #135e96;
-        border-color: #135e96;
-      }
-
-      form.cosy-orders-filters {
-        padding-bottom: 20px !important;
-      }
+/* Premium Orders Detail Modal */
+.cosy-admin-modal {
+    display: none;
+    position: fixed;
+    z-index: 99999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+.cosy-admin-modal-content {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 90%;
+    max-width: 600px;
+    animation: cosyModalFadeIn 0.3s ease;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+@keyframes cosyModalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.cosy-admin-modal-header {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
+    color: #ffffff;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.cosy-admin-modal-header h2 {
+    color: #ffffff !important;
+    margin: 0 !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+.cosy-admin-modal-close {
+    color: #ffffff;
+    font-size: 24px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+.cosy-admin-modal-close:hover {
+    opacity: 0.8;
+}
+.cosy-admin-modal-body {
+    padding: 24px;
+}
+.cosy-admin-grid {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.cosy-admin-col {
+    flex: 1;
+    min-width: 0;
+}
+.cosy-admin-card {
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+.cosy-admin-card.info-card {
+    background-color: #ffffff;
+}
+.cosy-admin-card h3 {
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 8px;
+}
+.cosy-admin-card h3 span.dashicons {
+    color: #a44390;
+}
+.cosy-admin-card p {
+    margin: 8px 0 !important;
+    font-size: 13px !important;
+    color: #475569;
+}
+.cosy-admin-card p strong {
+    color: #0f172a;
+}
+.cosy-admin-table-details {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.cosy-admin-table-details td {
+    padding: 8px 0;
+    color: #475569;
+}
+.cosy-admin-modal-footer {
+    padding: 16px 24px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+}
+.cosy-admin-modal-btn {
+    background: #f1f5f9;
+    border: 1.5px solid #cbd5e1;
+    color: #475569;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.cosy-admin-modal-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
     

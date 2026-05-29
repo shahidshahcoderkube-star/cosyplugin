@@ -197,7 +197,8 @@ jQuery(document).ready(function ($) {
                     order_ids: selectedIds
                 },
                 beforeSend: function () {
-                    $btn.prop('disabled', true).text('Deleting...');
+                    $btn.prop('disabled', true);
+                    $btn.find('.cosy-btn-text').text('Deleting...');
                 },
                 success: function (res) {
                     if (res.success) {
@@ -233,15 +234,18 @@ jQuery(document).ready(function ($) {
                         
                         // Reset checkboxes and delete button state
                         $('#cosy-select-all-orders, #cosy-select-all-orders-footer').prop('checked', false);
-                        $btn.prop('disabled', true).text('Delete Selected');
+                        $btn.prop('disabled', true);
+                        $btn.find('.cosy-btn-text').text('Delete Selected');
                     } else {
                         alert(res.data.message || 'Error deleting orders.');
-                        $btn.prop('disabled', false).text('Delete Selected');
+                        $btn.prop('disabled', false);
+                        $btn.find('.cosy-btn-text').text('Delete Selected');
                     }
                 },
                 error: function () {
                     alert('An unexpected error occurred during order deletion.');
-                    $btn.prop('disabled', false).text('Delete Selected');
+                    $btn.prop('disabled', false);
+                    $btn.find('.cosy-btn-text').text('Delete Selected');
                 }
             });
         },
@@ -293,7 +297,7 @@ jQuery(document).ready(function ($) {
             // Apply colour-coded status badge consistent with WordPress admin styles
             CosyOrdersAdmin.applyStatusStyle(status);
 
-            $('#cosyAdminOrderModal').fadeIn(150);
+            $('#cosyAdminOrderModal').css('display', 'flex').hide().fadeIn(150);
         },
 
         /**
@@ -315,12 +319,12 @@ jQuery(document).ready(function ($) {
             let bg, color, border;
 
             if (status === 'completed' || status === 'confirmed') {
-                bg = '#e6fcf5'; color = '#0ca678'; border = '#c3fae8';
+                bg = '#dcfce7'; color = '#166534'; border = '#bbf7d0';
             } else if (status === 'cancelled') {
-                bg = '#fff5f5'; color = '#fa5252'; border = '#ffe3e3';
+                bg = '#fee2e2'; color = '#991b1b'; border = '#fecaca';
             } else {
                 // Default: pending
-                bg = '#fcf0e1'; color = '#d97706'; border = '#fcd34d';
+                bg = '#fef9c3'; color = '#854d0e'; border = '#fef08a';
             }
 
             $('#modalAdminStatusBg').css({ 'background-color': bg, 'color': color, 'border-color': border });

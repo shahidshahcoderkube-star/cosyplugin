@@ -50,40 +50,51 @@ class OrdersAdmin
 ?>
     
 
-    <div class="wrap cosy-orders">
-      <h1 class="wp-heading-inline">Orders</h1>
+    <div class="wrap cosy-orders cosy-users-admin">
+      <h1 class="wp-heading-inline"><?php esc_html_e('Orders', 'cosy-appointments'); ?></h1>
       <hr class="wp-header-end">
 
-      <!-- Filters -->
-      <form method="get" class="cosy-orders-filters">
-        <input type="hidden" name="page" value="cosy-orders">
-        <div class="tablenav top">
-          <div class="alignleft actions">
-            <label for="filter-status" class="screen-reader-text">Filter by status</label>
-            <select name="status" id="filter-status">
-              <option value="">All Statuses</option>
-              <option value="pending" <?php selected($status_filter, 'pending'); ?>>Pending</option>
-              <option value="completed" <?php selected($status_filter, 'completed'); ?>>Completed</option>
-              <option value="cancelled" <?php selected($status_filter, 'cancelled'); ?>>Cancelled</option>
-            </select>
+      <!-- Premium Control Bar -->
+      <div class="cosy-control-bar">
+        <div class="cosy-control-left">
+          <form method="get" class="cosy-filter-form-modern" style="margin: 0; display: flex; align-items: center; gap: 10px;">
+            <input type="hidden" name="page" value="cosy-orders">
+            
+            <div class="cosy-select-wrapper">
+              <span class="dashicons dashicons-filter" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
+              <select name="status" id="filter-status">
+                <option value=""><?php esc_html_e('All Statuses', 'cosy-appointments'); ?></option>
+                <option value="pending" <?php selected($status_filter, 'pending'); ?>><?php esc_html_e('Pending', 'cosy-appointments'); ?></option>
+                <option value="completed" <?php selected($status_filter, 'completed'); ?>><?php esc_html_e('Completed', 'cosy-appointments'); ?></option>
+                <option value="cancelled" <?php selected($status_filter, 'cancelled'); ?>><?php esc_html_e('Cancelled', 'cosy-appointments'); ?></option>
+              </select>
+            </div>
 
-            <label for="filter-provider" class="screen-reader-text">Filter by provider</label>
-            <select name="provider" id="filter-provider">
-              <option value="">All Providers</option>
-              <?php foreach ($providers as $prov) : ?>
-                <option value="<?php echo $prov->ID; ?>" <?php selected($provider_filter, $prov->ID); ?>>
-                  <?php echo esc_html($prov->display_name); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
+            <div class="cosy-select-wrapper">
+              <span class="dashicons dashicons-admin-users" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
+              <select name="provider" id="filter-provider">
+                <option value=""><?php esc_html_e('All Providers', 'cosy-appointments'); ?></option>
+                <?php foreach ($providers as $prov) : ?>
+                  <option value="<?php echo $prov->ID; ?>" <?php selected($provider_filter, $prov->ID); ?>>
+                    <?php echo esc_html($prov->display_name); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
 
-            <input type="submit" class="button" value="Filter">
-            <button type="button" class="button button-link-delete" id="cosy-btn-delete-selected" style="color: #b32d2e; border-color: #b32d2e; margin-left: 10px;" disabled>
-              Delete Selected
+            <button type="submit" class="cosy-filter-btn">
+              <?php esc_html_e('Filter', 'cosy-appointments'); ?>
             </button>
-          </div>
+          </form>
         </div>
-      </form>
+
+        <div class="cosy-control-right">
+          <button type="button" class="cosy-btn-delete-selected-modern" id="cosy-btn-delete-selected" disabled>
+            <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></span>
+            <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete Selected', 'cosy-appointments'); ?></span>
+          </button>
+        </div>
+      </div>
 
       <!-- Orders Table -->
       <table class="wp-list-table widefat fixed striped table-view-list cosy-orders-table">
