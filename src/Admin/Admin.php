@@ -38,7 +38,9 @@ class Admin
     public function register(Loader $loader): void
     {
         $loader->add_action('admin_menu', $this, 'admin_add_menus');
-        // $loader->add_action('admin_enqueue_scripts', $this, 'enqueue_admin_assets');
+        $loader->add_action('save_post_cosy_service', $this, 'log_admin_service_save', 10, 3);
+        $loader->add_action('wp_trash_post', $this, 'log_admin_service_trash');
+        $loader->add_action('updated_option', $this, 'log_admin_settings_update', 10, 3);
     }
 
 
@@ -90,6 +92,80 @@ class Admin
             [$this->usersAdmin, 'render_users_page']
         );
 
+        add_submenu_page(
+            'cosy-booking-dashboard',
+            __('Logs', 'cosy-appointments'),
+            __('Logs', 'cosy-appointments'),
+            'manage_options',
+            'cosy-logs',
+            [$this, 'render_logs_page']
+        );
+    }
+
+    //--------------- Logs Page Render Function ----------------//
+    public function render_logs_page(): void
+    {
+        ob_start();
+        include COSY_APPT_PATH . 'src/Admin/Backend/logs.php';
+        echo ob_get_clean(); // echo instead of return
+    }
+    public function log_admin_service_save($post_id, $post, $update): void
+    {
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        if ($post->post_status === 'auto-draft' || $post->post_status === 'trash') {
+            return;
+        }
+
+        $action = $update ? 'service_updated' : 'service_created';
+        $desc = $update
+            ? sprintf(__('Admin updated service CPT: %s (ID: %d).', 'cosy-appointments'), $post->post_title, $post_id)
+            : sprintf(__('Admin created service CPT: %s (ID: %d).', 'cosy-appointments'), $post->post_title, $post_id);
+
+        \Cosy\Appointments\Common\LogManager::log('services', $action, $desc);
+    }
+
+    public function log_admin_service_trash($post_id): void
+    {
+        $post = get_post($post_id);
+        if ($post && $post->post_type === 'cosy_service') {
+            \Cosy\Appointments\Common\LogManager::log(
+                'services',
+                'service_deleted',
+                sprintf(__('Admin trashed service CPT: %s (ID: %d).', 'cosy-appointments'), $post->post_title, $post_id)
+            );
+        }
+    }
+
+    public function log_admin_settings_update($option, $old_value, $value): void
+    {
+        $cosy_settings_options = [
+            'cosy_stripe_test_mode',
+            'cosy_stripe_key',
+            'cosy_stripe_publishable_key',
+            'cosy_charge_type',
+            'cosy_provider_percentage',
+            'cosy_fixed_charge',
+            'cosy_stripe_enabled',
+            'cosy_paypal_enabled',
+            'cosy_razorpay_enabled',
+            'cosy_worldpay_enabled'
+        ];
+        if (in_array($option, $cosy_settings_options)) {
+            // Avoid logging exact secret/publishable key values
+            $logged_val = $value;
+            if (in_array($option, ['cosy_stripe_key', 'cosy_stripe_publishable_key']) && !empty($value)) {
+                $logged_val = substr($value, 0, 7) . '...';
+            }
+            if ($old_value !== $value) {
+                \Cosy\Appointments\Common\LogManager::log(
+                    'settings',
+                    'setting_updated',
+                    sprintf(__('Admin updated payment setting "%s" to "%s".', 'cosy-appointments'), $option, is_array($logged_val) ? json_encode($logged_val) : $logged_val)
+                );
+            }
+        }
     }
 
 

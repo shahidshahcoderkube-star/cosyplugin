@@ -121,13 +121,15 @@ class SettingsAdmin
 ?>
         <div class="wrap cosy-settings-wrap py-4 pe-4">
             <div class="container-fluid bg-white rounded-4 shadow-sm p-4 border border-0">
-                <div class="d-flex align-items-center mb-4">
-                    <div class="bg-primary bg-gradient text-white rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px; background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;">
-                        <i class="fa-solid fa-credit-card fs-4"></i>
-                    </div>
-                    <div>
-                        <h1 class="wp-heading-inline m-0 fs-2 fw-bold text-dark"><?php _e('Payment Settings', 'cosy-appointments'); ?></h1>
-                        <p class="text-muted m-0 mt-1"><?php _e('Configure payment gateways, test modes, and transaction charges.', 'cosy-appointments'); ?></p>
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-gradient text-white rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px; background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;">
+                            <i class="fa-solid fa-credit-card fs-4"></i>
+                        </div>
+                        <div>
+                            <h1 class="wp-heading-inline m-0 fs-2 fw-bold text-dark"><?php _e('Payment Settings', 'cosy-appointments'); ?></h1>
+                            <p class="text-muted m-0 mt-1"><?php _e('Configure payment gateways, test modes, and transaction charges.', 'cosy-appointments'); ?></p>
+                        </div>
                     </div>
                 </div>
 

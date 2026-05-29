@@ -892,6 +892,15 @@ class UsersAdmin
             }
         }
 
+        $user = get_userdata($user_id);
+        if ($user) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'users',
+                'user_status_updated',
+                sprintf(__('Admin updated user "%s" (ID: %d, Role: %s) status from "%s" to "%s".', 'cosy-appointments'), $user->display_name ?: $user->user_login, $user_id, ucfirst($role), $old_status, $status)
+            );
+        }
+
         wp_send_json_success(__('Status updated successfully.', 'cosy-appointments'));
     }
 
@@ -916,6 +925,14 @@ class UsersAdmin
         $sent = $this->send_verification_email($user_id, $role);
 
         if ($sent) {
+            $user = get_userdata($user_id);
+            if ($user) {
+                \Cosy\Appointments\Common\LogManager::log(
+                    'users',
+                    'verification_resent',
+                    sprintf(__('Admin resent verification/activation email to user "%s" (ID: %d).', 'cosy-appointments'), $user->display_name ?: $user->user_login, $user_id)
+                );
+            }
             wp_send_json_success(__('Verification email resent successfully.', 'cosy-appointments'));
         } else {
             wp_send_json_error(__('Failed to send verification email. Please check SMTP settings.', 'cosy-appointments'));
@@ -1065,6 +1082,7 @@ class UsersAdmin
         $current_user_id = get_current_user_id();
         $deleted_count = 0;
         $errors = [];
+        $deleted_user_infos = [];
 
         // Required for wp_delete_user() function
         require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -1087,15 +1105,24 @@ class UsersAdmin
                 continue;
             }
 
+            $user_display = $user->display_name ?: $user->user_login;
+            $user_role = implode(', ', $roles);
+
             $deleted = wp_delete_user($id);
             if ($deleted) {
                 $deleted_count++;
+                $deleted_user_infos[] = sprintf('%s (ID: %d, Role: %s)', $user_display, $id, $user_role);
             } else {
                 $errors[] = sprintf(__('Failed to delete user ID %d.', 'cosy-appointments'), $id);
             }
         }
 
         if ($deleted_count > 0) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'users',
+                'user_deleted',
+                sprintf(__('Admin bulk deleted %d user(s): %s.', 'cosy-appointments'), $deleted_count, implode('; ', $deleted_user_infos))
+            );
             $msg = sprintf(_n('Successfully deleted %d user.', 'Successfully deleted %d users.', $deleted_count, 'cosy-appointments'), $deleted_count);
             if (!empty($errors)) {
                 $msg .= ' ' . implode(' ', $errors);

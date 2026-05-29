@@ -186,6 +186,47 @@ class Frontend
 
                 // Send confirmation emails
                 $this->send_booking_emails($appointment_id);
+
+                // Log the completed booking with full details
+                $log_service      = get_post_meta($appointment_id, 'cosy_service_name', true);
+                $log_provider     = get_post_meta($appointment_id, 'cosy_provider_name', true);
+                $log_customer     = get_post_meta($appointment_id, 'cosy_customer_name', true);
+                $log_email        = get_post_meta($appointment_id, 'cosy_customer_email', true);
+                $log_start        = get_post_meta($appointment_id, 'cosy_start_date', true);
+                $log_end          = get_post_meta($appointment_id, 'cosy_end_date', true);
+                $log_cost         = get_post_meta($appointment_id, 'cosy_service_cost', true);
+                $log_fee          = get_post_meta($appointment_id, 'cosy_service_fee', true);
+                $log_total        = get_post_meta($appointment_id, 'cosy_total_payable', true);
+                $log_slots        = get_post_meta($appointment_id, 'cosy_number_of_bookings', true);
+                $log_weeks        = get_post_meta($appointment_id, 'cosy_number_of_weeks', true);
+                $log_weekdays     = get_post_meta($appointment_id, 'cosy_week_days', true);
+                $log_timeline     = get_post_meta($appointment_id, 'cosy_slots_timeline', true);
+                $log_weekly       = get_post_meta($appointment_id, 'cosy_weekly_booking', true);
+
+                $log_description = sprintf(
+                    'BOOKING CONFIRMED | Order #%d | Customer: %s (%s) | Service: %s | Provider: %s | Dates: %s to %s | Weekly: %s | Weeks: %s | Slots: %s | Schedule: %s | Service Cost: £%s | Platform Fee: £%s | Total Paid: £%s | Payment Status: Paid',
+                    $appointment_id,
+                    $log_customer,
+                    $log_email,
+                    $log_service,
+                    $log_provider,
+                    $log_start,
+                    $log_end,
+                    $log_weekly ?: 'N/A',
+                    $log_weeks ?: '1',
+                    $log_slots ?: '1',
+                    $log_timeline ?: 'N/A',
+                    $log_cost,
+                    $log_fee,
+                    $log_total
+                );
+
+                \Cosy\Appointments\Common\LogManager::log(
+                    'orders',
+                    'booking_completed',
+                    $log_description,
+                    $appt->post_author
+                );
             }
 
             return '<div class="cosy-checkout-root">
@@ -321,19 +362,61 @@ class Frontend
         $appointment_id = isset($_POST['appointment_id']) ? intval($_POST['appointment_id']) : 0;
         $new_status     = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
 
-        if (empty($appointment_id) || !in_array($new_status, ['completed', 'cancelled'])) {
+        $allowed_statuses = ['confirmed', 'completed', 'cancelled'];
+        if (empty($appointment_id) || !in_array($new_status, $allowed_statuses)) {
             wp_send_json_error(['message' => 'Invalid parameters.']);
         }
 
-        // Validate that the logged in user is indeed the provider for this appointment
-        $current_user_id = get_current_user_id();
-        $provider_id = intval(get_post_meta($appointment_id, 'cosy_provider_id', true));
+        // Validate that the logged in user is the provider or admin
+        $current_user    = wp_get_current_user();
+        $current_user_id = $current_user->ID;
+        $provider_id     = intval(get_post_meta($appointment_id, 'cosy_provider_id', true));
 
         if ($provider_id !== $current_user_id && !current_user_can('manage_options')) {
             wp_send_json_error(['message' => 'Unauthorized action.']);
         }
 
+        // Grab booking details for the log BEFORE updating
+        $customer_name  = get_post_meta($appointment_id, 'cosy_customer_name', true);
+        $customer_email = get_post_meta($appointment_id, 'cosy_customer_email', true);
+        $service_name   = get_post_meta($appointment_id, 'cosy_service_name', true);
+        $provider_name  = get_post_meta($appointment_id, 'cosy_provider_name', true);
+        $start_date     = get_post_meta($appointment_id, 'cosy_start_date', true);
+        $end_date       = get_post_meta($appointment_id, 'cosy_end_date', true);
+        $total_payable  = get_post_meta($appointment_id, 'cosy_total_payable', true);
+
+        // Update the status
         update_post_meta($appointment_id, 'cosy_booking_status', $new_status);
+
+        // Build action label for the log
+        $action_map = [
+            'confirmed' => 'order_confirmed',
+            'completed' => 'order_completed',
+            'cancelled' => 'order_cancelled',
+        ];
+        $action_label = $action_map[$new_status];
+
+        // Build a rich log description
+        $log_description = sprintf(
+            'ORDER %s | Order #%d | Customer: %s (%s) | Service: %s | Provider: %s | Dates: %s to %s | Amount: £%s | Updated by: %s',
+            strtoupper($new_status),
+            $appointment_id,
+            $customer_name ?: 'N/A',
+            $customer_email ?: 'N/A',
+            $service_name ?: 'N/A',
+            $provider_name ?: $current_user->display_name,
+            $start_date ?: 'N/A',
+            $end_date ?: 'N/A',
+            $total_payable ?: '0.00',
+            $current_user->display_name
+        );
+
+        \Cosy\Appointments\Common\LogManager::log(
+            'orders',
+            $action_label,
+            $log_description,
+            $current_user_id
+        );
 
         wp_send_json_success(['message' => 'Status updated successfully to ' . ucfirst($new_status)]);
     }
@@ -468,6 +551,14 @@ class Frontend
         }
 
         $this->cosy_payment_log("Draft Appointment created successfully with ID: $appointment_id. Proceeding to Stripe API.");
+
+        // Log the booking session initiation
+        \Cosy\Appointments\Common\LogManager::log(
+            'orders',
+            'booking_initiated',
+            sprintf(__('Customer initiated checkout for service %s with provider %s.', 'cosy-appointments'), $service, $provider_name),
+            $current_user->ID
+        );
 
         // Save metadata
         $meta_data = [

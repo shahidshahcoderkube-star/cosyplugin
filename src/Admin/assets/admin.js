@@ -14,6 +14,110 @@ jQuery(document).ready(function ($) {
     'use strict';
 
     // =========================================================================
+    // MODULE: CosyAlert
+    // Premium custom confirm dialog and toast notification system.
+    // Replaces all native browser confirm() and alert() calls.
+    // =========================================================================
+    const CosyAlert = {
+
+        /**
+         * confirm
+         * Shows a beautiful confirm dialog.
+         * @param {object} opts - { title, message, confirmText, cancelText, type, onConfirm }
+         */
+        confirm: function (opts) {
+            const defaults = {
+                title:       opts.title       || 'Are you sure?',
+                message:     opts.message     || 'This action cannot be undone.',
+                confirmText: opts.confirmText || 'Yes, proceed',
+                cancelText:  opts.cancelText  || 'Cancel',
+                type:        opts.type        || 'danger',   // warning | danger | info | success
+                onConfirm:   opts.onConfirm   || function () {}
+            };
+
+            const iconMap = {
+                warning: 'fa-solid fa-triangle-exclamation',
+                danger:  'fa-solid fa-trash-can',
+                info:    'fa-solid fa-circle-info',
+                success: 'fa-solid fa-circle-check'
+            };
+            const iconClass  = iconMap[defaults.type] || iconMap.warning;
+            const btnClass   = defaults.type === 'danger' ? '' : ' info-btn';
+
+            const $overlay = $(`
+                <div id="cosy-sweet-overlay">
+                    <div id="cosy-sweet-dialog">
+                        <div class="cosy-sweet-icon ${defaults.type}">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <p class="cosy-sweet-title">${defaults.title}</p>
+                        <p class="cosy-sweet-message">${defaults.message}</p>
+                        <div class="cosy-sweet-actions">
+                            <button class="cosy-sweet-btn cosy-sweet-btn-cancel" id="cosy-sweet-cancel">${defaults.cancelText}</button>
+                            <button class="cosy-sweet-btn cosy-sweet-btn-confirm${btnClass}" id="cosy-sweet-ok">${defaults.confirmText}</button>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            $('body').append($overlay);
+
+            // Confirm click
+            $overlay.find('#cosy-sweet-ok').on('click', function () {
+                $overlay.fadeOut(150, function () { $overlay.remove(); });
+                defaults.onConfirm();
+            });
+
+            // Cancel / overlay click
+            $overlay.find('#cosy-sweet-cancel').on('click', function () {
+                $overlay.fadeOut(150, function () { $overlay.remove(); });
+            });
+            $overlay.on('click', function (e) {
+                if ($(e.target).is('#cosy-sweet-overlay')) {
+                    $overlay.fadeOut(150, function () { $overlay.remove(); });
+                }
+            });
+        },
+
+        /**
+         * toast
+         * Shows a premium slide-in toast notification.
+         * @param {string} message
+         * @param {string} type - success | danger | warning
+         * @param {number} duration - ms before auto-hide (default 4000)
+         */
+        toast: function (message, type, duration) {
+            type     = type     || 'success';
+            duration = duration || 4000;
+
+            if (!$('#cosy-sweet-toast-container').length) {
+                $('body').append('<div id="cosy-sweet-toast-container"></div>');
+            }
+
+            const iconMap = {
+                success: 'fa-solid fa-circle-check',
+                danger:  'fa-solid fa-circle-xmark',
+                warning: 'fa-solid fa-triangle-exclamation'
+            };
+            const iconClass = iconMap[type] || iconMap.success;
+
+            const $toast = $(`
+                <div class="cosy-sweet-toast ${type}">
+                    <i class="cosy-sweet-toast-icon ${iconClass}"></i>
+                    <span class="cosy-sweet-toast-text">${message}</span>
+                </div>
+            `);
+
+            $('#cosy-sweet-toast-container').append($toast);
+
+            setTimeout(function () {
+                $toast.fadeOut(350, function () { $toast.remove(); });
+            }, duration);
+        }
+    };
+
+
+    // =========================================================================
     // MODULE: CosyMediaAdmin
     // Handles approve and reject actions for provider-submitted media content.
     // Uses Event Delegation so it works even on dynamically loaded rows.
@@ -195,9 +299,20 @@ jQuery(document).ready(function ($) {
                 return;
             }
 
-            if (!confirm('Are you sure you want to delete the selected orders? This action cannot be undone.')) {
-                return;
-            }
+            CosyAlert.confirm({
+                title:       'Delete Selected Orders?',
+                message:     'You are about to permanently delete ' + selectedIds.length + ' order(s). This action cannot be undone.',
+                confirmText: 'Yes, Delete',
+                cancelText:  'Cancel',
+                type:        'danger',
+                onConfirm: function () { CosyOrdersAdmin._doDelete($btn, selectedIds); }
+            });
+        },
+
+        /**
+         * _doDelete — internal helper called after confirmation.
+         */
+        _doDelete: function ($btn, selectedIds) {
 
             $.ajax({
                 url: ajaxurl,
@@ -221,16 +336,16 @@ jQuery(document).ready(function ($) {
                             $checkbox.closest('tr').fadeOut(400, function() {
                                 $(this).remove();
                                 animationCompleted++;
-                                
+
                                 // Once all rows are removed, check count and show placeholder if empty
                                 if (animationCompleted === selectedIds.length) {
                                     const remainingCount = $('.cosy-order-checkbox').length;
                                     const countSpan = $('.displaying-num');
-                                    
+
                                     if (countSpan.length > 0) {
                                         countSpan.text(remainingCount + ' item(s)');
                                     }
-                                    
+
                                     if (remainingCount === 0) {
                                         $('.cosy-orders-table tbody').html(`
                                             <tr>
@@ -243,19 +358,20 @@ jQuery(document).ready(function ($) {
                                 }
                             });
                         });
-                        
+
                         // Reset checkboxes and delete button state
                         $('#cosy-select-all-orders, #cosy-select-all-orders-footer').prop('checked', false);
                         $btn.prop('disabled', true);
                         $btn.find('.cosy-btn-text').text('Delete');
+                        CosyAlert.toast(res.data.message || 'Orders deleted successfully.', 'success');
                     } else {
-                        alert(res.data.message || 'Error deleting orders.');
+                        CosyAlert.toast(res.data.message || 'Error deleting orders.', 'danger');
                         $btn.prop('disabled', false);
                         $btn.find('.cosy-btn-text').text('Delete');
                     }
                 },
                 error: function () {
-                    alert('An unexpected error occurred during order deletion.');
+                    CosyAlert.toast('An unexpected error occurred during order deletion.', 'danger');
                     $btn.prop('disabled', false);
                     $btn.find('.cosy-btn-text').text('Delete');
                 }
@@ -349,9 +465,117 @@ jQuery(document).ready(function ($) {
     };
 
     // =========================================================================
+    // MODULE: CosyLogsAdmin
+    // Handles toggles for logs per page and log viewer actions.
+    // =========================================================================
+    const CosyLogsAdmin = {
+        init: function () {
+            // Page Logging Toggle event
+            $(document).on('change', '.cosy-page-log-toggle', function () {
+                CosyLogsAdmin.handlePageToggle.call(this);
+            });
+            
+            // Clear logs event
+            $(document).on('click', '#cosy-btn-clear-logs', function (e) {
+                e.preventDefault();
+                CosyLogsAdmin.handleClearLogs.call(this);
+            });
+        },
+
+        handlePageToggle: function () {
+            const $checkbox = $(this);
+            const pageName = $checkbox.data('page');
+            const nonce = $checkbox.data('nonce');
+            const isChecked = $checkbox.is(':checked');
+            const status = isChecked ? 1 : 0;
+            const container = $checkbox.closest('.cosy-page-logger-toggle-container');
+            const $spinner = container.find('.cosy-log-toggle-spinner');
+            const $lbl = container.find('.cosy-log-status-lbl');
+
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'cosy_toggle_page_logging',
+                    page_name: pageName,
+                    status: status,
+                    nonce: nonce
+                },
+                beforeSend: function () {
+                    $spinner.css('display', 'inline-block');
+                    $checkbox.prop('disabled', true);
+                },
+                success: function (res) {
+                    if (res.success) {
+                        if (isChecked) {
+                            $lbl.text('Active').css('color', '#10b981');
+                        } else {
+                            $lbl.text('Paused').css('color', '#64748b');
+                        }
+                        CosyAlert.toast(res.data.message || 'Logging setting updated.', 'success', 2500);
+                    } else {
+                        CosyAlert.toast(res.data.message || 'Error updating logging settings.', 'danger');
+                        $checkbox.prop('checked', !isChecked); // revert checkbox state
+                    }
+                },
+                error: function () {
+                    CosyAlert.toast('Failed to update logging settings.', 'danger');
+                    $checkbox.prop('checked', !isChecked); // revert checkbox state
+                },
+                complete: function () {
+                    $spinner.hide();
+                    $checkbox.prop('disabled', false);
+                }
+            });
+        },
+
+        handleClearLogs: function () {
+            const $btn = $(this);
+            const nonce = $btn.data('nonce');
+
+            CosyAlert.confirm({
+                title:       'Clear All Activity Logs?',
+                message:     'All recorded activity logs will be permanently deleted. This action cannot be undone.',
+                confirmText: 'Yes, Clear All',
+                cancelText:  'Cancel',
+                type:        'danger',
+                onConfirm: function () {
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            action: 'cosy_clear_activity_logs',
+                            nonce: nonce
+                        },
+                        beforeSend: function () {
+                            $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Clearing...');
+                        },
+                        success: function (res) {
+                            if (res.success) {
+                                CosyAlert.toast(res.data.message || 'All logs cleared successfully.', 'success');
+                                setTimeout(function () { location.reload(); }, 1200);
+                            } else {
+                                CosyAlert.toast(res.data.message || 'Error clearing logs.', 'danger');
+                                $btn.prop('disabled', false).html('<i class="fa-solid fa-trash-can"></i> Clear All Logs');
+                            }
+                        },
+                        error: function () {
+                            CosyAlert.toast('Failed to clear logs. Please try again.', 'danger');
+                            $btn.prop('disabled', false).html('<i class="fa-solid fa-trash-can"></i> Clear All Logs');
+                        }
+                    });
+                }
+            });
+        }
+    };
+
+    // =========================================================================
     // BOOT: Initialize all admin modules
     // =========================================================================
     CosyMediaAdmin.init();
     CosyOrdersAdmin.init();
+    CosyLogsAdmin.init();
 
 });

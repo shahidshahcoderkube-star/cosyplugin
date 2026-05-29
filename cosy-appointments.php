@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Cosy Appointments
  * Description: A complete multi-provider appointment booking and scheduling solution for WordPress. Manage providers, services, availability, and Stripe payments — all in one place.
- * Version: 1.0.13
+ * Version: 1.0.14
  * Author: Shahid Shah — Coderkube Technology
  * Author URI: https://coderkube.com
  * Text Domain: cosy-appointments
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
  */
 define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Absolute path to the plugin folder
 define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // URL to the plugin folder
-define('COSY_APPT_VER', '1.0.13');  // Current version
+define('COSY_APPT_VER', '1.0.14');  // Current version
 
 /**
  * register_role
@@ -162,6 +162,7 @@ function cosy_run_db_migrations()
         cosy_create_services_table();
         cosy_create_media_table();
         cosy_create_reviews_table();
+        cosy_create_activity_logs_table();
         update_option('cosy_db_version', COSY_APPT_VER);
     }
 }
@@ -285,6 +286,32 @@ function cosy_create_reviews_table()
     }
 }
 
+//-------Create Activity Logs table--------//
+function cosy_create_activity_logs_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'cosy_activity_logs';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) != $table_name) {
+        $sql = "CREATE TABLE $table_name (
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            user_id BIGINT(20) DEFAULT 0 NOT NULL,
+            user_name VARCHAR(100) DEFAULT 'Guest' NOT NULL,
+            role VARCHAR(50) DEFAULT 'guest' NOT NULL,
+            page VARCHAR(50) NOT NULL,
+            action VARCHAR(50) NOT NULL,
+            description TEXT NOT NULL,
+            ip_address VARCHAR(45) DEFAULT '' NOT NULL,
+            PRIMARY KEY  (id)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+}
+
 
 //-------Register activation hook--------//
 register_activation_hook(__FILE__, 'cosy_plugin_activate');
@@ -301,7 +328,13 @@ function cosy_plugin_activate()
     cosy_create_services_table();
     cosy_create_media_table();
     cosy_create_reviews_table();
+    cosy_create_activity_logs_table();
     update_option('cosy_plugin_version', COSY_APPT_VER);
+
+    // Schedule daily logs cleanup
+    if (!wp_next_scheduled('cosy_cleanup_activity_logs_cron')) {
+        wp_schedule_event(time(), 'daily', 'cosy_cleanup_activity_logs_cron');
+    }
 
     // Flush rewrite rules on activation to ensure custom links work immediately
     cosyplugin_author_rewrite();
@@ -313,6 +346,9 @@ function cosy_plugin_deactivate()
 {
     // Clean up custom rewrite rules on deactivation to prevent conflicts
     flush_rewrite_rules();
+
+    // Clear log cleanup cron
+    wp_clear_scheduled_hook('cosy_cleanup_activity_logs_cron');
 }
 
 /**
@@ -363,3 +399,15 @@ function cosy_check_and_create_missing_pages() {
     }
 }
 add_action('init', 'cosy_check_and_create_missing_pages');
+
+// Daily Cron Job to clean up activity logs older than 30 days
+add_action('cosy_cleanup_activity_logs_cron', 'cosy_do_cleanup_activity_logs');
+function cosy_do_cleanup_activity_logs() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'cosy_activity_logs';
+    $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM $table_name WHERE timestamp < DATE_SUB(NOW(), INTERVAL 30 DAY)"
+        )
+    );
+}

@@ -145,6 +145,15 @@ class Dashboard
                 }
             }
 
+            // Log profile update
+            $prov_user = get_userdata($user_id);
+            \Cosy\Appointments\Common\LogManager::log(
+                'dashboard',
+                'profile_updated',
+                sprintf(__('Provider "%s" updated their profile information.', 'cosy-appointments'), $prov_user ? $prov_user->display_name : 'Provider'),
+                $user_id
+            );
+
             $forms = new FormsData();
             $forms->send_response(true, ['message' => 'Profile updated successfully!', 'data' => $provider_meta]);
         }
@@ -208,6 +217,14 @@ class Dashboard
                     ['%d', '%s', '%s', '%s']
                 );
 
+                // Log video upload
+                \Cosy\Appointments\Common\LogManager::log(
+                    'dashboard',
+                    'video_uploaded',
+                    __('Provider uploaded a new video for admin approval.', 'cosy-appointments'),
+                    $user_id
+                );
+
                 wp_send_json_success([
                     'message' => 'Video uploaded successfully! Awaiting admin approval.',
                     'video_url' => $video_url,
@@ -259,6 +276,14 @@ class Dashboard
                 "UPDATE $table_name SET status = 'deleted' WHERE user_id = %d AND status IN ('pending', 'approved') ORDER BY id DESC LIMIT 1",
                 $user_id
             )
+        );
+
+        // Log video deletion
+        \Cosy\Appointments\Common\LogManager::log(
+            'dashboard',
+            'video_deleted',
+            __('Provider deleted their introductory video.', 'cosy-appointments'),
+            $user_id
         );
 
         wp_send_json_success([
@@ -369,6 +394,14 @@ class Dashboard
         // Format date for display: 01 Jan 2026
         $display_date = date('d M Y', strtotime($date));
 
+        // Log holiday addition
+        \Cosy\Appointments\Common\LogManager::log(
+            'dashboard',
+            'holiday_added',
+            sprintf(__('Provider added holiday: %s (Reason: %s).', 'cosy-appointments'), $display_date, $reason ?: __('None', 'cosy-appointments')),
+            $user_id
+        );
+
         wp_send_json_success([
             'message'      => 'Holiday added successfully!',
             'date'         => $date,
@@ -402,6 +435,14 @@ class Dashboard
         // Save updated list
         update_user_meta($user_id, 'cosy_provider_holidays', wp_json_encode($updated));
 
+        // Log holiday deletion
+        \Cosy\Appointments\Common\LogManager::log(
+            'dashboard',
+            'holiday_deleted',
+            sprintf(__('Provider removed holiday scheduled for %s.', 'cosy-appointments'), $date),
+            $user_id
+        );
+
         wp_send_json_success(['message' => 'Holiday removed successfully!', 'date' => $date]);
     }
 
@@ -432,6 +473,14 @@ class Dashboard
 
         // Save in user meta for the specific day
         update_user_meta($user_id, "cosy_availability_{$day}", $availability_data);
+
+        // Log availability save
+        \Cosy\Appointments\Common\LogManager::log(
+            'dashboard',
+            'availability_saved',
+            sprintf(__('Provider saved availability working hours for %s.', 'cosy-appointments'), $day),
+            $user_id
+        );
  
         wp_send_json_success('Availability saved successfully for ' . $day);
     }
@@ -552,6 +601,14 @@ class Dashboard
         }
  
         if ($updated !== false) {
+            // Log review approval
+            \Cosy\Appointments\Common\LogManager::log(
+                'dashboard',
+                'review_approved',
+                sprintf(__('Review #%d approved.', 'cosy-appointments'), $review_id),
+                $current_user->ID
+            );
+
             wp_send_json_success(['message' => 'Review approved successfully!']);
         } else {
             wp_send_json_error(['message' => 'Failed to approve review.']);
@@ -608,6 +665,14 @@ class Dashboard
         }
  
         if ($deleted !== false) {
+            // Log review deletion
+            \Cosy\Appointments\Common\LogManager::log(
+                'dashboard',
+                'review_deleted',
+                sprintf(__('Review #%d deleted.', 'cosy-appointments'), $review_id),
+                $current_user->ID
+            );
+
             wp_send_json_success(['message' => 'Review deleted successfully!']);
         } else {
             wp_send_json_error(['message' => 'Failed to delete review.']);

@@ -157,6 +157,14 @@ class FormsData
         $user = new WP_User($user_id);
         $user->set_role('customer'); // assign customer role
 
+        // Log user registration
+        \Cosy\Appointments\Common\LogManager::log(
+            'users',
+            'customer_registered',
+            sprintf(__('New customer registered: %s (%s).', 'cosy-appointments'), $name, $email),
+            $user_id
+        );
+
         // Send verification email
         $this->send_verification_email($user_id, 'customer');
 
@@ -234,6 +242,14 @@ class FormsData
             update_user_meta($user_id, $key, $value);
         }
 
+        // Log provider registration
+        \Cosy\Appointments\Common\LogManager::log(
+            'users',
+            'provider_registered',
+            sprintf(__('New service provider registered: %s (%s).', 'cosy-appointments'), $username, $email),
+            $user_id
+        );
+
         // Send verification email
         $this->send_verification_email($user_id, 'provider');
 
@@ -281,6 +297,14 @@ class FormsData
             } elseif (in_array('customer', $roles)) {
                 $redirect_url = home_url('/customer-profile/');
             }
+
+            // Log user login
+            \Cosy\Appointments\Common\LogManager::log(
+                'users',
+                'user_logged_in',
+                sprintf(__('User logged in: %s.', 'cosy-appointments'), $user->user_login),
+                $user->ID
+            );
 
             $this->send_response(true, $redirect_url);
         }
@@ -430,6 +454,15 @@ class FormsData
             // Save metadata
             update_user_meta($user_id, 'first_name', $first_name);
             update_user_meta($user_id, 'last_name', $last_name);
+
+            // Log profile update
+            \Cosy\Appointments\Common\LogManager::log(
+                'users',
+                'profile_updated',
+                sprintf(__('Customer updated profile details: %s.', 'cosy-appointments'), $first_name . ' ' . $last_name),
+                $user_id
+            );
+
             $this->send_response(true, __('Profile details updated successfully!', 'cosy-appointments'));
         }
     }
@@ -475,6 +508,14 @@ class FormsData
         // Log user back in automatically as wp_set_password clears session/auth cookies
         wp_set_current_user($user_id);
         wp_set_auth_cookie($user_id);
+
+        // Log password update
+        \Cosy\Appointments\Common\LogManager::log(
+            'users',
+            'password_updated',
+            __('Customer updated their account password.', 'cosy-appointments'),
+            $user_id
+        );
 
         $this->send_response(true, __('Password changed successfully!', 'cosy-appointments'));
     }

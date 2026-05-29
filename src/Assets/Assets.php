@@ -40,13 +40,18 @@ class Assets
             'cc-booking_page_cosy-settings',
             'cc-booking_page_cosy-media-approve',
             'cc-booking_page_cosy-documentation',
+            'cc-booking_page_cosy-users',
+            'cc-booking_page_cosy-logs',
             'users.php', // Required for the verification dropdown
         ];
 
 
+        global $post_type;
         // Check if the current hook is allowed
         if (!in_array($hook, $allowed_hooks, true)) {
-            return;
+            if ($hook !== 'edit.php' || $post_type !== 'cosy_service') {
+                return;
+            }
         }
 
         // Google Fonts
@@ -83,14 +88,14 @@ class Assets
             'cosy-admin-style',
             COSY_APPT_URL . 'src/Admin/assets/admin.css',
             [],
-            COSY_APPT_VER
+            COSY_APPT_VER . '-' . time()
         );
 
         wp_enqueue_script(
             'cosy-admin-script',
             COSY_APPT_URL . 'src/Admin/assets/admin.js',
             ['jquery'],
-            COSY_APPT_VER,
+            COSY_APPT_VER . '-' . time(),
             true
         );
     }

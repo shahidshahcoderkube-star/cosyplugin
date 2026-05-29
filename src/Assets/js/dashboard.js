@@ -486,10 +486,18 @@ jQuery(document).ready(function ($) {
             } else if (status === 'cancelled') {
                 badge = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
                 $('#modalFooterActions').html('<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>');
+            } else if (status === 'confirmed') {
+                badge = '<span class="badge badge-confirmed" style="background:#0ea5e9;color:#fff;"><i class="fas fa-thumbs-up me-1"></i> Confirmed</span>';
+                $('#modalFooterActions').html(
+                    '<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>' +
+                    '<button type="button" class="btn btn-success rounded-4 px-4 py-2 fw-bold action-update-status" data-id="' + id + '" data-status="completed" data-bs-dismiss="modal">Mark Completed</button>' +
+                    '<button type="button" class="btn btn-danger rounded-4 px-4 py-2 fw-bold action-update-status" data-id="' + id + '" data-status="cancelled" data-bs-dismiss="modal">Cancel Order</button>'
+                );
             } else {
                 badge = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
                 $('#modalFooterActions').html(
                     '<button type="button" class="btn btn-secondary rounded-4 px-4 py-2 fw-bold btn-modal-close" data-bs-dismiss="modal">Close</button>' +
+                    '<button type="button" class="btn btn-primary rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-confirm" data-id="' + id + '" data-status="confirmed" data-bs-dismiss="modal">Confirm Order</button>' +
                     '<button type="button" class="btn btn-success rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-complete" data-id="' + id + '" data-status="completed" data-bs-dismiss="modal">Mark Completed</button>' +
                     '<button type="button" class="btn btn-danger rounded-4 px-4 py-2 fw-bold action-update-status btn-modal-cancel" data-id="' + id + '" data-status="cancelled" data-bs-dismiss="modal">Cancel Order</button>'
                 );
@@ -531,7 +539,9 @@ jQuery(document).ready(function ($) {
                                     row.attr('data-status', newStatus);
 
                                     var badgeHtml = '';
-                                    if (newStatus === 'completed') {
+                                    if (newStatus === 'confirmed') {
+                                        badgeHtml = '<span class="badge badge-confirmed" style="background:#0ea5e9;color:#fff;"><i class="fas fa-thumbs-up me-1"></i> Confirmed</span>';
+                                    } else if (newStatus === 'completed') {
                                         badgeHtml = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
                                     } else if (newStatus === 'cancelled') {
                                         badgeHtml = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';

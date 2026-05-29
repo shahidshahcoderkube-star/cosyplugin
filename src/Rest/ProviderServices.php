@@ -109,6 +109,11 @@ class ProviderServices
             if ($inserted) {
                 $status  = true;
                 $message = 'Service inserted successfully';
+                \Cosy\Appointments\Common\LogManager::log(
+                    'services',
+                    'service_created',
+                    sprintf(__('Provider "%s" created a new service: %s.', 'cosy-appointments'), $provider_name, $service)
+                );
             } else {
                 $message = 'Failed to insert service';
             }
@@ -150,6 +155,13 @@ class ProviderServices
             if ($updated !== false) {
                 $status  = true;
                 $message = $updated ? 'Service updated successfully' : 'No changes made';
+                if ($updated) {
+                    \Cosy\Appointments\Common\LogManager::log(
+                        'services',
+                        'service_updated',
+                        sprintf(__('Provider "%s" updated service: %s.', 'cosy-appointments'), $provider_name, $service)
+                    );
+                }
             } else {
                 $message = 'Failed to update service';
             }
@@ -215,6 +227,15 @@ class ProviderServices
             return rest_ensure_response(['success' => false, 'message' => 'Invalid service ID']);
         }
 
+        // Fetch service name to log it
+        $service_name = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT service FROM $table WHERE service_id = %d AND provider_id = %d",
+                $service_id,
+                $provider_id
+            )
+        );
+
         $deleted = $wpdb->delete(
             $table,
             [
@@ -225,6 +246,11 @@ class ProviderServices
         );
 
         if ($deleted) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'services',
+                'service_deleted',
+                sprintf(__('Provider "%s" deleted service: %s (ID: %d).', 'cosy-appointments'), $user->display_name, $service_name ?: 'Unknown', $service_id)
+            );
             return rest_ensure_response([
                 'success' => true,
                 'message' => 'Service deleted successfully'

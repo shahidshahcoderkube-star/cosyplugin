@@ -18,12 +18,12 @@ class Backend_Actions_Handler
             'video_approve' => 'ajax_approve_video',
             'video_reject' => 'ajax_reject_video',
             'cosy_delete_orders' => 'ajax_delete_orders',
+            'cosy_toggle_page_logging' => 'ajax_toggle_page_logging',
+            'cosy_clear_activity_logs' => 'ajax_clear_activity_logs',
         ];
 
         //------ Register AJAX handlers -----//
         $this->register_ajax_handlers($actions, $this);
-        // var_dump($_POST);
-        // die;
     }
 
     public function register(Loader $loader): void
@@ -76,6 +76,12 @@ class Backend_Actions_Handler
             ";
             
             cosy_send_html_email($user->user_email, $subject, __('Video Approved!', 'cosy-appointments'), $html_content);
+            
+            \Cosy\Appointments\Common\LogManager::log(
+                'media_approve',
+                'video_approved',
+                sprintf(__('Admin approved introduction video for Provider "%s" (ID: %d).', 'cosy-appointments'), $user->display_name, $user_id)
+            );
         }
 
         wp_send_json_success([
@@ -140,6 +146,12 @@ class Backend_Actions_Handler
             ";
 
             cosy_send_html_email($user->user_email, $subject, __('Video Update Required', 'cosy-appointments'), $html_content);
+
+            \Cosy\Appointments\Common\LogManager::log(
+                'media_approve',
+                'video_rejected',
+                sprintf(__('Admin rejected/deleted introduction video for Provider "%s" (ID: %d).', 'cosy-appointments'), $user->display_name, $user_id)
+            );
         }
 
         wp_send_json_success([
@@ -176,9 +188,80 @@ class Backend_Actions_Handler
             }
         }
 
+        if ($deleted_count > 0) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'orders',
+                'order_deleted',
+                sprintf(__('Admin bulk deleted %d booking order(s) (IDs: %s).', 'cosy-appointments'), $deleted_count, implode(', ', $order_ids))
+            );
+        }
+
         wp_send_json_success([
             'message' => sprintf(_n('Successfully deleted %d order.', 'Successfully deleted %d orders.', $deleted_count, 'cosy-appointments'), $deleted_count),
             'deleted_count' => $deleted_count
+        ]);
+    }
+
+    /**
+     * AJAX handler: Toggle logging state for a page.
+     */
+    public function ajax_toggle_page_logging()
+    {
+        check_ajax_referer('cosy_log_toggle_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Unauthorized access', 'cosy-appointments')]);
+        }
+
+        $page = sanitize_key($_POST['page_name'] ?? '');
+        $status = intval($_POST['status'] ?? 1);
+
+        if (empty($page)) {
+            wp_send_json_error(['message' => __('Invalid page name.', 'cosy-appointments')]);
+        }
+
+        $key = \Cosy\Appointments\Common\LogManager::get_toggle_key($page);
+        update_option($key, $status ? '1' : '0');
+
+        // Log the toggle action itself
+        \Cosy\Appointments\Common\LogManager::log(
+            'settings',
+            'logging_toggle',
+            sprintf(__('Admin toggled logging for page "%s" to %s.', 'cosy-appointments'), $page, $status ? 'Active' : 'Deactive')
+        );
+
+        wp_send_json_success([
+            'message' => sprintf(__('Logging for %s has been %s.', 'cosy-appointments'), ucfirst($page), $status ? __('enabled', 'cosy-appointments') : __('disabled', 'cosy-appointments')),
+            'status'  => $status
+        ]);
+    }
+
+    /**
+     * AJAX handler: Clear all activity logs.
+     */
+    public function ajax_clear_activity_logs()
+    {
+        // Manual nonce verification for graceful JSON response instead of wp_die()
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'cosy_clear_logs_nonce')) {
+            wp_send_json_error(['message' => __('Invalid security token. Please refresh the page and try again.', 'cosy-appointments')]);
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Unauthorized access.', 'cosy-appointments')]);
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_activity_logs';
+
+        // Delete all log entries — do NOT call LogManager::log() here,
+        // because it would immediately re-insert a row, making the table never truly empty.
+        $result = $wpdb->query("DELETE FROM $table_name");
+
+        if ($result === false) {
+            wp_send_json_error(['message' => __('Database error while clearing logs. Please try again.', 'cosy-appointments')]);
+        }
+
+        wp_send_json_success([
+            'message' => __('All activity logs have been cleared successfully.', 'cosy-appointments')
         ]);
     }
 }
