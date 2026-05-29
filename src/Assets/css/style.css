@@ -2036,6 +2036,10 @@ body .swal2-icon {
     text-transform: capitalize;
 }
 
+.invoice-customer-name {
+    text-transform: capitalize;
+}
+
 .order-service-badge {
     font-weight: 500;
     font-size: 0.8rem;

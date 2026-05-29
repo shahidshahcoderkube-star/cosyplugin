@@ -56,6 +56,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                             $number_of_weeks = get_post_meta($appt_id, 'cosy_number_of_weeks', true);
                             $number_of_slots = get_post_meta($appt_id, 'cosy_number_of_bookings', true);
                             $service_cost    = get_post_meta($appt_id, 'cosy_service_cost', true);
+                            $service_fee     = get_post_meta($appt_id, 'cosy_service_fee', true);
                             $total_payable   = get_post_meta($appt_id, 'cosy_total_payable', true);
                             $payment_status  = get_post_meta($appt_id, 'cosy_payment_status', true);
                             if (empty($payment_status)) {
@@ -83,6 +84,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                             data-start="<?php echo esc_attr($start_date); ?>"
                                             data-weekly="<?php echo esc_attr($weekly_booking); ?>"
                                             data-cost="<?php echo esc_attr($service_cost); ?>"
+                                            data-fee="<?php echo esc_attr($service_fee); ?>"
                                             data-total="<?php echo esc_attr($total_payable); ?>"
                                             data-status="<?php echo esc_attr($payment_status); ?>"
                                             data-bs-toggle="modal"
@@ -112,20 +114,49 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
 <?php
 ob_start();
 ?>
-<div class="row g-4">
-    <div class="col-md-6">
-        <div class="p-3 rounded-4 invoice-modal-info-box-primary">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-user invoice-modal-icon-primary"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
-            <p class="mb-1 fw-bold text-slate invoice-modal-customer-name" id="modalInvCustomerName"></p>
-            <p class="mb-0 text-muted small" id="modalInvCustomerEmail"></p>
+<div class="row g-3">
+    <!-- Customer Info -->
+    <div class="col-md-12">
+        <div class="p-3 rounded-4 modal-info-box-primary" style="background-color: var(--cosy-brand-lightest); border: 1px solid var(--cosy-brand-light);">
+            <h6 class="fw-bold mb-2 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-user modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Customer Info', 'cosy-appointments'); ?></h6>
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-dark" style="font-size: 1.05rem; text-transform: capitalize;" id="modalInvCustomerName"></span>
+                <span class="text-muted small" id="modalInvCustomerEmail"></span>
+            </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="p-3 rounded-4 bg-light invoice-modal-info-box-secondary">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 invoice-modal-info-title"><i class="fas fa-info-circle invoice-modal-icon-primary"></i> <?php esc_html_e('Billing Details', 'cosy-appointments'); ?></h6>
-            <p class="mb-1 fw-bold text-slate invoice-modal-customer-name" id="modalInvServiceName"></p>
-            <p class="mb-1 text-muted small invoice-modal-small-info" id="modalInvDate"></p>
-            <p class="mb-0 fw-bold invoice-modal-cost-info" id="modalInvCostInfo"></p>
+    
+    <!-- Billing Details -->
+    <div class="col-md-12">
+        <div class="p-3 rounded-4 bg-light modal-info-box-secondary" style="border: 1px solid var(--cosy-border);">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-info-circle modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Billing Details', 'cosy-appointments'); ?></h6>
+            <p class="mb-3 fw-bold text-slate" style="font-size: 1.1rem; color: var(--cosy-brand-dark);" id="modalInvServiceName"></p>
+            
+            <div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Billing Date:</span>
+                    <span id="modalInvDate" class="text-dark fw-semibold"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Statement -->
+    <div class="col-md-12">
+        <div class="p-3 rounded-4 border bg-white" style="border-color: var(--cosy-brand-light) !important;">
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-receipt modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Payment Summary', 'cosy-appointments'); ?></h6>
+            <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
+                <span>Provider Share:</span>
+                <strong id="modalInvProviderShare" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
+                <span>Service Fee:</span>
+                <strong id="modalInvServiceFee" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
+            </div>
+            <div class="d-flex justify-content-between border-top pt-2 mt-2" style="font-size: 0.95rem;">
+                <span class="fw-bold text-dark">Amount Received:</span>
+                <strong id="modalInvTotalPaid" style="color: var(--cosy-brand-purple); font-size: 1.15rem; font-weight: 800;"></strong>
+            </div>
         </div>
     </div>
 </div>

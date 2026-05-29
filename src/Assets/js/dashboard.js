@@ -579,14 +579,18 @@ jQuery(document).ready(function ($) {
             const email = $(this).data('email');
             const service = $(this).data('service');
             const start = $(this).data('start');
+            const cost = $(this).data('cost');
+            const fee = $(this).data('fee') || '0.00';
             const total = $(this).data('total');
 
             $('#modalInvoiceTitle').text('Invoice Details - INV-' + id);
             $('#modalInvCustomerName').text(customer);
-            $('#modalInvCustomerEmail').text(email);
-            $('#modalInvServiceName').text('Service: ' + service);
-            $('#modalInvDate').text('Billing Date: ' + start);
-            $('#modalInvCostInfo').text('Amount Received: £' + total);
+            $('#modalInvCustomerEmail').text('(' + email + ')');
+            $('#modalInvServiceName').text(service);
+            $('#modalInvDate').text(start);
+            $('#modalInvProviderShare').text('£' + cost);
+            $('#modalInvServiceFee').text('£' + fee);
+            $('#modalInvTotalPaid').text('£' + total);
 
             // Cascade references to the print/download button inside the modal footer
             $('#btnDownloadInvoicePdf').data('id', id).data('customer', customer).data('service', service).data('total', total);
