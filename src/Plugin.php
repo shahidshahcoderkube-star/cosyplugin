@@ -32,6 +32,7 @@ class Plugin
         // Register Admin Panel Menus and Settings Pages.
         (new Admin())->register($this->loader);
         (new \Cosy\Appointments\Admin\Class_Provider_Verification())->register($this->loader);
+        (new \Cosy\Appointments\Admin\UsersAdmin())->register($this->loader);
 
         // Register AJAX handlers for backend (Admin area) actions.
         (new Backend_Actions_Handler());

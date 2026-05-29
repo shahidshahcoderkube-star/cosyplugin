@@ -4,6 +4,7 @@ namespace Cosy\Appointments\Admin;
 
 use Cosy\Appointments\Admin\OrdersAdmin;
 use Cosy\Appointments\Admin\DashboardAdmin;
+use Cosy\Appointments\Admin\UsersAdmin;
 use Cosy\Appointments\Loader;
 use Cosy\Appointments\Common\GlobalCommonFunctions;
 
@@ -15,12 +16,14 @@ class Admin
     private $ordersAdmin;
     // private $mediaApprove;
     private $dashboardAdmin;
+    private $usersAdmin;
 
     public function __construct()
     {
         $this->ordersAdmin = new OrdersAdmin();
         // $this->mediaApprove = new MediaApprove();
         $this->dashboardAdmin = new DashboardAdmin();
+        $this->usersAdmin = new UsersAdmin();
 
         // //------ Register all AJAX handlers dynamically-----//
         // $actions = [
@@ -76,6 +79,15 @@ class Admin
             'approve_cosy_media',
             'cosy-media-approve',
             [$this, 'render_media_approve']
+        );
+
+        add_submenu_page(
+            'cosy-booking-dashboard',
+            __('Users', 'cosy-appointments'),
+            __('Users', 'cosy-appointments'),
+            'manage_cosy_appointments',
+            'cosy-users',
+            [$this->usersAdmin, 'render_users_page']
         );
 
     }

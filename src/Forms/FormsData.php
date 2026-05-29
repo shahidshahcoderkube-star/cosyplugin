@@ -48,6 +48,8 @@ class FormsData
         // If the account is pending verification, reject the login
         if ($status === 'pending') {
             return new \WP_Error('email_not_verified', __('Your email is not verified. Please check your inbox for the activation link.', 'cosy-appointments'));
+        } elseif ($status === 'deactive') {
+            return new \WP_Error('account_deactivated', __('Your account has been deactivated by the administrator.', 'cosy-appointments'));
         }
 
         return $user;
@@ -133,29 +135,8 @@ class FormsData
         $user = new WP_User($user_id);
         $user->set_role('customer'); // assign customer role
 
-        // Generate verification token
-        $token = wp_generate_password(32, false);
-        update_user_meta($user_id, 'verification_token', $token);
-
-        // Build verification link
-        $verify_url = add_query_arg([
-            'action' => 'cosy_verify_provider', // same verification handler handles both
-            'uid'    => $user_id,
-            'token'  => $token,
-        ], home_url('/provider-verify'));
-
         // Send verification email
-        $subject = __('Confirm Your Customer Account', 'cosy-appointments');
-        $html_content = "
-            <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
-            <p>Thank you for registering a customer account with us! Please click the button below to verify your email address and activate your account:</p>
-            <p style='text-align: center; margin: 30px 0;'>
-                <a href='" . esc_url($verify_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Verify & Activate Account</a>
-            </p>
-            <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
-            <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
-        ";
-        cosy_send_html_email($email, $subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
+        $this->send_verification_email($user_id, 'customer');
 
         // Success response
         $this->send_response(true, __('Registration successful! Please check your email to verify your account.', 'cosy-appointments'));
@@ -231,29 +212,8 @@ class FormsData
             update_user_meta($user_id, $key, $value);
         }
 
-        // Generate verification token
-        $token = wp_generate_password(32, false);
-        update_user_meta($user_id, 'verification_token', $token);
-
-        // Build verification link
-        $verify_url = add_query_arg([
-            'action' => 'cosy_verify_provider',
-            'uid'    => $user_id,
-            'token'  => $token,
-        ], home_url('/provider-verify'));
-
         // Send verification email
-        $subject = __('Confirm Your Provider Account', 'cosy-appointments');
-        $html_content = "
-            <p>Hello <strong>" . esc_html($username) . "</strong>,</p>
-            <p>Thank you for joining as a Service Provider! Please click the button below to verify your email address and activate your provider account:</p>
-            <p style='text-align: center; margin: 30px 0;'>
-                <a href='" . esc_url($verify_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Verify & Activate Account</a>
-            </p>
-            <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
-            <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
-        ";
-        cosy_send_html_email($email, $subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
+        $this->send_verification_email($user_id, 'provider');
 
         // Response
         $this->send_response(true, __('Registration successful! Please check your email to confirm.', 'cosy-appointments'));
@@ -282,7 +242,7 @@ class FormsData
 
         if (is_wp_error($user)) {
             $error_code = $user->get_error_code();
-            if ($error_code === 'email_not_verified') {
+            if ($error_code === 'email_not_verified' || $error_code === 'account_deactivated') {
                 $this->send_response(false, $user->get_error_message());
             } else {
                 $this->send_response(false, __('Invalid username or password.', 'cosy-appointments'));
