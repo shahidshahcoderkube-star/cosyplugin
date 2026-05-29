@@ -110,35 +110,37 @@
                 $missing_requirements[] = __('Availability', 'cosy-appointments');
             }
 
-            if (!empty($missing_requirements)):
-                $count = count($missing_requirements);
-                if ($count === 3) {
-                    $req_text = $missing_requirements[0] . ', ' . $missing_requirements[1] . ' ' . __('and', 'cosy-appointments') . ' ' . $missing_requirements[2];
-                } elseif ($count === 2) {
-                    $req_text = $missing_requirements[0] . ' ' . __('and', 'cosy-appointments') . ' ' . $missing_requirements[1];
-                } else {
-                    $req_text = $missing_requirements[0];
-                }
-                ?>
-                <div class="alert d-flex align-items-center mb-4 border-0 shadow-sm"
-                    style="background: #fff5f5; border-radius: 16px; color: #c53030;" role="alert">
-                    <div
-                        style="width: 40px; height: 40px; background: rgba(229, 62, 62, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
-                        <i class="fas fa-exclamation-circle" style="font-size: 1.1rem; color: #e53e3e;"></i>
+            <div id="cosy-completeness-alert-container">
+                <?php if (!empty($missing_requirements)):
+                    $count = count($missing_requirements);
+                    if ($count === 3) {
+                        $req_text = $missing_requirements[0] . ', ' . $missing_requirements[1] . ' ' . __('and', 'cosy-appointments') . ' ' . $missing_requirements[2];
+                    } elseif ($count === 2) {
+                        $req_text = $missing_requirements[0] . ' ' . __('and', 'cosy-appointments') . ' ' . $missing_requirements[1];
+                    } else {
+                        $req_text = $missing_requirements[0];
+                    }
+                    ?>
+                    <div class="alert d-flex align-items-center mb-4 border-0 shadow-sm"
+                        style="background: #fff5f5; border-radius: 16px; color: #c53030;" role="alert">
+                        <div
+                            style="width: 40px; height: 40px; background: rgba(229, 62, 62, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 1.1rem; color: #e53e3e;"></i>
+                        </div>
+                        <div>
+                            <strong style="font-family: 'Poppins', sans-serif;"><?php esc_html_e('Profile Incomplete:', 'cosy-appointments'); ?></strong> 
+                            <span style="font-size: 0.95rem;">
+                                <?php 
+                                printf(
+                                    esc_html__('Please set up your %s. Your profile will not be visible on the front side until all of these are configured.', 'cosy-appointments'),
+                                    '<strong>' . esc_html($req_text) . '</strong>'
+                                ); 
+                                ?>
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <strong style="font-family: 'Poppins', sans-serif;"><?php esc_html_e('Profile Incomplete:', 'cosy-appointments'); ?></strong> 
-                        <span style="font-size: 0.95rem;">
-                            <?php 
-                            printf(
-                                esc_html__('Please set up your %s. Your profile will not be visible on the front side until all of these are configured.', 'cosy-appointments'),
-                                '<strong>' . esc_html($req_text) . '</strong>'
-                            ); 
-                            ?>
-                        </span>
-                    </div>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
 
             <?php if ($provider_status === 'deactive'): ?>
                 <div class="alert d-flex align-items-center mb-4 border-0 shadow-sm"

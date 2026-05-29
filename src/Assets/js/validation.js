@@ -24,6 +24,34 @@ var CosyApp = (function ($) {
             </div>
         `;
     }
+    
+    /**
+     * syncProfileCompleteness
+     * 
+     * Dynamically updates the "Profile Incomplete" alert banner on the dashboard.
+     * Triggered after successful profile update, services change, or availability save.
+     */
+    function syncProfileCompleteness() {
+        const nonce = $("#cosy_dashboard_nonce_field").val();
+        if (!nonce) return;
+
+        $.ajax({
+            url: cosy_ajax.ajax_url,
+            type: "POST",
+            data: {
+                action: "cosy_check_profile_completeness",
+                nonce: nonce
+            },
+            success(res) {
+                if (res.success) {
+                    const container = $("#cosy-completeness-alert-container");
+                    if (container.length) {
+                        container.html(res.data.html);
+                    }
+                }
+            }
+        });
+    }
 
 
     //--------------- MANUAL SUBMIT FALLBACK ---------------//
@@ -192,6 +220,7 @@ var CosyApp = (function ($) {
 
                         if (response.success) {
                             msgBox.html(cosyAlert("success", response.data.message));
+                            syncProfileCompleteness();
                         } else {
                             msgBox.html(cosyAlert("danger", response.data.message));
                         }
@@ -532,6 +561,7 @@ var CosyApp = (function ($) {
                         if (resp.success) {
                             msgBox.html(cosyAlert("success", resp.message));
                             btn.html('<i class="bi bi-check2-circle"></i>');
+                            syncProfileCompleteness();
                         } else {
                             msgBox.html(cosyAlert("danger", resp.message));
                         }
@@ -595,6 +625,7 @@ var CosyApp = (function ($) {
                         if (item.duration) {
                             $row.find(`select[name="service_duration[${serviceId}]"]`).val(item.duration);
                         }
+                        syncProfileCompleteness();
                     }
                     $priceInput.prop("placeholder", "");
                 })
@@ -620,6 +651,9 @@ var CosyApp = (function ($) {
                         serviceTitle: serviceTitle,
                         checked: 'no'
                     })
+                })
+                .then(res => {
+                    syncProfileCompleteness();
                 })
                 .catch(err => {
                     console.error("Service checkbox error:", err);
@@ -659,8 +693,12 @@ var CosyApp = (function ($) {
                     .then(resp => {
                         if (resp.success) {
                             $("#row-" + serviceId).remove();
+                            const checkbox = $(`.service-checkbox[data-id='${serviceId}']`);
+                            if (checkbox.length) {
+                                checkbox.prop("checked", false);
+                            }
                             CosyAlert.success('Deleted!', resp.message);
-                            setTimeout(() => { location.reload(); }, 1600);
+                            syncProfileCompleteness();
                         } else {
                             CosyAlert.error('Error!', resp.message);
                         }
@@ -808,6 +846,7 @@ var CosyApp = (function ($) {
 
                         // Show success alert
                         CosyAlert.success('Success!', 'Your availability has been saved.');
+                        syncProfileCompleteness();
                     } else {
                         // Show error alert on request failure
                         CosyAlert.error('Error!', res.data || 'Something went wrong while saving.');
