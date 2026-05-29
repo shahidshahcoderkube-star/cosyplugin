@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Cosy Appointments
  * Description: A complete multi-provider appointment booking and scheduling solution for WordPress. Manage providers, services, availability, and Stripe payments — all in one place.
- * Version: 1.0.10
+ * Version: 1.0.13
  * Author: Shahid Shah — Coderkube Technology
  * Author URI: https://coderkube.com
  * Text Domain: cosy-appointments
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
  */
 define('COSY_APPT_PATH', plugin_dir_path(__FILE__));   // Absolute path to the plugin folder
 define('COSY_APPT_URL', plugin_dir_url(__FILE__));     // URL to the plugin folder
-define('COSY_APPT_VER', '1.0.10');  // Current version
+define('COSY_APPT_VER', '1.0.13');  // Current version
 
 /**
  * register_role

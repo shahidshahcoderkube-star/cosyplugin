@@ -27,10 +27,6 @@ class DeactivationHandler
         // Register intercept hook
         add_action('deactivate_plugin', [$this, 'check_deactivation'], 10, 2);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_deactivation_assets']);
-
-        // Register absolute deletion protection hooks
-        add_filter('plugin_action_links_' . plugin_basename(COSY_APPT_PATH . 'cosy-appointments.php'), [$this, 'remove_delete_link'], 10, 4);
-        add_action('delete_plugin', [$this, 'block_plugin_deletion'], 10, 1);
     }
 
     /**
@@ -220,37 +216,4 @@ class DeactivationHandler
         set_transient('cosy_deactivation_authorized', 'yes', 30);
 
         wp_send_json_success(['message' => 'OTP verified successfully.']);
-    }
-
-    /**
-     * Remove the "Delete" action link from the WordPress Plugins page row actions
-     */
-    public function remove_delete_link($actions, $plugin_file, $plugin_data, $context): array
-    {
-        if (isset($actions['delete'])) {
-            unset($actions['delete']);
-        }
-        return $actions;
-    }
-
-    /**
-     * Terminate and prevent any attempt to delete this plugin from the system backend
-     */
-    public function block_plugin_deletion($plugin): void
-    {
-        $my_plugin = plugin_basename(COSY_APPT_PATH . 'cosy-appointments.php');
-        
-        if ($plugin === $my_plugin) {
-            wp_die(
-                '<div style="text-align: center; font-family: \'Plus Jakarta Sans\', sans-serif; padding: 40px 20px; max-width: 600px; margin: 40px auto; background: #fff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-                    <div style="font-size: 60px; margin-bottom: 20px;">🔒</div>
-                    <h2 style="color: #0f172a; font-size: 24px; font-weight: 700; margin-bottom: 10px;">Deletion Protected</h2>
-                    <p style="color: #64748b; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">This plugin has been marked as a core system component. Deletion is strictly prohibited under any circumstances.</p>
-                    <a href="' . esc_url(admin_url('plugins.php')) . '" style="background: #a44390; color: #fff; text-decoration: none; padding: 12px 30px; border-radius: 12px; font-weight: 600; box-shadow: 0 4px 6px rgba(164, 67, 144, 0.2); transition: all 0.2s;">Return to Plugins Page</a>
-                 </div>',
-                'Deletion Blocked',
-                ['response' => 403]
-            );
-        }
-    }
-}
+    }}

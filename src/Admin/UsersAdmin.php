@@ -199,11 +199,15 @@ class UsersAdmin
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <select class="cosy-admin-status-dropdown" data-user-id="<?php echo $user_id; ?>" data-role="<?php echo $primary_role; ?>">
-                                        <option value="active" <?php selected($account_status, 'active'); ?>><?php esc_html_e('Active', 'cosy-appointments'); ?></option>
-                                        <option value="deactive" <?php selected($account_status, 'deactive'); ?>><?php esc_html_e('Deactive', 'cosy-appointments'); ?></option>
-                                    </select>
-                                    <span class="cosy-status-spinner spinner" style="float: none; margin: 0 0 0 5px; vertical-align: middle;"></span>
+                                    <?php if ($primary_role === 'customer') : ?>
+                                        <span style="color: #94a3b8; font-weight: 600;"><?php esc_html_e('N/A', 'cosy-appointments'); ?></span>
+                                    <?php else : ?>
+                                        <select class="cosy-admin-status-dropdown" data-user-id="<?php echo $user_id; ?>" data-role="<?php echo $primary_role; ?>">
+                                            <option value="active" <?php selected($account_status, 'active'); ?>><?php esc_html_e('Active', 'cosy-appointments'); ?></option>
+                                            <option value="deactive" <?php selected($account_status, 'deactive'); ?>><?php esc_html_e('Deactive', 'cosy-appointments'); ?></option>
+                                        </select>
+                                        <span class="cosy-status-spinner spinner" style="float: none; margin: 0 0 0 5px; vertical-align: middle;"></span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <button type="button" class="button button-small btn-view-cosy-user-details" data-user-id="<?php echo $user_id; ?>">
@@ -447,6 +451,8 @@ class UsersAdmin
             }
             
             /* Premium Details Modal */
+            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
+
             .cosy-user-modal {
                 display: none;
                 position: fixed;
@@ -460,6 +466,15 @@ class UsersAdmin
                 backdrop-filter: blur(4px);
                 transition: opacity 0.3s ease;
             }
+            .cosy-user-modal-content * {
+                box-sizing: border-box;
+            }
+            .cosy-user-modal-content {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+            }
+            .cosy-user-modal-content .dashicons {
+                font-family: dashicons !important;
+            }
             .cosy-user-modal-content {
                 background-color: #ffffff;
                 margin: 8% auto;
@@ -469,11 +484,16 @@ class UsersAdmin
                 box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
                 border: 1px solid #f1f5f9;
                 overflow: hidden;
+                animation: cosyModalFadeIn 0.3s ease;
+            }
+            @keyframes cosyModalFadeIn {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
             }
             .cosy-user-modal-header {
                 background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
                 color: #ffffff;
-                padding: 20px 24px;
+                padding: 18px 24px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -481,9 +501,10 @@ class UsersAdmin
             .cosy-user-modal-header h2 {
                 margin: 0;
                 color: #ffffff;
-                font-size: 18px;
+                font-size: 16px;
                 font-weight: 700;
-                font-family: 'Poppins', sans-serif;
+                font-family: 'Outfit', sans-serif;
+                letter-spacing: -0.01em;
             }
             .cosy-user-modal-close {
                 font-size: 28px;
@@ -497,66 +518,102 @@ class UsersAdmin
             }
             .cosy-user-modal-body {
                 padding: 24px;
-                font-size: 13px;
-                line-height: 1.5;
-                color: #334155;
+                background-color: #f8fafc;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
             }
             .cosy-detail-section {
-                margin-bottom: 20px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid #f1f5f9;
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 18px 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             }
-            .cosy-detail-section:last-child {
-                margin-bottom: 0;
-                padding-bottom: 0;
-                border-bottom: none;
+            .cosy-detail-section.section-primary {
+                background: #fdf2f8;
+                border: 1px solid #fbcfe8;
             }
             .cosy-detail-section h3 {
-                margin: 0 0 12px 0;
-                font-size: 13px;
+                margin: 0 0 14px 0 !important;
+                font-family: 'Outfit', sans-serif !important;
+                font-size: 0.95rem !important;
+                font-weight: 700 !important;
+                color: #1e293b !important;
                 text-transform: uppercase;
-                color: #64748b;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.05em;
                 display: flex;
                 align-items: center;
-                gap: 6px;
+                gap: 8px;
+                border-bottom: 1px solid #f1f5f9;
+                padding-bottom: 10px;
+            }
+            .cosy-detail-section.section-primary h3 {
+                color: #a44390 !important;
+                border-bottom-color: #fbcfe8;
+            }
+            .cosy-detail-section h3 .dashicons {
+                color: #a44390;
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+                line-height: 18px;
             }
             .cosy-detail-row {
                 display: flex;
-                margin-bottom: 8px;
+                align-items: center;
+                padding: 8px 0;
+                border-bottom: 1px solid #f8fafc;
+                font-size: 13px;
+            }
+            .cosy-detail-section.section-primary .cosy-detail-row {
+                border-bottom-color: rgba(164, 67, 144, 0.05);
             }
             .cosy-detail-row:last-child {
-                margin-bottom: 0;
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+            .cosy-detail-row:first-of-type {
+                padding-top: 0;
             }
             .cosy-detail-label {
-                width: 140px;
+                width: 150px;
                 font-weight: 600;
-                color: #475569;
+                color: #64748b;
+                font-size: 12.5px;
             }
             .cosy-detail-val {
                 flex: 1;
+                color: #1e293b;
+                font-weight: 600;
+            }
+            .cosy-detail-section.section-primary .cosy-detail-val {
                 color: #0f172a;
             }
             .cosy-user-modal-footer {
                 padding: 16px 24px;
-                background-color: #f8fafc;
-                border-top: 1px solid #f1f5f9;
+                background-color: #ffffff;
+                border-top: 1px solid #e2e8f0;
                 display: flex;
                 justify-content: flex-end;
             }
             .cosy-modal-btn-close {
                 background: #ffffff;
-                border: 1px solid #cbd5e1;
-                padding: 8px 18px;
-                border-radius: 8px;
-                font-weight: 600;
+                border: 1.5px solid #cbd5e1;
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-weight: 700;
+                font-family: 'Outfit', sans-serif;
+                font-size: 13px;
                 cursor: pointer;
                 color: #475569;
                 transition: all 0.2s ease;
+                outline: none;
             }
             .cosy-modal-btn-close:hover {
                 background: #f1f5f9;
                 color: #0f172a;
+                border-color: #94a3b8;
             }
         </style>
 
@@ -892,7 +949,7 @@ class UsersAdmin
         ob_start();
         ?>
         <!-- Basic info -->
-        <div class="cosy-detail-section">
+        <div class="cosy-detail-section section-primary">
             <h3><span class="dashicons dashicons-admin-users"></span> <?php esc_html_e('Basic Information', 'cosy-appointments'); ?></h3>
             <div class="cosy-detail-row">
                 <div class="cosy-detail-label"><?php esc_html_e('Username:', 'cosy-appointments'); ?></div>
