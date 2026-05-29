@@ -109,7 +109,7 @@
             if (!$has_availability) {
                 $missing_requirements[] = __('Availability', 'cosy-appointments');
             }
-
+            ?>
             <div id="cosy-completeness-alert-container">
                 <?php if (!empty($missing_requirements)):
                     $count = count($missing_requirements);
