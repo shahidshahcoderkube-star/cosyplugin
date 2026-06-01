@@ -1309,3 +1309,65 @@
     color: #0f172a;
     border-color: #94a3b8;
 }
+
+/* Modal Filter Tabs */
+.cosy-modal-filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+
+.cosy-modal-tab {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    cursor: pointer !important;
+    padding: 6px 12px !important;
+    transition: all 0.2s ease !important;
+    border-radius: 4px 4px 0 0 !important;
+    margin: 0 !important;
+}
+
+.cosy-modal-tab:hover {
+    color: #0f172a !important;
+    background-color: #f1f5f9 !important;
+}
+
+.cosy-modal-tab.active {
+    color: #a44390 !important;
+    border-bottom: 2px solid #a44390 !important;
+    font-weight: 700 !important;
+    background: transparent !important;
+}
+
+.cosy-modal-tab.active:hover {
+    background: transparent !important;
+}
+
+/* Scrollable container for modal booking cards */
+.cosy-modal-appt-list-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+/* Custom Scrollbar for premium feel */
+.cosy-modal-appt-list-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+.cosy-modal-appt-list-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+.cosy-modal-appt-list-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.cosy-modal-appt-list-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

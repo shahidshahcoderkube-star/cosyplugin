@@ -260,6 +260,8 @@
                 <li><a class="cdoc-nav-link" data-tab="pages"><i class="fas fa-file-alt"></i> Pages & Shortcodes</a></li>
                 <li><a class="cdoc-nav-link" data-tab="workflow"><i class="fas fa-sitemap"></i> How It Works</a></li>
                 <li><a class="cdoc-nav-link" data-tab="stripe"><i class="fab fa-stripe-s"></i> Stripe Setup</a></li>
+                <li><a class="cdoc-nav-link" data-tab="users-management"><i class="fas fa-users-cog"></i> Users Management</a></li>
+                <li><a class="cdoc-nav-link" data-tab="security-logs"><i class="fas fa-shield-alt"></i> Security & Logs</a></li>
             </ul>
         </div>
 
@@ -518,6 +520,79 @@
                     <div class="cdoc-step-body">
                         <h4>Save Settings & Test</h4>
                         <p>Save your configuration. Before going live, use Stripe's test mode with a test card to verify that payments are processed correctly. Switch to Live mode only when you are ready to accept real transactions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS MANAGEMENT -->
+            <div id="cdoc-users-management" class="cdoc-pane">
+                <h2 class="cdoc-section-title">Users Management Guide</h2>
+                <p class="cdoc-section-sub">Administrators have centralized controls to manage both customers and service providers on the platform.</p>
+                
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">1</div>
+                    <div class="cdoc-step-body">
+                        <h4>Filtering and Searching Users</h4>
+                        <p>In <strong>CC Booking → Users</strong>, you can filter by role (All, Providers, Customers) or by service type to narrow down who you are viewing. You can also search directly by username, email, or display name.</p>
+                    </div>
+                </div>
+                
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">2</div>
+                    <div class="cdoc-step-body">
+                        <h4>Provider Account Status & Verification</h4>
+                        <p>Administrators can set a provider status to <strong>Active</strong> or <strong>Deactive</strong> using the inline dropdown. An email is automatically triggered to inform providers of approval/suspension status. In the main WordPress users list, a "Verify" column is also added to toggle status quickly.</p>
+                    </div>
+                </div>
+                
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">3</div>
+                    <div class="cdoc-step-body">
+                        <h4>Viewing User Details (Modal)</h4>
+                        <p>Click <strong>View Details</strong> to open a detailed modal showing basic profile details, extra provider information (middle name, DOB, phone, biography), and a chronological listing of their appointments and sessions.</p>
+                    </div>
+                </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">4</div>
+                    <div class="cdoc-step-body">
+                        <h4>Bulk Deleting & Resending Verification</h4>
+                        <p>Check the desired users in the list and click the <strong>Delete</strong> button to bulk delete users. If a user is pending email verification, you will see a <strong>Resend Email</strong> button to resend their verification link.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECURITY & LOGS -->
+            <div id="cdoc-security-logs" class="cdoc-pane">
+                <h2 class="cdoc-section-title">Security & Audit Activity Logs</h2>
+                <p class="cdoc-section-sub">Cosy Appointments includes robust security measures to protect plugin configuration and track key occurrences.</p>
+                
+                <div class="cdoc-alert">
+                    <h4>🔒 Plugin Deactivation Protection</h4>
+                    <p>To prevent unauthorized personnel or malicious attacks from disabling the booking engine, a <strong>One-Time Password (OTP) deactivation guard</strong> is active. Attempting to deactivate the plugin triggers a secure 6-digit code sent only to the Site Administrator's registered email address. The plugin cannot be deactivated without inputting this verified OTP code.</p>
+                </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">1</div>
+                    <div class="cdoc-step-body">
+                        <h4>Viewing Activity Audit Logs</h4>
+                        <p>Navigate to <strong>CC Booking → Logs</strong> to view a table of logged actions. Each entry records the date/timestamp, user name, role (Admin, Provider, Customer, Guest), IP address, and a detailed description of the action taken.</p>
+                    </div>
+                </div>
+                
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">2</div>
+                    <div class="cdoc-step-body">
+                        <h4>Toggle Log Modules Dynamically</h4>
+                        <p>Under the Logs page, admins can toggle logging on or off for individual functional modules (e.g., Services, Users, Settings, Media approvals) using visual slider switches. Paused modules will skip database logging to keep the table clean.</p>
+                    </div>
+                </div>
+                
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">3</div>
+                    <div class="cdoc-step-body">
+                        <h4>Automated Cleanups (Cron Job)</h4>
+                        <p>To avoid bloating the database, the plugin automatically schedules a daily cron task (<code>cosy_cleanup_activity_logs_cron</code>) that deletes all activity log rows older than <strong>30 days</strong>. You can also manually clear all logs at any time using the <strong>Clear Logs</strong> action button.</p>
                     </div>
                 </div>
             </div>
