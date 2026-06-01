@@ -120,10 +120,7 @@ class Backend_Actions_Handler
         // Fetch the video URL to delete it from media library
         $video_url = get_user_meta($user_id, 'introduction_video', true);
         if ($video_url) {
-            $attachment_id = attachment_url_to_postid($video_url);
-            if ($attachment_id) {
-                wp_delete_attachment($attachment_id, true); // true = bypass trash and delete permanently
-            }
+            $this->delete_media_file_by_url($video_url);
         }
 
         // Delete video + update status in meta
@@ -297,10 +294,7 @@ class Backend_Actions_Handler
 
                     // 1. Delete physical attachment from media library if exists
                     if (!empty($video_url)) {
-                        $attachment_id = attachment_url_to_postid($video_url);
-                        if ($attachment_id) {
-                            wp_delete_attachment($attachment_id, true);
-                        }
+                        $this->delete_media_file_by_url($video_url);
                     }
 
                     // 2. Also check if the user meta currently points to this video

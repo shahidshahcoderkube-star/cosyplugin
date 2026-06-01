@@ -697,4 +697,50 @@ trait GlobalCommonFunctions
 
         return $status;
     }
+
+    /**
+     * Deletes a media file (attachment) from the WordPress Media Library
+     * using its URL. Resolves potential domain/path mismatches.
+     *
+     * @param string $url The URL of the attachment to delete.
+     * @return bool True if deleted, false otherwise.
+     */
+    public function delete_media_file_by_url(string $url): bool
+    {
+        if (empty($url)) {
+            return false;
+        }
+
+        // 1. Try default WordPress function first
+        $attachment_id = attachment_url_to_postid($url);
+        
+        // 2. Fallback query if attachment_url_to_postid fails
+        if (!$attachment_id) {
+            global $wpdb;
+            $attachment_id = $wpdb->get_var($wpdb->prepare(
+                "SELECT ID FROM $wpdb->posts WHERE guid = %s AND post_type = 'attachment'",
+                $url
+            ));
+        }
+
+        // 3. Fallback: query by relative upload path
+        if (!$attachment_id) {
+            $uploads = wp_upload_dir();
+            $base_url = $uploads['baseurl'];
+            if (strpos($url, $base_url) !== false) {
+                $relative_path = str_replace($base_url . '/', '', $url);
+                global $wpdb;
+                $attachment_id = $wpdb->get_var($wpdb->prepare(
+                    "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_wp_attached_file' AND meta_value = %s",
+                    $relative_path
+                ));
+            }
+        }
+
+        if ($attachment_id) {
+            return (bool) wp_delete_attachment($attachment_id, true);
+        }
+
+        return false;
+    }
 }
