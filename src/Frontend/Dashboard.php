@@ -202,20 +202,39 @@ class Dashboard
                 // Save status as pending
                 update_user_meta($user_id, 'video_status', 'pending');
 
-                // Sync with custom table for Admin Dashboard - Always insert a new record to keep logs of all attempts
+                // Sync with custom table for Admin Dashboard - Update existing or insert new to avoid duplicate rows per provider
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'cosy_media_approvals';
 
-                $wpdb->insert(
-                    $table_name,
-                    [
-                        'user_id'     => $user_id,
-                        'media_url'   => $video_url,
-                        'status'      => 'pending',
-                        'uploaded_at' => current_time('mysql'),
-                    ],
-                    ['%d', '%s', '%s', '%s']
+                $exists = $wpdb->get_var(
+                    $wpdb->prepare("SELECT id FROM $table_name WHERE user_id = %d", $user_id)
                 );
+
+                if ($exists) {
+                    $wpdb->update(
+                        $table_name,
+                        [
+                            'media_url'   => $video_url,
+                            'status'      => 'pending',
+                            'uploaded_at' => current_time('mysql'),
+                            'reviewed_at' => null,
+                        ],
+                        ['user_id' => $user_id],
+                        ['%s', '%s', '%s', null],
+                        ['%d']
+                    );
+                } else {
+                    $wpdb->insert(
+                        $table_name,
+                        [
+                            'user_id'     => $user_id,
+                            'media_url'   => $video_url,
+                            'status'      => 'pending',
+                            'uploaded_at' => current_time('mysql'),
+                        ],
+                        ['%d', '%s', '%s', '%s']
+                    );
+                }
 
                 // Log video upload
                 \Cosy\Appointments\Common\LogManager::log(

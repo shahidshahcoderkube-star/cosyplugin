@@ -24,9 +24,15 @@
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'cosy_media_approvals';
                 
-                // Fetch all approvals, prioritizing pending first, then by uploaded date
+                // Fetch only the latest media approval/upload status for each provider
                 $results = $wpdb->get_results(
-                    "SELECT * FROM {$table_name} ORDER BY FIELD(status, 'pending', 'approved', 'rejected'), uploaded_at DESC"
+                    "SELECT m1.* FROM {$table_name} m1
+                     INNER JOIN (
+                         SELECT user_id, MAX(id) as max_id
+                         FROM {$table_name}
+                         GROUP BY user_id
+                     ) m2 ON m1.id = m2.max_id
+                     ORDER BY FIELD(m1.status, 'pending', 'approved', 'rejected'), m1.uploaded_at DESC"
                 );
 
                 if (empty($results)) {
