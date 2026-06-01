@@ -523,27 +523,27 @@ class UsersAdmin
                 color: #854d0e;
                 border: 1px solid #fef08a;
             }
-            .cosy-users-admin .badge-provider-service {
-                background-color: #ecfdf5;
-                color: #047857;
-                border: 1px solid #a7f3d0;
-                text-transform: none;
-                font-size: 10px;
-                border-radius: 4px;
-                padding: 3px 7px;
-                margin: 2px;
-                display: inline-block;
+            .badge-provider-service {
+                background-color: #ecfdf5 !important;
+                color: #047857 !important;
+                border: 1px solid #a7f3d0 !important;
+                text-transform: none !important;
+                font-size: 10px !important;
+                border-radius: 4px !important;
+                padding: 3px 7px !important;
+                margin: 2px !important;
+                display: inline-block !important;
             }
-            .cosy-users-admin .badge-customer-service {
-                background-color: #fff7ed;
-                color: #c2410c;
-                border: 1px solid #ffedd5;
-                text-transform: none;
-                font-size: 10px;
-                border-radius: 4px;
-                padding: 3px 7px;
-                margin: 2px;
-                display: inline-block;
+            .badge-customer-service {
+                background-color: #fff7ed !important;
+                color: #c2410c !important;
+                border: 1px solid #ffedd5 !important;
+                text-transform: none !important;
+                font-size: 10px !important;
+                border-radius: 4px !important;
+                padding: 3px 7px !important;
+                margin: 2px !important;
+                display: inline-block !important;
             }
             .cosy-users-admin select.cosy-admin-status-dropdown {
                 border-radius: 6px;
@@ -1179,36 +1179,40 @@ class UsersAdmin
 
             if (!empty($appointments)) :
                 ?>
-                <table class="wp-list-table widefat fixed striped" style="margin-top: 10px; border: 1px solid #cbd5e1; border-radius: 4px; box-shadow: none; width: 100%;">
-                    <thead>
-                        <tr>
-                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 30%;"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
-                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 25%;"><?php esc_html_e('Date', 'cosy-appointments'); ?></th>
-                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 25%;"><?php esc_html_e('Time Slot', 'cosy-appointments'); ?></th>
-                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 10%;"><?php esc_html_e('Amount', 'cosy-appointments'); ?></th>
-                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 10%;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($appointments as $appt) : 
-                            $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
-                            ?>
-                            <tr>
-                                <td style="padding: 10px; font-size: 11px;">
-                                    <span class="badge <?php echo ($role === 'provider') ? 'badge-provider-service' : 'badge-customer-service'; ?>" style="margin: 0; padding: 2px 6px; font-size: 9px; font-weight: bold;"><?php echo esc_html($appt->service_name); ?></span>
-                                </td>
-                                <td style="padding: 10px; font-size: 11px;"><?php echo esc_html($appt->start_date); ?></td>
-                                <td style="padding: 10px; font-size: 11px;"><?php echo esc_html($appt->slots_timeline ?: '-'); ?></td>
-                                <td style="padding: 10px; font-size: 11px; font-weight: 600;">£<?php echo esc_html($appt->total_payable ?: '0'); ?></td>
-                                <td style="padding: 10px; font-size: 11px;">
-                                    <span style="font-weight: 700; text-transform: uppercase; font-size: 10px; color: <?php echo ($status === 'completed') ? '#166534' : (($status === 'cancelled') ? '#991b1b' : '#854d0e'); ?>;">
-                                        <?php echo esc_html($status); ?>
+                <div class="cosy-modal-appt-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+                    <?php foreach ($appointments as $appt) : 
+                        $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
+                        $status_color = ($status === 'completed') ? '#166534' : (($status === 'cancelled') ? '#991b1b' : '#854d0e');
+                        $status_bg = ($status === 'completed') ? '#dcfce7' : (($status === 'cancelled') ? '#fee2e2' : '#fef9c3');
+                        $badge_class = ($role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
+                        ?>
+                        <div class="cosy-modal-appt-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                                    <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; font-size: 10px; font-weight: bold;"><?php echo esc_html($appt->service_name); ?></span>
+                                    <span style="font-size: 11px; font-weight: 700; color: #1e293b;">£<?php echo esc_html($appt->total_payable ?: '0'); ?></span>
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 12px; color: #64748b; font-size: 11px;">
+                                    <span style="display: flex; align-items: center; gap: 4px;">
+                                        <span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
+                                        <span><?php echo esc_html($appt->start_date); ?></span>
                                     </span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                                    <?php if (!empty($appt->slots_timeline)) : ?>
+                                        <span style="display: flex; align-items: center; gap: 4px;">
+                                            <span class="dashicons dashicons-clock" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
+                                            <span><?php echo esc_html($appt->slots_timeline); ?></span>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div style="text-align: right; flex-shrink: 0;">
+                                <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_color; ?>; background-color: <?php echo $status_bg; ?>; border: 1px solid <?php echo $status_color; ?>33;">
+                                    <?php echo esc_html($status); ?>
+                                </span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
                 <?php
             else :
                 if ($role === 'provider') {
