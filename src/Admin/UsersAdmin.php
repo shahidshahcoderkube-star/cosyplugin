@@ -17,7 +17,7 @@ class UsersAdmin
     {
         // AJAX handler for updating user status
         $loader->add_action('wp_ajax_cosy_admin_update_user_status', $this, 'handle_ajax_update_user_status');
-        
+
         // AJAX handler for resending verification email
         $loader->add_action('wp_ajax_cosy_admin_resend_verification', $this, 'handle_ajax_resend_verification');
 
@@ -75,7 +75,7 @@ class UsersAdmin
         $details_nonce = wp_create_nonce('cosy_admin_details_nonce');
         $delete_nonce = wp_create_nonce('cosy_admin_delete_nonce');
 
-        ?>
+?>
         <div class="wrap cosy-users-admin">
             <h1 class="wp-heading-inline"><?php esc_html_e('Manage Users', 'cosy-appointments'); ?></h1>
             <hr class="wp-header-end">
@@ -125,13 +125,13 @@ class UsersAdmin
                         <td id="cb" class="manage-column column-cb check-column" style="width: 45px; padding: 8px 20px 8px 15px; vertical-align: middle;">
                             <input type="checkbox" id="cosy-select-all-users">
                         </td>
-                        <th scope="col" class="manage-column"><?php esc_html_e('Username & Name', 'cosy-appointments'); ?></th>
-                        <th scope="col" class="manage-column" style="width: 120px;"><?php esc_html_e('Role', 'cosy-appointments'); ?></th>
-                        <th scope="col" class="manage-column"><?php esc_html_e('Email', 'cosy-appointments'); ?></th>
-                        <th scope="col" class="manage-column" style="width: 220px;"><?php esc_html_e('Services', 'cosy-appointments'); ?></th>
-                        <th scope="col" class="manage-column" style="width: 160px;"><?php esc_html_e('Email Verify', 'cosy-appointments'); ?></th>
-                        <th scope="col" class="manage-column" style="width: 160px;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
-                        <th scope="col" class="manage-column" style="width: 180px;"><?php esc_html_e('Actions', 'cosy-appointments'); ?></th>
+                        <th scope="col" class="manage-column" style="width: 220px;"><?php esc_html_e('Username & Name', 'cosy-appointments'); ?></th>
+                        <th scope="col" class="manage-column" style="width: 100px;"><?php esc_html_e('Role', 'cosy-appointments'); ?></th>
+                        <th scope="col" class="manage-column" style="width: 170px;"><?php esc_html_e('Email', 'cosy-appointments'); ?></th>
+                        <th scope="col" class="manage-column" style="width: 320px;"><?php esc_html_e('Services', 'cosy-appointments'); ?></th>
+                        <th scope="col" class="manage-column" style="width: 130px;"><?php esc_html_e('Email Verify', 'cosy-appointments'); ?></th>
+                        <th scope="col" class="manage-column" style="width: 120px;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
+                        <th scope="col" class="manage-column" style="width: 170px;"><?php esc_html_e('Actions', 'cosy-appointments'); ?></th>
                     </tr>
                 </thead>
                 <tbody id="the-list">
@@ -163,7 +163,7 @@ class UsersAdmin
                                 // For customers, we use account_status value (active vs deactive)
                                 $account_status = ($email_status === 'deactive') ? 'deactive' : 'active';
                             }
-                            ?>
+                        ?>
                             <tr id="user-row-<?php echo $user_id; ?>">
                                 <th scope="row" class="check-column" style="padding: 8px 20px 8px 15px; vertical-align: middle; width: 45px;">
                                     <input type="checkbox" class="cosy-user-checkbox" value="<?php echo $user_id; ?>">
@@ -229,7 +229,7 @@ class UsersAdmin
                                                 break;
                                             }
                                             $badge_class = ($primary_role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
-                                            
+
                                             // Determine execution status based on date comparison
                                             $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
                                             if ($status === 'cancelled') {
@@ -252,14 +252,14 @@ class UsersAdmin
 
                                             // Determine booking ordinal suffix (1st, 2nd, 3rd, etc.)
                                             $booking_num = $appt_booking_numbers[$appt->ID] ?? 1;
-                                            $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+                                            $ends = array('th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th');
                                             if ((($booking_num % 100) >= 11) && (($booking_num % 100) <= 13)) {
                                                 $ordinal = $booking_num . 'th';
                                             } else {
                                                 $ordinal = $booking_num . $ends[$booking_num % 10];
                                             }
                                             $label_suffix = ($primary_role === 'provider') ? sprintf(__('%s Session', 'cosy-appointments'), $ordinal) : sprintf(__('%s Booking', 'cosy-appointments'), $ordinal);
-                                            ?>
+                                    ?>
                                             <div class="cosy-appt-info-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; font-size: 11px;">
                                                 <div style="font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; gap: 4px;">
                                                     <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; padding: 2px 6px; font-size: 9px; font-weight: bold;">
@@ -280,7 +280,7 @@ class UsersAdmin
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
-                                            <?php
+                                    <?php
                                         endforeach;
                                     else :
                                         if ($primary_role === 'provider') {
@@ -337,7 +337,7 @@ class UsersAdmin
                                         <button type="button" class="button button-small btn-view-cosy-user-details" data-user-id="<?php echo $user_id; ?>">
                                             <?php esc_html_e('View Details', 'cosy-appointments'); ?>
                                         </button>
-                                        
+
                                         <?php if ($email_status === 'pending') : ?>
                                             <button type="button" class="button button-small cosy-btn-resend-verification" data-user-id="<?php echo $user_id; ?>" data-role="<?php echo $primary_role; ?>">
                                                 <?php esc_html_e('Resend Email', 'cosy-appointments'); ?>
@@ -387,21 +387,25 @@ class UsersAdmin
                 margin-bottom: 20px;
                 margin-top: 15px;
             }
+
             .cosy-control-left {
                 display: flex;
                 align-items: center;
                 gap: 16px;
             }
+
             .cosy-control-right {
                 display: flex;
                 align-items: center;
             }
+
             .cosy-role-tabs {
                 display: flex;
                 background-color: #f1f5f9;
                 padding: 4px;
                 border-radius: 8px;
             }
+
             .cosy-tab-pill {
                 display: inline-block;
                 padding: 6px 16px;
@@ -413,19 +417,23 @@ class UsersAdmin
                 transition: all 0.2s ease;
                 border: none;
             }
+
             .cosy-tab-pill:hover {
                 color: #0f172a;
                 background-color: #e2e8f0;
             }
+
             .cosy-tab-pill.active {
                 background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
                 color: #ffffff;
                 box-shadow: 0 2px 6px rgba(164, 67, 144, 0.2);
             }
+
             .cosy-tab-pill.active:hover {
                 background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
                 color: #ffffff;
             }
+
             .cosy-btn-delete-selected-modern {
                 background: #ffffff;
                 border: 1.5px solid #ef4444;
@@ -441,20 +449,24 @@ class UsersAdmin
                 height: 34px;
                 outline: none;
             }
+
             .cosy-btn-delete-selected-modern:hover:not(:disabled) {
                 background: #ef4444;
                 color: #ffffff;
                 box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
             }
+
             .cosy-btn-delete-selected-modern:disabled {
                 border-color: #cbd5e1;
                 color: #94a3b8;
                 cursor: not-allowed;
                 opacity: 0.65;
             }
+
             .cosy-search-form-modern {
                 margin: 0;
             }
+
             .cosy-search-input-wrapper {
                 display: flex;
                 align-items: center;
@@ -465,10 +477,12 @@ class UsersAdmin
                 transition: border-color 0.2s ease;
                 height: 34px;
             }
+
             .cosy-search-input-wrapper:focus-within {
                 border-color: #a44390;
                 box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1);
             }
+
             .cosy-search-input-wrapper input[type="search"] {
                 border: none !important;
                 outline: none !important;
@@ -481,6 +495,7 @@ class UsersAdmin
                 background: transparent !important;
                 height: auto !important;
             }
+
             .cosy-search-btn {
                 background: #f1f5f9;
                 border: none;
@@ -494,6 +509,7 @@ class UsersAdmin
                 transition: all 0.2s ease;
                 margin: 0;
             }
+
             .cosy-search-btn:hover {
                 background: #e2e8f0;
                 color: #0f172a;
@@ -509,6 +525,7 @@ class UsersAdmin
                 border-spacing: 0 !important;
                 background: #ffffff;
             }
+
             .cosy-users-table thead th {
                 background-color: #f8fafc !important;
                 color: #475569 !important;
@@ -517,18 +534,24 @@ class UsersAdmin
                 padding: 14px 10px !important;
                 border-bottom: 2px solid #e2e8f0 !important;
             }
+
             .cosy-users-table tbody tr {
                 transition: background-color 0.15s ease;
             }
+
             .cosy-users-table tbody tr:hover {
                 background-color: #f8fafc !important;
             }
-            .cosy-users-table tbody td, .cosy-users-table tbody th {
+
+            .cosy-users-table tbody td,
+            .cosy-users-table tbody th {
                 padding: 14px 10px !important;
                 vertical-align: middle !important;
                 border-bottom: 1px solid #f1f5f9 !important;
             }
-            .cosy-users-table tbody tr:last-child td, .cosy-users-table tbody tr:last-child th {
+
+            .cosy-users-table tbody tr:last-child td,
+            .cosy-users-table tbody tr:last-child th {
                 border-bottom: none !important;
             }
 
@@ -542,31 +565,37 @@ class UsersAdmin
                 text-transform: uppercase;
                 letter-spacing: 0.3px;
             }
+
             .cosy-users-admin .badge-provider {
                 background-color: #f3e8ff;
                 color: #6b21a8;
                 border: 1px solid #e9d5ff;
             }
+
             .cosy-users-admin .badge-customer {
                 background-color: #dbeafe;
                 color: #1e40af;
                 border: 1px solid #bfdbfe;
             }
+
             .cosy-users-admin .badge-other {
                 background-color: #f1f5f9;
                 color: #475569;
                 border: 1px solid #e2e8f0;
             }
+
             .cosy-users-admin .badge-verified {
                 background-color: #dcfce7;
                 color: #166534;
                 border: 1px solid #bbf7d0;
             }
+
             .cosy-users-admin .badge-pending {
                 background-color: #fef9c3;
                 color: #854d0e;
                 border: 1px solid #fef08a;
             }
+
             .badge-provider-service {
                 background-color: #ecfdf5 !important;
                 color: #047857 !important;
@@ -578,6 +607,7 @@ class UsersAdmin
                 margin: 2px !important;
                 display: inline-block !important;
             }
+
             .badge-customer-service {
                 background-color: #fff7ed !important;
                 color: #c2410c !important;
@@ -589,6 +619,7 @@ class UsersAdmin
                 margin: 2px !important;
                 display: inline-block !important;
             }
+
             .cosy-users-admin select.cosy-admin-status-dropdown {
                 border-radius: 6px;
                 border: 1px solid #cbd5e1;
@@ -596,7 +627,7 @@ class UsersAdmin
                 padding: 2px 24px 2px 8px;
                 height: 28px;
             }
-            
+
             /* Premium Details Modal */
             @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
 
@@ -613,15 +644,19 @@ class UsersAdmin
                 backdrop-filter: blur(4px);
                 transition: opacity 0.3s ease;
             }
+
             .cosy-user-modal-content * {
                 box-sizing: border-box;
             }
+
             .cosy-user-modal-content {
                 font-family: 'Plus Jakarta Sans', sans-serif;
             }
+
             .cosy-user-modal-content .dashicons {
                 font-family: dashicons !important;
             }
+
             .cosy-user-modal-content {
                 background-color: #ffffff;
                 margin: 8% auto;
@@ -633,10 +668,19 @@ class UsersAdmin
                 overflow: hidden;
                 animation: cosyModalFadeIn 0.3s ease;
             }
+
             @keyframes cosyModalFadeIn {
-                from { opacity: 0; transform: translateY(-20px); }
-                to { opacity: 1; transform: translateY(0); }
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
+
             .cosy-user-modal-header {
                 background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
                 color: #ffffff;
@@ -645,6 +689,7 @@ class UsersAdmin
                 align-items: center;
                 justify-content: space-between;
             }
+
             .cosy-user-modal-header h2 {
                 margin: 0;
                 color: #ffffff;
@@ -653,6 +698,7 @@ class UsersAdmin
                 font-family: 'Outfit', sans-serif;
                 letter-spacing: -0.01em;
             }
+
             .cosy-user-modal-close {
                 font-size: 28px;
                 font-weight: bold;
@@ -660,9 +706,11 @@ class UsersAdmin
                 cursor: pointer;
                 line-height: 1;
             }
+
             .cosy-user-modal-close:hover {
                 color: #ffffff;
             }
+
             .cosy-user-modal-body {
                 padding: 24px;
                 background-color: #f8fafc;
@@ -670,17 +718,20 @@ class UsersAdmin
                 flex-direction: column;
                 gap: 16px;
             }
+
             .cosy-detail-section {
                 background: #ffffff;
                 border: 1px solid #e2e8f0;
                 border-radius: 14px;
                 padding: 18px 20px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
             }
+
             .cosy-detail-section.section-primary {
                 background: #fdf2f8;
                 border: 1px solid #fbcfe8;
             }
+
             .cosy-detail-section h3 {
                 margin: 0 0 14px 0 !important;
                 font-family: 'Outfit', sans-serif !important;
@@ -695,10 +746,12 @@ class UsersAdmin
                 border-bottom: 1px solid #f1f5f9;
                 padding-bottom: 10px;
             }
+
             .cosy-detail-section.section-primary h3 {
                 color: #a44390 !important;
                 border-bottom-color: #fbcfe8;
             }
+
             .cosy-detail-section h3 .dashicons {
                 color: #a44390;
                 font-size: 18px;
@@ -706,6 +759,7 @@ class UsersAdmin
                 height: 18px;
                 line-height: 18px;
             }
+
             .cosy-detail-row {
                 display: flex;
                 align-items: center;
@@ -713,30 +767,37 @@ class UsersAdmin
                 border-bottom: 1px solid #f8fafc;
                 font-size: 13px;
             }
+
             .cosy-detail-section.section-primary .cosy-detail-row {
                 border-bottom-color: rgba(164, 67, 144, 0.05);
             }
+
             .cosy-detail-row:last-child {
                 border-bottom: none;
                 padding-bottom: 0;
             }
+
             .cosy-detail-row:first-of-type {
                 padding-top: 0;
             }
+
             .cosy-detail-label {
                 width: 150px;
                 font-weight: 600;
                 color: #64748b;
                 font-size: 12.5px;
             }
+
             .cosy-detail-val {
                 flex: 1;
                 color: #1e293b;
                 font-weight: 600;
             }
+
             .cosy-detail-section.section-primary .cosy-detail-val {
                 color: #0f172a;
             }
+
             .cosy-user-modal-footer {
                 padding: 16px 24px;
                 background-color: #ffffff;
@@ -744,6 +805,7 @@ class UsersAdmin
                 display: flex;
                 justify-content: flex-end;
             }
+
             .cosy-modal-btn-close {
                 background: #ffffff;
                 border: 1.5px solid #cbd5e1;
@@ -757,6 +819,7 @@ class UsersAdmin
                 transition: all 0.2s ease;
                 outline: none;
             }
+
             .cosy-modal-btn-close:hover {
                 background: #f1f5f9;
                 color: #0f172a;
@@ -948,7 +1011,7 @@ class UsersAdmin
                 });
             });
         </script>
-        <?php
+    <?php
     }
 
     /**
@@ -1111,7 +1174,7 @@ class UsersAdmin
         $role = in_array('provider', $roles) ? 'provider' : (in_array('customer', $roles) ? 'customer' : 'other');
 
         ob_start();
-        ?>
+    ?>
         <!-- Basic info -->
         <div class="cosy-detail-section section-primary">
             <h3><span class="dashicons dashicons-admin-users"></span> <?php esc_html_e('Basic Information', 'cosy-appointments'); ?></h3>
@@ -1129,7 +1192,7 @@ class UsersAdmin
             </div>
         </div>
 
-        <?php if ($role === 'provider'): 
+        <?php if ($role === 'provider'):
             $mname   = get_user_meta($user_id, 'prov_mname', true);
             $phone   = get_user_meta($user_id, 'prov_phone', true);
             $dob     = get_user_meta($user_id, 'dob', true);
@@ -1137,7 +1200,7 @@ class UsersAdmin
             $gender  = get_user_meta($user_id, 'gender', true);
             $description = get_user_meta($user_id, 'description', true);
             $video_status = $this->get_provider_video_status($user_id);
-            ?>
+        ?>
             <!-- Provider Extra Info -->
             <div class="cosy-detail-section">
                 <h3><span class="dashicons dashicons-businessman"></span> <?php esc_html_e('Provider Details', 'cosy-appointments'); ?></h3>
@@ -1180,7 +1243,7 @@ class UsersAdmin
             // Fetch potential meta keys for customer details (e.g. phone/address/dob if ever collected)
             $phone   = get_user_meta($user_id, 'cust_phone', true) ?: get_user_meta($user_id, 'phone', true);
             $address = get_user_meta($user_id, 'cust_address', true) ?: get_user_meta($user_id, 'address', true);
-            ?>
+        ?>
             <!-- Customer Extra Info -->
             <div class="cosy-detail-section">
                 <h3><span class="dashicons dashicons-id"></span> <?php esc_html_e('Customer Details', 'cosy-appointments'); ?></h3>
@@ -1222,86 +1285,86 @@ class UsersAdmin
             );
 
             if (!empty($appointments)) :
-                                                // Calculate service booking ordinal numbers (chronological order)
-                                                $chrono_appts = array_reverse($appointments);
-                                                $service_counts = [];
-                                                $appt_booking_numbers = [];
-                                                foreach ($chrono_appts as $a) {
-                                                    $srv_name = $a->service_name;
-                                                    if (!isset($service_counts[$srv_name])) {
-                                                        $service_counts[$srv_name] = 0;
-                                                    }
-                                                    $service_counts[$srv_name]++;
-                                                    $appt_booking_numbers[$a->ID] = $service_counts[$srv_name];
-                                                }
-                                                ?>
-                                                <div class="cosy-modal-appt-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
-                                                     <?php foreach ($appointments as $appt) : 
-                                                        $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
-                                                        if ($status === 'cancelled') {
-                                                            $status_label = __('Cancelled', 'cosy-appointments');
-                                                            $status_color = '#991b1b';
-                                                            $status_bg = '#fee2e2';
-                                                        } else {
-                                                            $appt_time = strtotime($appt->start_date);
-                                                            $today_time = strtotime('today');
-                                                            if ($appt_time < $today_time) {
-                                                                $status_label = __('Completed', 'cosy-appointments');
-                                                                $status_color = '#166534';
-                                                                $status_bg = '#dcfce7';
-                                                            } elseif ($appt_time === $today_time) {
-                                                                $status_label = __('In Progress', 'cosy-appointments');
-                                                                $status_color = '#7c3aed';
-                                                                $status_bg = '#f5f3ff';
-                                                            } else {
-                                                                $status_label = __('Upcoming', 'cosy-appointments');
-                                                                $status_color = '#1e40af';
-                                                                $status_bg = '#dbeafe';
-                                                            }
-                                                        }
+                // Calculate service booking ordinal numbers (chronological order)
+                $chrono_appts = array_reverse($appointments);
+                $service_counts = [];
+                $appt_booking_numbers = [];
+                foreach ($chrono_appts as $a) {
+                    $srv_name = $a->service_name;
+                    if (!isset($service_counts[$srv_name])) {
+                        $service_counts[$srv_name] = 0;
+                    }
+                    $service_counts[$srv_name]++;
+                    $appt_booking_numbers[$a->ID] = $service_counts[$srv_name];
+                }
+            ?>
+                <div class="cosy-modal-appt-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+                    <?php foreach ($appointments as $appt) :
+                        $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
+                        if ($status === 'cancelled') {
+                            $status_label = __('Cancelled', 'cosy-appointments');
+                            $status_color = '#991b1b';
+                            $status_bg = '#fee2e2';
+                        } else {
+                            $appt_time = strtotime($appt->start_date);
+                            $today_time = strtotime('today');
+                            if ($appt_time < $today_time) {
+                                $status_label = __('Completed', 'cosy-appointments');
+                                $status_color = '#166534';
+                                $status_bg = '#dcfce7';
+                            } elseif ($appt_time === $today_time) {
+                                $status_label = __('In Progress', 'cosy-appointments');
+                                $status_color = '#7c3aed';
+                                $status_bg = '#f5f3ff';
+                            } else {
+                                $status_label = __('Upcoming', 'cosy-appointments');
+                                $status_color = '#1e40af';
+                                $status_bg = '#dbeafe';
+                            }
+                        }
 
-                                                        // Determine booking ordinal suffix (1st, 2nd, 3rd, etc.)
-                                                        $booking_num = $appt_booking_numbers[$appt->ID] ?? 1;
-                                                        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
-                                                        if ((($booking_num % 100) >= 11) && (($booking_num % 100) <= 13)) {
-                                                            $ordinal = $booking_num . 'th';
-                                                        } else {
-                                                            $ordinal = $booking_num . $ends[$booking_num % 10];
-                                                        }
-                                                        $label_suffix = ($role === 'provider') ? sprintf(__('%s Session', 'cosy-appointments'), $ordinal) : sprintf(__('%s Booking', 'cosy-appointments'), $ordinal);
-                                                        
-                                                        $badge_class = ($role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
-                                                        ?>
-                                                        <div class="cosy-modal-appt-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                                                            <div style="flex: 1;">
-                                                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
-                                                                    <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; font-size: 10px; font-weight: bold;">
-                                                                        <?php echo esc_html($appt->service_name); ?> <span style="opacity: 0.8; font-weight: normal; font-size: 8px;">(<?php echo esc_html($label_suffix); ?>)</span>
-                                                                    </span>
-                                                                    <span style="font-size: 11px; font-weight: 700; color: #1e293b;">£<?php echo esc_html($appt->total_payable ?: '0'); ?></span>
-                                                                </div>
-                                                                <div style="display: flex; flex-wrap: wrap; gap: 12px; color: #64748b; font-size: 11px;">
-                                                                    <span style="display: flex; align-items: center; gap: 4px;">
-                                                                        <span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
-                                                                        <span><?php echo esc_html($appt->start_date); ?></span>
-                                                                    </span>
-                                                                    <?php if (!empty($appt->slots_timeline)) : ?>
-                                                                        <span style="display: flex; align-items: center; gap: 4px;">
-                                                                            <span class="dashicons dashicons-clock" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
-                                                                            <span><?php echo esc_html($appt->slots_timeline); ?></span>
-                                                                        </span>
-                                                                    <?php endif; ?>
-                                                                </div>
-                                                            </div>
-                                                            <div style="text-align: right; flex-shrink: 0;">
-                                                                <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_color; ?>; background-color: <?php echo $status_bg; ?>; border: 1px solid <?php echo $status_color; ?>33;">
-                                                                    <?php echo esc_html($status_label); ?>
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                                <?php
+                        // Determine booking ordinal suffix (1st, 2nd, 3rd, etc.)
+                        $booking_num = $appt_booking_numbers[$appt->ID] ?? 1;
+                        $ends = array('th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th');
+                        if ((($booking_num % 100) >= 11) && (($booking_num % 100) <= 13)) {
+                            $ordinal = $booking_num . 'th';
+                        } else {
+                            $ordinal = $booking_num . $ends[$booking_num % 10];
+                        }
+                        $label_suffix = ($role === 'provider') ? sprintf(__('%s Session', 'cosy-appointments'), $ordinal) : sprintf(__('%s Booking', 'cosy-appointments'), $ordinal);
+
+                        $badge_class = ($role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
+                    ?>
+                        <div class="cosy-modal-appt-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                                    <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; font-size: 10px; font-weight: bold;">
+                                        <?php echo esc_html($appt->service_name); ?> <span style="opacity: 0.8; font-weight: normal; font-size: 8px;">(<?php echo esc_html($label_suffix); ?>)</span>
+                                    </span>
+                                    <span style="font-size: 11px; font-weight: 700; color: #1e293b;">£<?php echo esc_html($appt->total_payable ?: '0'); ?></span>
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 12px; color: #64748b; font-size: 11px;">
+                                    <span style="display: flex; align-items: center; gap: 4px;">
+                                        <span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
+                                        <span><?php echo esc_html($appt->start_date); ?></span>
+                                    </span>
+                                    <?php if (!empty($appt->slots_timeline)) : ?>
+                                        <span style="display: flex; align-items: center; gap: 4px;">
+                                            <span class="dashicons dashicons-clock" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
+                                            <span><?php echo esc_html($appt->slots_timeline); ?></span>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div style="text-align: right; flex-shrink: 0;">
+                                <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_color; ?>; background-color: <?php echo $status_bg; ?>; border: 1px solid <?php echo $status_color; ?>33;">
+                                    <?php echo esc_html($status_label); ?>
+                                </span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php
             else :
                 if ($role === 'provider') {
                     $services_table = $wpdb->prefix . 'provider_services';
@@ -1331,7 +1394,7 @@ class UsersAdmin
             ?>
         </div>
 
-        <?php
+<?php
         $html = ob_get_clean();
 
         $title = sprintf(
