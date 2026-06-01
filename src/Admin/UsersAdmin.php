@@ -125,7 +125,6 @@ class UsersAdmin
                         <td id="cb" class="manage-column column-cb check-column" style="width: 30px; padding: 8px 10px; vertical-align: middle;">
                             <input type="checkbox" id="cosy-select-all-users">
                         </td>
-                        <th scope="col" class="manage-column" style="width: 60px;"><?php esc_html_e('ID', 'cosy-appointments'); ?></th>
                         <th scope="col" class="manage-column"><?php esc_html_e('Username & Name', 'cosy-appointments'); ?></th>
                         <th scope="col" class="manage-column" style="width: 120px;"><?php esc_html_e('Role', 'cosy-appointments'); ?></th>
                         <th scope="col" class="manage-column"><?php esc_html_e('Email', 'cosy-appointments'); ?></th>
@@ -138,14 +137,12 @@ class UsersAdmin
                 <tbody id="the-list">
                     <?php if (empty($users)) : ?>
                         <tr>
-                            <td colspan="9" style="text-align: center; padding: 40px; color: #64748b;">
+                            <td colspan="8" style="text-align: center; padding: 40px; color: #64748b;">
                                 <?php esc_html_e('No users found matching the criteria.', 'cosy-appointments'); ?>
                             </td>
                         </tr>
                     <?php else : ?>
-                        <?php 
-                        $counter = ($paged - 1) * $number + 1;
-                        foreach ($users as $user) :
+                        <?php foreach ($users as $user) :
                             $user_id = $user->ID;
                             $roles = (array) $user->roles;
                             $primary_role = in_array('provider', $roles) ? 'provider' : (in_array('customer', $roles) ? 'customer' : 'other');
@@ -171,10 +168,6 @@ class UsersAdmin
                                 <th scope="row" class="check-column" style="padding: 8px 10px; vertical-align: middle;">
                                     <input type="checkbox" class="cosy-user-checkbox" value="<?php echo $user_id; ?>">
                                 </th>
-                                <td>
-                                    <strong><?php echo $counter++; ?></strong>
-                                    <span style="font-size: 10px; color: #94a3b8; display: block;">ID: <?php echo $user_id; ?></span>
-                                </td>
                                 <td>
                                     <strong><?php echo esc_html($user->display_name); ?></strong>
                                     <div style="font-size: 11px; color: #64748b;">@<?php echo esc_html($user->user_login); ?></div>
