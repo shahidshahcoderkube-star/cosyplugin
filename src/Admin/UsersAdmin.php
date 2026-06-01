@@ -26,6 +26,10 @@ class UsersAdmin
 
         // AJAX handler for bulk deleting users
         $loader->add_action('wp_ajax_cosy_admin_delete_users', $this, 'handle_ajax_delete_users');
+
+        // Clear user appointments cache when appointment is updated or deleted
+        $loader->add_action('save_post_cosy_appointment', $this, 'clear_user_appointments_cache', 10, 2);
+        $loader->add_action('before_delete_post', $this, 'clear_user_appointments_cache_before_delete');
     }
 
     /**
@@ -39,6 +43,7 @@ class UsersAdmin
 
         // Filters and Search
         $role_filter = isset($_GET['role']) ? sanitize_text_field($_GET['role']) : 'all';
+        $service_filter = isset($_GET['service']) ? sanitize_text_field($_GET['service']) : '';
         $search_query = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
         $paged = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
         $number = 20; // Users per page
@@ -64,6 +69,44 @@ class UsersAdmin
             $args['search_columns'] = ['user_login', 'user_email', 'user_nicename', 'display_name'];
         }
 
+        // Service Filter Logic
+        $matching_user_ids = null;
+        if (!empty($service_filter)) {
+            global $wpdb;
+
+            // 1. Get user IDs from appointments with this service
+            $appt_user_ids = $wpdb->get_col($wpdb->prepare(
+                "SELECT DISTINCT pm.meta_value 
+                 FROM {$wpdb->postmeta} pm
+                 JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+                 WHERE p.post_type = 'cosy_appointment'
+                   AND pm.meta_key IN ('cosy_provider_id', 'cosy_customer_id')
+                   AND p.ID IN (
+                       SELECT post_id 
+                       FROM {$wpdb->postmeta} 
+                       WHERE meta_key = 'cosy_service_name' AND meta_value = %s
+                   )",
+                $service_filter
+            ));
+
+            // 2. Get provider IDs offering this service
+            $prov_table = $wpdb->prefix . 'provider_services';
+            $provider_user_ids = $wpdb->get_col($wpdb->prepare(
+                "SELECT DISTINCT ps.provider_id 
+                 FROM $prov_table ps
+                 JOIN {$wpdb->posts} p ON ps.service_id = p.ID
+                 WHERE ps.checkbox_status = 'yes' AND p.post_title = %s",
+                $service_filter
+            ));
+
+            $merged_ids = array_unique(array_merge(array_map('intval', $appt_user_ids), array_map('intval', $provider_user_ids)));
+            $matching_user_ids = !empty($merged_ids) ? $merged_ids : [0];
+        }
+
+        if ($matching_user_ids !== null) {
+            $args['include'] = $matching_user_ids;
+        }
+
         $user_query = new WP_User_Query($args);
         $users = $user_query->get_results();
         $total_users = $user_query->get_total();
@@ -84,13 +127,17 @@ class UsersAdmin
             <div class="cosy-control-bar">
                 <div class="cosy-control-left">
                     <div class="cosy-role-tabs">
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=cosy-users')); ?>" class="cosy-tab-pill <?php echo $role_filter === 'all' ? 'active' : ''; ?>">
+                        <?php
+                        $service_param = !empty($service_filter) ? '&service=' . urlencode($service_filter) : '';
+                        $search_param = !empty($search_query) ? '&s=' . urlencode($search_query) : '';
+                        ?>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=cosy-users' . $service_param . $search_param)); ?>" class="cosy-tab-pill <?php echo $role_filter === 'all' ? 'active' : ''; ?>">
                             <?php esc_html_e('All Roles', 'cosy-appointments'); ?>
                         </a>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=cosy-users&role=provider')); ?>" class="cosy-tab-pill <?php echo $role_filter === 'provider' ? 'active' : ''; ?>">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=cosy-users&role=provider' . $service_param . $search_param)); ?>" class="cosy-tab-pill <?php echo $role_filter === 'provider' ? 'active' : ''; ?>">
                             <?php esc_html_e('Providers', 'cosy-appointments'); ?>
                         </a>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=cosy-users&role=customer')); ?>" class="cosy-tab-pill <?php echo $role_filter === 'customer' ? 'active' : ''; ?>">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=cosy-users&role=customer' . $service_param . $search_param)); ?>" class="cosy-tab-pill <?php echo $role_filter === 'customer' ? 'active' : ''; ?>">
                             <?php esc_html_e('Customers', 'cosy-appointments'); ?>
                         </a>
                     </div>
@@ -102,11 +149,33 @@ class UsersAdmin
                 </div>
 
                 <div class="cosy-control-right">
-                    <form method="get" class="cosy-search-form-modern">
+                    <form method="get" class="cosy-search-form-modern" style="display: flex; gap: 10px; align-items: center;">
                         <input type="hidden" name="page" value="cosy-users">
                         <?php if ($role_filter !== 'all'): ?>
                             <input type="hidden" name="role" value="<?php echo esc_attr($role_filter); ?>">
                         <?php endif; ?>
+
+                        <!-- Service Filter Dropdown -->
+                        <div class="cosy-filter-wrapper" style="position: relative;">
+                            <select name="service" onchange="this.form.submit()" style="border-radius: 8px; border: 1.5px solid #cbd5e1; height: 34px; padding: 0 32px 0 12px; font-size: 13px; color: #334155; background: #ffffff url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2523475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 12px center; background-size: 8px auto; -webkit-appearance: none; -moz-appearance: none; appearance: none; outline: none; cursor: pointer; min-width: 160px; transition: border-color 0.2s ease;">
+                                <option value=""><?php esc_html_e('All Services', 'cosy-appointments'); ?></option>
+                                <?php
+                                $all_services = get_posts([
+                                    'post_type'      => 'cosy_service',
+                                    'post_status'    => 'publish',
+                                    'posts_per_page' => -1,
+                                    'orderby'        => 'title',
+                                    'order'          => 'ASC'
+                                ]);
+                                foreach ($all_services as $srv) :
+                                    ?>
+                                    <option value="<?php echo esc_attr($srv->post_title); ?>" <?php selected($service_filter, $srv->post_title); ?>>
+                                        <?php echo esc_html($srv->post_title); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
                         <div class="cosy-search-input-wrapper">
                             <span class="dashicons dashicons-search" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
                             <input type="search" id="user-search-input" name="s" value="<?php echo esc_attr($search_query); ?>" placeholder="<?php esc_attr_e('Search users...', 'cosy-appointments'); ?>">
@@ -188,24 +257,30 @@ class UsersAdmin
                                     <?php
                                     global $wpdb;
                                     $meta_key_user = ($primary_role === 'provider') ? 'cosy_provider_id' : 'cosy_customer_id';
-                                    $appointments = $wpdb->get_results(
-                                        $wpdb->prepare(
-                                            "SELECT p.ID, 
-                                                   (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_service_name' LIMIT 1) as service_name,
-                                                   (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_start_date' LIMIT 1) as start_date,
-                                                   (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_slots_timeline' LIMIT 1) as slots_timeline,
-                                                   (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_booking_status' LIMIT 1) as booking_status
-                                            FROM {$wpdb->posts} p
-                                            JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                                            WHERE p.post_type = 'cosy_appointment'
-                                              AND p.post_status = 'publish'
-                                              AND pm.meta_key = %s
-                                              AND pm.meta_value = %d
-                                            ORDER BY p.ID DESC",
-                                            $meta_key_user,
-                                            $user_id
-                                        )
-                                    );
+                                    $transient_key = 'cosy_user_appts_' . $user_id . '_' . $primary_role;
+                                    $appointments = get_transient($transient_key);
+                                    if (false === $appointments) {
+                                        $appointments = $wpdb->get_results(
+                                            $wpdb->prepare(
+                                                "SELECT p.ID, 
+                                                       (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_service_name' LIMIT 1) as service_name,
+                                                       (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_start_date' LIMIT 1) as start_date,
+                                                       (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_slots_timeline' LIMIT 1) as slots_timeline,
+                                                       (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_booking_status' LIMIT 1) as booking_status,
+                                                       (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_total_payable' LIMIT 1) as total_payable
+                                                FROM {$wpdb->posts} p
+                                                JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                                                WHERE p.post_type = 'cosy_appointment'
+                                                  AND p.post_status = 'publish'
+                                                  AND pm.meta_key = %s
+                                                  AND pm.meta_value = %d
+                                                ORDER BY p.ID DESC",
+                                                $meta_key_user,
+                                                $user_id
+                                            )
+                                        );
+                                        set_transient($transient_key, $appointments, 10 * MINUTE_IN_SECONDS);
+                                    }
 
                                     if (!empty($appointments)) :
                                         // Calculate service booking ordinal numbers (chronological order)
@@ -371,469 +446,6 @@ class UsersAdmin
                 </div>
             <?php endif; ?>
         </div>
-
-        <!-- Premium Style Tag for Badges, Modals and Forms -->
-        <style>
-            /* Premium Control Bar Styles */
-            .cosy-control-bar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: #ffffff;
-                padding: 12px 20px;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-                border: 1px solid #e2e8f0;
-                margin-bottom: 20px;
-                margin-top: 15px;
-            }
-
-            .cosy-control-left {
-                display: flex;
-                align-items: center;
-                gap: 16px;
-            }
-
-            .cosy-control-right {
-                display: flex;
-                align-items: center;
-            }
-
-            .cosy-role-tabs {
-                display: flex;
-                background-color: #f1f5f9;
-                padding: 4px;
-                border-radius: 8px;
-            }
-
-            .cosy-tab-pill {
-                display: inline-block;
-                padding: 6px 16px;
-                font-size: 13px;
-                font-weight: 600;
-                color: #475569;
-                text-decoration: none;
-                border-radius: 6px;
-                transition: all 0.2s ease;
-                border: none;
-            }
-
-            .cosy-tab-pill:hover {
-                color: #0f172a;
-                background-color: #e2e8f0;
-            }
-
-            .cosy-tab-pill.active {
-                background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
-                color: #ffffff;
-                box-shadow: 0 2px 6px rgba(164, 67, 144, 0.2);
-            }
-
-            .cosy-tab-pill.active:hover {
-                background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
-                color: #ffffff;
-            }
-
-            .cosy-btn-delete-selected-modern {
-                background: #ffffff;
-                border: 1.5px solid #ef4444;
-                color: #ef4444;
-                padding: 0 16px;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 13px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                display: flex;
-                align-items: center;
-                height: 34px;
-                outline: none;
-            }
-
-            .cosy-btn-delete-selected-modern:hover:not(:disabled) {
-                background: #ef4444;
-                color: #ffffff;
-                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
-            }
-
-            .cosy-btn-delete-selected-modern:disabled {
-                border-color: #cbd5e1;
-                color: #94a3b8;
-                cursor: not-allowed;
-                opacity: 0.65;
-            }
-
-            .cosy-search-form-modern {
-                margin: 0;
-            }
-
-            .cosy-search-input-wrapper {
-                display: flex;
-                align-items: center;
-                border: 1.5px solid #cbd5e1;
-                border-radius: 8px;
-                overflow: hidden;
-                background-color: #ffffff;
-                transition: border-color 0.2s ease;
-                height: 34px;
-            }
-
-            .cosy-search-input-wrapper:focus-within {
-                border-color: #a44390;
-                box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1);
-            }
-
-            .cosy-search-input-wrapper input[type="search"] {
-                border: none !important;
-                outline: none !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 6px 12px 6px 6px !important;
-                font-size: 13px !important;
-                color: #334155 !important;
-                width: 200px !important;
-                background: transparent !important;
-                height: auto !important;
-            }
-
-            .cosy-search-btn {
-                background: #f1f5f9;
-                border: none;
-                border-left: 1.5px solid #cbd5e1;
-                color: #475569;
-                font-weight: 600;
-                font-size: 13px;
-                padding: 0 16px;
-                height: 34px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                margin: 0;
-            }
-
-            .cosy-search-btn:hover {
-                background: #e2e8f0;
-                color: #0f172a;
-            }
-
-            /* Modernized Table styling */
-            .cosy-users-table {
-                border-radius: 12px;
-                overflow: hidden;
-                border: 1px solid #e2e8f0 !important;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01) !important;
-                border-collapse: separate !important;
-                border-spacing: 0 !important;
-                background: #ffffff;
-            }
-
-            .cosy-users-table thead th {
-                background-color: #f8fafc !important;
-                color: #475569 !important;
-                font-weight: 700 !important;
-                font-size: 13px !important;
-                padding: 14px 10px !important;
-                border-bottom: 2px solid #e2e8f0 !important;
-            }
-
-            .cosy-users-table tbody tr {
-                transition: background-color 0.15s ease;
-            }
-
-            .cosy-users-table tbody tr:hover {
-                background-color: #f8fafc !important;
-            }
-
-            .cosy-users-table tbody td,
-            .cosy-users-table tbody th {
-                padding: 14px 10px !important;
-                vertical-align: middle !important;
-                border-bottom: 1px solid #f1f5f9 !important;
-            }
-
-            .cosy-users-table tbody tr:last-child td,
-            .cosy-users-table tbody tr:last-child th {
-                border-bottom: none !important;
-            }
-
-            .cosy-users-admin .badge {
-                display: inline-block;
-                padding: 4px 10px;
-                font-size: 11px;
-                font-weight: 600;
-                line-height: 1.4;
-                border-radius: 50px;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-            }
-
-            .cosy-users-admin .badge-provider {
-                background-color: #f3e8ff;
-                color: #6b21a8;
-                border: 1px solid #e9d5ff;
-            }
-
-            .cosy-users-admin .badge-customer {
-                background-color: #dbeafe;
-                color: #1e40af;
-                border: 1px solid #bfdbfe;
-            }
-
-            .cosy-users-admin .badge-other {
-                background-color: #f1f5f9;
-                color: #475569;
-                border: 1px solid #e2e8f0;
-            }
-
-            .cosy-users-admin .badge-verified {
-                background-color: #dcfce7;
-                color: #166534;
-                border: 1px solid #bbf7d0;
-            }
-
-            .cosy-users-admin .badge-pending {
-                background-color: #fef9c3;
-                color: #854d0e;
-                border: 1px solid #fef08a;
-            }
-
-            .badge-provider-service {
-                background-color: #ecfdf5 !important;
-                color: #047857 !important;
-                border: 1px solid #a7f3d0 !important;
-                text-transform: none !important;
-                font-size: 10px !important;
-                border-radius: 4px !important;
-                padding: 3px 7px !important;
-                margin: 2px !important;
-                display: inline-block !important;
-            }
-
-            .badge-customer-service {
-                background-color: #fff7ed !important;
-                color: #c2410c !important;
-                border: 1px solid #ffedd5 !important;
-                text-transform: none !important;
-                font-size: 10px !important;
-                border-radius: 4px !important;
-                padding: 3px 7px !important;
-                margin: 2px !important;
-                display: inline-block !important;
-            }
-
-            .cosy-users-admin select.cosy-admin-status-dropdown {
-                border-radius: 6px;
-                border: 1px solid #cbd5e1;
-                font-size: 12px;
-                padding: 2px 24px 2px 8px;
-                height: 28px;
-            }
-
-            /* Premium Details Modal */
-            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
-
-            .cosy-user-modal {
-                display: none;
-                position: fixed;
-                z-index: 99999;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(15, 23, 42, 0.4);
-                backdrop-filter: blur(4px);
-                transition: opacity 0.3s ease;
-            }
-
-            .cosy-user-modal-content * {
-                box-sizing: border-box;
-            }
-
-            .cosy-user-modal-content {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-            }
-
-            .cosy-user-modal-content .dashicons {
-                font-family: dashicons !important;
-            }
-
-            .cosy-user-modal-content {
-                background-color: #ffffff;
-                margin: 8% auto;
-                width: 90%;
-                max-width: 550px;
-                border-radius: 16px;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                border: 1px solid #f1f5f9;
-                overflow: hidden;
-                animation: cosyModalFadeIn 0.3s ease;
-            }
-
-            @keyframes cosyModalFadeIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(-20px);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .cosy-user-modal-header {
-                background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
-                color: #ffffff;
-                padding: 18px 24px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            .cosy-user-modal-header h2 {
-                margin: 0;
-                color: #ffffff;
-                font-size: 16px;
-                font-weight: 700;
-                font-family: 'Outfit', sans-serif;
-                letter-spacing: -0.01em;
-            }
-
-            .cosy-user-modal-close {
-                font-size: 28px;
-                font-weight: bold;
-                color: rgba(255, 255, 255, 0.8);
-                cursor: pointer;
-                line-height: 1;
-            }
-
-            .cosy-user-modal-close:hover {
-                color: #ffffff;
-            }
-
-            .cosy-user-modal-body {
-                padding: 24px;
-                background-color: #f8fafc;
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-            }
-
-            .cosy-detail-section {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 14px;
-                padding: 18px 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-            }
-
-            .cosy-detail-section.section-primary {
-                background: #fdf2f8;
-                border: 1px solid #fbcfe8;
-            }
-
-            .cosy-detail-section h3 {
-                margin: 0 0 14px 0 !important;
-                font-family: 'Outfit', sans-serif !important;
-                font-size: 0.95rem !important;
-                font-weight: 700 !important;
-                color: #1e293b !important;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                border-bottom: 1px solid #f1f5f9;
-                padding-bottom: 10px;
-            }
-
-            .cosy-detail-section.section-primary h3 {
-                color: #a44390 !important;
-                border-bottom-color: #fbcfe8;
-            }
-
-            .cosy-detail-section h3 .dashicons {
-                color: #a44390;
-                font-size: 18px;
-                width: 18px;
-                height: 18px;
-                line-height: 18px;
-            }
-
-            .cosy-detail-row {
-                display: flex;
-                align-items: center;
-                padding: 8px 0;
-                border-bottom: 1px solid #f8fafc;
-                font-size: 13px;
-            }
-
-            .cosy-detail-section.section-primary .cosy-detail-row {
-                border-bottom-color: rgba(164, 67, 144, 0.05);
-            }
-
-            .cosy-detail-row:last-child {
-                border-bottom: none;
-                padding-bottom: 0;
-            }
-
-            .cosy-detail-row:first-of-type {
-                padding-top: 0;
-            }
-
-            .cosy-detail-label {
-                width: 150px;
-                font-weight: 600;
-                color: #64748b;
-                font-size: 12.5px;
-            }
-
-            .cosy-detail-val {
-                flex: 1;
-                color: #1e293b;
-                font-weight: 600;
-            }
-
-            .cosy-detail-section.section-primary .cosy-detail-val {
-                color: #0f172a;
-            }
-
-            .cosy-edit-appt-link {
-                transition: color 0.2s ease, opacity 0.2s ease;
-            }
-            .cosy-edit-appt-link:hover {
-                color: #6d2e67 !important;
-                opacity: 0.9;
-            }
-
-            .cosy-user-modal-footer {
-                padding: 16px 24px;
-                background-color: #ffffff;
-                border-top: 1px solid #e2e8f0;
-                display: flex;
-                justify-content: flex-end;
-            }
-
-            .cosy-modal-btn-close {
-                background: #ffffff;
-                border: 1.5px solid #cbd5e1;
-                padding: 10px 20px;
-                border-radius: 10px;
-                font-weight: 700;
-                font-family: 'Outfit', sans-serif;
-                font-size: 13px;
-                cursor: pointer;
-                color: #475569;
-                transition: all 0.2s ease;
-                outline: none;
-            }
-
-            .cosy-modal-btn-close:hover {
-                background: #f1f5f9;
-                color: #0f172a;
-                border-color: #94a3b8;
-            }
-        </style>
 
         <!-- HTML Modal for User Details -->
         <div id="cosyAdminUserModal" class="cosy-user-modal">
@@ -1272,25 +884,30 @@ class UsersAdmin
             <?php
             global $wpdb;
             $meta_key_user = ($role === 'provider') ? 'cosy_provider_id' : 'cosy_customer_id';
-            $appointments = $wpdb->get_results(
-                $wpdb->prepare(
-                    "SELECT p.ID, 
-                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_service_name' LIMIT 1) as service_name,
-                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_start_date' LIMIT 1) as start_date,
-                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_slots_timeline' LIMIT 1) as slots_timeline,
-                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_booking_status' LIMIT 1) as booking_status,
-                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_total_payable' LIMIT 1) as total_payable
-                    FROM {$wpdb->posts} p
-                    JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                    WHERE p.post_type = 'cosy_appointment'
-                      AND p.post_status = 'publish'
-                      AND pm.meta_key = %s
-                      AND pm.meta_value = %d
-                    ORDER BY p.ID DESC",
-                    $meta_key_user,
-                    $user_id
-                )
-            );
+            $transient_key = 'cosy_user_appts_' . $user_id . '_' . $role;
+            $appointments = get_transient($transient_key);
+            if (false === $appointments) {
+                $appointments = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT p.ID, 
+                               (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_service_name' LIMIT 1) as service_name,
+                               (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_start_date' LIMIT 1) as start_date,
+                               (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_slots_timeline' LIMIT 1) as slots_timeline,
+                               (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_booking_status' LIMIT 1) as booking_status,
+                               (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_total_payable' LIMIT 1) as total_payable
+                        FROM {$wpdb->posts} p
+                        JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                        WHERE p.post_type = 'cosy_appointment'
+                          AND p.post_status = 'publish'
+                          AND pm.meta_key = %s
+                          AND pm.meta_value = %d
+                        ORDER BY p.ID DESC",
+                        $meta_key_user,
+                        $user_id
+                    )
+                );
+                set_transient($transient_key, $appointments, 10 * MINUTE_IN_SECONDS);
+            }
 
             if (!empty($appointments)) :
                 // Calculate service booking ordinal numbers (chronological order)
@@ -1488,6 +1105,32 @@ class UsersAdmin
             wp_send_json_success($msg);
         } else {
             wp_send_json_error(implode(' ', $errors) ?: __('Failed to delete selected users.', 'cosy-appointments'));
+        }
+    }
+
+    /**
+     * Clears user appointments cache transients when a cosy_appointment post is updated/saved.
+     */
+    public function clear_user_appointments_cache(int $post_id, \WP_Post $post): void
+    {
+        $provider_id = get_post_meta($post_id, 'cosy_provider_id', true);
+        $customer_id = get_post_meta($post_id, 'cosy_customer_id', true);
+        if ($provider_id) {
+            delete_transient('cosy_user_appts_' . $provider_id . '_provider');
+        }
+        if ($customer_id) {
+            delete_transient('cosy_user_appts_' . $customer_id . '_customer');
+        }
+    }
+
+    /**
+     * Clears user appointments cache transients before deleting a cosy_appointment post.
+     */
+    public function clear_user_appointments_cache_before_delete(int $post_id): void
+    {
+        $post = get_post($post_id);
+        if ($post && $post->post_type === 'cosy_appointment') {
+            $this->clear_user_appointments_cache($post_id, $post);
         }
     }
 }
