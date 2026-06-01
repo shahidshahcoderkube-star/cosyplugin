@@ -96,7 +96,7 @@ jQuery(document).ready(function ($) {
                         select.css('border-color', originalColor);
                     }, 1500);
                 } else {
-                    alert(response.data || i18n.statusFailed);
+                    CosyAlert.toast(response.data || i18n.statusFailed, 'danger');
                 }
             });
         },
@@ -107,23 +107,28 @@ jQuery(document).ready(function ($) {
             var userId = btn.data('user-id');
             var role   = btn.data('role');
 
-            if (!confirm(i18n.confirmResend)) {
-                return;
-            }
+            CosyAlert.confirm({
+                title:       'Resend Verification?',
+                message:     i18n.confirmResend,
+                confirmText: 'Yes, Resend',
+                cancelText:  'Cancel',
+                type:        'info',
+                onConfirm: function () {
+                    btn.prop('disabled', true).text(i18n.sending);
 
-            btn.prop('disabled', true).text(i18n.sending);
-
-            $.post(ajaxurl, {
-                action:   'cosy_admin_resend_verification',
-                security: nonces.email,
-                user_id:  userId,
-                role:     role
-            }, function (response) {
-                btn.prop('disabled', false).text(i18n.resendEmail);
-                if (response.success) {
-                    alert(response.data || i18n.emailSent);
-                } else {
-                    alert(response.data || i18n.emailFailed);
+                    $.post(ajaxurl, {
+                        action:   'cosy_admin_resend_verification',
+                        security: nonces.email,
+                        user_id:  userId,
+                        role:     role
+                    }, function (response) {
+                        btn.prop('disabled', false).text(i18n.resendEmail);
+                        if (response.success) {
+                            CosyAlert.toast(response.data || i18n.emailSent, 'success');
+                        } else {
+                            CosyAlert.toast(response.data || i18n.emailFailed, 'danger');
+                        }
+                    });
                 }
             });
         },
@@ -198,34 +203,40 @@ jQuery(document).ready(function ($) {
                 return;
             }
 
-            if (!confirm(i18n.confirmDelete)) {
-                return;
-            }
-
             var btn = $(this);
-            btn.prop('disabled', true);
-            btn.find('.cosy-btn-text').text(i18n.deleting);
 
-            $.post(ajaxurl, {
-                action:   'cosy_admin_delete_users',
-                security: nonces.delete,
-                user_ids: selectedIds
-            }, function (response) {
-                btn.find('.cosy-btn-text').text(i18n.deleteBtn);
-                if (response.success) {
-                    alert(response.data);
-                    // Remove deleted rows from DOM
-                    selectedIds.forEach(function (id) {
-                        $('#user-row-' + id).fadeOut(400, function () {
-                            $(this).remove();
-                        });
+            CosyAlert.confirm({
+                title:       'Delete Selected Users?',
+                message:     i18n.confirmDelete,
+                confirmText: 'Yes, Delete',
+                cancelText:  'Cancel',
+                type:        'danger',
+                onConfirm: function () {
+                    btn.prop('disabled', true);
+                    btn.find('.cosy-btn-text').text(i18n.deleting);
+
+                    $.post(ajaxurl, {
+                        action:   'cosy_admin_delete_users',
+                        security: nonces.delete,
+                        user_ids: selectedIds
+                    }, function (response) {
+                        btn.find('.cosy-btn-text').text(i18n.deleteBtn);
+                        if (response.success) {
+                            CosyAlert.toast(response.data || 'Users deleted successfully.', 'success');
+                            // Remove deleted rows from DOM
+                            selectedIds.forEach(function (id) {
+                                $('#user-row-' + id).fadeOut(400, function () {
+                                    $(this).remove();
+                                });
+                            });
+                            $('#cosy-select-all-users').prop('checked', false);
+                            CosyUsersAdmin.toggleDeleteButton();
+                        } else {
+                            CosyAlert.toast(response.data || i18n.deleteFailed, 'danger');
+                            btn.prop('disabled', false);
+                            CosyUsersAdmin.toggleDeleteButton();
+                        }
                     });
-                    $('#cosy-select-all-users').prop('checked', false);
-                    CosyUsersAdmin.toggleDeleteButton();
-                } else {
-                    alert(response.data || i18n.deleteFailed);
-                    btn.prop('disabled', false);
-                    CosyUsersAdmin.toggleDeleteButton();
                 }
             });
         }
