@@ -798,6 +798,14 @@ class UsersAdmin
                 color: #0f172a;
             }
 
+            .cosy-edit-appt-link {
+                transition: color 0.2s ease, opacity 0.2s ease;
+            }
+            .cosy-edit-appt-link:hover {
+                color: #6d2e67 !important;
+                opacity: 0.9;
+            }
+
             .cosy-user-modal-footer {
                 padding: 16px 24px;
                 background-color: #ffffff;
@@ -1356,10 +1364,14 @@ class UsersAdmin
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <div style="text-align: right; flex-shrink: 0;">
+                            <div style="text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
                                 <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_color; ?>; background-color: <?php echo $status_bg; ?>; border: 1px solid <?php echo $status_color; ?>33;">
                                     <?php echo esc_html($status_label); ?>
                                 </span>
+                                <a href="<?php echo esc_url(admin_url('post.php?post=' . $appt->ID . '&action=edit')); ?>" target="_blank" style="font-size: 10px; color: #a44390; text-decoration: none; display: flex; align-items: center; gap: 2px; font-weight: 600;" class="cosy-edit-appt-link">
+                                    <span class="dashicons dashicons-edit" style="font-size: 12px; width: 12px; height: 12px; line-height: 12px;"></span>
+                                    <?php esc_html_e('Manage', 'cosy-appointments'); ?>
+                                </a>
                             </div>
                         </div>
                     <?php endforeach; ?>
