@@ -154,6 +154,8 @@ trait GlobalCommonFunctions
             $data[$key] = get_user_meta($user_id, $key, true);
         }
 
+        $data['video_status'] = $this->get_provider_video_status($user_id);
+
         return $data;
     }
 
@@ -656,5 +658,38 @@ trait GlobalCommonFunctions
         }
 
         return (bool) cosy_send_html_email($email, $subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
+    }
+
+    /**
+     * get_provider_video_status
+     * 
+     * Retrieves the video approval status from the custom table to ensure it is 
+     * always in sync, and automatically cleans up/updates the user meta.
+     * 
+     * @param int $user_id
+     * @return string
+     */
+    public function get_provider_video_status(int $user_id): string
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_media_approvals';
+        
+        // If table doesn't exist, fallback to user meta
+        if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) !== $table_name) {
+            return (string) get_user_meta($user_id, 'video_status', true);
+        }
+
+        $db_status = $wpdb->get_var(
+            $wpdb->prepare("SELECT status FROM $table_name WHERE user_id = %d ORDER BY id DESC LIMIT 1", $user_id)
+        );
+
+        $status = $db_status ?: '';
+        $meta_status = get_user_meta($user_id, 'video_status', true);
+
+        if ($meta_status !== $status) {
+            update_user_meta($user_id, 'video_status', $status);
+        }
+
+        return $status;
     }
 }

@@ -989,7 +989,7 @@ class UsersAdmin
             $address = get_user_meta($user_id, 'prov_address', true);
             $gender  = get_user_meta($user_id, 'gender', true);
             $description = get_user_meta($user_id, 'description', true);
-            $video_status = get_user_meta($user_id, 'video_status', true);
+            $video_status = $this->get_provider_video_status($user_id);
             ?>
             <!-- Provider Extra Info -->
             <div class="cosy-detail-section">
