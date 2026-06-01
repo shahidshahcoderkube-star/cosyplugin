@@ -208,6 +208,19 @@ class UsersAdmin
                                     );
 
                                     if (!empty($appointments)) :
+                                        // Calculate service booking ordinal numbers (chronological order)
+                                        $chrono_appts = array_reverse($appointments);
+                                        $service_counts = [];
+                                        $appt_booking_numbers = [];
+                                        foreach ($chrono_appts as $a) {
+                                            $srv_name = $a->service_name;
+                                            if (!isset($service_counts[$srv_name])) {
+                                                $service_counts[$srv_name] = 0;
+                                            }
+                                            $service_counts[$srv_name]++;
+                                            $appt_booking_numbers[$a->ID] = $service_counts[$srv_name];
+                                        }
+
                                         $count_appt = 0;
                                         foreach ($appointments as $appt) :
                                             $count_appt++;
@@ -216,13 +229,41 @@ class UsersAdmin
                                                 break;
                                             }
                                             $badge_class = ($primary_role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
+                                            
+                                            // Determine execution status based on date comparison
                                             $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
+                                            if ($status === 'cancelled') {
+                                                $status_label = __('Cancelled', 'cosy-appointments');
+                                                $status_color = '#991b1b';
+                                            } else {
+                                                $appt_time = strtotime($appt->start_date);
+                                                $today_time = strtotime('today');
+                                                if ($appt_time < $today_time) {
+                                                    $status_label = __('Completed', 'cosy-appointments');
+                                                    $status_color = '#166534';
+                                                } else {
+                                                    $status_label = __('Upcoming', 'cosy-appointments');
+                                                    $status_color = '#1e40af';
+                                                }
+                                            }
+
+                                            // Determine booking ordinal suffix (1st, 2nd, 3rd, etc.)
+                                            $booking_num = $appt_booking_numbers[$appt->ID] ?? 1;
+                                            $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+                                            if ((($booking_num % 100) >= 11) && (($booking_num % 100) <= 13)) {
+                                                $ordinal = $booking_num . 'th';
+                                            } else {
+                                                $ordinal = $booking_num . $ends[$booking_num % 10];
+                                            }
+                                            $label_suffix = ($primary_role === 'provider') ? sprintf(__('%s Session', 'cosy-appointments'), $ordinal) : sprintf(__('%s Booking', 'cosy-appointments'), $ordinal);
                                             ?>
                                             <div class="cosy-appt-info-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; font-size: 11px;">
                                                 <div style="font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; gap: 4px;">
-                                                    <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; padding: 2px 6px; font-size: 9px; font-weight: bold;"><?php echo esc_html($appt->service_name); ?></span>
-                                                    <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: <?php echo ($status === 'completed') ? '#166534' : (($status === 'cancelled') ? '#991b1b' : '#854d0e'); ?>;">
-                                                        <?php echo esc_html($status); ?>
+                                                    <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; padding: 2px 6px; font-size: 9px; font-weight: bold;">
+                                                        <?php echo esc_html($appt->service_name); ?> <span style="opacity: 0.8; font-weight: normal; font-size: 8px;">(<?php echo esc_html($label_suffix); ?>)</span>
+                                                    </span>
+                                                    <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_color; ?>;">
+                                                        <?php echo esc_html($status_label); ?>
                                                     </span>
                                                 </div>
                                                 <div style="display: flex; align-items: center; gap: 4px; color: #475569; font-size: 10px; margin-top: 2px;">
@@ -1178,42 +1219,82 @@ class UsersAdmin
             );
 
             if (!empty($appointments)) :
-                ?>
-                <div class="cosy-modal-appt-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <?php foreach ($appointments as $appt) : 
-                        $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
-                        $status_color = ($status === 'completed') ? '#166534' : (($status === 'cancelled') ? '#991b1b' : '#854d0e');
-                        $status_bg = ($status === 'completed') ? '#dcfce7' : (($status === 'cancelled') ? '#fee2e2' : '#fef9c3');
-                        $badge_class = ($role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
-                        ?>
-                        <div class="cosy-modal-appt-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                            <div style="flex: 1;">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
-                                    <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; font-size: 10px; font-weight: bold;"><?php echo esc_html($appt->service_name); ?></span>
-                                    <span style="font-size: 11px; font-weight: 700; color: #1e293b;">£<?php echo esc_html($appt->total_payable ?: '0'); ?></span>
-                                </div>
-                                <div style="display: flex; flex-wrap: wrap; gap: 12px; color: #64748b; font-size: 11px;">
-                                    <span style="display: flex; align-items: center; gap: 4px;">
-                                        <span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
-                                        <span><?php echo esc_html($appt->start_date); ?></span>
-                                    </span>
-                                    <?php if (!empty($appt->slots_timeline)) : ?>
-                                        <span style="display: flex; align-items: center; gap: 4px;">
-                                            <span class="dashicons dashicons-clock" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
-                                            <span><?php echo esc_html($appt->slots_timeline); ?></span>
-                                        </span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div style="text-align: right; flex-shrink: 0;">
-                                <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_color; ?>; background-color: <?php echo $status_bg; ?>; border: 1px solid <?php echo $status_color; ?>33;">
-                                    <?php echo esc_html($status); ?>
-                                </span>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <?php
+                                                // Calculate service booking ordinal numbers (chronological order)
+                                                $chrono_appts = array_reverse($appointments);
+                                                $service_counts = [];
+                                                $appt_booking_numbers = [];
+                                                foreach ($chrono_appts as $a) {
+                                                    $srv_name = $a->service_name;
+                                                    if (!isset($service_counts[$srv_name])) {
+                                                        $service_counts[$srv_name] = 0;
+                                                    }
+                                                    $service_counts[$srv_name]++;
+                                                    $appt_booking_numbers[$a->ID] = $service_counts[$srv_name];
+                                                }
+                                                ?>
+                                                <div class="cosy-modal-appt-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+                                                    <?php foreach ($appointments as $appt) : 
+                                                        $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
+                                                        if ($status === 'cancelled') {
+                                                            $status_label = __('Cancelled', 'cosy-appointments');
+                                                            $status_color = '#991b1b';
+                                                            $status_bg = '#fee2e2';
+                                                        } else {
+                                                            $appt_time = strtotime($appt->start_date);
+                                                            $today_time = strtotime('today');
+                                                            if ($appt_time < $today_time) {
+                                                                $status_label = __('Completed', 'cosy-appointments');
+                                                                $status_color = '#166534';
+                                                                $status_bg = '#dcfce7';
+                                                            } else {
+                                                                $status_label = __('Upcoming', 'cosy-appointments');
+                                                                $status_color = '#1e40af';
+                                                                $status_bg = '#dbeafe';
+                                                            }
+                                                        }
+
+                                                        // Determine booking ordinal suffix (1st, 2nd, 3rd, etc.)
+                                                        $booking_num = $appt_booking_numbers[$appt->ID] ?? 1;
+                                                        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+                                                        if ((($booking_num % 100) >= 11) && (($booking_num % 100) <= 13)) {
+                                                            $ordinal = $booking_num . 'th';
+                                                        } else {
+                                                            $ordinal = $booking_num . $ends[$booking_num % 10];
+                                                        }
+                                                        $label_suffix = ($role === 'provider') ? sprintf(__('%s Session', 'cosy-appointments'), $ordinal) : sprintf(__('%s Booking', 'cosy-appointments'), $ordinal);
+                                                        
+                                                        $badge_class = ($role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
+                                                        ?>
+                                                        <div class="cosy-modal-appt-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                                            <div style="flex: 1;">
+                                                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                                                                    <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; font-size: 10px; font-weight: bold;">
+                                                                        <?php echo esc_html($appt->service_name); ?> <span style="opacity: 0.8; font-weight: normal; font-size: 8px;">(<?php echo esc_html($label_suffix); ?>)</span>
+                                                                    </span>
+                                                                    <span style="font-size: 11px; font-weight: 700; color: #1e293b;">£<?php echo esc_html($appt->total_payable ?: '0'); ?></span>
+                                                                </div>
+                                                                <div style="display: flex; flex-wrap: wrap; gap: 12px; color: #64748b; font-size: 11px;">
+                                                                    <span style="display: flex; align-items: center; gap: 4px;">
+                                                                        <span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
+                                                                        <span><?php echo esc_html($appt->start_date); ?></span>
+                                                                    </span>
+                                                                    <?php if (!empty($appt->slots_timeline)) : ?>
+                                                                        <span style="display: flex; align-items: center; gap: 4px;">
+                                                                            <span class="dashicons dashicons-clock" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
+                                                                            <span><?php echo esc_html($appt->slots_timeline); ?></span>
+                                                                        </span>
+                                                                    <?php endif; ?>
+                                                                </div>
+                                                            </div>
+                                                            <div style="text-align: right; flex-shrink: 0;">
+                                                                <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_color; ?>; background-color: <?php echo $status_bg; ?>; border: 1px solid <?php echo $status_color; ?>33;">
+                                                                    <?php echo esc_html($status_label); ?>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                                <?php
             else :
                 if ($role === 'provider') {
                     $services_table = $wpdb->prefix . 'provider_services';
