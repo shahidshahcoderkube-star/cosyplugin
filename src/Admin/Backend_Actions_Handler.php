@@ -18,6 +18,7 @@ class Backend_Actions_Handler
             'video_approve' => 'ajax_approve_video',
             'video_reject' => 'ajax_reject_video',
             'cosy_delete_orders' => 'ajax_delete_orders',
+            'cosy_delete_media' => 'ajax_delete_media',
             'cosy_toggle_page_logging' => 'ajax_toggle_page_logging',
             'cosy_clear_activity_logs' => 'ajax_clear_activity_logs',
         ];
@@ -262,6 +263,74 @@ class Backend_Actions_Handler
 
         wp_send_json_success([
             'message' => __('All activity logs have been cleared successfully.', 'cosy-appointments')
+        ]);
+    }
+
+    /**
+     * AJAX Handler: Bulk delete selected media
+     */
+    public function ajax_delete_media()
+    {
+        // Security check
+        check_ajax_referer('cosy_media_nonce', 'nonce');
+        
+        if (!current_user_can('approve_cosy_media')) {
+            wp_send_json_error(['message' => __('Unauthorized access', 'cosy-appointments')]);
+        }
+
+        $media_ids = isset($_POST['media_ids']) ? array_map('intval', $_POST['media_ids']) : [];
+        if (empty($media_ids)) {
+            wp_send_json_error(['message' => __('No media selected for deletion.', 'cosy-appointments')]);
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_media_approvals';
+
+        $deleted_count = 0;
+        foreach ($media_ids as $id) {
+            if ($id > 0) {
+                // Fetch the record to get user_id and media_url before deleting
+                $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $id));
+                if ($record) {
+                    $user_id = $record->user_id;
+                    $video_url = $record->media_url;
+
+                    // 1. Delete physical attachment from media library if exists
+                    if (!empty($video_url)) {
+                        $attachment_id = attachment_url_to_postid($video_url);
+                        if ($attachment_id) {
+                            wp_delete_attachment($attachment_id, true);
+                        }
+                    }
+
+                    // 2. Also check if the user meta currently points to this video
+                    $meta_video = get_user_meta($user_id, 'introduction_video', true);
+                    if ($meta_video === $video_url) {
+                        delete_user_meta($user_id, 'introduction_video');
+                        update_user_meta($user_id, 'video_status', 'rejected');
+                    }
+
+                    // 3. Delete row from media approvals table
+                    $deleted = $wpdb->delete($table_name, ['id' => $id], ['%d']);
+                    if ($deleted !== false) {
+                        $deleted_count++;
+                        
+                        // Log activity
+                        $provider = get_userdata($user_id);
+                        $prov_name = $provider ? $provider->display_name : "ID $user_id";
+                        \Cosy\Appointments\Common\LogManager::log(
+                            'media_approve',
+                            'media_deleted',
+                            sprintf(__('Admin deleted introduction media for Provider "%s" (Record ID: %d).', 'cosy-appointments'), $prov_name, $id)
+                        );
+                    }
+                }
+            }
+        }
+
+        wp_send_json_success([
+            'message' => sprintf(_n('Successfully deleted %d media entry.', 'Successfully deleted %d media entries.', $deleted_count, 'cosy-appointments'), $deleted_count),
+            'deleted_count' => $deleted_count
         ]);
     }
 }

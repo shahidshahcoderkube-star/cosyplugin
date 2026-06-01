@@ -119,7 +119,7 @@ jQuery(document).ready(function ($) {
 
     // =========================================================================
     // MODULE: CosyMediaAdmin
-    // Handles approve and reject actions for provider-submitted media content.
+    // Handles approve, reject and delete actions for provider-submitted media content.
     // Uses Event Delegation so it works even on dynamically loaded rows.
     // =========================================================================
     const CosyMediaAdmin = {
@@ -132,6 +132,24 @@ jQuery(document).ready(function ($) {
             // Use event delegation on document to support dynamically rendered rows
             $(document).on('click', '.approve-media', this.handleApprove);
             $(document).on('click', '.reject-media', this.handleReject);
+
+            // Select all checkboxes
+            $(document).on('change', '#cosy-select-all-media', function () {
+                const checked = $(this).prop('checked');
+                $('.cosy-media-checkbox').prop('checked', checked).trigger('change');
+            });
+
+            // Individual checkbox change
+            $(document).on('change', '.cosy-media-checkbox', function () {
+                const checkedCount = $('.cosy-media-checkbox:checked').length;
+                const totalCount = $('.cosy-media-checkbox').length;
+                
+                $('#cosy-select-all-media').prop('checked', checkedCount === totalCount && totalCount > 0);
+                $('#cosy-media-btn-delete-selected').prop('disabled', checkedCount === 0);
+            });
+
+            // Bulk Delete Click Handler
+            $(document).on('click', '#cosy-media-btn-delete-selected', this.handleBulkDelete);
         },
 
         /**
@@ -186,8 +204,8 @@ jQuery(document).ready(function ($) {
                 },
                 success: function (res) {
                     if (res.success) {
-                        // Update status badge in the table row immediately
-                        row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-approved">Approved</span>');
+                        // Update status badge in the table row immediately (8th child is Status column)
+                        row.find('td:nth-child(8)').html('<span class="cosy-badge cosy-badge-approved">Approved</span>');
                         row.find('.approve-media').remove();
                         CosyMediaAdmin.showAlert(res.data.message || 'Video approved successfully!', 'success');
                     } else {
@@ -225,9 +243,9 @@ jQuery(document).ready(function ($) {
                 success: function (res) {
                     if (res.success) {
                         // Update UI to show video has been deleted and rejected
-                        row.find('td:nth-child(2)').html('<span class="text-muted">Deleted</span>');
-                        row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-rejected">Rejected</span>');
-                        row.find('td:nth-child(8)').html('<span class="text-muted">No Action</span>');
+                        row.find('td:nth-child(3)').html('<span class="text-muted">Deleted</span>');
+                        row.find('td:nth-child(8)').html('<span class="cosy-badge cosy-badge-rejected">Rejected</span>');
+                        row.find('td:nth-child(9)').html('<span class="text-muted">No Action</span>');
                         CosyMediaAdmin.showAlert(res.data.message || 'Video rejected successfully!', 'danger');
                     } else {
                         CosyMediaAdmin.showAlert(res.data.message || 'Error rejecting video.', 'danger');
@@ -235,6 +253,91 @@ jQuery(document).ready(function ($) {
                 },
                 complete: function () {
                     $btn.prop('disabled', false).text('Reject');
+                }
+            });
+        },
+
+        /**
+         * handleBulkDelete
+         * Collects checked media IDs and sends an AJAX request to delete them.
+         */
+        handleBulkDelete: function () {
+            const $btn = $(this);
+            const selectedIds = [];
+            $('.cosy-media-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                return;
+            }
+
+            CosyAlert.confirm({
+                title:       'Delete Selected Media?',
+                message:     'You are about to permanently delete ' + selectedIds.length + ' media item(s) from the database and media library. This action cannot be undone.',
+                confirmText: 'Yes, Delete',
+                cancelText:  'Cancel',
+                type:        'danger',
+                onConfirm: function () { CosyMediaAdmin._doDelete($btn, selectedIds); }
+            });
+        },
+
+        /**
+         * _doDelete — internal helper called after confirmation.
+         */
+        _doDelete: function ($btn, selectedIds) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'cosy_delete_media',
+                    nonce: $('#cosy_media_nonce_field').val(),
+                    media_ids: selectedIds
+                },
+                beforeSend: function () {
+                    $btn.prop('disabled', true);
+                    $btn.find('.cosy-btn-text').text('Deleting...');
+                },
+                success: function (res) {
+                    if (res.success) {
+                        let animationCompleted = 0;
+                        selectedIds.forEach(function(id) {
+                            const $checkbox = $(`.cosy-media-checkbox[value="${id}"]`);
+                            $checkbox.closest('tr').fadeOut(400, function() {
+                                $(this).remove();
+                                animationCompleted++;
+
+                                if (animationCompleted === selectedIds.length) {
+                                    const remainingCount = $('.cosy-media-checkbox').length;
+                                    if (remainingCount === 0) {
+                                        $('.cosy-media-table tbody').html(`
+                                            <tr>
+                                                <td colspan="9" class="text-center py-4 text-muted" style="text-align: center; padding: 40px; color: #64748b;">
+                                                    No media approvals found.
+                                                </td>
+                                            </tr>
+                                        `);
+                                    }
+                                }
+                            });
+                        });
+
+                        // Reset select all state
+                        $('#cosy-select-all-media').prop('checked', false);
+                        $btn.prop('disabled', true);
+                        $btn.find('.cosy-btn-text').text('Delete Selected');
+                        CosyAlert.toast(res.data.message || 'Media deleted successfully.', 'success');
+                    } else {
+                        CosyAlert.toast(res.data.message || 'Error deleting media.', 'danger');
+                        $btn.prop('disabled', false);
+                        $btn.find('.cosy-btn-text').text('Delete Selected');
+                    }
+                },
+                error: function () {
+                    CosyAlert.toast('An unexpected error occurred during media deletion.', 'danger');
+                    $btn.prop('disabled', false);
+                    $btn.find('.cosy-btn-text').text('Delete Selected');
                 }
             });
         }

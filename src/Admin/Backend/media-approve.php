@@ -4,11 +4,24 @@
     
     <?php wp_nonce_field('cosy_media_nonce', 'cosy_media_nonce_field'); ?>
     <div class="admin-succes" style="margin-top: 15px;"></div>
+
+    <!-- Premium Control Bar for Media Approvals -->
+    <div class="cosy-control-bar" style="margin-top: 15px; margin-bottom: 15px;">
+        <div class="cosy-control-left">
+            <button type="button" class="cosy-btn-delete-selected-modern" id="cosy-media-btn-delete-selected" disabled>
+                <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></span>
+                <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete Selected', 'cosy-appointments'); ?></span>
+            </button>
+        </div>
+    </div>
     
     <div class="table-responsive" style="margin-top: 15px;">
         <table class="wp-list-table widefat fixed striped table-view-list cosy-orders-table cosy-media-table">
             <thead>
                 <tr>
+                    <th scope="col" style="width: 45px; padding: 8px 20px 8px 15px; vertical-align: middle;">
+                        <input type="checkbox" id="cosy-select-all-media">
+                    </th>
                     <th scope="col" style="width: 50px;">No.</th>
                     <th scope="col" style="width: 240px;">Media</th>
                     <th scope="col">Provider</th>
@@ -33,10 +46,10 @@
                          GROUP BY user_id
                      ) m2 ON m1.id = m2.max_id
                      ORDER BY FIELD(m1.status, 'pending', 'approved', 'rejected'), m1.uploaded_at DESC"
-                );
+                 );
 
                 if (empty($results)) {
-                    echo '<tr><td colspan="8" class="text-center py-4 text-muted" style="text-align: center; padding: 40px; color: #64748b;">No media approvals found.</td></tr>';
+                    echo '<tr><td colspan="9" class="text-center py-4 text-muted" style="text-align: center; padding: 40px; color: #64748b;">No media approvals found.</td></tr>';
                 }
 
                 $counter = 1;
@@ -45,7 +58,11 @@
                     $data    = $this->get_provider_data($user_id);
                     $status  = $media->status;
                     ?>
-                    <tr data-id="<?php echo esc_attr($user_id); ?>">
+                    <tr id="media-row-<?php echo esc_attr($media->id); ?>" data-id="<?php echo esc_attr($user_id); ?>">
+                        <!-- Checkbox -->
+                        <th scope="row" class="check-column" style="padding: 8px 20px 8px 15px; vertical-align: middle; width: 45px;">
+                            <input type="checkbox" class="cosy-media-checkbox" value="<?php echo esc_attr($media->id); ?>" data-user-id="<?php echo esc_attr($user_id); ?>">
+                        </th>
                         <!-- No. -->
                         <td><strong><?php echo esc_html($counter++); ?></strong></td>
                         <!-- Media -->
