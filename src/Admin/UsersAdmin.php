@@ -210,15 +210,17 @@ class UsersAdmin
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <button type="button" class="button button-small btn-view-cosy-user-details" data-user-id="<?php echo $user_id; ?>">
-                                        <?php esc_html_e('View Details', 'cosy-appointments'); ?>
-                                    </button>
-                                    
-                                    <?php if ($email_status === 'pending') : ?>
-                                        <button type="button" class="button button-small cosy-btn-resend-verification" data-user-id="<?php echo $user_id; ?>" data-role="<?php echo $primary_role; ?>" style="margin-left: 5px;">
-                                            <?php esc_html_e('Resend Email', 'cosy-appointments'); ?>
+                                    <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                                        <button type="button" class="button button-small btn-view-cosy-user-details" data-user-id="<?php echo $user_id; ?>">
+                                            <?php esc_html_e('View Details', 'cosy-appointments'); ?>
                                         </button>
-                                    <?php endif; ?>
+                                        
+                                        <?php if ($email_status === 'pending') : ?>
+                                            <button type="button" class="button button-small cosy-btn-resend-verification" data-user-id="<?php echo $user_id; ?>" data-role="<?php echo $primary_role; ?>">
+                                                <?php esc_html_e('Resend Email', 'cosy-appointments'); ?>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
