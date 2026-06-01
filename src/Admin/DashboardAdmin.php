@@ -49,12 +49,22 @@ class DashboardAdmin
             "SELECT pm.meta_value
              FROM {$wpdb->postmeta} pm
              INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-             WHERE pm.meta_key = 'cosy_appointment_price'
+             WHERE pm.meta_key = 'cosy_total_payable'
              AND p.post_type = 'cosy_appointment'
              AND p.post_status = 'publish'"
         );
         $total_revenue = array_sum(array_map('floatval', $revenue_rows));
         $currency = get_option('cosy_stripe_currency', 'USD');
+
+        $currency_symbols = [
+            'USD' => '$',
+            'EUR' => '€',
+            'GBP' => '£',
+            'INR' => '₹',
+            'AUD' => 'A$',
+            'CAD' => 'C$',
+        ];
+        $currency_symbol = isset($currency_symbols[$currency]) ? $currency_symbols[$currency] : $currency . ' ';
 
         // ── Recent 8 Bookings ───────────────────────────────────────────
         $recent_bookings = get_posts([
@@ -137,7 +147,7 @@ class DashboardAdmin
             /* Stat Cards */
             .cdb-stats-grid {
                 display: grid;
-                grid-template-columns: repeat(6, 1fr);
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
                 gap: 16px;
                 margin-bottom: 28px;
             }
@@ -157,12 +167,13 @@ class DashboardAdmin
                 width: 4px; height: 100%;
                 border-radius: 4px 0 0 4px;
             }
-            .cdb-stat-card.purple::before { background: #9b4593; }
-            .cdb-stat-card.green::before  { background: #22c55e; }
-            .cdb-stat-card.amber::before  { background: #f59e0b; }
-            .cdb-stat-card.red::before    { background: #ef4444; }
-            .cdb-stat-card.blue::before   { background: #3b82f6; }
-            .cdb-stat-card.teal::before   { background: #14b8a6; }
+            .cdb-stat-card.purple::before  { background: #9b4593; }
+            .cdb-stat-card.emerald::before { background: #10b981; }
+            .cdb-stat-card.green::before   { background: #22c55e; }
+            .cdb-stat-card.amber::before   { background: #f59e0b; }
+            .cdb-stat-card.red::before     { background: #ef4444; }
+            .cdb-stat-card.blue::before    { background: #3b82f6; }
+            .cdb-stat-card.teal::before    { background: #14b8a6; }
             .cdb-stat-card:hover {
                 transform: translateY(-4px);
                 box-shadow: 0 10px 25px rgba(155,69,147,0.1);
@@ -174,12 +185,13 @@ class DashboardAdmin
                 font-size: 1.15rem;
                 margin-bottom: 14px;
             }
-            .cdb-stat-card.purple .cdb-stat-icon { background: #f1e4ef; color: #9b4593; }
-            .cdb-stat-card.green  .cdb-stat-icon { background: #dcfce7; color: #16a34a; }
-            .cdb-stat-card.amber  .cdb-stat-icon { background: #fef3c7; color: #d97706; }
-            .cdb-stat-card.red    .cdb-stat-icon { background: #fee2e2; color: #dc2626; }
-            .cdb-stat-card.blue   .cdb-stat-icon { background: #dbeafe; color: #2563eb; }
-            .cdb-stat-card.teal   .cdb-stat-icon { background: #ccfbf1; color: #0d9488; }
+            .cdb-stat-card.purple  .cdb-stat-icon { background: #f1e4ef; color: #9b4593; }
+            .cdb-stat-card.emerald .cdb-stat-icon { background: #d1fae5; color: #059669; }
+            .cdb-stat-card.green   .cdb-stat-icon { background: #dcfce7; color: #16a34a; }
+            .cdb-stat-card.amber   .cdb-stat-icon { background: #fef3c7; color: #d97706; }
+            .cdb-stat-card.red     .cdb-stat-icon { background: #fee2e2; color: #dc2626; }
+            .cdb-stat-card.blue    .cdb-stat-icon { background: #dbeafe; color: #2563eb; }
+            .cdb-stat-card.teal    .cdb-stat-icon { background: #ccfbf1; color: #0d9488; }
             .cdb-stat-value {
                 font-family: 'Outfit', sans-serif;
                 font-size: 1.8rem;
@@ -291,6 +303,11 @@ class DashboardAdmin
                     <div class="cdb-stat-value"><?php echo number_format($total_bookings); ?></div>
                     <div class="cdb-stat-label">Total Bookings</div>
                 </div>
+                <div class="cdb-stat-card emerald">
+                    <div class="cdb-stat-icon"><i class="fas fa-wallet"></i></div>
+                    <div class="cdb-stat-value"><?php echo $currency_symbol . number_format($total_revenue, 2); ?></div>
+                    <div class="cdb-stat-label">Total Revenue</div>
+                </div>
                 <div class="cdb-stat-card green">
                     <div class="cdb-stat-icon"><i class="fas fa-check-circle"></i></div>
                     <div class="cdb-stat-value"><?php echo number_format($confirmed); ?></div>
@@ -362,7 +379,7 @@ class DashboardAdmin
                                     $customer_id  = get_post_meta($booking->ID, 'cosy_customer_id', true);
                                     $provider_id  = get_post_meta($booking->ID, 'cosy_provider_id', true);
                                     $service_name = get_post_meta($booking->ID, 'cosy_service_name', true);
-                                    $appt_date    = get_post_meta($booking->ID, 'cosy_appointment_date', true);
+                                    $appt_date    = get_post_meta($booking->ID, 'cosy_start_date', true);
                                     $customer     = $customer_id ? get_userdata($customer_id) : null;
                                     $provider     = $provider_id ? get_userdata($provider_id) : null;
                                     $status       = $booking->post_status;
