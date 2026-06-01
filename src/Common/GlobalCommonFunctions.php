@@ -684,10 +684,15 @@ trait GlobalCommonFunctions
         );
 
         $status = $db_status ?: '';
-        $meta_status = get_user_meta($user_id, 'video_status', true);
 
-        if ($meta_status !== $status) {
-            update_user_meta($user_id, 'video_status', $status);
+        if (empty($status)) {
+            delete_user_meta($user_id, 'introduction_video');
+            delete_user_meta($user_id, 'video_status');
+        } else {
+            $meta_status = get_user_meta($user_id, 'video_status', true);
+            if ($meta_status !== $status) {
+                update_user_meta($user_id, 'video_status', $status);
+            }
         }
 
         return $status;
