@@ -116,6 +116,9 @@ jQuery(document).ready(function ($) {
         }
     };
 
+    // Expose CosyAlert globally for other admin scripts (e.g. users-admin.js)
+    window.CosyAlert = CosyAlert;
+
 
     // =========================================================================
     // MODULE: CosyMediaAdmin

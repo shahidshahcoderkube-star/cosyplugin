@@ -84,32 +84,6 @@ class Assets
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
         );
 
-        // SweetAlert2 CSS
-        wp_enqueue_style(
-            'sweetalert2',
-            'https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css',
-            [],
-            '11.10.5'
-        );
-
-        // SweetAlert2 Script
-        wp_enqueue_script(
-            'sweetalert2',
-            'https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js',
-            [],
-            '11.10.5',
-            true
-        );
-
-        // CosyAlert Utility Script
-        wp_enqueue_script(
-            'cosy-alert',
-            COSY_APPT_URL . 'src/Assets/js/cosy-alert.js',
-            ['sweetalert2'],
-            COSY_APPT_VER,
-            true
-        );
-
         wp_enqueue_style(
             'cosy-admin-style',
             COSY_APPT_URL . 'src/Admin/assets/admin.css',
@@ -120,7 +94,7 @@ class Assets
         wp_enqueue_script(
             'cosy-admin-script',
             COSY_APPT_URL . 'src/Admin/assets/admin.js',
-            ['jquery', 'cosy-alert'],
+            ['jquery'],
             COSY_APPT_VER . '-' . time(),
             true
         );
