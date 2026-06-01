@@ -467,7 +467,7 @@
 <div class="cdoc-wrap">
 
     <div class="cdoc-header">
-        <span class="cdoc-version-badge">Version 1.0.3</span>
+        <span class="cdoc-version-badge">Version <?php echo esc_html(defined('COSY_APPT_VER') ? COSY_APPT_VER : '1.0.15'); ?></span>
         <h1>Cosy Appointments — Documentation</h1>
         <p>A complete guide to setting up, configuring, and managing your multi-provider appointment booking platform.</p>
     </div>
