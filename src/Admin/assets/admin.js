@@ -204,8 +204,8 @@ jQuery(document).ready(function ($) {
                 },
                 success: function (res) {
                     if (res.success) {
-                        // Update status badge in the table row immediately (8th child is Status column)
-                        row.find('td:nth-child(8)').html('<span class="cosy-badge cosy-badge-approved">Approved</span>');
+                        // Update status badge in the table row immediately (7th child is Status column)
+                        row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-approved">Approved</span>');
                         row.find('.approve-media').remove();
                         CosyMediaAdmin.showAlert(res.data.message || 'Video approved successfully!', 'success');
                     } else {
@@ -243,9 +243,9 @@ jQuery(document).ready(function ($) {
                 success: function (res) {
                     if (res.success) {
                         // Update UI to show video has been deleted and rejected
-                        row.find('td:nth-child(3)').html('<span class="text-muted">Deleted</span>');
-                        row.find('td:nth-child(8)').html('<span class="cosy-badge cosy-badge-rejected">Rejected</span>');
-                        row.find('td:nth-child(9)').html('<span class="text-muted">No Action</span>');
+                        row.find('td:nth-child(2)').html('<span class="text-muted">Deleted</span>');
+                        row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-rejected">Rejected</span>');
+                        row.find('td:nth-child(8)').html('<span class="text-muted">No Action</span>');
                         CosyMediaAdmin.showAlert(res.data.message || 'Video rejected successfully!', 'danger');
                     } else {
                         CosyMediaAdmin.showAlert(res.data.message || 'Error rejecting video.', 'danger');
@@ -313,7 +313,7 @@ jQuery(document).ready(function ($) {
                                     if (remainingCount === 0) {
                                         $('.cosy-media-table tbody').html(`
                                             <tr>
-                                                <td colspan="9" class="text-center py-4 text-muted" style="text-align: center; padding: 40px; color: #64748b;">
+                                                <td colspan="8" class="text-center py-4 text-muted" style="text-align: center; padding: 40px; color: #64748b;">
                                                     No media approvals found.
                                                 </td>
                                             </tr>
@@ -326,18 +326,18 @@ jQuery(document).ready(function ($) {
                         // Reset select all state
                         $('#cosy-select-all-media').prop('checked', false);
                         $btn.prop('disabled', true);
-                        $btn.find('.cosy-btn-text').text('Delete Selected');
+                        $btn.find('.cosy-btn-text').text('Delete');
                         CosyAlert.toast(res.data.message || 'Media deleted successfully.', 'success');
                     } else {
                         CosyAlert.toast(res.data.message || 'Error deleting media.', 'danger');
                         $btn.prop('disabled', false);
-                        $btn.find('.cosy-btn-text').text('Delete Selected');
+                        $btn.find('.cosy-btn-text').text('Delete');
                     }
                 },
                 error: function () {
                     CosyAlert.toast('An unexpected error occurred during media deletion.', 'danger');
                     $btn.prop('disabled', false);
-                    $btn.find('.cosy-btn-text').text('Delete Selected');
+                    $btn.find('.cosy-btn-text').text('Delete');
                 }
             });
         }

@@ -10,7 +10,7 @@
         <div class="cosy-control-left">
             <button type="button" class="cosy-btn-delete-selected-modern" id="cosy-media-btn-delete-selected" disabled>
                 <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></span>
-                <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete Selected', 'cosy-appointments'); ?></span>
+                <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete', 'cosy-appointments'); ?></span>
             </button>
         </div>
     </div>
@@ -22,7 +22,6 @@
                     <th scope="col" style="width: 45px; padding: 8px 20px 8px 15px; vertical-align: middle;">
                         <input type="checkbox" id="cosy-select-all-media">
                     </th>
-                    <th scope="col" style="width: 50px;">No.</th>
                     <th scope="col" style="width: 240px;">Media</th>
                     <th scope="col">Provider</th>
                     <th scope="col">Email</th>
@@ -49,10 +48,9 @@
                  );
 
                 if (empty($results)) {
-                    echo '<tr><td colspan="9" class="text-center py-4 text-muted" style="text-align: center; padding: 40px; color: #64748b;">No media approvals found.</td></tr>';
+                    echo '<tr><td colspan="8" class="text-center py-4 text-muted" style="text-align: center; padding: 40px; color: #64748b;">No media approvals found.</td></tr>';
                 }
 
-                $counter = 1;
                 foreach ($results as $media):
                     $user_id = $media->user_id;
                     $data    = $this->get_provider_data($user_id);
@@ -63,8 +61,6 @@
                         <th scope="row" class="check-column" style="padding: 8px 20px 8px 15px; vertical-align: middle; width: 45px;">
                             <input type="checkbox" class="cosy-media-checkbox" value="<?php echo esc_attr($media->id); ?>" data-user-id="<?php echo esc_attr($user_id); ?>">
                         </th>
-                        <!-- No. -->
-                        <td><strong><?php echo esc_html($counter++); ?></strong></td>
                         <!-- Media -->
                         <td>
                             <?php if ($status !== 'rejected' && $status !== 'deleted' && !empty($media->media_url)) { ?>
