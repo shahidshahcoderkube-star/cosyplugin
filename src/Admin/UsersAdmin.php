@@ -241,6 +241,9 @@ class UsersAdmin
                                                 if ($appt_time < $today_time) {
                                                     $status_label = __('Completed', 'cosy-appointments');
                                                     $status_color = '#166534';
+                                                } elseif ($appt_time === $today_time) {
+                                                    $status_label = __('In Progress', 'cosy-appointments');
+                                                    $status_color = '#7c3aed';
                                                 } else {
                                                     $status_label = __('Upcoming', 'cosy-appointments');
                                                     $status_color = '#1e40af';
@@ -1233,7 +1236,7 @@ class UsersAdmin
                                                 }
                                                 ?>
                                                 <div class="cosy-modal-appt-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
-                                                    <?php foreach ($appointments as $appt) : 
+                                                     <?php foreach ($appointments as $appt) : 
                                                         $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
                                                         if ($status === 'cancelled') {
                                                             $status_label = __('Cancelled', 'cosy-appointments');
@@ -1246,6 +1249,10 @@ class UsersAdmin
                                                                 $status_label = __('Completed', 'cosy-appointments');
                                                                 $status_color = '#166534';
                                                                 $status_bg = '#dcfce7';
+                                                            } elseif ($appt_time === $today_time) {
+                                                                $status_label = __('In Progress', 'cosy-appointments');
+                                                                $status_color = '#7c3aed';
+                                                                $status_bg = '#f5f3ff';
                                                             } else {
                                                                 $status_label = __('Upcoming', 'cosy-appointments');
                                                                 $status_color = '#1e40af';
