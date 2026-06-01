@@ -81,6 +81,11 @@ class DeactivationHandler
             $authorized = get_transient('cosy_deactivation_authorized');
             
             if ($authorized !== 'yes') {
+                \Cosy\Appointments\Common\LogManager::log(
+                    'settings',
+                    'deactivation_blocked',
+                    __('Unauthorized plugin deactivation attempt was blocked by OTP guard.', 'cosy-appointments')
+                );
                 wp_die(
                     '<div style="text-align: center; font-family: \'Plus Jakarta Sans\', sans-serif; padding: 20px;">
                         <h2 style="color: #dc3545; font-size: 24px; margin-bottom: 10px;">🔒 Deactivation Protection Active</h2>
@@ -94,6 +99,11 @@ class DeactivationHandler
             
             // Authorized! Clear the authorization flag immediately
             delete_transient('cosy_deactivation_authorized');
+            \Cosy\Appointments\Common\LogManager::log(
+                'settings',
+                'plugin_deactivated',
+                __('Plugin deactivation authorized via OTP and executed.', 'cosy-appointments')
+            );
         }
     }
 
@@ -185,6 +195,11 @@ class DeactivationHandler
         $mail_sent = wp_mail($admin_email, $subject, $message, $headers);
 
         if ($mail_sent) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'settings',
+                'deactivation_otp_sent',
+                sprintf(__('Deactivation OTP sent to site administrator email (%s).', 'cosy-appointments'), $admin_email)
+            );
             wp_send_json_success(['message' => 'OTP has been successfully sent to ' . $admin_email]);
         } else {
             wp_send_json_error(['message' => 'Failed to send email. Please check your mail server configuration.']);
@@ -206,6 +221,11 @@ class DeactivationHandler
         $saved_otp = get_transient('cosy_deactivation_otp');
 
         if (empty($entered_otp) || !$saved_otp || (int)$entered_otp !== (int)$saved_otp) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'settings',
+                'deactivation_otp_failed',
+                sprintf(__('Failed plugin deactivation OTP verification attempt. Entered OTP: %s', 'cosy-appointments'), $entered_otp)
+            );
             wp_send_json_error(['message' => 'Invalid or expired OTP. Please try again.']);
         }
 
@@ -214,6 +234,12 @@ class DeactivationHandler
 
         // Authorize deactivation for the next 30 seconds
         set_transient('cosy_deactivation_authorized', 'yes', 30);
+
+        \Cosy\Appointments\Common\LogManager::log(
+            'settings',
+            'deactivation_otp_verified',
+            __('Plugin deactivation OTP verified successfully.', 'cosy-appointments')
+        );
 
         wp_send_json_success(['message' => 'OTP verified successfully.']);
     }}

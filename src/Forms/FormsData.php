@@ -389,6 +389,15 @@ class FormsData
             update_user_meta($uid, 'account_status', 'active');
             delete_user_meta($uid, 'verification_token');
 
+            $user = get_userdata($uid);
+            $user_login = $user ? $user->user_login : 'ID ' . $uid;
+            \Cosy\Appointments\Common\LogManager::log(
+                'users',
+                'email_verified',
+                sprintf(__('User email verified and account activated: %s.', 'cosy-appointments'), $user_login),
+                $uid
+            );
+
             // Auto login
             wp_set_current_user($uid);
             wp_set_auth_cookie($uid);

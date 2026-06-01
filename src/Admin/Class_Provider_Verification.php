@@ -125,9 +125,16 @@ class Class_Provider_Verification
 
         update_user_meta($user_id, 'cosy_provider_status', $status);
 
+        $user = get_userdata($user_id);
+        $user_display = $user ? $user->display_name . ' (' . $user->user_email . ')' : 'ID ' . $user_id;
+        \Cosy\Appointments\Common\LogManager::log(
+            'users',
+            'status_updated',
+            sprintf(__('Admin updated provider "%s" status from "%s" to "%s" via Users list page.', 'cosy-appointments'), $user_display, $old_status, $status)
+        );
+
         // Send email if status transitions
         if ($old_status !== $status) {
-            $user = get_userdata($user_id);
             if ($user) {
                 if ($status === 'active') {
                     $subject = "Your Provider Account is Now Active!";

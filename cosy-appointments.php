@@ -410,4 +410,12 @@ function cosy_do_cleanup_activity_logs() {
             "DELETE FROM $table_name WHERE timestamp < DATE_SUB(NOW(), INTERVAL 30 DAY)"
         )
     );
+    $deleted_rows = intval($wpdb->rows_affected);
+    if ($deleted_rows > 0) {
+        \Cosy\Appointments\Common\LogManager::log(
+            'logs',
+            'cron_cleanup',
+            sprintf(__('Daily automatic cron cleanup deleted %d activity logs older than 30 days.', 'cosy-appointments'), $deleted_rows)
+        );
+    }
 }
