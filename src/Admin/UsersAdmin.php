@@ -122,7 +122,7 @@ class UsersAdmin
             <table class="wp-list-table widefat fixed striped table-view-list cosy-users-table">
                 <thead>
                     <tr>
-                        <td id="cb" class="manage-column column-cb check-column" style="width: 30px; padding: 8px 10px; vertical-align: middle;">
+                        <td id="cb" class="manage-column column-cb check-column" style="width: 45px; padding: 8px 20px 8px 15px; vertical-align: middle;">
                             <input type="checkbox" id="cosy-select-all-users">
                         </td>
                         <th scope="col" class="manage-column"><?php esc_html_e('Username & Name', 'cosy-appointments'); ?></th>
@@ -165,7 +165,7 @@ class UsersAdmin
                             }
                             ?>
                             <tr id="user-row-<?php echo $user_id; ?>">
-                                <th scope="row" class="check-column" style="padding: 8px 10px; vertical-align: middle;">
+                                <th scope="row" class="check-column" style="padding: 8px 20px 8px 15px; vertical-align: middle; width: 45px;">
                                     <input type="checkbox" class="cosy-user-checkbox" value="<?php echo $user_id; ?>">
                                 </th>
                                 <td>
