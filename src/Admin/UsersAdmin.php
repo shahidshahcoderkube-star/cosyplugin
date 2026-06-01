@@ -129,6 +129,7 @@ class UsersAdmin
                         <th scope="col" class="manage-column"><?php esc_html_e('Username & Name', 'cosy-appointments'); ?></th>
                         <th scope="col" class="manage-column" style="width: 120px;"><?php esc_html_e('Role', 'cosy-appointments'); ?></th>
                         <th scope="col" class="manage-column"><?php esc_html_e('Email', 'cosy-appointments'); ?></th>
+                        <th scope="col" class="manage-column" style="width: 220px;"><?php esc_html_e('Services', 'cosy-appointments'); ?></th>
                         <th scope="col" class="manage-column" style="width: 160px;"><?php esc_html_e('Email Verify', 'cosy-appointments'); ?></th>
                         <th scope="col" class="manage-column" style="width: 160px;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
                         <th scope="col" class="manage-column" style="width: 180px;"><?php esc_html_e('Actions', 'cosy-appointments'); ?></th>
@@ -137,12 +138,14 @@ class UsersAdmin
                 <tbody id="the-list">
                     <?php if (empty($users)) : ?>
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 40px; color: #64748b;">
+                            <td colspan="9" style="text-align: center; padding: 40px; color: #64748b;">
                                 <?php esc_html_e('No users found matching the criteria.', 'cosy-appointments'); ?>
                             </td>
                         </tr>
                     <?php else : ?>
-                        <?php foreach ($users as $user) :
+                        <?php 
+                        $counter = ($paged - 1) * $number + 1;
+                        foreach ($users as $user) :
                             $user_id = $user->ID;
                             $roles = (array) $user->roles;
                             $primary_role = in_array('provider', $roles) ? 'provider' : (in_array('customer', $roles) ? 'customer' : 'other');
@@ -168,7 +171,10 @@ class UsersAdmin
                                 <th scope="row" class="check-column" style="padding: 8px 10px; vertical-align: middle;">
                                     <input type="checkbox" class="cosy-user-checkbox" value="<?php echo $user_id; ?>">
                                 </th>
-                                <td><?php echo $user_id; ?></td>
+                                <td>
+                                    <strong><?php echo $counter++; ?></strong>
+                                    <span style="font-size: 10px; color: #94a3b8; display: block;">ID: <?php echo $user_id; ?></span>
+                                </td>
                                 <td>
                                     <strong><?php echo esc_html($user->display_name); ?></strong>
                                     <div style="font-size: 11px; color: #64748b;">@<?php echo esc_html($user->user_login); ?></div>
@@ -184,6 +190,47 @@ class UsersAdmin
                                 </td>
                                 <td>
                                     <a href="mailto:<?php echo esc_attr($user->user_email); ?>"><?php echo esc_html($user->user_email); ?></a>
+                                </td>
+                                <td>
+                                    <?php
+                                    global $wpdb;
+                                    $services = [];
+                                    if ($primary_role === 'provider') {
+                                        $services_table = $wpdb->prefix . 'provider_services';
+                                        $services = $wpdb->get_col(
+                                            $wpdb->prepare(
+                                                "SELECT DISTINCT p.post_title 
+                                                 FROM $services_table ps
+                                                 JOIN {$wpdb->posts} p ON ps.service_id = p.ID
+                                                 WHERE ps.provider_id = %d AND ps.checkbox_status = 'yes'",
+                                                $user_id
+                                            )
+                                        );
+                                    } elseif ($primary_role === 'customer') {
+                                        $services = $wpdb->get_col(
+                                            $wpdb->prepare(
+                                                "SELECT DISTINCT pm.meta_value 
+                                                 FROM {$wpdb->postmeta} pm
+                                                 JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+                                                 JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id
+                                                 WHERE p.post_type = 'cosy_appointment'
+                                                   AND pm.meta_key = 'cosy_service_name'
+                                                   AND pm2.meta_key = 'cosy_customer_id'
+                                                   AND pm2.meta_value = %d",
+                                                $user_id
+                                            )
+                                        );
+                                    }
+
+                                    if (!empty($services)) :
+                                        foreach ($services as $srv) :
+                                            $badge_class = ($primary_role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
+                                            echo '<span class="badge ' . esc_attr($badge_class) . '">' . esc_html($srv) . '</span> ';
+                                        endforeach;
+                                    else :
+                                        echo '<span style="color: #94a3b8; font-style: italic; font-size: 11px;">' . ($primary_role === 'provider' ? __('No Services Offered', 'cosy-appointments') : __('No Bookings Yet', 'cosy-appointments')) . '</span>';
+                                    endif;
+                                    ?>
                                 </td>
                                 <td>
                                     <?php if ($email_status === 'pending') : ?>
@@ -443,6 +490,28 @@ class UsersAdmin
                 background-color: #fef9c3;
                 color: #854d0e;
                 border: 1px solid #fef08a;
+            }
+            .cosy-users-admin .badge-provider-service {
+                background-color: #ecfdf5;
+                color: #047857;
+                border: 1px solid #a7f3d0;
+                text-transform: none;
+                font-size: 10px;
+                border-radius: 4px;
+                padding: 3px 7px;
+                margin: 2px;
+                display: inline-block;
+            }
+            .cosy-users-admin .badge-customer-service {
+                background-color: #fff7ed;
+                color: #c2410c;
+                border: 1px solid #ffedd5;
+                text-transform: none;
+                font-size: 10px;
+                border-radius: 4px;
+                padding: 3px 7px;
+                margin: 2px;
+                display: inline-block;
             }
             .cosy-users-admin select.cosy-admin-status-dropdown {
                 border-radius: 6px;
