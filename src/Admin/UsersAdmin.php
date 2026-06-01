@@ -187,41 +187,80 @@ class UsersAdmin
                                 <td>
                                     <?php
                                     global $wpdb;
-                                    $services = [];
-                                    if ($primary_role === 'provider') {
-                                        $services_table = $wpdb->prefix . 'provider_services';
-                                        $services = $wpdb->get_col(
-                                            $wpdb->prepare(
-                                                "SELECT DISTINCT p.post_title 
-                                                 FROM $services_table ps
-                                                 JOIN {$wpdb->posts} p ON ps.service_id = p.ID
-                                                 WHERE ps.provider_id = %d AND ps.checkbox_status = 'yes'",
-                                                $user_id
-                                            )
-                                        );
-                                    } elseif ($primary_role === 'customer') {
-                                        $services = $wpdb->get_col(
-                                            $wpdb->prepare(
-                                                "SELECT DISTINCT pm.meta_value 
-                                                 FROM {$wpdb->postmeta} pm
-                                                 JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-                                                 JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id
-                                                 WHERE p.post_type = 'cosy_appointment'
-                                                   AND pm.meta_key = 'cosy_service_name'
-                                                   AND pm2.meta_key = 'cosy_customer_id'
-                                                   AND pm2.meta_value = %d",
-                                                $user_id
-                                            )
-                                        );
-                                    }
+                                    $meta_key_user = ($primary_role === 'provider') ? 'cosy_provider_id' : 'cosy_customer_id';
+                                    $appointments = $wpdb->get_results(
+                                        $wpdb->prepare(
+                                            "SELECT p.ID, 
+                                                   (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_service_name' LIMIT 1) as service_name,
+                                                   (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_start_date' LIMIT 1) as start_date,
+                                                   (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_slots_timeline' LIMIT 1) as slots_timeline,
+                                                   (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_booking_status' LIMIT 1) as booking_status
+                                            FROM {$wpdb->posts} p
+                                            JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                                            WHERE p.post_type = 'cosy_appointment'
+                                              AND p.post_status = 'publish'
+                                              AND pm.meta_key = %s
+                                              AND pm.meta_value = %d
+                                            ORDER BY p.ID DESC",
+                                            $meta_key_user,
+                                            $user_id
+                                        )
+                                    );
 
-                                    if (!empty($services)) :
-                                        foreach ($services as $srv) :
+                                    if (!empty($appointments)) :
+                                        $count_appt = 0;
+                                        foreach ($appointments as $appt) :
+                                            $count_appt++;
+                                            if ($count_appt > 2) {
+                                                echo '<div style="font-size: 10px; color: #94a3b8; font-style: italic; margin-top: 4px;">' . sprintf(__('& %d more...', 'cosy-appointments'), count($appointments) - 2) . '</div>';
+                                                break;
+                                            }
                                             $badge_class = ($primary_role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
-                                            echo '<span class="badge ' . esc_attr($badge_class) . '">' . esc_html($srv) . '</span> ';
+                                            $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
+                                            ?>
+                                            <div class="cosy-appt-info-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; font-size: 11px;">
+                                                <div style="font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                                                    <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; padding: 2px 6px; font-size: 9px; font-weight: bold;"><?php echo esc_html($appt->service_name); ?></span>
+                                                    <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: <?php echo ($status === 'completed') ? '#166534' : (($status === 'cancelled') ? '#991b1b' : '#854d0e'); ?>;">
+                                                        <?php echo esc_html($status); ?>
+                                                    </span>
+                                                </div>
+                                                <div style="display: flex; align-items: center; gap: 4px; color: #475569; font-size: 10px; margin-top: 2px;">
+                                                    <span class="dashicons dashicons-calendar-alt" style="font-size: 12px; width: 12px; height: 12px; color: #64748b; line-height: 12px;"></span>
+                                                    <span><?php echo esc_html($appt->start_date); ?></span>
+                                                </div>
+                                                <?php if (!empty($appt->slots_timeline)) : ?>
+                                                    <div style="display: flex; align-items: center; gap: 4px; color: #475569; font-size: 10px; margin-top: 2px; word-break: break-all;">
+                                                        <span class="dashicons dashicons-clock" style="font-size: 12px; width: 12px; height: 12px; color: #64748b; line-height: 12px;"></span>
+                                                        <span><?php echo esc_html($appt->slots_timeline); ?></span>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php
                                         endforeach;
                                     else :
-                                        echo '<span style="color: #94a3b8; font-style: italic; font-size: 11px;">' . ($primary_role === 'provider' ? __('No Services Offered', 'cosy-appointments') : __('No Bookings Yet', 'cosy-appointments')) . '</span>';
+                                        if ($primary_role === 'provider') {
+                                            $services_table = $wpdb->prefix . 'provider_services';
+                                            $services = $wpdb->get_col(
+                                                $wpdb->prepare(
+                                                    "SELECT DISTINCT p.post_title 
+                                                     FROM $services_table ps
+                                                     JOIN {$wpdb->posts} p ON ps.service_id = p.ID
+                                                     WHERE ps.provider_id = %d AND ps.checkbox_status = 'yes'",
+                                                    $user_id
+                                                )
+                                            );
+                                            if (!empty($services)) {
+                                                echo '<div style="font-size: 10px; color: #64748b; font-style: italic; margin-bottom: 4px;">' . __('Offers:', 'cosy-appointments') . '</div>';
+                                                foreach ($services as $srv) {
+                                                    echo '<span class="badge badge-provider-service">' . esc_html($srv) . '</span> ';
+                                                }
+                                            } else {
+                                                echo '<span style="color: #94a3b8; font-style: italic; font-size: 11px;">' . __('No Services/Bookings', 'cosy-appointments') . '</span>';
+                                            }
+                                        } else {
+                                            echo '<span style="color: #94a3b8; font-style: italic; font-size: 11px;">' . __('No Bookings Yet', 'cosy-appointments') . '</span>';
+                                        }
                                     endif;
                                     ?>
                                 </td>
@@ -1111,6 +1150,94 @@ class UsersAdmin
                 </div>
             </div>
         <?php endif; ?>
+
+        <!-- Bookings & Appointments Section -->
+        <div class="cosy-detail-section" style="margin-top: 15px;">
+            <h3><span class="dashicons dashicons-calendar-alt"></span> <?php echo $role === 'provider' ? esc_html__('Provider Appointments & Bookings', 'cosy-appointments') : esc_html__('Customer Appointments & Bookings', 'cosy-appointments'); ?></h3>
+            <?php
+            global $wpdb;
+            $meta_key_user = ($role === 'provider') ? 'cosy_provider_id' : 'cosy_customer_id';
+            $appointments = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT p.ID, 
+                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_service_name' LIMIT 1) as service_name,
+                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_start_date' LIMIT 1) as start_date,
+                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_slots_timeline' LIMIT 1) as slots_timeline,
+                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_booking_status' LIMIT 1) as booking_status,
+                           (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p.ID AND meta_key = 'cosy_total_payable' LIMIT 1) as total_payable
+                    FROM {$wpdb->posts} p
+                    JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                    WHERE p.post_type = 'cosy_appointment'
+                      AND p.post_status = 'publish'
+                      AND pm.meta_key = %s
+                      AND pm.meta_value = %d
+                    ORDER BY p.ID DESC",
+                    $meta_key_user,
+                    $user_id
+                )
+            );
+
+            if (!empty($appointments)) :
+                ?>
+                <table class="wp-list-table widefat fixed striped" style="margin-top: 10px; border: 1px solid #cbd5e1; border-radius: 4px; box-shadow: none; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 30%;"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
+                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 25%;"><?php esc_html_e('Date', 'cosy-appointments'); ?></th>
+                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 25%;"><?php esc_html_e('Time Slot', 'cosy-appointments'); ?></th>
+                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 10%;"><?php esc_html_e('Amount', 'cosy-appointments'); ?></th>
+                            <th style="font-weight: 600; padding: 10px; font-size: 12px; width: 10%;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($appointments as $appt) : 
+                            $status = !empty($appt->booking_status) ? $appt->booking_status : 'pending';
+                            ?>
+                            <tr>
+                                <td style="padding: 10px; font-size: 11px;">
+                                    <span class="badge <?php echo ($role === 'provider') ? 'badge-provider-service' : 'badge-customer-service'; ?>" style="margin: 0; padding: 2px 6px; font-size: 9px; font-weight: bold;"><?php echo esc_html($appt->service_name); ?></span>
+                                </td>
+                                <td style="padding: 10px; font-size: 11px;"><?php echo esc_html($appt->start_date); ?></td>
+                                <td style="padding: 10px; font-size: 11px;"><?php echo esc_html($appt->slots_timeline ?: '-'); ?></td>
+                                <td style="padding: 10px; font-size: 11px; font-weight: 600;">£<?php echo esc_html($appt->total_payable ?: '0'); ?></td>
+                                <td style="padding: 10px; font-size: 11px;">
+                                    <span style="font-weight: 700; text-transform: uppercase; font-size: 10px; color: <?php echo ($status === 'completed') ? '#166534' : (($status === 'cancelled') ? '#991b1b' : '#854d0e'); ?>;">
+                                        <?php echo esc_html($status); ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php
+            else :
+                if ($role === 'provider') {
+                    $services_table = $wpdb->prefix . 'provider_services';
+                    $services = $wpdb->get_col(
+                        $wpdb->prepare(
+                            "SELECT DISTINCT p.post_title 
+                             FROM $services_table ps
+                             JOIN {$wpdb->posts} p ON ps.service_id = p.ID
+                             WHERE ps.provider_id = %d AND ps.checkbox_status = 'yes'",
+                            $user_id
+                        )
+                    );
+                    if (!empty($services)) {
+                        echo '<div style="margin-top: 10px;">';
+                        echo '<p style="font-size: 12px; color: #64748b; margin-bottom: 6px;">' . esc_html__('This provider currently has no active bookings but offers the following services:', 'cosy-appointments') . '</p>';
+                        foreach ($services as $srv) {
+                            echo '<span class="badge badge-provider-service">' . esc_html($srv) . '</span> ';
+                        }
+                        echo '</div>';
+                    } else {
+                        echo '<p style="color: #94a3b8; font-style: italic; font-size: 12px; margin-top: 10px;">' . esc_html__('No offered services or active bookings found.', 'cosy-appointments') . '</p>';
+                    }
+                } else {
+                    echo '<p style="color: #94a3b8; font-style: italic; font-size: 12px; margin-top: 10px;">' . esc_html__('No active bookings found for this customer.', 'cosy-appointments') . '</p>';
+                }
+            endif;
+            ?>
+        </div>
 
         <?php
         $html = ob_get_clean();
