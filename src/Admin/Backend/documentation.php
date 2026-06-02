@@ -483,6 +483,7 @@
                 <li><a class="cdoc-nav-link" data-tab="bookings-explained"><i class="fas fa-book-open"></i> Bookings Explained</a></li>
                 <li><a class="cdoc-nav-link" data-tab="stripe"><i class="fab fa-stripe-s"></i> Stripe Setup</a></li>
                 <li><a class="cdoc-nav-link" data-tab="users-management"><i class="fas fa-users-cog"></i> Users Management</a></li>
+                <li><a class="cdoc-nav-link" data-tab="fees-media"><i class="fas fa-sliders-h"></i> Fees & Media Limits</a></li>
                 <li><a class="cdoc-nav-link" data-tab="security-logs"><i class="fas fa-shield-alt"></i> Security & Logs</a></li>
             </ul>
         </div>
@@ -742,6 +743,39 @@
                     <div class="cdoc-step-body">
                         <h4>Save Settings & Test</h4>
                         <p>Save your configuration. Before going live, use Stripe's test mode with a test card to verify that payments are processed correctly. Switch to Live mode only when you are ready to accept real transactions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEES & MEDIA LIMITS -->
+            <div id="cdoc-fees-media" class="cdoc-pane">
+                <h2 class="cdoc-section-title">Platform Fees & Media Limits</h2>
+                <p class="cdoc-section-sub">Administrators can dynamically control platform commission fees and specify strict file size limits for provider media uploads.</p>
+
+                <div class="cdoc-alert">
+                    <h4>🔒 Server-Side Price Verification Active</h4>
+                    <p>All checkout transactions undergo strict server-side price verification. The booking engine cross-references frontend-provided totals with official database records and currently configured fee values before initiating Stripe sessions to prevent frontend price tampering.</p>
+                </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num"><i class="fas fa-calculator"></i></div>
+                    <div class="cdoc-step-body">
+                        <h4>Booking Fees Configuration</h4>
+                        <p>Configure dynamic service fees under <strong>CC Booking → Settings → Booking Fees</strong>.
+                            <br>• <strong>Service Fee Type:</strong> Choose between a <code>Flat Fee</code> (added to the service total) or a <code>Percentage Fee (%)</code> (calculated from the base service cost).
+                            <br>• <strong>Service Fee Value:</strong> Specify the exact value (e.g. <code>0.10</code> for flat fee, or <code>10.00</code> for a 10% fee).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num"><i class="fas fa-video"></i></div>
+                    <div class="cdoc-step-body">
+                        <h4>Media Upload Size Configuration</h4>
+                        <p>Specify the maximum allowed video size under <strong>CC Booking → Media Approve → Video Upload Configuration</strong>.
+                            <br>• <strong>Max Size (MB):</strong> Define the limit in Megabytes (defaults to 3 MB).
+                            <br>• This limit dynamically controls client-side dropzone validation, dashboard information messages, backend PHP file handlers, and video rejection warning emails automatically.
+                        </p>
                     </div>
                 </div>
             </div>
