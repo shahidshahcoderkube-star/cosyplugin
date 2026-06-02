@@ -24,5 +24,13 @@ This file tracks the progress of fixes, improvements, and new features for the C
 - [x] **Micro-animations**: Added loading spinners and smooth transitions.
 - [x] **Typography**: Integrated Google Fonts (Outfit & Inter) for a SaaS feel.
 
+## 🚀 Phase 5: Dynamic Service Fees, Security Hardening & Flexible Configurations
+- [x] **Dynamic Service Fees**: Configurable flat or percentage service fees managed via plugin settings, automatically integrated into frontend pricing calculations.
+- [x] **Price Tampering Prevention**: Re-verify service cost, platform fees, and total payable values on the server side using the database and settings before initializing Stripe sessions.
+- [x] **Dynamic Media Upload Limits**: Added configurable max upload size limits for provider videos directly in the Media Approvals page. Checks are synchronized between JS validation and PHP backend.
+- [x] **Robust Redirect Rules**: Added dynamic page ID finding fallback using option key lookup and shortcodes, preventing broken pages if slugs are modified.
+- [x] **Email Footers & UI Polish**: Exchanged hardcoded copyrights with the dynamic site name and fixed WordPress Admin panel CSS styling for custom select boxes.
+
 ---
-*Last Updated: May 4, 2026 - ALL PHASES COMPLETED* ✅
+*Last Updated: June 2, 2026 - ALL PHASES COMPLETED* ✅
+
