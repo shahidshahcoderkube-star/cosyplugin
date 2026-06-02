@@ -45,9 +45,9 @@ jQuery(document).ready(function ($) {
     const booking = JSON.parse(pendingBookingData);
     console.log('cosyCheckout', cosyCheckout);
 
-    // Fetch logged-in user info safely from the wp_localize_script object (cosyCheckout)
     const customerName = cosyCheckout.customerName || 'Valued Customer';
     const customerEmail = cosyCheckout.customerEmail || '';
+    const currencySymbol = cosyCheckout.currencySymbol || '£';
 
     // 2. Render Checkout UI
     container.innerHTML = `
@@ -146,17 +146,17 @@ jQuery(document).ready(function ($) {
                     <tr>
                         <td class="label-col">Service Cost</td>
                         <td class="separator-col">:</td>
-                        <td class="value-col cost-value">£ ${booking.serviceCost}</td>
+                        <td class="value-col cost-value">${currencySymbol} ${booking.serviceCost}</td>
                     </tr>
                     <tr>
                         <td class="label-col">Service Fee</td>
                         <td class="separator-col">:</td>
-                        <td class="value-col cost-value">£ ${booking.serviceFee}</td>
+                        <td class="value-col cost-value">${currencySymbol} ${booking.serviceFee}</td>
                     </tr>
                     <tr class="total-payable-row">
                         <td class="label-col fw-bold text-dark">Total Payable Amount</td>
                         <td class="separator-col fw-bold text-dark">:</td>
-                        <td class="value-col cost-value">£ ${booking.totalPayable}</td>
+                        <td class="value-col cost-value">${currencySymbol} ${booking.totalPayable}</td>
                     </tr>
                 </table>
             </div>

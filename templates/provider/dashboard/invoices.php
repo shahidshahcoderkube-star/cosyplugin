@@ -68,7 +68,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                 <td class="fw-semibold text-slate invoice-customer-name"><?php echo esc_html($customer_name); ?></td>
                                 <td><span class="badge bg-light text-dark border-0 px-3 py-2 rounded-3 invoice-service-badge"><?php echo esc_html($service_name); ?></span></td>
                                 <td class="invoice-date-cell"><?php echo esc_html($start_date); ?></td>
-                                <td class="fw-bold text-slate invoice-amount-cell">£<?php echo esc_html($total_payable); ?></td>
+                                <td class="fw-bold text-slate invoice-amount-cell"><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($total_payable); ?></td>
                                 <td>
                                     <span class="badge invoice-status-paid">
                                         <i class="fas fa-check-circle me-1"></i> <?php echo esc_html($payment_status); ?>

@@ -149,7 +149,7 @@ class OrdersAdmin
                 <td><?php echo esc_html($provider_name); ?></td>
                 <td><span class="badge" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; color:#334155; font-size:0.85em;"><?php echo esc_html($service_name); ?></span></td>
                 <td style="color:#475569; font-size:12px;"><?php echo esc_html($start_date); ?> <br><span style="color:#94a3b8; font-size:11px;"><?php echo esc_html($weekly_booking); ?></span></td>
-                <td><strong>£<?php echo esc_html($total_payable); ?></strong></td>
+                <td><strong><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($total_payable); ?></strong></td>
                 <td><span class="status <?php echo $booking_status; ?>"><?php echo esc_html($booking_status); ?></span></td>
                 <td>
                   <button class="button button-small btn-view-admin-order-details"

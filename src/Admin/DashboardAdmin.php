@@ -54,17 +54,7 @@ class DashboardAdmin
              AND p.post_status = 'publish'"
         );
         $total_revenue = array_sum(array_map('floatval', $revenue_rows));
-        $currency = get_option('cosy_stripe_currency', 'USD');
-
-        $currency_symbols = [
-            'USD' => '$',
-            'EUR' => '€',
-            'GBP' => '£',
-            'INR' => '₹',
-            'AUD' => 'A$',
-            'CAD' => 'C$',
-        ];
-        $currency_symbol = isset($currency_symbols[$currency]) ? $currency_symbols[$currency] : $currency . ' ';
+        $currency_symbol = cosy_get_currency_symbol();
 
         // ── Recent 8 Bookings ───────────────────────────────────────────
         $recent_bookings = get_posts([

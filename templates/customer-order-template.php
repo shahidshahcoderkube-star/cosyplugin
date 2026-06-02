@@ -78,7 +78,7 @@ if ($current_user->exists()) {
 										<i class="fas fa-check-circle me-1"></i> <?php echo esc_html__($payment_status ?: 'Paid', 'cosy-appointments'); ?>
 									</span>
 								</td>
-								<td class="py-3 fw-bold text-dark" style="font-size: 0.95rem;">£<?php echo esc_html($total_price); ?></td>
+								<td class="py-3 fw-bold text-dark" style="font-size: 0.95rem;"><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($total_price); ?></td>
 								<td class="py-3 text-muted" style="font-size: 0.85rem;"><?php echo esc_html($start_date); ?></td>
 								<td class="py-3">
 									<?php if ($status === 'completed'): ?>

@@ -98,6 +98,11 @@ class Assets
             COSY_APPT_VER . '-' . time(),
             true
         );
+
+        wp_localize_script('cosy-admin-script', 'cosyAdmin', [
+            'currencySymbol' => cosy_get_currency_symbol(),
+            'currencyCode'   => cosy_get_currency_code(),
+        ]);
     }
 
     /**
@@ -260,10 +265,12 @@ class Assets
             true
         );
 
-        // Localization: Pass REST Base Endpoint URL and WP Nonces to cosy-script
+        // Localization: Pass REST Base Endpoint URL, WP Nonces, and Currency to cosy-script
         wp_localize_script('cosy-script', 'cosyAppointments', [
-            'restUrl' => esc_url_raw(rest_url('cosy/v1/')),
-            'nonce'   => wp_create_nonce('wp_rest')
+            'restUrl'        => esc_url_raw(rest_url('cosy/v1/')),
+            'nonce'          => wp_create_nonce('wp_rest'),
+            'currencySymbol' => cosy_get_currency_symbol(),
+            'currencyCode'   => cosy_get_currency_code(),
         ]);
 
         wp_enqueue_script('cosy-script');
@@ -280,8 +287,10 @@ class Assets
 
             // 21. Localization map for dashboard.js script
             wp_localize_script('cosy-dashboard', 'cosyDashboard', [
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce'    => wp_create_nonce('cosy_dashboard_nonce'),
+                'ajax_url'       => admin_url('admin-ajax.php'),
+                'nonce'          => wp_create_nonce('cosy_dashboard_nonce'),
+                'currencySymbol' => cosy_get_currency_symbol(),
+                'currencyCode'   => cosy_get_currency_code(),
             ]);
         }
 
@@ -313,7 +322,9 @@ class Assets
                 'profileUrl'           => esc_url(site_url('/customer-profile')),
                 'customerName'         => $current_user->exists() ? esc_html($current_user->display_name) : '',
                 'customerEmail'        => $current_user->exists() ? esc_html($current_user->user_email) : '',
-                'stripePublishableKey' => esc_js(get_option('cosy_stripe_publishable_key'))
+                'stripePublishableKey' => esc_js(get_option('cosy_stripe_publishable_key')),
+                'currencySymbol'       => cosy_get_currency_symbol(),
+                'currencyCode'         => cosy_get_currency_code(),
             ]);
         }
     }

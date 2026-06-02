@@ -385,7 +385,8 @@ function updateFinalPrice() {
     const totalPrice = totalSlots * servicePrice * weeks;
 
     const amountText = document.getElementById('finalTotalAmountText');
-    if (amountText) amountText.textContent = `£${totalPrice.toFixed(2)}`;
+    const currencySymbol = (typeof cosyCalendar !== 'undefined' && cosyCalendar.currencySymbol) ? cosyCalendar.currencySymbol : '£';
+    if (amountText) amountText.textContent = `${currencySymbol}${totalPrice.toFixed(2)}`;
 }
 
 // ===== Extra Utilities =====

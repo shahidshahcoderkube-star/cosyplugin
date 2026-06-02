@@ -528,9 +528,10 @@ jQuery(document).ready(function ($) {
             $('#modalAdminWeeks').text(weeks + ' week(s) (' + slots + ' slots booked)');
             $('#modalAdminWeekDays').text(weekDays || 'N/A');
             $('#modalAdminSlotsTimeline').text(slotsTimeline || 'N/A');
-            $('#modalAdminCost').text('£' + cost);
-            $('#modalAdminFee').text('£' + fee);
-            $('#modalAdminTotal').text('£' + total);
+            const currencySymbol = (typeof cosyAdmin !== 'undefined' && cosyAdmin.currencySymbol) ? cosyAdmin.currencySymbol : '£';
+            $('#modalAdminCost').text(currencySymbol + cost);
+            $('#modalAdminFee').text(currencySymbol + fee);
+            $('#modalAdminTotal').text(currencySymbol + total);
 
             // Apply colour-coded status badge consistent with WordPress admin styles
             CosyOrdersAdmin.applyStatusStyle(status);

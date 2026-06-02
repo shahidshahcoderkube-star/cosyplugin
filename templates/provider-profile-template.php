@@ -101,7 +101,7 @@ if (!empty($provider_data['ID'])) {
                                 $min_price = !empty($prices) ? min($prices) : '0.00';
                             ?>
                                 <div class="cosy-price-min h5 fw-bold mb-1">
-                                    £<?php echo esc_html($min_price); ?>
+                                    <?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($min_price); ?>
                                 </div>
                                 <small class="cosy-price-label text-muted text-uppercase fw-bold">
                                     <?php esc_html_e('Starting From Hourly Rate', 'cosy-appointments'); ?>
@@ -161,7 +161,7 @@ if (!empty($provider_data['ID'])) {
                                         </div>
                                     </div>
                                     <div class="cosy-service-price-box">
-                                        £<?php echo esc_html($service['price']); ?>
+                                        <?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($service['price']); ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -404,7 +404,7 @@ if (!empty($provider_data['ID'])) {
                                 <div class="px-2 mb-3 position-relative">
                                     <select id="totalBookingWeeks"
                                         class="form-select border shadow-sm fw-bold py-2 ps-3 pe-5"
-                                        style="border-radius: 12px; background: #ffffff; border-color: #e2e8f0 !important; color: #1e293b; font-size: 0.85rem; cursor: pointer; appearance: none !important; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em;"
+                                        style="border-radius: 12px; background: #ffffff; border-color: #e2e8f0; color: #1e293b; font-size: 0.85rem; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em;"
                                         onchange="updateFinalPrice()">
                                         <option value="1"><?php esc_html_e('1 Week Duration', 'cosy-appointments'); ?></option>
                                         <option value="2"><?php esc_html_e('2 Weeks Recurring', 'cosy-appointments'); ?></option>
@@ -423,7 +423,7 @@ if (!empty($provider_data['ID'])) {
 
                                 <div class="cosy-total-amount-box p-2 mb-3 rounded-4">
                                     <span class="cosy-total-label text-muted d-block mb-1 fw-bold"><?php esc_html_e('Total Service Amount', 'cosy-appointments'); ?></span>
-                                    <h4 class="cosy-total-price fw-bold mb-0" id="finalTotalAmountText">£ 0.00
+                                    <h4 class="cosy-total-price fw-bold mb-0" id="finalTotalAmountText"><?php echo esc_html(cosy_get_currency_symbol()); ?> 0.00
                                     </h4>
                                 </div>
 
@@ -479,6 +479,9 @@ wp_enqueue_script(
     COSY_APPT_VER,
     true
 );
+wp_localize_script('provider-profile-js', 'cosyCalendar', [
+    'currencySymbol' => cosy_get_currency_symbol()
+]);
 ?>
 
 <!-- Time Slot Selection Modal -->

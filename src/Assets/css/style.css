@@ -2317,7 +2317,7 @@ body .swal2-icon {
 
 /* Premium Checkout Theme Core Override */
 .cosy-checkout-root {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     background-color: transparent;
     /* Inherit theme background color */
     color: var(--cosy-text-dark);
@@ -2330,7 +2330,7 @@ body .swal2-icon {
 .cosy-checkout-root h3,
 .cosy-checkout-root h4,
 .cosy-checkout-root h5 {
-    font-family: 'Outfit', sans-serif !important;
+    font-family: 'Outfit', sans-serif;
     font-weight: 700;
 }
 
@@ -2351,26 +2351,26 @@ body .swal2-icon {
 }
 
 .cosy-checkout-back-btn {
-    background: var(--cosy-brand-dark) !important;
+    background: var(--cosy-brand-dark);
     /* Branded deep purple */
-    color: #ffffff !important;
-    border: none !important;
-    padding: 10px 24px !important;
-    font-size: 0.9rem !important;
-    font-weight: 700 !important;
-    border-radius: 12px !important;
+    color: #ffffff;
+    border: none;
+    padding: 10px 24px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 12px;
     /* Branded rounded corner */
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     transition: all 0.2s ease;
-    text-decoration: none !important;
+    text-decoration: none;
     box-shadow: 0 4px 10px rgba(109, 46, 103, 0.15);
 }
 
 .cosy-checkout-back-btn:hover {
-    background: var(--cosy-brand-purple) !important;
+    background: var(--cosy-brand-purple);
     /* Highlight brand purple */
     transform: translateY(-1px);
     box-shadow: 0 6px 14px rgba(164, 67, 144, 0.25);
@@ -2378,18 +2378,18 @@ body .swal2-icon {
 
 .cosy-checkout-back-btn i,
 .cosy-checkout-back-btn svg {
-    color: #ffffff !important;
+    color: #ffffff;
     /* Force white arrow color */
-    font-size: 0.95rem !important;
+    font-size: 0.95rem;
     /* Match text size proportions */
-    line-height: 1 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    width: auto !important;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    height: auto;
+    width: auto;
 }
 
 .cosy-checkout-title {
@@ -2561,16 +2561,16 @@ body .swal2-icon {
 
 /* Pay Now Button (Bottom Left) */
 .cosy-pay-now-btn {
-    background: linear-gradient(135deg, var(--cosy-brand-purple) 0%, var(--cosy-brand-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--cosy-brand-purple) 0%, var(--cosy-brand-dark) 100%);
     /* Premium brand purple gradient */
-    color: #ffffff !important;
-    border: none !important;
-    padding: 16px 50px !important;
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    border-radius: 12px !important;
+    color: #ffffff;
+    border: none;
+    padding: 16px 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 12px;
     /* Curvy matching theme */
-    box-shadow: 0 8px 20px rgba(164, 67, 144, 0.25) !important;
+    box-shadow: 0 8px 20px rgba(164, 67, 144, 0.25);
     cursor: pointer;
     transition: all 0.3s ease;
     display: inline-flex;
@@ -2579,8 +2579,8 @@ body .swal2-icon {
 }
 
 .cosy-pay-now-btn:hover {
-    background: linear-gradient(135deg, #b852a3 0%, #7d3b76 100%) !important;
-    box-shadow: 0 10px 25px rgba(164, 67, 144, 0.35) !important;
+    background: linear-gradient(135deg, #b852a3 0%, #7d3b76 100%);
+    box-shadow: 0 10px 25px rgba(164, 67, 144, 0.35);
     transform: translateY(-2px);
 }
 

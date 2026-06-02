@@ -124,9 +124,10 @@ jQuery(document).ready(function ($) {
         $('#modalCustWeeks').text(weeks + ' week(s) (' + slots + ' slots)');
         $('#modalCustWeekDays').text(weekDays);
         $('#modalCustSlotsTimeline').text(slotsTimeline);
-        $('#modalCustCost').text('£' + cost);
-        $('#modalCustFee').text('£' + fee);
-        $('#modalCustTotal').text('£' + total);
+        var sym = (typeof cosyAppointments !== 'undefined' && cosyAppointments.currencySymbol) ? cosyAppointments.currencySymbol : '£';
+        $('#modalCustCost').text(sym + cost);
+        $('#modalCustFee').text(sym + fee);
+        $('#modalCustTotal').text(sym + total);
 
         var statusBg = '';
         var statusText = '';

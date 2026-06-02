@@ -129,7 +129,7 @@ defined('ABSPATH') || exit;
                                 <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; font-size: 10px; font-weight: bold;">
                                     <?php echo esc_html($appt->service_name); ?> <span style="opacity: 0.8; font-weight: normal; font-size: 8px;">(<?php echo esc_html($label_suffix); ?>)</span>
                                 </span>
-                                <span style="font-size: 11px; font-weight: 700; color: #1e293b;">£<?php echo esc_html($appt->total_payable ?: '0'); ?></span>
+                                <span style="font-size: 11px; font-weight: 700; color: #1e293b;"><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($appt->total_payable ?: '0'); ?></span>
                             </div>
                             <div style="display: flex; flex-wrap: wrap; gap: 12px; color: #64748b; font-size: 11px;">
                                 <span style="display: flex; align-items: center; gap: 4px;">

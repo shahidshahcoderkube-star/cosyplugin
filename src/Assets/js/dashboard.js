@@ -30,6 +30,8 @@ jQuery(document).ready(function ($) {
         : (typeof cosyAjax !== 'undefined') ? cosyAjax.nonce
             : '';
 
+    var currencySymbol = (typeof cosyDashboard !== 'undefined' && cosyDashboard.currencySymbol) ? cosyDashboard.currencySymbol : '£';
+
     /**
      * Helper: Escape a string to prevent XSS when inserting dynamic text into innerHTML.
      */
@@ -475,9 +477,9 @@ jQuery(document).ready(function ($) {
             $('#modalWeeksInfo').text(weeks + ' week(s) (' + slots + ' slots)');
             $('#modalWeekDaysInfo').text(weekDays);
             $('#modalSlotsTimelineInfo').text(slotsTimeline);
-            $('#modalProviderShare').text('£' + cost);
-            $('#modalServiceFee').text('£' + fee);
-            $('#modalTotalPaid').text('£' + total);
+            $('#modalProviderShare').text(currencySymbol + cost);
+            $('#modalServiceFee').text(currencySymbol + fee);
+            $('#modalTotalPaid').text(currencySymbol + total);
 
             var badge = '';
             if (status === 'completed') {
@@ -598,9 +600,9 @@ jQuery(document).ready(function ($) {
             $('#modalInvCustomerEmail').text('(' + email + ')');
             $('#modalInvServiceName').text(service);
             $('#modalInvDate').text(start);
-            $('#modalInvProviderShare').text('£' + cost);
-            $('#modalInvServiceFee').text('£' + fee);
-            $('#modalInvTotalPaid').text('£' + total);
+            $('#modalInvProviderShare').text(currencySymbol + cost);
+            $('#modalInvServiceFee').text(currencySymbol + fee);
+            $('#modalInvTotalPaid').text(currencySymbol + total);
 
             // Cascade references to the print/download button inside the modal footer
             $('#btnDownloadInvoicePdf').data('id', id).data('customer', customer).data('service', service).data('total', total);
@@ -622,7 +624,7 @@ jQuery(document).ready(function ($) {
             invoiceDoc += `Invoice Reference: INV-${id}\n`;
             invoiceDoc += `Customer Name: ${customer}\n`;
             invoiceDoc += `Service: ${service}\n`;
-            invoiceDoc += `Amount Paid: £${total}\n`;
+            invoiceDoc += `Amount Paid: ${currencySymbol}${total}\n`;
             invoiceDoc += `Status: PAID / SECURED\n`;
             invoiceDoc += `Payment Method: Worldpay FIS\n`;
             invoiceDoc += `===================================\n`;

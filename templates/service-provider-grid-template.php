@@ -56,10 +56,11 @@
 
                     <?php if (!empty($provider['price'])): ?>
                         <div class="pricing-premium">
-                            <span class="currency">£</span>
+                            <span class="currency"><?php echo esc_html(cosy_get_currency_symbol()); ?></span>
                             <span class="amount"><?php echo esc_html($provider['price']); ?></span><span class="per"><?php esc_html_e('/ hr', 'cosy-appointments'); ?></span>
                         </div>
                     <?php endif; ?>
+
                 </div>
 
                 <div class="card-action-footer">
