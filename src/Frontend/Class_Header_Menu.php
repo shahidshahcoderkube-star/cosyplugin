@@ -26,10 +26,6 @@ class Class_Header_Menu
             'order' => 'ASC'
         ]);
 
-        if (empty($services)) {
-            return $items;
-        }
-
         $current_user = wp_get_current_user();
         $roles = (array) $current_user->roles;
 
@@ -38,6 +34,8 @@ class Class_Header_Menu
         }
 
         ob_start();
+        
+        if (!empty($services)) :
 ?>
         <!-- Services Dropdown (Premium Button) -->
         <li class="menu-item menu-item-has-children cosy-header-dropdown-wrapper">
@@ -54,6 +52,7 @@ class Class_Header_Menu
                 <?php endforeach; ?>
             </ul>
         </li>
+<?php   endif; ?>
 
         <!-- Auth Buttons -->
         <?php if (!is_user_logged_in()) : ?>

@@ -737,6 +737,7 @@ label.error {
     border: 1.5px solid #edf2f7;
     color: var(--cosy-text-slate);
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .time-block:hover {
