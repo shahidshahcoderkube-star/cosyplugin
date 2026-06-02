@@ -236,9 +236,11 @@ jQuery(document).ready(function ($) {
             data: {
                 action: 'cosy_create_stripe_session',
                 nonce: cosyCheckout.nonce,
+                serviceId: currentBooking.serviceId,
                 service: currentBooking.service,
                 providerId: currentBooking.providerId,
                 providerName: currentBooking.providerName,
+
                 startDate: currentBooking.startDate,
                 endDate: currentBooking.endDate,
                 weeklyBooking: currentBooking.weeklyBooking,

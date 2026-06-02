@@ -539,6 +539,7 @@ class Frontend
         }
 
         // Retrieve and validate POST data
+        $service_id         = isset($_POST['serviceId']) ? intval($_POST['serviceId']) : 0;
         $service            = isset($_POST['service']) ? sanitize_text_field($_POST['service']) : '';
         $provider_id        = isset($_POST['providerId']) ? intval($_POST['providerId']) : 0;
         $provider_name      = isset($_POST['providerName']) ? sanitize_text_field($_POST['providerName']) : '';
@@ -554,10 +555,69 @@ class Frontend
         $week_days          = isset($_POST['weekDays']) ? sanitize_text_field($_POST['weekDays']) : '';
         $slots_timeline     = isset($_POST['slotsTimeline']) ? sanitize_text_field($_POST['slotsTimeline']) : '';
 
-        if (empty($service) || empty($provider_id)) {
-            $this->cosy_payment_log("Stripe Session Creation FAILED: Missing service or provider details.", $_POST);
+        if (empty($service) || empty($provider_id) || empty($service_id)) {
+            $this->cosy_payment_log("Stripe Session Creation FAILED: Missing service, service ID, or provider details.", $_POST);
             wp_send_json_error(['message' => 'Missing required service or provider details.']);
         }
+
+        // Server-side Price Verification (Price Tampering Security Check)
+        global $wpdb;
+        $table = $wpdb->prefix . 'provider_services';
+        $db_price = $wpdb->get_var($wpdb->prepare(
+            "SELECT price FROM $table WHERE provider_id = %d AND service_id = %d AND checkbox_status = 'yes' LIMIT 1",
+            $provider_id,
+            $service_id
+        ));
+
+        if ($db_price === null) {
+            $this->cosy_payment_log("Stripe Session FAILED: Service ID $service_id not offered/active for Provider ID $provider_id.");
+            wp_send_json_error(['message' => 'The selected service is not currently active or offered by this provider.']);
+        }
+
+        $slots_array = json_decode($slots_json, true);
+        if (!is_array($slots_array) || empty($slots_array)) {
+            $this->cosy_payment_log("Stripe Session FAILED: Slots are empty or invalid JSON.");
+            wp_send_json_error(['message' => 'No booking slots selected.']);
+        }
+        $total_slots = count($slots_array);
+
+        $db_price_float = floatval($db_price);
+        $expected_service_cost = $total_slots * $db_price_float * $number_of_weeks;
+
+        $fee_type = get_option('cosy_service_fee_type', 'flat');
+        $fee_val = floatval(get_option('cosy_service_fee_value', '0.10'));
+        $expected_service_fee = ($fee_type === 'percent') ? ($expected_service_cost * ($fee_val / 100)) : $fee_val;
+
+        $expected_total_payable = $expected_service_cost + $expected_service_fee;
+
+        $expected_service_cost_str = number_format($expected_service_cost, 2, '.', '');
+        $expected_service_fee_str = number_format($expected_service_fee, 2, '.', '');
+        $expected_total_payable_str = number_format($expected_total_payable, 2, '.', '');
+
+        if (
+            abs(floatval($service_cost) - floatval($expected_service_cost_str)) > 0.01 ||
+            abs(floatval($service_fee) - floatval($expected_service_fee_str)) > 0.01 ||
+            abs(floatval($total_payable) - floatval($expected_total_payable_str)) > 0.01
+        ) {
+            $this->cosy_payment_log("SECURITY ALERT: Price tampering detected!", [
+                'received' => [
+                    'serviceCost' => $service_cost,
+                    'serviceFee' => $service_fee,
+                    'totalPayable' => $total_payable
+                ],
+                'expected' => [
+                    'serviceCost' => $expected_service_cost_str,
+                    'serviceFee' => $expected_service_fee_str,
+                    'totalPayable' => $expected_total_payable_str
+                ]
+            ]);
+            wp_send_json_error(['message' => 'Security Error: Booking price mismatch. Price verification failed.']);
+        }
+
+        // Use the validated/recalculated amount to be absolutely safe
+        $total_payable = $expected_total_payable_str;
+        $service_cost = $expected_service_cost_str;
+        $service_fee = $expected_service_fee_str;
 
         $this->cosy_payment_log("Initiating Stripe Session Creation for Service: $service, Provider ID: $provider_id", $_POST);
 
@@ -593,6 +653,7 @@ class Frontend
 
         // Save metadata
         $meta_data = [
+            'cosy_service_id'         => $service_id,
             'cosy_service_name'       => $service,
             'cosy_provider_id'        => $provider_id,
             'cosy_provider_name'      => $provider_name,
@@ -617,6 +678,7 @@ class Frontend
         foreach ($meta_data as $key => $value) {
             update_post_meta($appointment_id, $key, $value);
         }
+
 
         // Fetch Stripe keys
         $secret_key = get_option('cosy_stripe_key');

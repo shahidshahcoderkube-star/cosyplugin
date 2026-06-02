@@ -4,7 +4,7 @@ let selectedTimeSlotsByDay = {};
 let selectedService = null;
 let currentModalDate = '';
 
-function selectServiceItem(el, title, price, duration) {
+function selectServiceItem(el, id, title, price, duration) {
     // Reset all services
     const allRows = document.querySelectorAll('.service-item-row');
     allRows.forEach(row => {
@@ -19,10 +19,12 @@ function selectServiceItem(el, title, price, duration) {
     if (activeIcon) activeIcon.style.color = '#a44390';
 
     selectedService = {
+        id: parseInt(id),
         title: title,
         price: parseFloat(price),
         duration: parseInt(duration)
     };
+
 
     // Update final price if a date is already selected
     if (selectedDate && document.getElementById('weeklyPricingSection').style.display === 'block') {
@@ -544,7 +546,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // 3. Get total weeks and calculations
             const weeks = parseInt(document.getElementById('totalBookingWeeks').value) || 1;
             const serviceCost = totalSlots * selectedService.price * weeks;
-            const serviceFee = 0.10; // Flat £0.10 service fee as shown in user's screenshot
+            const feeType = window.serviceFeeType || 'flat';
+            const feeVal = parseFloat(window.serviceFeeValue) || 0.00;
+            const serviceFee = (feeType === 'percent') ? (serviceCost * (feeVal / 100)) : feeVal;
             const totalPayable = serviceCost + serviceFee;
 
             // Sort bookingSlotsList by date chronologically
@@ -615,7 +619,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Save details to localStorage
             const pendingBooking = {
+                serviceId: selectedService.id,
                 service: selectedService.title,
+
                 serviceDuration: selectedService.duration,
                 providerName: providerName,
                 providerId: providerId,

@@ -57,6 +57,15 @@ class SettingsAdmin
             'sanitize_callback' => 'sanitize_text_field'
         ]);
 
+        // General Booking Fee Settings
+        register_setting('cosy_payment_settings', 'cosy_service_fee_type', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_service_fee_value', [
+            'sanitize_callback' => [$this, 'sanitize_charge']
+        ]);
+
+
         // Razorpay
         register_setting('cosy_payment_settings', 'cosy_razorpay_key', [
             'sanitize_callback' => 'sanitize_text_field'

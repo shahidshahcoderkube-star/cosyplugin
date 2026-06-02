@@ -54,7 +54,10 @@ if (!empty($provider_data['ID'])) {
     window.ajaxUrl = <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>;
     window.checkoutUrl = <?php echo wp_json_encode(cosy_get_page_url('cosy-checkout')); ?>;
     window.nonce = <?php echo wp_json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
+    window.serviceFeeType = <?php echo wp_json_encode(get_option('cosy_service_fee_type', 'flat')); ?>;
+    window.serviceFeeValue = <?php echo wp_json_encode(floatval(get_option('cosy_service_fee_value', '0.10'))); ?>;
 </script>
+
 <?php
 
 ?>
@@ -143,12 +146,14 @@ if (!empty($provider_data['ID'])) {
                         </div>
                         <div class="services-list-premium">
                             <?php foreach ($provider_data['services'] as $service):
+                                $s_id = intval($service['ID']);
                                 $s_title = esc_js($service['title']);
                                 $s_price = esc_js($service['price']);
                                 $s_time = esc_js($service['time'] ?? '60');
                             ?>
                                 <div class="cosy-service-row service-item-row d-flex justify-content-between align-items-center p-3 mb-3 cursor-pointer"
-                                    onclick="selectServiceItem(this, '<?php echo $s_title; ?>', <?php echo $s_price; ?>, <?php echo $s_time; ?>)">
+                                    onclick="selectServiceItem(this, <?php echo $s_id; ?>, '<?php echo $s_title; ?>', <?php echo $s_price; ?>, <?php echo $s_time; ?>)">
+
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="cosy-service-check-box">
                                             <i class="cosy-service-check-icon fas fa-check-circle service-check-icon"></i>
