@@ -23,7 +23,7 @@ if (!function_exists('cosy_render_popup')) {
         $footer_html  = isset($options['footer_html']) ? $options['footer_html'] : '';
 
         ob_start();
-        ?>
+?>
         <div class="modal fade" id="<?php echo esc_attr($id); ?>" tabindex="-1" aria-hidden="true" style="z-index: <?php echo esc_attr($z_index); ?>;">
             <div class="modal-dialog modal-dialog-centered <?php echo esc_attr($dialog_class); ?>" style="max-width: <?php echo esc_attr($max_width); ?>;">
                 <div class="modal-content cosy-modal-content border-0 shadow-lg">
@@ -40,18 +40,18 @@ if (!function_exists('cosy_render_popup')) {
                     <div class="cosy-modal-body p-4">
                         <?php echo $body_html; ?>
                     </div>
-                    
+
                     <?php if (!empty($footer_html)) : ?>
-                    <!-- Modal Footer -->
-                    <div class="modal-footer border-0 p-4 pt-0 justify-content-end gap-2" id="<?php echo esc_attr($id); ?>Footer">
-                        <?php echo $footer_html; ?>
-                    </div>
+                        <!-- Modal Footer -->
+                        <div class="modal-footer border-0 p-4 pt-0 justify-content-end gap-2" id="<?php echo esc_attr($id); ?>Footer">
+                            <?php echo $footer_html; ?>
+                        </div>
                     <?php endif; ?>
 
                 </div>
             </div>
         </div>
-        <?php
+<?php
         return ob_get_clean();
     }
 }
@@ -69,7 +69,7 @@ if (!function_exists('cosy_send_html_email')) {
     function cosy_send_html_email($to, $subject, $heading, $content_html)
     {
         $year = date('Y');
-        
+
         $message = "
         <!DOCTYPE html>
         <html>
@@ -162,3 +162,77 @@ if (!function_exists('cosy_get_currency_code')) {
     }
 }
 
+if (!function_exists('cosy_get_page_id')) {
+    /**
+     * Dynamic Page ID Finder:
+     * Finds the page ID by checking: 1) Saved options cache, 2) Unique page shortcodes, 3) Page slug.
+     * This keeps redirects and links working even if the administrator changes the page slug.
+     *
+     * @param string $key Page identifier (e.g., 'login', 'cosy-checkout').
+     * @return int Page ID or 0 if not found.
+     */
+    function cosy_get_page_id($key)
+    {
+        // 1. Try to get from option
+        $opt_key = 'cosy_page_id_' . str_replace('-', '_', $key);
+        $page_id = get_option($opt_key);
+        if ($page_id) {
+            return intval($page_id);
+        }
+
+        // 2. If option not set, map key to shortcode for lookup
+        $shortcode_map = [
+            'appointments'          => '[cosy_appointments]',
+            'orders'                => '[cosy_orders]',
+            'user-registration'     => '[cosy_customer_registration]',
+            'provider-registration' => '[cosy_provider_registration]',
+            'login'                 => '[cosy_login_form]',
+            'customer-profile'      => '[customer_profile]',
+            'customer-order'        => '[cosy_customer_order]',
+            'provider-dashboard'    => '[cosy_provider_dashboard]',
+            'provider-verify'       => '[cosy_verify_provider]',
+            'service-provider'      => '[cosy_service_provider_list]',
+            'provider-profile'      => '[cosy_profile_dashboard]',
+            'cosy-checkout'         => '[cosy_checkout]',
+        ];
+
+        // 3. Try lookup by shortcode
+        if (isset($shortcode_map[$key])) {
+            global $wpdb;
+            $id = $wpdb->get_var($wpdb->prepare(
+                "SELECT ID FROM $wpdb->posts WHERE post_content LIKE %s AND post_status = 'publish' AND post_type = 'page' LIMIT 1",
+                '%' . $wpdb->esc_like($shortcode_map[$key]) . '%'
+            ));
+            if ($id) {
+                update_option($opt_key, $id);
+                return intval($id);
+            }
+        }
+
+        // 4. Try lookup by slug path
+        $page = get_page_by_path($key);
+        if ($page) {
+            update_option($opt_key, $page->ID);
+            return intval($page->ID);
+        }
+
+        return 0;
+    }
+}
+
+if (!function_exists('cosy_get_page_url')) {
+    /**
+     * Gets the dynamic page URL by key.
+     *
+     * @param string $key Page key name.
+     * @return string Page URL.
+     */
+    function cosy_get_page_url($key)
+    {
+        $page_id = cosy_get_page_id($key);
+        if ($page_id) {
+            return get_permalink($page_id);
+        }
+        return site_url('/' . $key);
+    }
+}

@@ -52,7 +52,7 @@ if (!empty($provider_data['ID'])) {
     window.providerId = <?php echo wp_json_encode($provider_data['ID'] ?? 0); ?>;
     window.providerName = <?php echo wp_json_encode($provider_data['first_name'] ?? ''); ?>;
     window.ajaxUrl = <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>;
-    window.checkoutUrl = <?php echo wp_json_encode(site_url('/cosy-checkout')); ?>;
+    window.checkoutUrl = <?php echo wp_json_encode(cosy_get_page_url('cosy-checkout')); ?>;
     window.nonce = <?php echo wp_json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
 </script>
 <?php

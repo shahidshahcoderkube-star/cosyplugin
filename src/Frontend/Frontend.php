@@ -235,7 +235,7 @@ class Frontend
                             <i class="fas fa-check-circle" style="font-size: 4rem; color: #198754; margin-bottom: 20px;"></i>
                             <h2 style="color: #198754; margin-bottom: 10px;">Payment Successful!</h2>
                             <p style="color: #6c757d; margin-bottom: 25px;">Thank you for your booking. Your appointment has been confirmed.</p>
-                            <a href="' . site_url('/customer-order') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;" onmouseover="this.style.opacity=\'0.9\';" onmouseout="this.style.opacity=\'1\';">View My Bookings</a>
+                            <a href="' . cosy_get_page_url('customer-order') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;" onmouseover="this.style.opacity=\'0.9\';" onmouseout="this.style.opacity=\'1\';">View My Bookings</a>
                         </div>
                     </div>';
         }
@@ -308,39 +308,68 @@ class Frontend
      */
     public function restrict_direct_page_access()
     {
+        // Get target page IDs dynamically
+        $login_id                 = cosy_get_page_id('login');
+        $user_reg_id              = cosy_get_page_id('user-registration');
+        $prov_reg_id              = cosy_get_page_id('provider-registration');
+        $appointments_id          = cosy_get_page_id('appointments');
+        $orders_id                = cosy_get_page_id('orders');
+        $customer_order_id        = cosy_get_page_id('customer-order');
+        $customer_profile_id      = cosy_get_page_id('customer-profile');
+        $provider_dashboard_id    = cosy_get_page_id('provider-dashboard');
+        $provider_verify_id       = cosy_get_page_id('provider-verify');
+        $checkout_id              = cosy_get_page_id('cosy-checkout');
+
         // Pages that require login
-        $restricted_slugs = ['appointments', 'orders', 'customer-order', 'customer-profile', 'provider-dashboard', 'provider-verify', 'cosy-checkout'];
-        if (is_page($restricted_slugs) && !is_user_logged_in()) {
-            wp_safe_redirect(site_url('/login'));
+        $restricted_ids = array_filter([
+            $appointments_id,
+            $orders_id,
+            $customer_order_id,
+            $customer_profile_id,
+            $provider_dashboard_id,
+            $provider_verify_id,
+            $checkout_id
+        ]);
+
+        if (is_page($restricted_ids) && !is_user_logged_in()) {
+            wp_safe_redirect(cosy_get_page_url('login'));
             exit;
         }
 
-        // Additional check for provider-dashboard page
+        // Additional check for logged-in users
         if (is_user_logged_in()) {
-
             $user = wp_get_current_user();
             $roles = (array) $user->roles;
 
             // Redirect logged-in users away from login/registration pages
-            if (is_page(['login', 'user-registration', 'provider-registration'])) {
+            $auth_blocked_ids = array_filter([$login_id, $user_reg_id, $prov_reg_id]);
+            if (is_page($auth_blocked_ids)) {
                 if (in_array('provider', $roles)) {
-                    wp_safe_redirect(site_url('/provider-dashboard'));
+                    wp_safe_redirect(cosy_get_page_url('provider-dashboard'));
                     exit;
                 } else {
-                    wp_safe_redirect(site_url('/customer-profile'));
+                    wp_safe_redirect(cosy_get_page_url('customer-profile'));
                     exit;
                 }
             }
 
-            $blocked_for_provider = ['customer-order', 'customer-profile', 'appointments', 'orders', 'cosy-checkout'];
+            // Block providers from customer pages
+            $blocked_for_provider = array_filter([
+                $customer_order_id,
+                $customer_profile_id,
+                $appointments_id,
+                $orders_id,
+                $checkout_id
+            ]);
             if (in_array('provider', $roles) && is_page($blocked_for_provider)) {
-                wp_safe_redirect(site_url('/provider-dashboard'));
+                wp_safe_redirect(cosy_get_page_url('provider-dashboard'));
                 exit;
             }
 
-            $blocked_for_customer = ['provider-dashboard', 'provider-verify'];
+            // Block customers from provider pages
+            $blocked_for_customer = array_filter([$provider_dashboard_id, $provider_verify_id]);
             if (in_array('customer', $roles, true) && is_page($blocked_for_customer)) {
-                wp_safe_redirect(site_url('/customer-profile'));
+                wp_safe_redirect(cosy_get_page_url('customer-profile'));
                 exit;
             }
         }
@@ -605,11 +634,11 @@ class Frontend
             'cosy_stripe_success' => 'true',
             'cosy_stripe_session' => '{CHECKOUT_SESSION_ID}',
             'appt_id'             => $appointment_id
-        ], site_url('/cosy-checkout'));
+        ], cosy_get_page_url('cosy-checkout'));
 
         $cancel_url = add_query_arg([
             'cosy_stripe_cancel' => 'true'
-        ], site_url('/cosy-checkout'));
+        ], cosy_get_page_url('cosy-checkout'));
 
         $body = [
             'payment_method_types[0]'                      => 'card',
@@ -618,7 +647,7 @@ class Frontend
             'cancel_url'                                   => $cancel_url,
             'customer_email'                               => $current_user->user_email,
             'client_reference_id'                          => (string) $appointment_id,
-            'line_items[0][price_data][currency]'          => 'gbp',
+            'line_items[0][price_data][currency]'          => strtolower(cosy_get_currency_code()),
             'line_items[0][price_data][product_data][name]' => 'Appointment Booking: ' . $service,
             'line_items[0][price_data][unit_amount]'       => $amount_in_cents,
             'line_items[0][quantity]'                      => 1,

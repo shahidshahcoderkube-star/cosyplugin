@@ -14,7 +14,7 @@ if (!$current_user->exists()) {
             </div>
             <h3 class="fw-bold mb-3"><?php esc_html_e('Access Denied', 'cosy-appointments'); ?></h3>
             <p class="text-muted"><?php esc_html_e('Please log in to view and manage your profile details.', 'cosy-appointments'); ?></p>
-            <a href="<?php echo esc_url(site_url('/login')); ?>" class="btn text-white fw-bold mt-3 px-4 py-2" style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 10px;">
+            <a href="<?php echo esc_url(cosy_get_page_url('login')); ?>" class="btn text-white fw-bold mt-3 px-4 py-2" style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 10px;">
                 <?php esc_html_e('Log In Now', 'cosy-appointments'); ?>
             </a>
         </div>

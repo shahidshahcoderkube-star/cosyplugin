@@ -318,8 +318,8 @@ class Assets
             wp_localize_script('cosy-checkout', 'cosyCheckout', [
                 'ajaxUrl'              => admin_url('admin-ajax.php'),
                 'nonce'                => wp_create_nonce('cosy_booking_nonce'),
-                'providerUrl'          => esc_url(site_url('/service-provider')),
-                'profileUrl'           => esc_url(site_url('/customer-profile')),
+                'providerUrl'          => esc_url(cosy_get_page_url('service-provider')),
+                'profileUrl'           => esc_url(cosy_get_page_url('customer-profile')),
                 'customerName'         => $current_user->exists() ? esc_html($current_user->display_name) : '',
                 'customerEmail'        => $current_user->exists() ? esc_html($current_user->user_email) : '',
                 'stripePublishableKey' => esc_js(get_option('cosy_stripe_publishable_key')),
