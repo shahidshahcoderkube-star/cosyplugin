@@ -248,10 +248,12 @@ class Assets
 
         // 18. Localization data map for cosy-api script
         wp_localize_script('cosy-api', 'cosy_ajax', [
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce'    => wp_create_nonce('wp_rest'),
-            'root'     => esc_url_raw(rest_url())
+            'ajax_url'              => admin_url('admin-ajax.php'),
+            'nonce'                 => wp_create_nonce('wp_rest'),
+            'root'                  => esc_url_raw(rest_url()),
+            'max_video_upload_size' => intval(get_option('cosy_max_video_upload_size', 3))
         ]);
+
 
         // Enqueue the registered cosy-api script dependency
         wp_enqueue_script('cosy-api');

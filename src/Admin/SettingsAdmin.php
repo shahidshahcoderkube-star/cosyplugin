@@ -65,6 +65,11 @@ class SettingsAdmin
             'sanitize_callback' => [$this, 'sanitize_charge']
         ]);
 
+        // Media Upload settings
+        register_setting('cosy_media_settings', 'cosy_max_video_upload_size', [
+            'sanitize_callback' => 'absint'
+        ]);
+
 
         // Razorpay
         register_setting('cosy_payment_settings', 'cosy_razorpay_key', [

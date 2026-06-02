@@ -99,8 +99,9 @@ if (!function_exists('cosy_send_html_email')) {
                     
                     <!-- Footer -->
                     <div style='background-color: #fdf2fb; padding: 20px; text-align: center; font-size: 12px; color: #8a7a88; border-top: 1px solid #f1e4ef;'>
-                        &copy; {$year} Cosy Appointments. All rights reserved.
+                        &copy; {$year} " . esc_html(get_bloginfo('name')) . ". All rights reserved.
                     </div>
+
                 </div>
             </div>
         </body>

@@ -179,11 +179,16 @@ class Dashboard
         }
 
         if (!empty($_FILES['video_upload']['name'])) {
-            // Size check (3 MB)
-            $max_size = 3 * 1024 * 1024;
-            if ($_FILES['video_upload']['size'] > $max_size) {
-                wp_send_json_error(['message' => 'Video size must not exceed 3 MB']);
+            // Size check (Dynamic limit)
+            $limit_mb = intval(get_option('cosy_max_video_upload_size', 3));
+            if ($limit_mb <= 0) {
+                $limit_mb = 3;
             }
+            $max_size = $limit_mb * 1024 * 1024;
+            if ($_FILES['video_upload']['size'] > $max_size) {
+                wp_send_json_error(['message' => sprintf(__('Video size must not exceed %d MB', 'cosy-appointments'), $limit_mb)]);
+            }
+
 
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');

@@ -8,6 +8,12 @@
 
         $video_status = $data['video_status'];
         $introduction_video_url = $data['introduction_video'];
+        
+        $limit_mb = intval(get_option('cosy_max_video_upload_size', 3));
+        if ($limit_mb <= 0) {
+            $limit_mb = 3;
+        }
+
         ?>
 
         <?php if ($video_status === 'pending') : ?>
@@ -34,7 +40,8 @@
                     style="cursor:pointer; min-height:220px;">
                     <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
                     <span class="mt-3 fw-bold"><?php esc_html_e('Click to upload your intro video', 'cosy-appointments'); ?></span>
-                    <p class="text-muted small mt-1"><?php esc_html_e('Recommended: MP4 format (Max 3 MB)', 'cosy-appointments'); ?></p>
+                    <p class="text-muted small mt-1"><?php echo esc_html(sprintf(__('Recommended: MP4 format (Max %d MB)', 'cosy-appointments'), $limit_mb)); ?></p>
+
                 </div>
 
                 <input type="file" id="video-upload-<?php echo esc_attr($user_id); ?>" class="video-upload" name="video_upload" accept="video/*" hidden>
@@ -81,7 +88,8 @@
                     style="cursor:pointer; min-height:220px;">
                     <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
                     <span class="mt-3 fw-bold"><?php esc_html_e('Click to upload your intro video', 'cosy-appointments'); ?></span>
-                    <p class="text-muted small mt-1"><?php esc_html_e('Recommended: MP4 format (Max 3 MB)', 'cosy-appointments'); ?></p>
+                    <p class="text-muted small mt-1"><?php echo esc_html(sprintf(__('Recommended: MP4 format (Max %d MB)', 'cosy-appointments'), $limit_mb)); ?></p>
+
                 </div>
 
                 <input type="file" id="video-upload-<?php echo esc_attr($user_id); ?>" class="video-upload" name="video_upload" accept="video/*" hidden>

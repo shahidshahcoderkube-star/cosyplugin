@@ -269,13 +269,15 @@ var CosyApp = (function ($) {
                 return;
             }
 
-            // Enforce strict 3 MB limit (3 * 1024 * 1024 bytes)
-            const maxSizeBytes = 3 * 1024 * 1024;
+            // Enforce dynamic limit from settings
+            const limitMb = (window.cosy_ajax && window.cosy_ajax.max_video_upload_size) ? parseInt(window.cosy_ajax.max_video_upload_size) : 3;
+            const maxSizeBytes = limitMb * 1024 * 1024;
             if (file.size > maxSizeBytes) {
-                CosyAlert.warning('File Too Large', 'Video size must not exceed 3 MB. Please compress your video and try again.');
+                CosyAlert.warning('File Too Large', `Video size must not exceed ${limitMb} MB. Please compress your video and try again.`);
                 this.value = "";
                 return;
             }
+
 
             const url = URL.createObjectURL(file);
             const $form = $(this).closest("form");

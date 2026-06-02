@@ -133,10 +133,16 @@ class Backend_Actions_Handler
             $subject = __('Video Upload Update Required', 'cosy-appointments');
             $dashboard_url = esc_url(home_url('/provider-dashboard/'));
 
+            $limit_mb = intval(get_option('cosy_max_video_upload_size', 3));
+            if ($limit_mb <= 0) {
+                $limit_mb = 3;
+            }
+
             $html_content = "
                 <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
                 <p>Thank you for uploading your introductory video. During our review, we found that the video did not meet our guidelines or quality standards, and it has been rejected.</p>
-                <p>Please log in to your dashboard to upload a new video that complies with our guidelines (Max 3 MB, MP4 format).</p>
+                <p>Please log in to your dashboard to upload a new video that complies with our guidelines (Max {$limit_mb} MB, MP4 format).</p>
+
                 <p style='text-align: center; margin: 30px 0;'>
                     <a href='" . esc_url($dashboard_url) . "' style='background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);'>" . __('Upload New Video', 'cosy-appointments') . "</a>
                 </p>

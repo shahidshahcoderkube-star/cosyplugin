@@ -272,7 +272,10 @@ defined('ABSPATH') || exit;
                                     <div class="form-text text-muted mt-1">Specify the service fee amount (e.g. 0.10 for flat fee, or 10.00 for 10% fee).</div>
                                 </div>
                             </div>
+
                         </div>
+
+
 
                     </div>
 
