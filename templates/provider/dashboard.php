@@ -1,6 +1,6 @@
 <style>
     /* Force Theme Containers to be Full Width specifically for the dashboard */
-    .ast-container,
+    /* .ast-container,
     .site-content,
     #primary,
     #main,
@@ -9,7 +9,7 @@
         max-width: 100% !important;
         padding: 0 !important;
         margin: 0 !important;
-    }
+    } */
 </style>
 
 <div class="container-fluid mt-0 mt-md-4 px-0" id="cosy-dashboard-container">
@@ -70,13 +70,13 @@
             <?php
             $user_id = get_current_user_id();
             $provider_status = get_user_meta($user_id, 'cosy_provider_status', true);
-            
+
             // Check Profile Information
             $has_profile_info = !empty(get_user_meta($user_id, 'first_name', true)) &&
-                                !empty(get_user_meta($user_id, 'prov_phone', true)) &&
-                                !empty(get_user_meta($user_id, 'dob', true)) &&
-                                !empty(get_user_meta($user_id, 'gender', true)) &&
-                                !empty(get_user_meta($user_id, 'age_group', true));
+                !empty(get_user_meta($user_id, 'prov_phone', true)) &&
+                !empty(get_user_meta($user_id, 'dob', true)) &&
+                !empty(get_user_meta($user_id, 'gender', true)) &&
+                !empty(get_user_meta($user_id, 'age_group', true));
 
             // Check Services
             global $wpdb;
@@ -120,7 +120,7 @@
                     } else {
                         $req_text = $missing_requirements[0];
                     }
-                    ?>
+                ?>
                     <div class="alert d-flex align-items-center mb-4 border-0 shadow-sm"
                         style="background: #fff5f5; border-radius: 16px; color: #c53030;" role="alert">
                         <div
@@ -128,13 +128,13 @@
                             <i class="fas fa-exclamation-circle" style="font-size: 1.1rem; color: #e53e3e;"></i>
                         </div>
                         <div>
-                            <strong style="font-family: 'Poppins', sans-serif;"><?php esc_html_e('Profile Incomplete:', 'cosy-appointments'); ?></strong> 
+                            <strong style="font-family: 'Poppins', sans-serif;"><?php esc_html_e('Profile Incomplete:', 'cosy-appointments'); ?></strong>
                             <span style="font-size: 0.95rem;">
-                                <?php 
+                                <?php
                                 printf(
                                     esc_html__('Please set up your %s. Your profile will not be visible on the front side until all of these are configured.', 'cosy-appointments'),
                                     '<strong>' . esc_html($req_text) . '</strong>'
-                                ); 
+                                );
                                 ?>
                             </span>
                         </div>

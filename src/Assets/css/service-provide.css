@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    --cosy-primary: #9b4593;
+    --cosy-primary: #a44390;
     --cosy-secondary: #833573;
     --cosy-accent: #f1c40f;
     --cosy-text: #1e293b;
     --cosy-subtext: #64748b;
     --cosy-bg: #f8fafc;
     --cosy-white: #ffffff;
-    --cosy-gradient: linear-gradient(135deg, #9b4593 0%, #7a3673 100%);
+    --cosy-gradient: linear-gradient(135deg, #a44390 0%, #833573 100%);
 }
 
 .cosy-premium-grid-container {
@@ -27,7 +27,7 @@
 .cosy-card-v2 {
     background: var(--cosy-white);
     border-radius: 35px;
-    border: 1px solid rgba(155, 69, 147, 0.12);
+    border: 1px solid rgba(164, 67, 144, 0.12);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.04);
     overflow: hidden;
     display: flex;
@@ -37,8 +37,8 @@
 }
 
 .cosy-card-v2:hover {
-    box-shadow: 0 20px 50px rgba(155, 69, 147, 0.1);
-    border-color: rgba(155, 69, 147, 0.3);
+    box-shadow: 0 20px 50px rgba(164, 67, 144, 0.1);
+    border-color: rgba(164, 67, 144, 0.3);
 }
 
 .card-top-header {
@@ -183,7 +183,7 @@
 .btn-intro-v2:hover {
     background: var(--cosy-primary) !important;
     color: #ffffff !important;
-    box-shadow: 0 10px 20px rgba(155, 69, 147, 0.2);
+    box-shadow: 0 10px 20px rgba(164, 67, 144, 0.2);
     transform: translateY(-3px);
 }
 

@@ -1,10 +1,10 @@
 :root {
-    --cosy-primary: #9b4593;
+    --cosy-primary: #a44390;
     --cosy-secondary: #833573;
     --cosy-accent: #f1c40f;
     --cosy-bg: #f8fafc;
     --cosy-white: #ffffff;
-    --cosy-gradient: linear-gradient(135deg, #9b4593 0%, #7a3673 100%);
+    --cosy-gradient: linear-gradient(135deg, #a44390 0%, #833573 100%);
     --cosy-font-family: 'Poppins', sans-serif;
     --cosy-border-radius: 12px;
     --cosy-border-radius-lg: 24px;
@@ -1239,7 +1239,7 @@ body .swal2-icon {
 }
 
 .cosy-profile-card .form-select {
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239b4593%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E') !important;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E') !important;
     background-repeat: no-repeat !important;
     background-position: right 1rem center !important;
     background-size: 1.1em !important;
@@ -1415,7 +1415,7 @@ body .swal2-icon {
 .cosy-availability-card .form-select:focus {
     border-color: var(--cosy-primary) !important;
     background-color: var(--cosy-white) !important;
-    box-shadow: 0 0 0 4px rgba(155, 69, 147, 0.1) !important;
+    box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.1) !important;
 }
 
 .cosy-availability-card .preview-container {
@@ -1439,7 +1439,7 @@ body .swal2-icon {
 .cosy-availability-card .availability-badge {
     background: var(--cosy-white) !important;
     color: var(--cosy-primary) !important;
-    border: 1px solid rgba(155, 69, 147, 0.2) !important;
+    border: 1px solid rgba(164, 67, 144, 0.2) !important;
     padding: 8px 15px !important;
     border-radius: 10px !important;
     font-weight: 600;
@@ -1454,7 +1454,7 @@ body .swal2-icon {
     padding: 14px 45px !important;
     font-weight: 600;
     color: var(--cosy-white) !important;
-    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2) !important;
 }
 
 /* ============================================================
@@ -1628,7 +1628,7 @@ body .swal2-icon {
 .cosy-services-card .form-select:focus {
     border-color: var(--cosy-primary) !important;
     background-color: var(--cosy-white) !important;
-    box-shadow: 0 0 0 3px rgba(155, 69, 147, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(164, 67, 144, 0.1) !important;
 }
 
 .cosy-services-card .btn-success {
@@ -1689,7 +1689,7 @@ body .swal2-icon {
 .cosy-orders-card .form-select:focus {
     border-color: var(--cosy-primary) !important;
     background-color: var(--cosy-white) !important;
-    box-shadow: 0 0 0 4px rgba(155, 69, 147, 0.1) !important;
+    box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.1) !important;
 }
 
 .cosy-orders-card .table {
@@ -1744,7 +1744,7 @@ body .swal2-icon {
 }
 
 .cosy-orders-card .badge-pending {
-    background: rgba(155, 69, 147, 0.1) !important;
+    background: rgba(164, 67, 144, 0.1) !important;
     color: var(--cosy-primary) !important;
 }
 
@@ -1804,7 +1804,7 @@ body .swal2-icon {
 .cosy-orders-card .pagination .page-item.active .page-link {
     background: var(--cosy-primary) !important;
     color: var(--cosy-white) !important;
-    box-shadow: 0 4px 10px rgba(155, 69, 147, 0.2) !important;
+    box-shadow: 0 4px 10px rgba(164, 67, 144, 0.2) !important;
 }
 
 .cosy-modal-content {
@@ -1898,7 +1898,7 @@ body .swal2-icon {
 }
 
 .cosy-invoices-card .badge-pending {
-    background: rgba(155, 69, 147, 0.1) !important;
+    background: rgba(164, 67, 144, 0.1) !important;
     color: var(--cosy-primary) !important;
 }
 
@@ -1923,7 +1923,7 @@ body .swal2-icon {
 }
 
 .cosy-invoices-card .btn-download {
-    background: rgba(155, 69, 147, 0.1) !important;
+    background: rgba(164, 67, 144, 0.1) !important;
     color: var(--cosy-primary) !important;
 }
 
@@ -1934,7 +1934,7 @@ body .swal2-icon {
     padding: 14px 45px !important;
     font-weight: 600;
     color: var(--cosy-white) !important;
-    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2) !important;
 }
 
 /* --- Provider Orders Dashboard Styles --- */
