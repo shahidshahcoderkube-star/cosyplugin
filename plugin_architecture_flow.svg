@@ -1,0 +1,532 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" width="100%" height="100%" style="background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <defs>
+        <!-- Gradients -->
+        <linearGradient id="grid-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="0.8"/>
+        </linearGradient>
+        
+        <!-- Arrow markers -->
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+        </marker>
+        <marker id="arrow-sky" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0ea5e9" />
+        </marker>
+        <marker id="arrow-pink" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ec4899" />
+        </marker>
+        <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316" />
+        </marker>
+    </defs>
+
+    <!-- Grid Background -->
+    <rect width="100%" height="100%" fill="url(#grid-grad)" />
+    <g stroke="#334155" stroke-width="0.5" opacity="0.3">
+        <path d='M 0 0 L 0 1200 M 40 0 L 40 1200 M 80 0 L 80 1200 M 120 0 L 120 1200 M 160 0 L 160 1200 M 200 0 L 200 1200 M 240 0 L 240 1200 M 280 0 L 280 1200 M 320 0 L 320 1200 M 360 0 L 360 1200 M 400 0 L 400 1200 M 440 0 L 440 1200 M 480 0 L 480 1200 M 520 0 L 520 1200 M 560 0 L 560 1200 M 600 0 L 600 1200 M 640 0 L 640 1200 M 680 0 L 680 1200 M 720 0 L 720 1200 M 760 0 L 760 1200 M 800 0 L 800 1200 M 840 0 L 840 1200 M 880 0 L 880 1200 M 920 0 L 920 1200 M 960 0 L 960 1200 M 1000 0 L 1000 1200 M 1040 0 L 1040 1200 M 1080 0 L 1080 1200 M 1120 0 L 1120 1200 M 1160 0 L 1160 1200 M 1200 0 L 1200 1200 M 1240 0 L 1240 1200 M 1280 0 L 1280 1200 M 1320 0 L 1320 1200 M 1360 0 L 1360 1200 M 1400 0 L 1400 1200 M 1440 0 L 1440 1200 M 1480 0 L 1480 1200 M 1520 0 L 1520 1200 M 1560 0 L 1560 1200 M 0 0 L 1600 0 M 0 40 L 1600 40 M 0 80 L 1600 80 M 0 120 L 1600 120 M 0 160 L 1600 160 M 0 200 L 1600 200 M 0 240 L 1600 240 M 0 280 L 1600 280 M 0 320 L 1600 320 M 0 360 L 1600 360 M 0 400 L 1600 400 M 0 440 L 1600 440 M 0 480 L 1600 480 M 0 520 L 1600 520 M 0 560 L 1600 560 M 0 600 L 1600 600 M 0 640 L 1600 640 M 0 680 L 1600 680 M 0 720 L 1600 720 M 0 760 L 1600 760 M 0 800 L 1600 800 M 0 840 L 1600 840 M 0 880 L 1600 880 M 0 920 L 1600 920 M 0 960 L 1600 960 M 0 1000 L 1600 1000 M 0 1040 L 1600 1040 M 0 1080 L 1600 1080 M 0 1120 L 1600 1120 M 0 1160 L 1600 1160 ' />
+    </g>
+
+    <!-- Title Header -->
+    <text x="40" y="40" font-size="24" font-weight="bold" fill="#f8fafc">Cosy Appointments — Class &amp; File Execution Flow Diagram</text>
+    <text x="1100" y="40" font-size="14" fill="#94a3b8">Generated with exact files &amp; folder structure</text>
+
+    <!-- Group: 1. Core & Orchestration -->
+    <rect x="40" y="60" width="280" height="220" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="40" y="60" width="280" height="32" rx="8" ry="0" fill="#0ea5e9" opacity="0.15" />
+    <line x1="40" y1="92" x2="320" y2="92" stroke="#0ea5e9" stroke-width="1.5" />
+    <text x="52" y="81" font-size="13" font-weight="bold" fill="#0ea5e9">1. Core &amp; Orchestration</text>
+    
+        <g id="file-boot-0">
+            <rect x="50" y="105" width="260" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="60" cy="116" r="3" fill="#0ea5e9" />
+            <text x="72" y="120" font-size="11.5" fill="#f8fafc">cosy-appointments.php</text>
+        </g>
+        
+        <g id="file-boot-1">
+            <rect x="50" y="131" width="260" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="60" cy="142" r="3" fill="#0ea5e9" />
+            <text x="72" y="146" font-size="11.5" fill="#f8fafc">src/Plugin.php</text>
+        </g>
+        
+        <g id="file-boot-2">
+            <rect x="50" y="157" width="260" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="60" cy="168" r="3" fill="#0ea5e9" />
+            <text x="72" y="172" font-size="11.5" fill="#f8fafc">src/Loader.php</text>
+        </g>
+        
+        <g id="file-boot-3">
+            <rect x="50" y="183" width="260" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="60" cy="194" r="3" fill="#0ea5e9" />
+            <text x="72" y="198" font-size="11.5" fill="#f8fafc">src/Helpers.php</text>
+        </g>
+        
+    <!-- Group: 2. Admin Backend (src/Admin/) -->
+    <rect x="360" y="60" width="320" height="340" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="360" y="60" width="320" height="32" rx="8" ry="0" fill="#f97316" opacity="0.15" />
+    <line x1="360" y1="92" x2="680" y2="92" stroke="#f97316" stroke-width="1.5" />
+    <text x="372" y="81" font-size="13" font-weight="bold" fill="#f97316">2. Admin Backend (src/Admin/)</text>
+    
+        <g id="file-admin-0">
+            <rect x="370" y="105" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="116" r="3" fill="#f97316" />
+            <text x="392" y="120" font-size="11.5" fill="#f8fafc">Admin.php</text>
+        </g>
+        
+        <g id="file-admin-1">
+            <rect x="370" y="131" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="142" r="3" fill="#f97316" />
+            <text x="392" y="146" font-size="11.5" fill="#f8fafc">Backend_Actions_Handler.php</text>
+        </g>
+        
+        <g id="file-admin-2">
+            <rect x="370" y="157" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="168" r="3" fill="#f97316" />
+            <text x="392" y="172" font-size="11.5" fill="#f8fafc">Class_Provider_Verification.php</text>
+        </g>
+        
+        <g id="file-admin-3">
+            <rect x="370" y="183" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="194" r="3" fill="#f97316" />
+            <text x="392" y="198" font-size="11.5" fill="#f8fafc">DashboardAdmin.php</text>
+        </g>
+        
+        <g id="file-admin-4">
+            <rect x="370" y="209" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="220" r="3" fill="#f97316" />
+            <text x="392" y="224" font-size="11.5" fill="#f8fafc">DeactivationHandler.php</text>
+        </g>
+        
+        <g id="file-admin-5">
+            <rect x="370" y="235" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="246" r="3" fill="#f97316" />
+            <text x="392" y="250" font-size="11.5" fill="#f8fafc">MediaApprove.php</text>
+        </g>
+        
+        <g id="file-admin-6">
+            <rect x="370" y="261" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="272" r="3" fill="#f97316" />
+            <text x="392" y="276" font-size="11.5" fill="#f8fafc">OrdersAdmin.php</text>
+        </g>
+        
+        <g id="file-admin-7">
+            <rect x="370" y="287" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="298" r="3" fill="#f97316" />
+            <text x="392" y="302" font-size="11.5" fill="#f8fafc">SettingsAdmin.php</text>
+        </g>
+        
+        <g id="file-admin-8">
+            <rect x="370" y="313" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="324" r="3" fill="#f97316" />
+            <text x="392" y="328" font-size="11.5" fill="#f8fafc">UsersAdmin.php</text>
+        </g>
+        
+    <!-- Group: 3. REST API (src/Rest/) -->
+    <rect x="360" y="430" width="320" height="120" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="360" y="430" width="320" height="32" rx="8" ry="0" fill="#eab308" opacity="0.15" />
+    <line x1="360" y1="462" x2="680" y2="462" stroke="#eab308" stroke-width="1.5" />
+    <text x="372" y="451" font-size="13" font-weight="bold" fill="#eab308">3. REST API (src/Rest/)</text>
+    
+        <g id="file-rest-0">
+            <rect x="370" y="475" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="486" r="3" fill="#eab308" />
+            <text x="392" y="490" font-size="11.5" fill="#f8fafc">Routes.php</text>
+        </g>
+        
+        <g id="file-rest-1">
+            <rect x="370" y="501" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="512" r="3" fill="#eab308" />
+            <text x="392" y="516" font-size="11.5" fill="#f8fafc">ProviderServices.php</text>
+        </g>
+        
+    <!-- Group: 4. Post Types (src/PostTypes/) -->
+    <rect x="360" y="580" width="320" height="160" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="360" y="580" width="320" height="32" rx="8" ry="0" fill="#8b5cf6" opacity="0.15" />
+    <line x1="360" y1="612" x2="680" y2="612" stroke="#8b5cf6" stroke-width="1.5" />
+    <text x="372" y="601" font-size="13" font-weight="bold" fill="#8b5cf6">4. Post Types (src/PostTypes/)</text>
+    
+        <g id="file-posttypes-0">
+            <rect x="370" y="625" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="636" r="3" fill="#8b5cf6" />
+            <text x="392" y="640" font-size="11.5" fill="#f8fafc">AppointmentCPT.php</text>
+        </g>
+        
+        <g id="file-posttypes-1">
+            <rect x="370" y="651" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="662" r="3" fill="#8b5cf6" />
+            <text x="392" y="666" font-size="11.5" fill="#f8fafc">ProviderCPT.php</text>
+        </g>
+        
+        <g id="file-posttypes-2">
+            <rect x="370" y="677" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="688" r="3" fill="#8b5cf6" />
+            <text x="392" y="692" font-size="11.5" fill="#f8fafc">ServiceCPT.php</text>
+        </g>
+        
+        <g id="file-posttypes-3">
+            <rect x="370" y="703" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="714" r="3" fill="#8b5cf6" />
+            <text x="392" y="718" font-size="11.5" fill="#f8fafc">Taxonomies.php</text>
+        </g>
+        
+    <!-- Group: 5. Forms & Auth (src/Forms/) -->
+    <rect x="360" y="770" width="320" height="90" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="360" y="770" width="320" height="32" rx="8" ry="0" fill="#f97316" opacity="0.15" />
+    <line x1="360" y1="802" x2="680" y2="802" stroke="#f97316" stroke-width="1.5" />
+    <text x="372" y="791" font-size="13" font-weight="bold" fill="#f97316">5. Forms &amp; Auth (src/Forms/)</text>
+    
+        <g id="file-forms-0">
+            <rect x="370" y="815" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="380" cy="826" r="3" fill="#f97316" />
+            <text x="392" y="830" font-size="11.5" fill="#f8fafc">FormsData.php</text>
+        </g>
+        
+    <!-- Group: 6. Traits & Utilities (src/Common/) -->
+    <rect x="40" y="320" width="280" height="120" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="40" y="320" width="280" height="32" rx="8" ry="0" fill="#8b5cf6" opacity="0.15" />
+    <line x1="40" y1="352" x2="320" y2="352" stroke="#8b5cf6" stroke-width="1.5" />
+    <text x="52" y="341" font-size="13" font-weight="bold" fill="#8b5cf6">6. Traits &amp; Utilities (src/Common/)</text>
+    
+        <g id="file-common-0">
+            <rect x="50" y="365" width="260" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="60" cy="376" r="3" fill="#8b5cf6" />
+            <text x="72" y="380" font-size="11.5" fill="#f8fafc">GlobalCommonFunctions.php</text>
+        </g>
+        
+        <g id="file-common-1">
+            <rect x="50" y="391" width="260" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="60" cy="402" r="3" fill="#8b5cf6" />
+            <text x="72" y="406" font-size="11.5" fill="#f8fafc">LogManager.php</text>
+        </g>
+        
+    <!-- Group: 7. Frontend Router (src/Frontend/) -->
+    <rect x="720" y="60" width="320" height="150" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="720" y="60" width="320" height="32" rx="8" ry="0" fill="#ec4899" opacity="0.15" />
+    <line x1="720" y1="92" x2="1040" y2="92" stroke="#ec4899" stroke-width="1.5" />
+    <text x="732" y="81" font-size="13" font-weight="bold" fill="#ec4899">7. Frontend Router (src/Frontend/)</text>
+    
+        <g id="file-frontend-0">
+            <rect x="730" y="105" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="116" r="3" fill="#ec4899" />
+            <text x="752" y="120" font-size="11.5" fill="#f8fafc">Frontend.php</text>
+        </g>
+        
+        <g id="file-frontend-1">
+            <rect x="730" y="131" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="142" r="3" fill="#ec4899" />
+            <text x="752" y="146" font-size="11.5" fill="#f8fafc">Dashboard.php</text>
+        </g>
+        
+        <g id="file-frontend-2">
+            <rect x="730" y="157" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="168" r="3" fill="#ec4899" />
+            <text x="752" y="172" font-size="11.5" fill="#f8fafc">Class_Header_Menu.php</text>
+        </g>
+        
+    <!-- Group: 8. Assets & Enqueues (src/Assets/) -->
+    <rect x="720" y="240" width="320" height="360" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="720" y="240" width="320" height="32" rx="8" ry="0" fill="#10b981" opacity="0.15" />
+    <line x1="720" y1="272" x2="1040" y2="272" stroke="#10b981" stroke-width="1.5" />
+    <text x="732" y="261" font-size="13" font-weight="bold" fill="#10b981">8. Assets &amp; Enqueues (src/Assets/)</text>
+    
+        <g id="file-assets-0">
+            <rect x="730" y="285" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="296" r="3" fill="#10b981" />
+            <text x="752" y="300" font-size="11.5" fill="#f8fafc">Assets.php</text>
+        </g>
+        
+        <g id="file-assets-1">
+            <rect x="730" y="311" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="322" r="3" fill="#10b981" />
+            <text x="752" y="326" font-size="11.5" fill="#f8fafc">css/style.css</text>
+        </g>
+        
+        <g id="file-assets-2">
+            <rect x="730" y="337" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="348" r="3" fill="#10b981" />
+            <text x="752" y="352" font-size="11.5" fill="#f8fafc">css/service-provide.css</text>
+        </g>
+        
+        <g id="file-assets-3">
+            <rect x="730" y="363" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="374" r="3" fill="#10b981" />
+            <text x="752" y="378" font-size="11.5" fill="#f8fafc">js/calendar.js</text>
+        </g>
+        
+        <g id="file-assets-4">
+            <rect x="730" y="389" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="400" r="3" fill="#10b981" />
+            <text x="752" y="404" font-size="11.5" fill="#f8fafc">js/checkout.js</text>
+        </g>
+        
+        <g id="file-assets-5">
+            <rect x="730" y="415" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="426" r="3" fill="#10b981" />
+            <text x="752" y="430" font-size="11.5" fill="#f8fafc">js/dashboard.js</text>
+        </g>
+        
+        <g id="file-assets-6">
+            <rect x="730" y="441" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="452" r="3" fill="#10b981" />
+            <text x="752" y="456" font-size="11.5" fill="#f8fafc">js/validation.js</text>
+        </g>
+        
+        <g id="file-assets-7">
+            <rect x="730" y="467" width="300" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="740" cy="478" r="3" fill="#10b981" />
+            <text x="752" y="482" font-size="11.5" fill="#f8fafc">js/cosy-alert.js</text>
+        </g>
+        
+    <!-- Group: 9. Main Templates (templates/) -->
+    <rect x="1100" y="60" width="440" height="460" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="1100" y="60" width="440" height="32" rx="8" ry="0" fill="#06b6d4" opacity="0.15" />
+    <line x1="1100" y1="92" x2="1540" y2="92" stroke="#06b6d4" stroke-width="1.5" />
+    <text x="1112" y="81" font-size="13" font-weight="bold" fill="#06b6d4">9. Main Templates (templates/)</text>
+    
+        <g id="file-templates_main-0">
+            <rect x="1110" y="105" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="116" r="3" fill="#06b6d4" />
+            <text x="1132" y="120" font-size="11.5" fill="#f8fafc">appointments-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-1">
+            <rect x="1110" y="131" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="142" r="3" fill="#06b6d4" />
+            <text x="1132" y="146" font-size="11.5" fill="#f8fafc">checkout-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-2">
+            <rect x="1110" y="157" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="168" r="3" fill="#06b6d4" />
+            <text x="1132" y="172" font-size="11.5" fill="#f8fafc">customer-order-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-3">
+            <rect x="1110" y="183" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="194" r="3" fill="#06b6d4" />
+            <text x="1132" y="198" font-size="11.5" fill="#f8fafc">customer-profile-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-4">
+            <rect x="1110" y="209" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="220" r="3" fill="#06b6d4" />
+            <text x="1132" y="224" font-size="11.5" fill="#f8fafc">customer-registration-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-5">
+            <rect x="1110" y="235" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="246" r="3" fill="#06b6d4" />
+            <text x="1132" y="250" font-size="11.5" fill="#f8fafc">login-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-6">
+            <rect x="1110" y="261" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="272" r="3" fill="#06b6d4" />
+            <text x="1132" y="276" font-size="11.5" fill="#f8fafc">orders-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-7">
+            <rect x="1110" y="287" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="298" r="3" fill="#06b6d4" />
+            <text x="1132" y="302" font-size="11.5" fill="#f8fafc">popup-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-8">
+            <rect x="1110" y="313" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="324" r="3" fill="#06b6d4" />
+            <text x="1132" y="328" font-size="11.5" fill="#f8fafc">provider-profile-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-9">
+            <rect x="1110" y="339" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="350" r="3" fill="#06b6d4" />
+            <text x="1132" y="354" font-size="11.5" fill="#f8fafc">provider-registration-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-10">
+            <rect x="1110" y="365" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="376" r="3" fill="#06b6d4" />
+            <text x="1132" y="380" font-size="11.5" fill="#f8fafc">service-provider-template.php</text>
+        </g>
+        
+        <g id="file-templates_main-11">
+            <rect x="1110" y="391" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="402" r="3" fill="#06b6d4" />
+            <text x="1132" y="406" font-size="11.5" fill="#f8fafc">service-provider-grid-template.php</text>
+        </g>
+        
+    <!-- Group: 10. Provider Dashboard Templates -->
+    <rect x="1100" y="550" width="440" height="380" rx="8" ry="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <rect x="1100" y="550" width="440" height="32" rx="8" ry="0" fill="#06b6d4" opacity="0.15" />
+    <line x1="1100" y1="582" x2="1540" y2="582" stroke="#06b6d4" stroke-width="1.5" />
+    <text x="1112" y="571" font-size="13" font-weight="bold" fill="#06b6d4">10. Provider Dashboard Templates</text>
+    
+        <g id="file-templates_dashboard-0">
+            <rect x="1110" y="595" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="606" r="3" fill="#06b6d4" />
+            <text x="1132" y="610" font-size="11.5" fill="#f8fafc">provider/dashboard.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-1">
+            <rect x="1110" y="621" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="632" r="3" fill="#06b6d4" />
+            <text x="1132" y="636" font-size="11.5" fill="#f8fafc">provider/provider-verify.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-2">
+            <rect x="1110" y="647" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="658" r="3" fill="#06b6d4" />
+            <text x="1132" y="662" font-size="11.5" fill="#f8fafc">provider/dashboard/availability.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-3">
+            <rect x="1110" y="673" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="684" r="3" fill="#06b6d4" />
+            <text x="1132" y="688" font-size="11.5" fill="#f8fafc">provider/dashboard/customer-reviews.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-4">
+            <rect x="1110" y="699" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="710" r="3" fill="#06b6d4" />
+            <text x="1132" y="714" font-size="11.5" fill="#f8fafc">provider/dashboard/holidays.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-5">
+            <rect x="1110" y="725" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="736" r="3" fill="#06b6d4" />
+            <text x="1132" y="740" font-size="11.5" fill="#f8fafc">provider/dashboard/invoices.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-6">
+            <rect x="1110" y="751" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="762" r="3" fill="#06b6d4" />
+            <text x="1132" y="766" font-size="11.5" fill="#f8fafc">provider/dashboard/media-upload.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-7">
+            <rect x="1110" y="777" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="788" r="3" fill="#06b6d4" />
+            <text x="1132" y="792" font-size="11.5" fill="#f8fafc">provider/dashboard/non-working-days.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-8">
+            <rect x="1110" y="803" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="814" r="3" fill="#06b6d4" />
+            <text x="1132" y="818" font-size="11.5" fill="#f8fafc">provider/dashboard/orders.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-9">
+            <rect x="1110" y="829" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="840" r="3" fill="#06b6d4" />
+            <text x="1132" y="844" font-size="11.5" fill="#f8fafc">provider/dashboard/profile-information.php</text>
+        </g>
+        
+        <g id="file-templates_dashboard-10">
+            <rect x="1110" y="855" width="420" height="22" rx="4" ry="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+            <circle cx="1120" cy="866" r="3" fill="#06b6d4" />
+            <text x="1132" y="870" font-size="11.5" fill="#f8fafc">provider/dashboard/services.php</text>
+        </g>
+        
+    <!-- Connection: Loads Orchestrator -->
+    <path d="M 180.0 127 C 180.0 129.0, 180.0 129.0, 180.0 131" fill="none" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-sky)" />
+    
+    <rect x="125.0" y="121.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="180.0" y="131.0" font-size="9" fill="#94a3b8" text-anchor="middle">Loads Orchestrator</text>
+    
+    <!-- Connection: Uses Hook Registrar -->
+    <path d="M 180.0 153 C 180.0 155.0, 180.0 155.0, 180.0 157" fill="none" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-sky)" />
+    
+    <rect x="125.0" y="147.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="180.0" y="157.0" font-size="9" fill="#94a3b8" text-anchor="middle">Uses Hook Registrar</text>
+    
+    <!-- Connection: Registers Admin -->
+    <path d="M 310 142 C 340.0 142, 340.0 116, 370 116" fill="none" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-sky)" />
+    
+    <rect x="285.0" y="121.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="340.0" y="131.0" font-size="9" fill="#94a3b8" text-anchor="middle">Registers Admin</text>
+    
+    <!-- Connection: Registers Routes -->
+    <path d="M 310 142 C 340.0 142, 340.0 486, 370 486" fill="none" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-sky)" />
+    
+    <rect x="285.0" y="306.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="340.0" y="316.0" font-size="9" fill="#94a3b8" text-anchor="middle">Registers Routes</text>
+    
+    <!-- Connection: Registers CPTs -->
+    <path d="M 310 142 C 340.0 142, 340.0 688, 370 688" fill="none" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-sky)" />
+    
+    <rect x="285.0" y="407.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="340.0" y="417.0" font-size="9" fill="#94a3b8" text-anchor="middle">Registers CPTs</text>
+    
+    <!-- Connection: Registers Frontend -->
+    <path d="M 310 142 C 520.0 142, 520.0 116, 730 116" fill="none" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-sky)" />
+    
+    <rect x="465.0" y="121.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="520.0" y="131.0" font-size="9" fill="#94a3b8" text-anchor="middle">Registers Frontend</text>
+    
+    <!-- Connection: Registers Assets -->
+    <path d="M 310 142 C 520.0 142, 520.0 296, 730 296" fill="none" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-sky)" />
+    
+    <rect x="465.0" y="211.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="520.0" y="221.0" font-size="9" fill="#94a3b8" text-anchor="middle">Registers Assets</text>
+    
+    <!-- Connection: Imports security checks -->
+    <path d="M 310 376 C 340.0 376, 340.0 142, 370 142" fill="none" stroke="#475569" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow)" />
+    
+    <rect x="285.0" y="251.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="340.0" y="261.0" font-size="9" fill="#94a3b8" text-anchor="middle">Imports security checks</text>
+    
+    <!-- Connection: Imports security checks -->
+    <path d="M 310 376 C 520.0 376, 520.0 116, 730 116" fill="none" stroke="#475569" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow)" />
+    
+    <rect x="465.0" y="238.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="520.0" y="248.0" font-size="9" fill="#94a3b8" text-anchor="middle">Imports security checks</text>
+    
+    <!-- Connection: Delegates calls -->
+    <path d="M 520.0 497 C 520.0 499.0, 520.0 499.0, 520.0 501" fill="none" stroke="#475569" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow)" />
+    
+    <rect x="465.0" y="491.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="520.0" y="501.0" font-size="9" fill="#94a3b8" text-anchor="middle">Delegates calls</text>
+    
+    <!-- Connection: AJAX / REST requests -->
+    <path d="M 730 374 C 700.0 374, 700.0 486, 670 486" fill="none" stroke="#475569" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow)" />
+    
+    <rect x="645.0" y="422.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="700.0" y="432.0" font-size="9" fill="#94a3b8" text-anchor="middle">AJAX / REST requests</text>
+    
+    <!-- Connection: AJAX requests -->
+    <path d="M 730 426 C 700.0 426, 700.0 142, 670 142" fill="none" stroke="#475569" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow)" />
+    
+    <rect x="645.0" y="276.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="700.0" y="286.0" font-size="9" fill="#94a3b8" text-anchor="middle">AJAX requests</text>
+    
+    <!-- Connection: Renders checkout view -->
+    <path d="M 1030 116 C 1070.0 116, 1070.0 142, 1110 142" fill="none" stroke="#ec4899" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-pink)" />
+    
+    <rect x="1015.0" y="121.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="1070.0" y="131.0" font-size="9" fill="#94a3b8" text-anchor="middle">Renders checkout view</text>
+    
+    <!-- Connection: Renders profile view -->
+    <path d="M 1030 116 C 1070.0 116, 1070.0 324, 1110 324" fill="none" stroke="#ec4899" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-pink)" />
+    
+    <rect x="1015.0" y="212.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="1070.0" y="222.0" font-size="9" fill="#94a3b8" text-anchor="middle">Renders profile view</text>
+    
+    <!-- Connection: Renders Dashboard -->
+    <path d="M 1030 142 C 1070.0 142, 1070.0 606, 1110 606" fill="none" stroke="#ec4899" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-pink)" />
+    
+    <rect x="1015.0" y="366.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="1070.0" y="376.0" font-size="9" fill="#94a3b8" text-anchor="middle">Renders Dashboard</text>
+    
+    <!-- Connection: Renders Login -->
+    <path d="M 670 826 C 890.0 826, 890.0 246, 1110 246" fill="none" stroke="#f97316" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-orange)" />
+    
+    <rect x="835.0" y="528.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="890.0" y="538.0" font-size="9" fill="#94a3b8" text-anchor="middle">Renders Login</text>
+    
+    <!-- Connection: Renders Registration -->
+    <path d="M 670 826 C 890.0 826, 890.0 220, 1110 220" fill="none" stroke="#f97316" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-orange)" />
+    
+    <rect x="835.0" y="515.0" width="110" height="14" rx="3" ry="3" fill="#0f172a" stroke="#334155" stroke-width="0.5" />
+    <text x="890.0" y="525.0" font-size="9" fill="#94a3b8" text-anchor="middle">Renders Registration</text>
+    
+</svg>
