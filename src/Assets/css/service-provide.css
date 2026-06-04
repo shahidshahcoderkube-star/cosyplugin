@@ -255,7 +255,7 @@
 }
 
 .cosy-gradient-bg {
-    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%) !important;
+    background: var(--cosy-gradient) !important;
     color: white !important;
 }
 
@@ -410,7 +410,7 @@
 }
 
 .cosy-btn-primary {
-    background: linear-gradient(135deg, #a44390, #6d2e67) !important;
+    background: var(--cosy-gradient) !important;
     border-radius: 12px !important;
     border: none !important;
     font-size: 0.9rem !important;
@@ -557,7 +557,7 @@
 }
 
 .cosy-btn-book-now {
-    background: linear-gradient(135deg, #a44390, #6d2e67) !important;
+    background: var(--cosy-gradient) !important;
     border-radius: 12px !important;
     border: none !important;
     font-size: 0.95rem !important;
@@ -626,7 +626,7 @@
 }
 
 .cosy-modal-confirm-btn {
-    background: linear-gradient(135deg, #a44390, #6d2e67) !important;
+    background: var(--cosy-gradient) !important;
     border-radius: 12px !important;
     border: none !important;
     min-width: 140px !important;
