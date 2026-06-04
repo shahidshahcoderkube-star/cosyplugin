@@ -1249,7 +1249,7 @@ body .swal2-icon {
 .cosy-profile-card .form-select:focus {
     border-color: var(--cosy-primary) !important;
     background-color: var(--cosy-white) !important;
-    box-shadow: 0 0 0 4px rgba(155, 69, 147, 0.1) !important;
+    box-shadow: 0 0 0 4px rgba(164, 67, 144, 0.1) !important;
 }
 
 .cosy-profile-card .custom-btn {
@@ -1259,7 +1259,7 @@ body .swal2-icon {
     padding: 14px 45px !important;
     color: var(--cosy-white) !important;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2) !important;
 }
 
 .cosy-profile-card .circle {
@@ -1490,7 +1490,7 @@ body .swal2-icon {
 
 .cosy-video-card .video-dropzone:hover {
     border-color: var(--cosy-primary) !important;
-    background: rgba(155, 69, 147, 0.02) !important;
+    background: rgba(164, 67, 144, 0.02) !important;
 }
 
 .cosy-video-card .video-dropzone i {
