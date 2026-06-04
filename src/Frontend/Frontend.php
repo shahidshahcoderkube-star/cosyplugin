@@ -169,65 +169,161 @@ class Frontend
             $appointment_id = intval($_GET['appt_id']);
             $session_id = isset($_GET['cosy_stripe_session']) ? sanitize_text_field($_GET['cosy_stripe_session']) : '';
 
-            $this->cosy_payment_log("Stripe Checkout SUCCESS return for Appointment #$appointment_id. Session ID: $session_id");
+            $this->cosy_payment_log("Stripe Checkout return for Appointment #$appointment_id. Session ID: $session_id");
+
+            if (empty($session_id)) {
+                $this->cosy_payment_log("Stripe Verification FAILED: Session ID is empty.");
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Payment Verification Failed</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Invalid checkout session. Please contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            // Retrieve Stripe secret key
+            $secret_key = get_option('cosy_stripe_key');
+            if (empty($secret_key)) {
+                $this->cosy_payment_log("Stripe Verification FAILED: Stripe Secret Key is not configured.");
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">System Error</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Stripe gateway is not properly configured. Please contact the administrator.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            // Verify the Checkout Session with Stripe API
+            $stripe_endpoint = 'https://api.stripe.com/v1/checkout/sessions/' . $session_id;
+            $response = wp_remote_get($stripe_endpoint, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $secret_key,
+                ],
+                'timeout' => 15
+            ]);
+
+            if (is_wp_error($response)) {
+                $this->cosy_payment_log("Stripe Verification FAILED: HTTP Request Error", $response->get_error_message());
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Payment Verification Error</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Unable to verify payment with Stripe. Please try refreshing the page or contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            $response_code = wp_remote_retrieve_response_code($response);
+            $response_body = wp_remote_retrieve_body($response);
+            $decoded = json_decode($response_body, true);
+
+            if ($response_code !== 200) {
+                $this->cosy_payment_log("Stripe Verification FAILED: HTTP response code is $response_code", $decoded);
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Payment Verification Failed</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Invalid checkout session reported by Stripe. Please contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            // Verify payment status and check for appointment matching
+            $payment_status = isset($decoded['payment_status']) ? $decoded['payment_status'] : '';
+            $client_ref_id = isset($decoded['client_reference_id']) ? intval($decoded['client_reference_id']) : 0;
+            $meta_appt_id = isset($decoded['metadata']['appointment_id']) ? intval($decoded['metadata']['appointment_id']) : 0;
+
+            if ($payment_status !== 'paid') {
+                $this->cosy_payment_log("Stripe Verification FAILED: payment_status is '$payment_status'. expected: 'paid'.");
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Payment Incomplete</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">The Stripe payment status is incomplete. Please complete your payment.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            if ($client_ref_id !== $appointment_id && $meta_appt_id !== $appointment_id) {
+                $this->cosy_payment_log("SECURITY ALERT: Stripe Verification FAILED - Appointment ID mismatch! URL Appt ID: $appointment_id, Stripe Client Ref ID: $client_ref_id, Stripe Metadata Appt ID: $meta_appt_id");
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Security Mismatch</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Payment session does not match this booking order. Please contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
 
             $appt = get_post($appointment_id);
-            if ($appt && $appt->post_type === 'cosy_appointment' && $appt->post_status === 'draft') {
-                $this->cosy_payment_log("Confirming Appointment #$appointment_id and updating payment status to Paid.");
-                // Update post to publish
-                wp_update_post([
-                    'ID' => $appointment_id,
-                    'post_status' => 'publish'
-                ]);
+            if ($appt && $appt->post_type === 'cosy_appointment') {
+                if ($appt->post_status === 'publish') {
+                    $this->cosy_payment_log("Appointment #$appointment_id already published/processed. Displaying success screen.");
+                } elseif ($appt->post_status === 'draft') {
+                    $this->cosy_payment_log("Stripe Checkout verified successfully. Confirming Appointment #$appointment_id.");
+                    // Update post to publish
+                    wp_update_post([
+                        'ID' => $appointment_id,
+                        'post_status' => 'publish'
+                    ]);
 
-                // Update payment meta
-                update_post_meta($appointment_id, 'cosy_payment_status', 'Paid');
-                update_post_meta($appointment_id, 'cosy_stripe_session_id', $session_id);
+                    // Update payment meta
+                    update_post_meta($appointment_id, 'cosy_payment_status', 'Paid');
+                    update_post_meta($appointment_id, 'cosy_stripe_session_id', $session_id);
 
-                // Send confirmation emails
-                $this->send_booking_emails($appointment_id);
+                    // Send confirmation emails
+                    $this->send_booking_emails($appointment_id);
 
-                // Log the completed booking with full details
-                $log_service      = get_post_meta($appointment_id, 'cosy_service_name', true);
-                $log_provider     = get_post_meta($appointment_id, 'cosy_provider_name', true);
-                $log_customer     = get_post_meta($appointment_id, 'cosy_customer_name', true);
-                $log_email        = get_post_meta($appointment_id, 'cosy_customer_email', true);
-                $log_start        = get_post_meta($appointment_id, 'cosy_start_date', true);
-                $log_end          = get_post_meta($appointment_id, 'cosy_end_date', true);
-                $log_cost         = get_post_meta($appointment_id, 'cosy_service_cost', true);
-                $log_fee          = get_post_meta($appointment_id, 'cosy_service_fee', true);
-                $log_total        = get_post_meta($appointment_id, 'cosy_total_payable', true);
-                $log_slots        = get_post_meta($appointment_id, 'cosy_number_of_bookings', true);
-                $log_weeks        = get_post_meta($appointment_id, 'cosy_number_of_weeks', true);
-                $log_weekdays     = get_post_meta($appointment_id, 'cosy_week_days', true);
-                $log_timeline     = get_post_meta($appointment_id, 'cosy_slots_timeline', true);
-                $log_weekly       = get_post_meta($appointment_id, 'cosy_weekly_booking', true);
+                    // Log the completed booking with full details
+                    $log_service      = get_post_meta($appointment_id, 'cosy_service_name', true);
+                    $log_provider     = get_post_meta($appointment_id, 'cosy_provider_name', true);
+                    $log_customer     = get_post_meta($appointment_id, 'cosy_customer_name', true);
+                    $log_email        = get_post_meta($appointment_id, 'cosy_customer_email', true);
+                    $log_start        = get_post_meta($appointment_id, 'cosy_start_date', true);
+                    $log_end          = get_post_meta($appointment_id, 'cosy_end_date', true);
+                    $log_cost         = get_post_meta($appointment_id, 'cosy_service_cost', true);
+                    $log_fee          = get_post_meta($appointment_id, 'cosy_service_fee', true);
+                    $log_total        = get_post_meta($appointment_id, 'cosy_total_payable', true);
+                    $log_slots        = get_post_meta($appointment_id, 'cosy_number_of_bookings', true);
+                    $log_weeks        = get_post_meta($appointment_id, 'cosy_number_of_weeks', true);
+                    $log_weekdays     = get_post_meta($appointment_id, 'cosy_week_days', true);
+                    $log_timeline     = get_post_meta($appointment_id, 'cosy_slots_timeline', true);
+                    $log_weekly       = get_post_meta($appointment_id, 'cosy_weekly_booking', true);
 
-                $currency_sym = cosy_get_currency_symbol();
-                $log_description = sprintf(
-                    'BOOKING CONFIRMED | Order #%d | Customer: %s (%s) | Service: %s | Provider: %s | Dates: %s to %s | Weekly: %s | Weeks: %s | Slots: %s | Schedule: %s | Service Cost: ' . $currency_sym . '%s | Platform Fee: ' . $currency_sym . '%s | Total Paid: ' . $currency_sym . '%s | Payment Status: Paid',
-                    $appointment_id,
-                    $log_customer,
-                    $log_email,
-                    $log_service,
-                    $log_provider,
-                    $log_start,
-                    $log_end,
-                    $log_weekly ?: 'N/A',
-                    $log_weeks ?: '1',
-                    $log_slots ?: '1',
-                    $log_timeline ?: 'N/A',
-                    $log_cost,
-                    $log_fee,
-                    $log_total
-                );
+                    $currency_sym = cosy_get_currency_symbol();
+                    $log_description = sprintf(
+                        'BOOKING CONFIRMED | Order #%d | Customer: %s (%s) | Service: %s | Provider: %s | Dates: %s to %s | Weekly: %s | Weeks: %s | Slots: %s | Schedule: %s | Service Cost: ' . $currency_sym . '%s | Platform Fee: ' . $currency_sym . '%s | Total Paid: ' . $currency_sym . '%s | Payment Status: Paid',
+                        $appointment_id,
+                        $log_customer,
+                        $log_email,
+                        $log_service,
+                        $log_provider,
+                        $log_start,
+                        $log_end,
+                        $log_weekly ?: 'N/A',
+                        $log_weeks ?: '1',
+                        $log_slots ?: '1',
+                        $log_timeline ?: 'N/A',
+                        $log_cost,
+                        $log_fee,
+                        $log_total
+                    );
 
-                \Cosy\Appointments\Common\LogManager::log(
-                    'orders',
-                    'booking_completed',
-                    $log_description,
-                    $appt->post_author
-                );
+                    \Cosy\Appointments\Common\LogManager::log(
+                        'orders',
+                        'booking_completed',
+                        $log_description,
+                        $appt->post_author
+                    );
+                }
             }
 
             return '<div class="cosy-checkout-root">

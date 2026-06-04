@@ -396,7 +396,8 @@ add_filter('query_vars', 'cosy_register_query_vars');
  * Auto-create missing plugin pages on init to handle cases where pages 
  * were deleted or when updating the plugin via ZIP upload (where activation hook isn't fired).
  */
-function cosy_check_and_create_missing_pages() {
+function cosy_check_and_create_missing_pages()
+{
     $checkout_page = get_page_by_path('cosy-checkout');
     if (!$checkout_page) {
         cosy_create_pages_on_activation();
@@ -407,7 +408,8 @@ add_action('init', 'cosy_check_and_create_missing_pages');
 
 // Daily Cron Job to clean up activity logs older than 30 days
 add_action('cosy_cleanup_activity_logs_cron', 'cosy_do_cleanup_activity_logs');
-function cosy_do_cleanup_activity_logs() {
+function cosy_do_cleanup_activity_logs()
+{
     global $wpdb;
     $table_name = $wpdb->prefix . 'cosy_activity_logs';
     $wpdb->query(
