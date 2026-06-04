@@ -675,7 +675,7 @@ label.error {
     font-size: 1.15rem;
     width: 24px;
     text-align: center;
-    color: var(--cosy-text-muted);
+    color: #64748b;
     transition: all 0.3s ease;
 }
 
