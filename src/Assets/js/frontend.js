@@ -1,12 +1,12 @@
 jQuery(document).ready(function ($) {
 
     // ---------------- Register Popup ----------------
-    $('.openRegisterPopup').on('click', function (e) {
+    $(document).on('click', '.openRegisterPopup', function (e) {
         e.preventDefault();
         $('#registerPopup').fadeIn(); // smoother than .show()
     });
 
-    $('#closePopup').on('click', function () {
+    $(document).on('click', '#closePopup', function () {
         $('#registerPopup').fadeOut(); // smoother than .hide()
     });
 
