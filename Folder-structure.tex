@@ -12,26 +12,26 @@ cosy-appointments/
 │   ├── Helpers.php                  ← Global helper functions (e.g., render_popup)
 │   │
 │   ├── Admin/                       ← Backend administration
-│   │   ├── Class/                   ← Admin logic classes
-│   │   │   ├── Class_Admin.php
-│   │   │   ├── Class_Backend.php
-│   │   │   ├── Class_Provider_Verification.php
-│   │   │   ├── DashboardAdmin.php
-│   │   │   ├── DeactivationHandler.php
-│   │   │   ├── MediaApprove.php
-│   │   │   ├── OrdersAdmin.php
-│   │   │   └── SettingsAdmin.php
+│   │   ├── Admin.php                ← Main Admin Menu registration
+│   │   ├── Backend_Actions_Handler.php ← Processes backend AJAX/CPT actions
+│   │   ├── Class_Provider_Verification.php ← Provider account verification admin
+│   │   ├── DashboardAdmin.php       ← Dashboard stats and reports logic
+│   │   ├── DeactivationHandler.php  ← Safe deactivation OTP verification handler
+│   │   ├── MediaApprove.php         ← Handles provider media approvals
+│   │   ├── OrdersAdmin.php          ← Admin order/invoice details page
+│   │   ├── SettingsAdmin.php        ← Settings screen fields & logic
+│   │   ├── UsersAdmin.php           ← Customer/Provider management screens
 │   │   ├── Backend/                 ← Admin backend templates
-│   │   │   └── media-approve.php
+│   │   │   └── media-approve.php    ← Media approval panel layout
 │   │   └── assets/                  ← Admin static assets
 │   │       ├── admin.css
 │   │       ├── admin.js
 │   │       └── deactivation.js
 │   │
-│   ├── Assets/                      ← Frontend Assets management
+│   ├── Assets/                      ← Static assets management
 │   │   ├── Assets.php               ← Enqueues CSS/JS
 │   │   ├── css/
-│   │   │   ├── style.css
+│   │   │   ├── style.css            ← Main styles
 │   │   │   └── service-provide.css
 │   │   ├── js/                      ← Frontend scripts
 │   │   │   ├── api.js
@@ -43,22 +43,27 @@ cosy-appointments/
 │   │   │   └── validation.js
 │   │   └── images/
 │   │
-│   ├── Frontend/                    ← Frontend Logic (Shortcodes & Handlers)
-│   │   ├── Class_Forms.php          ← Login, Registration, Forms
-│   │   ├── Class_Frontend.php       ← Shortcodes and Core Frontend Logic
-│   │   ├── Class_Header_Menu.php    
-│   │   ├── Class_Provider_Dashboard.php ← Provider Dashboard AJAX Logic
-│   │   └── Common.php               ← Common Traits & Utilities
+│   ├── Common/                      ← Common Utilities
+│   │   ├── GlobalCommonFunctions.php ← Shared functions & AJAX verification
+│   │   └── LogManager.php           ← Centralized DB activity logger
+│   │
+│   ├── Forms/                       ← Registration & Login Handlers
+│   │   └── FormsData.php            ← Validates forms and controls login access
+│   │
+│   ├── Frontend/                    ← Frontend Logic (Shortcodes & Routing)
+│   │   ├── Class_Header_Menu.php    ← Dynamic header login/register buttons dropdown
+│   │   ├── Dashboard.php            ← Provider dashboard router and handlers
+│   │   └── Frontend.php             ← Front shortcodes & Stripe Checkout Session creation
 │   │
 │   ├── PostTypes/                   ← CPTs & Taxonomies Definitions
-│   │   ├── AppointmentCPT.php
-│   │   ├── ProviderCPT.php
-│   │   ├── ServiceCPT.php
-│   │   └── Taxonomies.php
+│   │   ├── AppointmentCPT.php       ← Registers Appointment CPT
+│   │   ├── ProviderCPT.php          ← Registers Provider CPT
+│   │   ├── ServiceCPT.php           ← Registers Service CPT
+│   │   └── Taxonomies.php           ← Registers custom taxonomies (e.g. topics)
 │   │
 │   └── Rest/                        ← REST API Endpoints
-│       ├── Routes.php
-│       └── Class_Service_Provider.php
+│       ├── ProviderServices.php     ← REST callbacks for Provider services
+│       └── Routes.php               ← Registers API endpoints
 │
 └── templates/                       ← PHP View Templates (Loaded by Shortcodes)
     ├── provider/
@@ -72,8 +77,8 @@ cosy-appointments/
     │   │   ├── orders.php
     │   │   ├── profile-information.php
     │   │   └── services.php
-    │   ├── dashboard.php
-    │   └── provider-verify.php
+    │   ├── dashboard.php            ← Main wrapper template for dashboard
+    │   └── provider-verify.php      ← Verification alert banner
     │
     ├── appointments-template.php
     ├── checkout-template.php
@@ -85,4 +90,5 @@ cosy-appointments/
     ├── popup-template.php
     ├── provider-profile-template.php
     ├── provider-registration-template.php
+    ├── service-provider-grid-template.php
     └── service-provider-template.php
