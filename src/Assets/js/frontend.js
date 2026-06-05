@@ -1,5 +1,13 @@
 jQuery(document).ready(function ($) {
 
+    // Sync category filter dropdown with URL path slug on page load
+    let pathName = window.location.pathname.replace(/^\/|\/$/g, '');
+    let segments = pathName.split('/');
+    let lastSegment = segments[segments.length - 1];
+    if (lastSegment && lastSegment !== 'service-provider' && $('#filter_category option[value="' + lastSegment + '"]').length) {
+        $('#filter_category').val(lastSegment);
+    }
+
     // ---------------- Register Popup ----------------
     $(document).on('click', '.openRegisterPopup', function (e) {
         e.preventDefault();

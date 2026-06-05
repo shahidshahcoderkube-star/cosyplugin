@@ -10,9 +10,22 @@
             <select name="service_category" id="filter_category" class="form-select cosy-filter-select" style="min-width: 160px; height: 46px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #334155; font-weight: 500; padding: 10px 36px 10px 16px; box-shadow: none;">
                 <option value=""><?php esc_html_e('--Category--', 'cosy-appointments'); ?></option>
                 <?php
+                // Get active service category slug from URL
+                $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+                $active_service_slug = '';
+                if (!empty($uri_path)) {
+                    $current_url = trim($uri_path, '/');
+                    $url_segments = explode('/', $current_url);
+                    $active_service_slug = end($url_segments);
+                    if ($active_service_slug === 'service-provider') {
+                        $active_service_slug = '';
+                    }
+                }
+
                 $services = get_posts(['post_type' => 'cosy_service', 'numberposts' => -1]);
                 foreach ($services as $srv) {
-                    echo '<option value="' . esc_attr($srv->post_name) . '">' . esc_html($srv->post_title) . '</option>';
+                    $selected = ($srv->post_name === $active_service_slug) ? ' selected' : '';
+                    echo '<option value="' . esc_attr($srv->post_name) . '"' . $selected . '>' . esc_html($srv->post_title) . '</option>';
                 }
                 ?>
             </select>
