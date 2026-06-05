@@ -10,11 +10,14 @@
         padding: 0 !important;
         margin: 0 !important;
     }
+    #cosy-dashboard-container {
+        overflow-x: hidden;
+    }
 </style>
 
 <div class="container-fluid mt-0 mt-md-4 px-0" id="cosy-dashboard-container">
     <?php wp_nonce_field('cosy_dashboard_nonce', 'cosy_dashboard_nonce_field'); ?>
-    <div class="row">
+    <div class="row mx-0">
         <!-- Sidebar -->
         <div class="col-12 col-md-3 bg-white p-4 shadow-sm" id="cosy-sidebar"
             style="min-height:100vh; border-right: 1px solid #f1f5f9;">
