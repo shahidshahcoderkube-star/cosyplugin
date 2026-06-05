@@ -772,7 +772,17 @@ var CosyApp = (function ($) {
         // Day Selection Handler (via event delegation to survive dynamic DOM load/reloads)
         $(container).off('change', '#availability_day').on('change', '#availability_day', function () {
             const day = $(this).val();
-            if (!day) return;
+            if (!day) {
+                $('#apply_days_container').hide();
+                return;
+            }
+
+            // Show apply to days container
+            $('#apply_days_container').fadeIn();
+            
+            // Reset and check the selected day
+            $('.apply-day-checkbox').prop('checked', false).prop('disabled', false);
+            $('#apply_day_' + day).prop('checked', true).prop('disabled', true);
 
             const data = window.savedAvailability && window.savedAvailability[day];
             if (data && typeof data === 'object') {
@@ -791,14 +801,49 @@ var CosyApp = (function ($) {
             }
         });
 
+        // Select All Weekdays helper
+        $(container).off('click', '#select_all_weekdays').on('click', '#select_all_weekdays', function (e) {
+            e.preventDefault();
+            const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            $('.apply-day-checkbox').each(function () {
+                const val = $(this).val();
+                $(this).prop('checked', weekdays.includes(val));
+            });
+            const mainDay = $('#availability_day').val();
+            if (mainDay) {
+                $('#apply_day_' + mainDay).prop('checked', true).prop('disabled', true);
+            }
+        });
+
+        // Select All Days helper
+        $(container).off('click', '#select_all_days').on('click', '#select_all_days', function (e) {
+            e.preventDefault();
+            $('.apply-day-checkbox').prop('checked', true);
+            const mainDay = $('#availability_day').val();
+            if (mainDay) {
+                $('#apply_day_' + mainDay).prop('checked', true).prop('disabled', true);
+            }
+        });
+
         // Save Availability AJAX Handler (via event delegation)
         $(container).off("click", "#save_availability_btn").on("click", "#save_availability_btn", function (e) {
             e.preventDefault();
             const $btn = $(this);
+
+            const days = [];
+            $('.apply-day-checkbox:checked').each(function() {
+                days.push($(this).val());
+            });
+            const mainDay = $('#availability_day').val();
+            if (mainDay && !days.includes(mainDay)) {
+                days.push(mainDay);
+            }
+
             const data = {
                 action: 'save_provider_availability',
                 nonce: $('#cosy_dashboard_nonce_field').val(),
-                day: $('#availability_day').val(),
+                day: mainDay,
+                days: days,
                 start_time: $('#start_time').val(),
                 end_time: $('#end_time').val(),
                 slot_duration: $('#slot_duration').val(),
@@ -822,16 +867,17 @@ var CosyApp = (function ($) {
                 },
                 success(res) {
                     if (res.success) {
-                        // Update dynamic schedule dictionary in client memory
-                        const dayName = data.day;
+                        // Update dynamic schedule dictionary in client memory for all selected days
                         if (!window.savedAvailability) window.savedAvailability = {};
-                        window.savedAvailability[dayName] = {
-                            start_time: data.start_time,
-                            end_time: data.end_time,
-                            slot_duration: data.slot_duration,
-                            break_start: data.break_start,
-                            break_end: data.break_end
-                        };
+                        days.forEach(dayName => {
+                            window.savedAvailability[dayName] = {
+                                start_time: data.start_time,
+                                end_time: data.end_time,
+                                slot_duration: data.slot_duration,
+                                break_start: data.break_start,
+                                break_end: data.break_end
+                            };
+                        });
 
                         // Trigger dynamic re-render of availability preview badges
                         if (typeof renderAvailabilityBadges === 'function') {
@@ -845,6 +891,7 @@ var CosyApp = (function ($) {
                         $('#slot_duration').val('10');
                         $('#break_start_time').val('');
                         $('#break_end_time').val('');
+                        $('#apply_days_container').hide();
 
                         // Show success alert
                         CosyAlert.success('Success!', 'Your availability has been saved.');

@@ -77,6 +77,31 @@ if (!isset($availability)) {
             </div>
         </div>
 
+        <!-- Apply to Multiple Days Options -->
+        <div class="mb-4" id="apply_days_container" style="display: none; background: #fdfafc; border: 1px dashed rgba(164, 67, 144, 0.2); padding: 15px 20px; border-radius: 12px;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label mb-0 fw-semibold text-dark" style="font-size: 0.95rem;"><?php esc_html_e('Apply this same schedule to:', 'cosy-appointments'); ?></label>
+                <div>
+                    <button type="button" class="btn btn-sm py-0 px-2 btn-link text-decoration-none" id="select_all_weekdays" style="color: #a44390; font-size: 0.8rem; font-weight: 600;"><?php esc_html_e('Weekdays (Mon-Fri)', 'cosy-appointments'); ?></button>
+                    <span class="text-muted" style="font-size: 0.8rem;">|</span>
+                    <button type="button" class="btn btn-sm py-0 px-2 btn-link text-decoration-none" id="select_all_days" style="color: #a44390; font-size: 0.8rem; font-weight: 600;"><?php esc_html_e('All Days', 'cosy-appointments'); ?></button>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-3 mt-2">
+                <?php
+                $days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                foreach ($days_of_week as $d) {
+                    ?>
+                    <div class="form-check">
+                        <input class="form-check-input apply-day-checkbox" type="checkbox" id="apply_day_<?php echo esc_attr($d); ?>" value="<?php echo esc_attr($d); ?>">
+                        <label class="form-check-label text-secondary" style="font-size: 0.9rem;" for="apply_day_<?php echo esc_attr($d); ?>"><?php echo esc_html($d); ?></label>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+        </div>
+
         <script>
             /**
              * window.savedAvailability

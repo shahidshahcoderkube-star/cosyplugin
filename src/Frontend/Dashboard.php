@@ -478,9 +478,14 @@ class Dashboard
     public function handle_availability_save(): void
     {
         $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
-        $day = sanitize_text_field($_POST['day']);
         
-        if (!$day) {
+        $days = isset($_POST['days']) && is_array($_POST['days']) ? array_map('sanitize_text_field', $_POST['days']) : [];
+        if (empty($days)) {
+            $day = sanitize_text_field($_POST['day']);
+            $days = $day ? [$day] : [];
+        }
+        
+        if (empty($days)) {
             wp_send_json_error('Day is required');
         }
 
@@ -492,18 +497,21 @@ class Dashboard
             'break_end'     => sanitize_text_field($_POST['break_end']),
         ];
 
-        // Save in user meta for the specific day
-        update_user_meta($user_id, "cosy_availability_{$day}", $availability_data);
+        foreach ($days as $day) {
+            // Save in user meta for the specific day
+            update_user_meta($user_id, "cosy_availability_{$day}", $availability_data);
+        }
 
         // Log availability save
+        $days_string = implode(', ', $days);
         \Cosy\Appointments\Common\LogManager::log(
             'dashboard',
             'availability_saved',
-            sprintf(__('Provider saved availability working hours for %s.', 'cosy-appointments'), $day),
+            sprintf(__('Provider saved availability working hours for %s.', 'cosy-appointments'), $days_string),
             $user_id
         );
  
-        wp_send_json_success('Availability saved successfully for ' . $day);
+        wp_send_json_success('Availability saved successfully for ' . $days_string);
     }
     /**
      * AJAX Handler: Adds a new review for a service provider.
