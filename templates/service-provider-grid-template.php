@@ -29,22 +29,25 @@
                                 <?php echo esc_html($provider['first_name']); ?>
                                 <i class="fas fa-check-circle verified-tick"></i>
                             </h3>
-                            <div class="rating-box-premium">
-                                <div class="stars-flex">
-                                    <?php
-                                    $rating = $provider['rating'] > 0 ? $provider['rating'] : 5;
-                                    $full_stars = floor($rating);
-                                    $half_star = ($rating - $full_stars >= 0.5);
+                            <?php if (!empty($provider['rating']) && $provider['rating'] > 0): ?>
+                                <div class="rating-box-premium">
+                                    <div class="stars-flex">
+                                        <?php
+                                        $rating = floatval($provider['rating']);
+                                        $full_stars = floor($rating);
+                                        $half_star = ($rating - $full_stars >= 0.5);
 
-                                    for ($i = 0; $i < $full_stars; $i++) {
-                                        echo '<i class="fas fa-star"></i>';
-                                    }
-                                    if ($half_star) {
-                                        echo '<i class="fas fa-star-half-alt"></i>';
-                                    }
-                                    ?>
+                                        for ($i = 0; $i < $full_stars; $i++) {
+                                            echo '<i class="fas fa-star"></i>';
+                                        }
+                                        if ($half_star) {
+                                            echo '<i class="fas fa-star-half-alt"></i>';
+                                        }
+                                        ?>
+                                    </div>
+                                    <span class="rating-val"><?php echo number_format($rating, 1); ?></span>
                                 </div>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
