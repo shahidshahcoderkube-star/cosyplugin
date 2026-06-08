@@ -215,15 +215,15 @@
 }
 
 /* Modal Styling */
-.modal {
+.modal, #videoModal {
     display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.95);
-    z-index: 99999999;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(8px);
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(15, 23, 42, 0.95) !important;
+    z-index: 99999999 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    backdrop-filter: blur(8px) !important;
 }
 
 .cosy-video-modal-content-v2 {

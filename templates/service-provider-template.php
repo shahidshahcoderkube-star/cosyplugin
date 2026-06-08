@@ -77,6 +77,10 @@
 
 <script>
     function openVideo(url) {
+        var modal = document.getElementById('videoModal');
+        if (modal && modal.parentNode !== document.body) {
+            document.body.appendChild(modal);
+        }
         var videoFrame = document.getElementById('videoFrame');
         var videoPlayer = document.getElementById('videoPlayer');
         
@@ -101,7 +105,7 @@
             videoFrame.style.display = 'block';
         }
         
-        document.getElementById('videoModal').style.display = 'flex';
+        modal.style.display = 'flex';
     }
 
     function closeVideo() {
