@@ -423,7 +423,6 @@ class Frontend
             $customer_order_id,
             $customer_profile_id,
             $provider_dashboard_id,
-            $provider_verify_id,
             $checkout_id
         ]);
 
