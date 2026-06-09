@@ -410,6 +410,11 @@ a:focus {
     color: var(--cosy-brand-purple);
 }
 
+.cosy-reg-form a:hover,
+.cosy-reg-form a:focus {
+    color: var(--cosy-brand-purple) !important;
+}
+
 .terms-container {
     display: flex;
     align-items: flex-start;
@@ -824,7 +829,7 @@ label.error {
 /* Submenu Styling */
 .cosy-custom-submenu {
     position: absolute !important;
-    top: 120% !important;
+    top: 100% !important;
     left: 50% !important;
     transform: translateX(-50%) translateY(10px) !important;
     background: #ffffff !important;
@@ -834,15 +839,28 @@ label.error {
     padding: 12px !important;
     opacity: 0 !important;
     visibility: hidden !important;
+    pointer-events: none !important;
     transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
     z-index: 99999 !important;
     list-style: none !important;
     border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
+/* Invisible bridge to prevent closing on gap hover */
+.cosy-custom-submenu::before {
+    content: "" !important;
+    position: absolute !important;
+    top: -25px !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 25px !important;
+    background: transparent !important;
+}
+
 .cosy-header-dropdown-wrapper:hover .cosy-custom-submenu {
     opacity: 1 !important;
     visibility: visible !important;
+    pointer-events: auto !important;
     transform: translateX(-50%) translateY(0) !important;
 }
 

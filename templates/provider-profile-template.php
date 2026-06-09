@@ -217,25 +217,25 @@ if (!empty($provider_data['ID'])) {
                                             <?php
                                             $start = date("h:i A", strtotime($day_avail['start_time']));
                                             $end = date("h:i A", strtotime($day_avail['end_time']));
-                                             $is_break_valid = false;
-                                             if (!empty($day_avail['break_start']) && !empty($day_avail['break_end'])) {
-                                                 $start_ts = strtotime($day_avail['start_time']);
-                                                 $end_ts = strtotime($day_avail['end_time']);
-                                                 $b_start_ts = strtotime($day_avail['break_start']);
-                                                 $b_end_ts = strtotime($day_avail['break_end']);
-                                                 
-                                                 if ($b_start_ts > $start_ts && $b_end_ts < $end_ts) {
-                                                     $is_break_valid = true;
-                                                 }
-                                             }
+                                            $is_break_valid = false;
+                                            if (!empty($day_avail['break_start']) && !empty($day_avail['break_end'])) {
+                                                $start_ts = strtotime($day_avail['start_time']);
+                                                $end_ts = strtotime($day_avail['end_time']);
+                                                $b_start_ts = strtotime($day_avail['break_start']);
+                                                $b_end_ts = strtotime($day_avail['break_end']);
 
-                                             if ($is_break_valid) {
-                                                 $b_start = date("h:i A", strtotime($day_avail['break_start']));
-                                                 $b_end = date("h:i A", strtotime($day_avail['break_end']));
-                                                 echo esc_html($start . " - " . $b_start . " & " . $b_end . " - " . $end);
-                                             } else {
-                                                 echo esc_html($start . " - " . $end);
-                                             }
+                                                if ($b_start_ts > $start_ts && $b_end_ts < $end_ts) {
+                                                    $is_break_valid = true;
+                                                }
+                                            }
+
+                                            if ($is_break_valid) {
+                                                $b_start = date("h:i A", strtotime($day_avail['break_start']));
+                                                $b_end = date("h:i A", strtotime($day_avail['break_end']));
+                                                echo esc_html($start . " - " . $b_start . " & " . $b_end . " - " . $end);
+                                            } else {
+                                                echo esc_html($start . " - " . $end);
+                                            }
                                             ?>
                                         </td>
                                     </tr>
@@ -387,10 +387,10 @@ if (!empty($provider_data['ID'])) {
                         </div>
 
 
-                        <div class="bookingForAnother">
+                        <!-- <div class="bookingForAnother">
                             <input class="cosy-checkbox" type="checkbox" id="bookingForAnother">
                             <label for="bookingForAnother" class="cosy-slot-duration-text small text-muted fw-bold mb-0 cursor-pointer"><?php esc_html_e('Booking for another person', 'cosy-appointments'); ?></label>
-                        </div>
+                        </div> -->
 
                         <div class="cosy-date-display-box p-2 px-3 fw-bold text-dark mb-3 d-flex align-items-center justify-content-between">
                             <span><i class="fas fa-calendar-day me-2 text-muted"></i> <?php esc_html_e('Start Date:', 'cosy-appointments'); ?></span>

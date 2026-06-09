@@ -12,11 +12,11 @@ var CosyApp = (function ($) {
         if (typeof message === "object" && message !== null) {
             message = message.message || JSON.stringify(message);
         }
-        
+
         var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
         var bg = type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
         var color = type === 'success' ? '#22c55e' : '#ef4444';
-        
+
         return `
             <div class="alert d-flex align-items-center border-0 p-3 mb-3" style="background: ${bg}; border-radius: 12px; color: ${color}; font-weight: 500; font-size: 0.9rem;" role="alert">
                 <i class="fas ${icon} me-2" style="font-size: 1.1rem; color: ${color};"></i>
@@ -24,7 +24,7 @@ var CosyApp = (function ($) {
             </div>
         `;
     }
-    
+
     /**
      * syncProfileCompleteness
      * 
@@ -126,6 +126,8 @@ var CosyApp = (function ($) {
                 errorPlacement: function (error, element) {
                     if (element.parent('.cosy-password-wrapper').length) {
                         error.insertAfter(element.parent('.cosy-password-wrapper'));
+                    } else if (element.attr('name') === 'terms') {
+                        error.insertAfter(element.closest('.terms-container'));
                     } else {
                         error.insertAfter(element);
                     }
@@ -617,25 +619,25 @@ var CosyApp = (function ($) {
                         checked: 'yes'
                     })
                 })
-                .then(res => res.json())
-                .then(resp => {
-                    const item = resp?.data ? resp.data : resp;
-                    if (item && item.success !== false) {
-                        if (item.price !== null && item.price !== undefined && item.price !== "") {
-                            $priceInput.val(item.price);
+                    .then(res => res.json())
+                    .then(resp => {
+                        const item = resp?.data ? resp.data : resp;
+                        if (item && item.success !== false) {
+                            if (item.price !== null && item.price !== undefined && item.price !== "") {
+                                $priceInput.val(item.price);
+                            }
+                            if (item.duration) {
+                                $row.find(`select[name="service_duration[${serviceId}]"]`).val(item.duration);
+                            }
+                            syncProfileCompleteness();
                         }
-                        if (item.duration) {
-                            $row.find(`select[name="service_duration[${serviceId}]"]`).val(item.duration);
-                        }
-                        syncProfileCompleteness();
-                    }
-                    $priceInput.prop("placeholder", "");
-                })
-                .catch(err => {
-                    console.error("Service checkbox error:", err);
-                    checkbox.prop("checked", false); // rollback checkbox
-                    $("#row-" + serviceId).remove(); // rollback row
-                });
+                        $priceInput.prop("placeholder", "");
+                    })
+                    .catch(err => {
+                        console.error("Service checkbox error:", err);
+                        checkbox.prop("checked", false); // rollback checkbox
+                        $("#row-" + serviceId).remove(); // rollback row
+                    });
             } else {
                 // 1. Instantly remove row from UI
                 $("#row-" + serviceId).remove();
@@ -654,14 +656,14 @@ var CosyApp = (function ($) {
                         checked: 'no'
                     })
                 })
-                .then(res => {
-                    syncProfileCompleteness();
-                })
-                .catch(err => {
-                    console.error("Service checkbox error:", err);
-                    checkbox.prop("checked", true); // rollback checkbox
-                    tableBody.append(buildServiceRow(null, serviceId, slug, serviceTitle));
-                });
+                    .then(res => {
+                        syncProfileCompleteness();
+                    })
+                    .catch(err => {
+                        console.error("Service checkbox error:", err);
+                        checkbox.prop("checked", true); // rollback checkbox
+                        tableBody.append(buildServiceRow(null, serviceId, slug, serviceTitle));
+                    });
             }
         });
     }
@@ -779,7 +781,7 @@ var CosyApp = (function ($) {
 
             // Show apply to days container
             $('#apply_days_container').fadeIn();
-            
+
             // Reset and check the selected day
             $('.apply-day-checkbox').prop('checked', false).prop('disabled', false);
             $('#apply_day_' + day).prop('checked', true).prop('disabled', true);
@@ -831,7 +833,7 @@ var CosyApp = (function ($) {
             const $btn = $(this);
 
             const days = [];
-            $('.apply-day-checkbox:checked').each(function() {
+            $('.apply-day-checkbox:checked').each(function () {
                 days.push($(this).val());
             });
             const mainDay = $('#availability_day').val();
