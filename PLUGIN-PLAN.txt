@@ -8,10 +8,12 @@ Cosy Appointments Plugin - Comprehensive Architecture & Features Plan
 
 2. Plugin Architecture (Current)
 --------------------------------
-- Entry File: `cosy-appointments.php` (Bootstrap, manual requires, DB table creation).
+- Entry File: `cosy-appointments.php` (Bootstrap, registers PSR-4 Autoloader, handles hooks activation/deactivation).
 - Core Directory: `src/`
   * `Admin/`: WordPress backend (Settings, Dashboard, Media Approvals, Orders, Deactivation OTP).
   * `Assets/`: Asset enqueuing and frontend JS/CSS (includes `cosy-alert.js` for centralized popups).
+  * `Common/`: Core helper classes (Database migrations, Activator setup, Cron jobs, Logger).
+  * `Forms/`: Form data validators and login controller handlers.
   * `Frontend/`: Frontend logic (Shortcodes, AJAX handlers, Form processing, Provider Dashboard).
   * `PostTypes/`: Registration of Custom Post Types (Appointments, Services, Providers) and Taxonomies.
   * `Rest/`: REST API endpoints for external or headless interactions.
@@ -66,8 +68,8 @@ D. Admin Backend
 
 6. Roadmap & Future Improvements
 --------------------------------
-- Replace manual `require_once` loading with PSR-4 Composer autoloading.
-- Implement automated rewrite rule flushing on activation/deactivation.
+- [Done] Replace manual `require_once` loading with PSR-4 autoloading.
+- [Done] Implement automated rewrite rule flushing on activation/deactivation.
 - Add proper uninstall.php cleanup (remove custom tables, roles, and meta data if requested).
 - Implement multi-currency support and advanced tax calculations.
 - Add email and SMS notification triggers for booking confirmations and reminders.
