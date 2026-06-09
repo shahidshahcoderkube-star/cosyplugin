@@ -57,6 +57,20 @@ class Plugin
 
         // Register custom REST API endpoints for external applications.
         (new Routes())->register($this->loader);
+
+        // Register database migrations
+        $database = new \Cosy\Appointments\Common\Database();
+        $this->loader->add_action('plugins_loaded', $database, 'run_db_migrations');
+
+        // Register rewrite rules and page initialization checks
+        $activator = new \Cosy\Appointments\Common\Activator();
+        $this->loader->add_action('init', $activator, 'author_rewrite');
+        $this->loader->add_filter('query_vars', $activator, 'register_query_vars');
+        $this->loader->add_action('init', $activator, 'check_and_create_missing_pages');
+
+        // Register scheduled cron tasks
+        $cron = new \Cosy\Appointments\Common\Cron();
+        $this->loader->add_action('cosy_cleanup_activity_logs_cron', $cron, 'do_cleanup_activity_logs');
     }
 
     /**
