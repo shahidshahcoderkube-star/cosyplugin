@@ -58,9 +58,6 @@ if (!empty($provider_data['ID'])) {
     window.serviceFeeValue = <?php echo wp_json_encode(floatval(get_option('cosy_service_fee_value', '0.10'))); ?>;
 </script>
 
-<?php
-
-?>
 <div class="container py-5">
     <div class="row g-4">
         <div class="col-lg-7">

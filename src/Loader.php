@@ -34,6 +34,7 @@ class Loader
         foreach ($this->actions as $a) {
             add_action($a['hook'], [$a['component'], $a['callback']], $a['priority'], $a['accepted_args']);
         }
+
         foreach ($this->filters as $f) {
             add_filter($f['hook'], [$f['component'], $f['callback']], $f['priority'], $f['accepted_args']);
         }
