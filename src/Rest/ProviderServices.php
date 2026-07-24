@@ -246,6 +246,7 @@ class ProviderServices
         );
 
         if ($deleted) {
+            do_action('cosy_provider_services_updated', $provider_id);
             \Cosy\Appointments\Common\LogManager::log(
                 'services',
                 'service_deleted',

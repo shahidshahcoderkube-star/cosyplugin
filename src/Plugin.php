@@ -58,6 +58,9 @@ class Plugin
         // Register custom REST API endpoints for external applications.
         (new Routes())->register($this->loader);
 
+        // Register AI Search Controller endpoints (Gemini / OpenAI vector engine)
+        new \Cosy\Appointments\AI\SearchController();
+
         // Register database migrations
         $database = new \Cosy\Appointments\Common\Database();
         $this->loader->add_action('plugins_loaded', $database, 'run_db_migrations');

@@ -65,32 +65,17 @@ class SettingsAdmin
             'sanitize_callback' => [$this, 'sanitize_charge']
         ]);
 
+        // AI Search Settings
+        register_setting('cosy_payment_settings', 'cosy_ai_provider', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_ai_api_key', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+
         // Media Upload settings
         register_setting('cosy_media_settings', 'cosy_max_video_upload_size', [
             'sanitize_callback' => 'absint'
-        ]);
-
-
-        // Razorpay
-        register_setting('cosy_payment_settings', 'cosy_razorpay_key', [
-            'sanitize_callback' => 'sanitize_text_field'
-        ]);
-        register_setting('cosy_payment_settings', 'cosy_razorpay_test_mode', [
-            'sanitize_callback' => 'absint'
-        ]);
-        register_setting('cosy_payment_settings', 'cosy_razorpay_charge', [
-            'sanitize_callback' => [$this, 'sanitize_charge']
-        ]);
-
-        // PayPal
-        register_setting('cosy_payment_settings', 'cosy_paypal_id', [
-            'sanitize_callback' => 'sanitize_text_field'
-        ]);
-        register_setting('cosy_payment_settings', 'cosy_paypal_test_mode', [
-            'sanitize_callback' => 'absint'
-        ]);
-        register_setting('cosy_payment_settings', 'cosy_paypal_charge', [
-            'sanitize_callback' => [$this, 'sanitize_charge']
         ]);
 
         // WorldPay

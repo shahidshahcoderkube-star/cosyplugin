@@ -35,14 +35,6 @@ defined('ABSPATH') || exit;
                             <i class="fa-brands fa-stripe fs-4 w-20"></i>
                             <span class="fw-bold">Stripe</span>
                         </button>
-                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-paypal-tab" data-bs-toggle="pill" data-bs-target="#v-pills-paypal" type="button" role="tab" aria-controls="v-pills-paypal" aria-selected="false">
-                            <i class="fa-brands fa-paypal fs-4 w-20"></i>
-                            <span class="fw-bold">PayPal</span>
-                        </button>
-                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-razorpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-razorpay" type="button" role="tab" aria-controls="v-pills-razorpay" aria-selected="false">
-                            <i class="fa-solid fa-wallet fs-4 w-20"></i>
-                            <span class="fw-bold">Razorpay</span>
-                        </button>
                         <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-worldpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-worldpay" type="button" role="tab" aria-controls="v-pills-worldpay" aria-selected="false">
                             <i class="fa-solid fa-globe fs-4 w-20"></i>
                             <span class="fw-bold">WorldPay</span>
@@ -50,6 +42,10 @@ defined('ABSPATH') || exit;
                         <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-fees-tab" data-bs-toggle="pill" data-bs-target="#v-pills-fees" type="button" role="tab" aria-controls="v-pills-fees" aria-selected="false">
                             <i class="fa-solid fa-calculator fs-4 w-20"></i>
                             <span class="fw-bold">Booking Fees</span>
+                        </button>
+                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-aisearch-tab" data-bs-toggle="pill" data-bs-target="#v-pills-aisearch" type="button" role="tab" aria-controls="v-pills-aisearch" aria-selected="false">
+                            <i class="fa-solid fa-brain fs-4 w-20"></i>
+                            <span class="fw-bold">AI Search Engine</span>
                         </button>
                     </div>
                 </div>
@@ -123,76 +119,6 @@ defined('ABSPATH') || exit;
                                         </select>
                                     </div>
                                     <div class="form-text text-muted mt-1">Select the payment currency for all transactions.</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- PayPal Settings Tab -->
-                        <div class="tab-pane fade" id="v-pills-paypal" role="tabpanel" aria-labelledby="v-pills-paypal-tab">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-brands fa-paypal fs-2 text-primary" style="color: #003087 !important;"></i>
-                                    PayPal Configuration
-                                </h3>
-                                <div class="d-flex align-items-center m-0">
-                                    <label class="cosy-switch">
-                                        <input type="checkbox" name="cosy_paypal_test_mode" id="cosy_paypal_test_mode" value="1" <?php checked(1, get_option('cosy_paypal_test_mode')); ?>>
-                                        <span class="cosy-slider round"></span>
-                                    </label>
-                                    <span class="fw-semibold text-secondary ms-2">Sandbox / Test Mode</span>
-                                </div>
-                            </div>
-                            <div class="row g-4">
-                                <div class="col-12">
-                                    <label for="cosy_paypal_id" class="form-label fw-bold text-secondary">PayPal Client ID</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
-                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_paypal_id" id="cosy_paypal_id" value="<?php echo esc_attr(get_option('cosy_paypal_id')); ?>" placeholder="Client ID">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Provide your PayPal Business Client ID.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_paypal_charge" class="form-label fw-bold text-secondary">Transaction Charge (%)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
-                                        <input type="number" step="0.01" class="form-control border-start-0 py-2" name="cosy_paypal_charge" id="cosy_paypal_charge" value="<?php echo esc_attr(get_option('cosy_paypal_charge')); ?>" placeholder="0.00">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Specify additional convenience charges for this gateway.</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Razorpay Settings Tab -->
-                        <div class="tab-pane fade" id="v-pills-razorpay" role="tabpanel" aria-labelledby="v-pills-razorpay-tab">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-wallet fs-2 text-primary" style="color: #0b4a8f !important;"></i>
-                                    Razorpay Configuration
-                                </h3>
-                                <div class="d-flex align-items-center m-0">
-                                    <label class="cosy-switch">
-                                        <input type="checkbox" name="cosy_razorpay_test_mode" id="cosy_razorpay_test_mode" value="1" <?php checked(1, get_option('cosy_razorpay_test_mode')); ?>>
-                                        <span class="cosy-slider round"></span>
-                                    </label>
-                                    <span class="fw-semibold text-secondary ms-2">Sandbox / Test Mode</span>
-                                </div>
-                            </div>
-                            <div class="row g-4">
-                                <div class="col-12">
-                                    <label for="cosy_razorpay_key" class="form-label fw-bold text-secondary">Razorpay Key ID</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
-                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_razorpay_key" id="cosy_razorpay_key" value="<?php echo esc_attr(get_option('cosy_razorpay_key')); ?>" placeholder="rzp_test_...">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Enter your Razorpay API Key ID.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_razorpay_charge" class="form-label fw-bold text-secondary">Transaction Charge (%)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
-                                        <input type="number" step="0.01" class="form-control border-start-0 py-2" name="cosy_razorpay_charge" id="cosy_razorpay_charge" value="<?php echo esc_attr(get_option('cosy_razorpay_charge')); ?>" placeholder="0.00">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Specify additional convenience charges for this gateway.</div>
                                 </div>
                             </div>
                         </div>
@@ -275,7 +201,86 @@ defined('ABSPATH') || exit;
 
                         </div>
 
+                        <!-- AI Search Settings Tab -->
+                        <div class="tab-pane fade" id="v-pills-aisearch" role="tabpanel" aria-labelledby="v-pills-aisearch-tab">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-brain fs-2 text-primary" style="color: #a44390 !important;"></i>
+                                    AI Search Engine Configuration
+                                </h3>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label for="cosy_ai_provider" class="form-label fw-bold text-secondary">AI Provider</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-robot"></i></span>
+                                        <?php
+                                        $ai_provider = get_option('cosy_ai_provider', 'gemini');
+                                        ?>
+                                        <select class="form-select border-start-0 py-2" name="cosy_ai_provider" id="cosy_ai_provider">
+                                            <option value="gemini" <?php selected($ai_provider, 'gemini'); ?>>Google Gemini (Free Tier / Testing)</option>
+                                            <option value="openai" <?php selected($ai_provider, 'openai'); ?>>OpenAI (Production - text-embedding-3-small)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Select the AI engine provider to use for semantic profile search.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cosy_ai_api_key" class="form-label fw-bold text-secondary">AI API Key</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
+                                        <input type="password" class="form-control border-start-0 py-2" name="cosy_ai_api_key" id="cosy_ai_api_key" value="<?php echo esc_attr(get_option('cosy_ai_api_key')); ?>" placeholder="Enter Gemini or OpenAI API Key">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Paste your Google Gemini API key or OpenAI secret key here.</div>
+                                </div>
+                                <div class="col-12 mt-4 pt-3 border-top">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h6 class="fw-bold mb-1 text-dark">Provider Profiles Indexing</h6>
+                                            <p class="text-muted small mb-0">Generate vector embeddings for all registered parent/provider profiles using the configured API key.</p>
+                                        </div>
+                                        <button type="button" id="cosy-reindex-ai-btn" class="btn btn-outline-primary fw-semibold px-3 py-2 rounded-3">
+                                            <i class="fa-solid fa-arrows-rotate me-1"></i> Re-index All Profiles
+                                        </button>
+                                    </div>
+                                    <div id="cosy-reindex-status" class="mt-2 small fw-semibold"></div>
+                                </div>
+                            </div>
+                        </div>
 
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const btn = document.getElementById('cosy-reindex-ai-btn');
+                            const status = document.getElementById('cosy-reindex-status');
+                            if (!btn) return;
+
+                            btn.addEventListener('click', function() {
+                                btn.disabled = true;
+                                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Indexing...';
+                                status.className = 'mt-2 small text-info';
+                                status.innerText = 'Connecting to AI API and generating profile vectors...';
+
+                                fetch(ajaxurl + '?action=cosy_ai_reindex', { method: 'POST' })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        btn.disabled = false;
+                                        btn.innerHTML = '<i class="fa-solid fa-arrows-rotate me-1"></i> Re-index All Profiles';
+                                        if (data.success) {
+                                            status.className = 'mt-2 small text-success';
+                                            status.innerText = '✅ ' + data.data.message;
+                                        } else {
+                                            status.className = 'mt-2 small text-danger';
+                                            status.innerText = '❌ Error: ' + (data.data ? data.data.message : 'Indexing failed.');
+                                        }
+                                    })
+                                    .catch(err => {
+                                        btn.disabled = false;
+                                        btn.innerHTML = '<i class="fa-solid fa-arrows-rotate me-1"></i> Re-index All Profiles';
+                                        status.className = 'mt-2 small text-danger';
+                                        status.innerText = '❌ Request failed. Please check network/API key.';
+                                    });
+                            });
+                        });
+                        </script>
 
                     </div>
 

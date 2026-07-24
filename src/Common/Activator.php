@@ -24,6 +24,9 @@ class Activator
         $db->create_reviews_table();
         $db->create_activity_logs_table();
 
+        // Create AI Search Vector & Cache tables
+        \Cosy\Appointments\AI\DatabaseSetup::create_tables();
+
         update_option('cosy_plugin_version', COSY_APPT_VER);
 
         // Schedule daily logs cleanup cron

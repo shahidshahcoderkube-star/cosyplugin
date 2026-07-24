@@ -148,8 +148,6 @@ class Admin
             'cosy_provider_percentage',
             'cosy_fixed_charge',
             'cosy_stripe_enabled',
-            'cosy_paypal_enabled',
-            'cosy_razorpay_enabled',
             'cosy_worldpay_enabled'
         ];
         if (in_array($option, $cosy_settings_options)) {

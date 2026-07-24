@@ -23,6 +23,7 @@ class Assets
     {
         $loader->add_action('admin_enqueue_scripts', $this, 'admin_assets');
         $loader->add_action('wp_enqueue_scripts', $this, 'frontend_assets');
+        $loader->add_filter('script_loader_tag', $this, 'add_defer_attribute', 10, 3);
     }
 
     /**
@@ -121,12 +122,72 @@ class Assets
     public function frontend_assets(): void
     {
         // 1. Primary Plugin Stylesheet (Contains theme design system, layout, and Bento utilities)
+        // Loaded globally to ensure the header menu dropdown and register popup styling remain intact on all pages.
         wp_enqueue_style(
             'cosy-style',
             COSY_APPT_URL . 'src/Assets/css/style.css',
             [],
             COSY_APPT_VER
         );
+
+        // 3. Typography Web Fonts (Enforces clean brand-consistent fonts)
+        // Load Poppins globally; combine with Outfit and Plus Jakarta Sans only if plugin pages are active
+        $font_url = 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400';
+        if ($this->should_load_assets()) {
+            $font_url .= '&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800';
+        }
+        $font_url .= '&display=swap';
+
+        wp_enqueue_style(
+            'cosy-poppins-font',
+            $font_url,
+            [],
+            null
+        );
+
+        // 16. Cosy API Javascript Mapping Script (Defines core server endpoints for validation.js requests)
+        wp_register_script(
+            'cosy-api',
+            COSY_APPT_URL . 'src/Assets/js/api.js',
+            [],
+            '1.0',
+            true
+        );
+
+        // 18. Localization data map for cosy-api script
+        wp_localize_script('cosy-api', 'cosy_ajax', [
+            'ajax_url'              => admin_url('admin-ajax.php'),
+            'nonce'                 => wp_create_nonce('wp_rest'),
+            'root'                  => esc_url_raw(rest_url()),
+            'max_video_upload_size' => intval(get_option('cosy_max_video_upload_size', 3))
+        ]);
+
+        // Enqueue the registered cosy-api script dependency
+        wp_enqueue_script('cosy-api');
+
+        // 19. Core Frontend JS logic script
+        wp_register_script(
+            'cosy-script',
+            COSY_APPT_URL . 'src/Assets/js/frontend.js',
+            ['jquery', 'cosy-api'],
+            COSY_APPT_VER,
+            true
+        );
+
+        // Localization: Pass REST Base Endpoint URL, WP Nonces, and Currency to cosy-script
+        wp_localize_script('cosy-script', 'cosyAppointments', [
+            'restUrl'        => esc_url_raw(rest_url('cosy/v1/')),
+            'nonce'          => wp_create_nonce('wp_rest'),
+            'currencySymbol' => cosy_get_currency_symbol(),
+            'currencyCode'   => cosy_get_currency_code(),
+        ]);
+
+        wp_enqueue_script('cosy-script');
+
+        // Conditionally return early to prevent loading heavy frameworks and CDNs on non-plugin pages
+        if (!$this->should_load_assets()) {
+            return;
+        }
 
         // 2. Service Provider Profile Stylesheet (For profile layouts, calendar elements, and bios)
         wp_enqueue_style(
@@ -136,21 +197,7 @@ class Assets
             COSY_APPT_VER
         );
 
-        // 3. Poppins Typography Web Font (Enforces clean brand-consistent fonts)
-        wp_enqueue_style(
-            'cosy-poppins-font',
-            'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap',
-            [],
-            null
-        );
 
-        // 3.5. Outfit & Plus Jakarta Sans Typography Web Fonts (For headings and checkout)
-        wp_enqueue_style(
-            'cosy-outfit-jakarta-font',
-            'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap',
-            [],
-            null
-        );
 
         // 4. Bootstrap 5 Framework CSS (Responsive grid and styling structure)
         wp_enqueue_style(
@@ -217,17 +264,6 @@ class Assets
             true
         );
 
-
-
-        // 16. Cosy API Javascript Mapping Script (Defines core server endpoints for validation.js requests)
-        wp_register_script(
-            'cosy-api',
-            COSY_APPT_URL . 'src/Assets/js/api.js',
-            [],
-            '1.0',
-            true
-        );
-
         // 16.5. CosyAlert Utility Script
         wp_enqueue_script(
             'cosy-alert',
@@ -245,37 +281,6 @@ class Assets
             COSY_APPT_VER,
             true
         );
-
-        // 18. Localization data map for cosy-api script
-        wp_localize_script('cosy-api', 'cosy_ajax', [
-            'ajax_url'              => admin_url('admin-ajax.php'),
-            'nonce'                 => wp_create_nonce('wp_rest'),
-            'root'                  => esc_url_raw(rest_url()),
-            'max_video_upload_size' => intval(get_option('cosy_max_video_upload_size', 3))
-        ]);
-
-
-        // Enqueue the registered cosy-api script dependency
-        wp_enqueue_script('cosy-api');
-
-        // 19. Core Frontend JS logic script
-        wp_register_script(
-            'cosy-script',
-            COSY_APPT_URL . 'src/Assets/js/frontend.js',
-            ['jquery', 'cosy-api'],
-            COSY_APPT_VER,
-            true
-        );
-
-        // Localization: Pass REST Base Endpoint URL, WP Nonces, and Currency to cosy-script
-        wp_localize_script('cosy-script', 'cosyAppointments', [
-            'restUrl'        => esc_url_raw(rest_url('cosy/v1/')),
-            'nonce'          => wp_create_nonce('wp_rest'),
-            'currencySymbol' => cosy_get_currency_symbol(),
-            'currencyCode'   => cosy_get_currency_code(),
-        ]);
-
-        wp_enqueue_script('cosy-script');
 
         // 20. Dashboard JS Controller (Controls interactive non-reloading reviews approval, fadeouts, and DOM operations)
         if (is_page('provider-dashboard')) {
@@ -329,5 +334,107 @@ class Assets
                 'currencyCode'         => cosy_get_currency_code(),
             ]);
         }
+    }
+
+    /**
+     * Determines if the current page/request requires cosy appointments frontend assets.
+     *
+     * @return bool
+     */
+    private function should_load_assets(): bool
+    {
+        // 1. Always load in front page, home page, or author page (Provider Profile Page)
+        if (is_front_page() || is_home() || is_author()) {
+            return true;
+        }
+
+        // 2. If single post or page, check content for shortcodes or specific page IDs
+        if (is_singular()) {
+            $post = get_post();
+            if ($post) {
+                // List of plugin shortcodes to scan
+                $shortcodes = [
+                    'cosy_appointments',
+                    'cosy_customer_registration',
+                    'cosy_provider_registration',
+                    'customer_profile',
+                    'cosy_verify_provider',
+                    'cosy_login_form',
+                    'cosy_customer_order',
+                    'cosy_service_provider_list',
+                    'cosy_checkout',
+                    'cosy_provider_dashboard'
+                ];
+
+                foreach ($shortcodes as $shortcode) {
+                    if (has_shortcode($post->post_content, $shortcode)) {
+                        return true;
+                    }
+                }
+
+                // Check against dynamic page IDs registered in the plugin
+                $page_keys = [
+                    'login',
+                    'user-registration',
+                    'provider-registration',
+                    'appointments',
+                    'orders',
+                    'customer-order',
+                    'customer-profile',
+                    'provider-dashboard',
+                    'provider-verify',
+                    'service-provider',
+                    'cosy-checkout'
+                ];
+
+                $current_page_id = $post->ID;
+                foreach ($page_keys as $key) {
+                    if (function_exists('cosy_get_page_id')) {
+                        if ($current_page_id === cosy_get_page_id($key)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Appends defer attribute to non-critical frontend scripts to improve page render time.
+     *
+     * @param string $tag    The <script> tag for the enqueued script.
+     * @param string $handle The script's registered handle.
+     * @param string $src    The script's source URL.
+     * @return string
+     */
+    public function add_defer_attribute(string $tag, string $handle, string $src): string
+    {
+        // Script handles to defer on frontend
+        $defer_scripts = [
+            'sweetalert2',
+            'jquery-validate',
+            'additional-validate',
+            'bootstrap-bundle',
+            'cosy-alert',
+            'cosy-validation',
+            'cosy-dashboard',
+            'cosy-checkout',
+        ];
+
+        // Do not defer in admin panel
+        if (is_admin()) {
+            return $tag;
+        }
+
+        if (in_array($handle, $defer_scripts, true)) {
+            // Ensure we don't add duplicate defer attributes if already present
+            if (strpos($tag, ' defer') === false) {
+                return str_replace(' src', ' defer src', $tag);
+            }
+        }
+
+        return $tag;
     }
 }
