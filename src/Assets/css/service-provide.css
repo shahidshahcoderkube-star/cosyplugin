@@ -74,6 +74,13 @@
     gap: 5px;
 }
 
+.profile-info-top,
+.profile-info-top h2,
+.profile-info-top span,
+.profile-info-top i {
+    color: #ffffff !important;
+}
+
 .provider-name {
     color: #ffffff;
     font-size: 1.3rem;

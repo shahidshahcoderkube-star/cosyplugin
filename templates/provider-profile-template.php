@@ -80,12 +80,12 @@ if (!empty($provider_data['ID'])) {
                                     <?php echo esc_html($provider_data['first_name']); ?>
                                 </h2>
                             <?php } ?>
-                            <div class="d-flex gap-3 opacity-75 small fw-medium">
+                            <div class="d-flex gap-3 opacity-75 small fw-medium text-white">
                                 <?php if (!empty($provider_data['gender'])): ?>
-                                    <span><i class="fas fa-venus me-1"></i>
+                                    <span class="text-white"><i class="fas fa-venus me-1 text-white"></i>
                                         <?php echo esc_html(ucwords(strtolower($provider_data['gender']))); ?></span>
                                 <?php endif ?>
-                                <span><i class="fas fa-user-check me-1"></i> <?php esc_html_e('Verified Specialist', 'cosy-appointments'); ?></span>
+                                <span class="text-white"><i class="fas fa-user-check me-1 text-white"></i> <?php esc_html_e('Verified Specialist', 'cosy-appointments'); ?></span>
                             </div>
                         </div>
                     </div>
