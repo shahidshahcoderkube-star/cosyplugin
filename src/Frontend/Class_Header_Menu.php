@@ -34,26 +34,7 @@ class Class_Header_Menu
         }
 
         ob_start();
-        
-        if (!empty($services)) :
-?>
-        <!-- Services Dropdown (Premium Button) -->
-        <li class="menu-item menu-item-has-children cosy-header-dropdown-wrapper">
-            <a href="#" class="cosy-dropdown-toggle">
-                Parents <span class="cosy-arrow">▾</span>
-            </a>
-            <ul class="sub-menu cosy-custom-submenu">
-                <?php foreach ($services as $service): ?>
-                    <li class="menu-item">
-                        <a href="<?php echo home_url('/service-provider/' . $service->post_name . '/'); ?>">
-                            <?php echo esc_html($service->post_title); ?>
-                        </a>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </li>
-<?php   endif; ?>
-
+        ?>
         <!-- Auth Buttons -->
         <?php if (!is_user_logged_in()) : ?>
             <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
