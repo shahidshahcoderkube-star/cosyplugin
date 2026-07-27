@@ -2,6 +2,8 @@
 
 namespace Cosy\Appointments\AI;
 
+use Cosy\Appointments\Common\LogManager;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -42,6 +44,31 @@ class SearchController
         }
 
         $results = SearchEngine::search($query);
+
+        // Determine user role label for log message
+        $actor_label = __('Guest', 'cosy-appointments');
+        if (is_user_logged_in()) {
+            $user = wp_get_current_user();
+            $roles = (array) $user->roles;
+            if (in_array('administrator', $roles, true)) {
+                $actor_label = __('Admin', 'cosy-appointments');
+            } elseif (in_array('provider', $roles, true)) {
+                $actor_label = __('Provider', 'cosy-appointments');
+            } elseif (in_array('customer', $roles, true)) {
+                $actor_label = __('Customer', 'cosy-appointments');
+            } else {
+                $actor_label = __('User', 'cosy-appointments');
+            }
+        }
+
+        // Log search query in Admin Activity Logs table
+        if (class_exists(LogManager::class)) {
+            LogManager::log(
+                'ai_search',
+                'AI Search',
+                sprintf(__('%s searched for: "%s" (%d results found)', 'cosy-appointments'), $actor_label, $query, count($results))
+            );
+        }
 
         $providers = $results;
         $html = '';
