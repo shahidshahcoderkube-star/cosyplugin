@@ -63,30 +63,51 @@ jQuery(document).ready(function ($) {
     }
 
 
-    // ---------------- AJAX Provider Filtering ----------------
+    // ---------------- AJAX Provider Filtering & Pagination ----------------
     let filterTimeout;
-    $('#cosyProvidersFilterForm input, #cosyProvidersFilterForm select').on('change keyup', function(e) {
+    $('#cosyProvidersFilterForm input, #cosyProvidersFilterForm select').on('change keyup', function (e) {
+        if ($(this).attr('id') === 'filter_paged') return;
+
+        // Reset page to 1 whenever any filter input/select is modified
+        $('#filter_paged').val('1');
+
         if (e.type === 'keyup' && e.key !== 'Enter') {
             clearTimeout(filterTimeout);
-            filterTimeout = setTimeout(triggerFilter, 500);
+            filterTimeout = setTimeout(function () {
+                triggerFilter(false);
+            }, 500);
             return;
         }
-        triggerFilter();
+        triggerFilter(false);
     });
 
-    function triggerFilter() {
+    $(document).on('click', '.cosy-page-link', function (e) {
+        e.preventDefault();
+        const targetPage = $(this).data('page');
+        if (!targetPage || $(this).prop('disabled') || $(this).parent().hasClass('disabled')) return;
+
+        $('#filter_paged').val(targetPage);
+        triggerFilter(true);
+    });
+
+    function triggerFilter(scrollToTop = false) {
         $('#cosyProvidersGridWrap').css('opacity', '0.5');
         $.ajax({
             url: cosy_ajax.ajax_url,
             type: 'POST',
             data: $('#cosyProvidersFilterForm').serialize(),
-            success: function(response) {
+            success: function (response) {
                 if (response.success) {
                     $('#cosyProvidersGridWrap').html(response.data.html);
+                    if (scrollToTop) {
+                        $('html, body').animate({
+                            scrollTop: $('#cosyProvidersGridWrap').offset().top - 100
+                        }, 300);
+                    }
                 }
                 $('#cosyProvidersGridWrap').css('opacity', '1');
             },
-            error: function() {
+            error: function () {
                 $('#cosyProvidersGridWrap').css('opacity', '1');
             }
         });
@@ -96,7 +117,7 @@ jQuery(document).ready(function ($) {
     $(document).on('click', '.cosy-toggle-password', function () {
         const passwordInput = $(this).siblings('input');
         const icon = $(this).find('i');
-        
+
         if (passwordInput.attr('type') === 'password') {
             passwordInput.attr('type', 'text');
             icon.removeClass('fa-eye').addClass('fa-eye-slash');
@@ -156,4 +177,4 @@ jQuery(document).ready(function ($) {
         $('#modalCustStatusText').text(statusText);
     });
 });
-
+

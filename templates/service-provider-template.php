@@ -1,4 +1,13 @@
-<?php $providers = $this->get_all_service_providers(); ?>
+<?php 
+$all_providers   = $this->get_all_service_providers(); 
+$total_providers = count($all_providers);
+$per_page        = 9;
+$paged           = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+$total_pages     = max(1, (int) ceil($total_providers / $per_page));
+$paged           = min($paged, $total_pages);
+$offset          = ($paged - 1) * $per_page;
+$providers       = array_slice($all_providers, $offset, $per_page);
+?>
 <div class="cosy-premium-grid-container mb-5 mt-5">
 
     <!-- Filters Bar -->
@@ -58,6 +67,7 @@
                 <option value="3">3+ Stars</option>
             </select>
 
+            <input type="hidden" name="paged" id="filter_paged" value="<?php echo esc_attr($paged); ?>">
             <input type="hidden" name="action" value="filter_service_providers">
         </form>
     </div>

@@ -1004,12 +1004,25 @@ class Frontend
             'rating'           => isset($_POST['rating']) ? sanitize_text_field($_POST['rating']) : '',
         ];
 
-        $providers = $this->get_all_service_providers($filters);
+        $all_providers   = $this->get_all_service_providers($filters);
+        $total_providers = count($all_providers);
+        $per_page        = 9;
+        $paged           = isset($_POST['paged']) ? max(1, intval($_POST['paged'])) : 1;
+        $total_pages     = max(1, (int) ceil($total_providers / $per_page));
+        $paged           = min($paged, $total_pages);
+        $offset          = ($paged - 1) * $per_page;
+
+        $providers = array_slice($all_providers, $offset, $per_page);
 
         ob_start();
         include COSY_APPT_PATH . 'templates/service-provider-grid-template.php';
         $html = ob_get_clean();
 
-        wp_send_json_success(['html' => $html]);
+        wp_send_json_success([
+            'html'            => $html,
+            'paged'           => $paged,
+            'total_pages'     => $total_pages,
+            'total_providers' => $total_providers,
+        ]);
     }
 }

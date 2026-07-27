@@ -80,4 +80,53 @@
             </div>
         <?php endforeach; ?>
     </div>
+
+    <?php
+    $paged           = isset($paged) ? max(1, intval($paged)) : 1;
+    $total_pages     = isset($total_pages) ? max(1, intval($total_pages)) : 1;
+    $total_providers = isset($total_providers) ? intval($total_providers) : count($providers);
+    $per_page        = 9;
+
+    $start_num = min($total_providers, (($paged - 1) * $per_page) + 1);
+    $end_num   = min($total_providers, $paged * $per_page);
+    ?>
+
+    <?php if ($total_pages > 1): ?>
+        <div class="cosy-pagination-container mt-5 d-flex flex-column align-items-center gap-3">
+            <div class="cosy-pagination-info text-muted small fw-medium">
+                <?php printf(esc_html__('Showing %1$d–%2$d of %3$d Parent Guides', 'cosy-appointments'), $start_num, $end_num, $total_providers); ?>
+            </div>
+            
+            <nav class="cosy-pagination-nav">
+                <ul class="pagination pagination-rounded gap-2 m-0 align-items-center list-unstyled d-flex">
+                    <!-- Prev Button -->
+                    <li class="page-item <?php echo ($paged <= 1) ? 'disabled' : ''; ?>">
+                        <button type="button" class="page-link cosy-page-link" data-page="<?php echo max(1, $paged - 1); ?>" <?php echo ($paged <= 1) ? 'disabled' : ''; ?>>
+                            <i class="fas fa-chevron-left me-1"></i> <?php esc_html_e('Prev', 'cosy-appointments'); ?>
+                        </button>
+                    </li>
+
+                    <!-- Page Numbers -->
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <?php if ($i == 1 || $i == $total_pages || ($i >= $paged - 2 && $i <= $paged + 2)): ?>
+                            <li class="page-item <?php echo ($i === $paged) ? 'active' : ''; ?>">
+                                <button type="button" class="page-link cosy-page-link <?php echo ($i === $paged) ? 'active-page' : ''; ?>" data-page="<?php echo $i; ?>">
+                                    <?php echo $i; ?>
+                                </button>
+                            </li>
+                        <?php elseif ($i == 2 || $i == $total_pages - 1): ?>
+                            <li class="page-item disabled"><span class="page-link border-0 text-muted">...</span></li>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+
+                    <!-- Next Button -->
+                    <li class="page-item <?php echo ($paged >= $total_pages) ? 'disabled' : ''; ?>">
+                        <button type="button" class="page-link cosy-page-link" data-page="<?php echo min($total_pages, $paged + 1); ?>" <?php echo ($paged >= $total_pages) ? 'disabled' : ''; ?>>
+                            <?php esc_html_e('Next', 'cosy-appointments'); ?> <i class="fas fa-chevron-right ms-1"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    <?php endif; ?>
 <?php endif; ?>
