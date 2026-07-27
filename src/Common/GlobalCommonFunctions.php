@@ -421,6 +421,8 @@ trait GlobalCommonFunctions
                 'price' => isset($provider_prices[$user_id]) ? $provider_prices[$user_id]->price : '0.00',
                 'rating' => $avg_rating
             ];
+
+            
         }
 
         // Filter by Search Name in PHP

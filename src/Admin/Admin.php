@@ -47,6 +47,47 @@ class Admin
     //----------- Admin Menus ----------------//
     public function admin_add_menus(): void
     {
+        global $wpdb;
+
+        // 1. Pending Orders Count
+        $orders_count = count(get_posts([
+            'post_type'      => 'cosy_appointment',
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'meta_key'       => 'cosy_booking_status',
+            'meta_value'     => 'pending',
+            'fields'         => 'ids'
+        ]));
+
+        // 2. Pending Media Approvals Count
+        $media_table = $wpdb->prefix . 'cosy_media_approvals';
+        $media_count = 0;
+        if ($wpdb->get_var("SHOW TABLES LIKE '$media_table'") === $media_table) {
+            $media_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM $media_table WHERE status = 'pending'");
+        }
+
+        // 3. Pending / Unverified Users Count
+        $users_count = count(get_users([
+            'role'       => 'provider',
+            'meta_key'   => 'cosy_verification_status',
+            'meta_value' => 'pending',
+            'fields'     => 'ID'
+        ]));
+
+        // 4. Pending Parent Reviews Count
+        $reviews_table = $wpdb->prefix . 'cosy_provider_reviews';
+        $reviews_count = 0;
+        if ($wpdb->get_var("SHOW TABLES LIKE '$reviews_table'") === $reviews_table) {
+            $reviews_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM $reviews_table WHERE status = 'pending'");
+        }
+
+        // 5. System Logs Count
+        $logs_table = $wpdb->prefix . 'cosy_logs';
+        $logs_count = 0;
+        if ($wpdb->get_var("SHOW TABLES LIKE '$logs_table'") === $logs_table) {
+            $logs_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM $logs_table WHERE action_type LIKE '%error%' OR action_type LIKE '%failed%'");
+        }
+
         add_menu_page(
             __('Booking Dashboard', 'cosy-appointments'),
             __('CC Booking', 'cosy-appointments'),
@@ -68,7 +109,7 @@ class Admin
         add_submenu_page(
             'cosy-booking-dashboard',
             __('Orders', 'cosy-appointments'),
-            __('Orders', 'cosy-appointments'),
+            $this->format_menu_badge(__('Orders', 'cosy-appointments'), $orders_count),
             'manage_cosy_appointments',
             'cosy-orders',
             [$this->ordersAdmin, 'render_booking_orders']
@@ -76,8 +117,8 @@ class Admin
 
         add_submenu_page(
             'cosy-booking-dashboard',
-            __('Media Approve', 'cosy-appointments'),
-            __('Media Approve', 'cosy-appointments'),
+            __('Media', 'cosy-appointments'),
+            $this->format_menu_badge(__('Media', 'cosy-appointments'), $media_count),
             'approve_cosy_media',
             'cosy-media-approve',
             [$this, 'render_media_approve']
@@ -86,7 +127,7 @@ class Admin
         add_submenu_page(
             'cosy-booking-dashboard',
             __('Users', 'cosy-appointments'),
-            __('Users', 'cosy-appointments'),
+            $this->format_menu_badge(__('Users', 'cosy-appointments'), $users_count),
             'manage_cosy_appointments',
             'cosy-users',
             [$this->usersAdmin, 'render_users_page']
@@ -94,12 +135,42 @@ class Admin
 
         add_submenu_page(
             'cosy-booking-dashboard',
+            __('Reviews', 'cosy-appointments'),
+            $this->format_menu_badge(__('Reviews', 'cosy-appointments'), $reviews_count),
+            'manage_cosy_appointments',
+            'cosy-reviews',
+            [$this, 'render_reviews_page']
+        );
+
+        add_submenu_page(
+            'cosy-booking-dashboard',
             __('Logs', 'cosy-appointments'),
-            __('Logs', 'cosy-appointments'),
+            $this->format_menu_badge(__('Logs', 'cosy-appointments'), $logs_count),
             'manage_options',
             'cosy-logs',
             [$this, 'render_logs_page']
         );
+    }
+
+    private function format_menu_badge(string $title, int $count): string
+    {
+        if ($count <= 0) {
+            return esc_html($title);
+        }
+
+        return sprintf(
+            '%1$s <span class="update-plugins count-%2$d"><span class="plugin-count">%2$d</span></span>',
+            esc_html($title),
+            $count
+        );
+    }
+
+    //--------------- Reviews Page Render Function ----------------//
+    public function render_reviews_page(): void
+    {
+        ob_start();
+        include COSY_APPT_PATH . 'src/Admin/Backend/reviews-page.php';
+        echo ob_get_clean();
     }
 
     //--------------- Logs Page Render Function ----------------//

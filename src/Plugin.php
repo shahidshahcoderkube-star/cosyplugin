@@ -58,6 +58,9 @@ class Plugin
         // Register custom REST API endpoints for external applications.
         (new Routes())->register($this->loader);
 
+        // Register Admin Reviews moderation handlers
+        (new \Cosy\Appointments\Admin\Class_Reviews_Admin())->register($this->loader);
+
         // Register AI Search Controller endpoints (Gemini / OpenAI vector engine)
         new \Cosy\Appointments\AI\SearchController();
 

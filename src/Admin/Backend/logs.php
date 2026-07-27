@@ -111,10 +111,10 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
                 'dashboard'     => __('Dashboard', 'cosy-appointments'),
                 'services'      => __('Services CPT', 'cosy-appointments'),
                 'orders'        => __('Orders', 'cosy-appointments'),
-                'media_approve' => __('Media Approve', 'cosy-appointments'),
+                'media_approve' => __('Media', 'cosy-appointments'),
                 'users'         => __('Users', 'cosy-appointments'),
                 'settings'      => __('Settings', 'cosy-appointments'),
-                'documentation' => __('Documentation', 'cosy-appointments'),
+                'reviews'       => __('Reviews', 'cosy-appointments'),
                 'logs'          => __('Logs Screen', 'cosy-appointments'),
             ];
             
@@ -221,10 +221,10 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
                         <option value="dashboard" <?php selected($filter_page, 'dashboard'); ?>><?php esc_html_e('Dashboard', 'cosy-appointments'); ?></option>
                         <option value="services" <?php selected($filter_page, 'services'); ?>><?php esc_html_e('Services', 'cosy-appointments'); ?></option>
                         <option value="orders" <?php selected($filter_page, 'orders'); ?>><?php esc_html_e('Orders', 'cosy-appointments'); ?></option>
-                        <option value="media_approve" <?php selected($filter_page, 'media_approve'); ?>><?php esc_html_e('Media Approve', 'cosy-appointments'); ?></option>
+                        <option value="media_approve" <?php selected($filter_page, 'media_approve'); ?>><?php esc_html_e('Media', 'cosy-appointments'); ?></option>
                         <option value="users" <?php selected($filter_page, 'users'); ?>><?php esc_html_e('Users', 'cosy-appointments'); ?></option>
                         <option value="settings" <?php selected($filter_page, 'settings'); ?>><?php esc_html_e('Settings', 'cosy-appointments'); ?></option>
-                        <option value="frontend" <?php selected($filter_page, 'frontend'); ?>><?php esc_html_e('Frontend', 'cosy-appointments'); ?></option>
+                        <option value="reviews" <?php selected($filter_page, 'reviews'); ?>><?php esc_html_e('Reviews', 'cosy-appointments'); ?></option>
                         <option value="logs" <?php selected($filter_page, 'logs'); ?>><?php esc_html_e('Logs', 'cosy-appointments'); ?></option>
                     </select>
                 </div>

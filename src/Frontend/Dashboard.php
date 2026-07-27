@@ -37,6 +37,7 @@ class Dashboard
             'cosy_add_provider_review'         => 'handle_add_review',
             'cosy_approve_provider_review'     => 'handle_approve_review',
             'cosy_delete_provider_review'      => 'handle_delete_review',
+            'cosy_provider_reply_review'       => 'handle_provider_reply_review',
             'cosy_check_profile_completeness'  => 'handle_check_profile_completeness', // Checks profile completion dynamically
         ];
 
@@ -570,7 +571,42 @@ class Dashboard
         );
  
         if ($inserted) {
-            wp_send_json_success(['message' => 'Review submitted successfully! It will be displayed after provider approval.']);
+            $new_review_id = $wpdb->insert_id;
+
+            // Log activity in Reviews section
+            \Cosy\Appointments\Common\LogManager::log(
+                'reviews',
+                'SUBMIT_REVIEW',
+                sprintf(__('Customer "%s" submitted a new review (%d stars) for Provider #%d.', 'cosy-appointments'), $current_user->display_name, $rating, $provider_id),
+                $current_user->ID
+            );
+
+            // Send Email notification to Administrator
+            $admin_email = get_option('admin_email');
+            $provider_user = get_userdata($provider_id);
+            $provider_name = $provider_user ? $provider_user->display_name : 'Provider #' . $provider_id;
+
+            if (!empty($admin_email) && function_exists('cosy_send_html_email')) {
+                $subject = __('New Customer Review Submitted for Moderation', 'cosy-appointments');
+                $heading = __('New Customer Review Alert', 'cosy-appointments');
+                $msg = sprintf(
+                    '<p style="margin-bottom: 15px;">Hello Administrator,</p>
+                    <p style="margin-bottom: 15px;">A new customer review has been submitted for <strong>%s</strong> and is currently <strong>Pending Approval</strong>.</p>
+                    <ul style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 25px; border-radius: 8px; margin-bottom: 20px;">
+                        <li><strong>Customer:</strong> %s</li>
+                        <li><strong>Rating:</strong> %d Stars</li>
+                        <li><strong>Review:</strong> "%s"</li>
+                    </ul>
+                    <p style="margin-bottom: 0;">Log in to WP Admin &rarr; <strong>CC Booking &rarr; Reviews</strong> to approve or reject this review.</p>',
+                    esc_html($provider_name),
+                    esc_html($current_user->display_name),
+                    intval($rating),
+                    esc_html($review_text)
+                );
+                cosy_send_html_email($admin_email, $subject, $heading, $msg);
+            }
+
+            wp_send_json_success(['message' => 'Review submitted successfully! It will be displayed after approval.']);
         } else {
             wp_send_json_error(['message' => 'Failed to save review. Please try again.']);
         }
@@ -705,6 +741,61 @@ class Dashboard
             wp_send_json_success(['message' => 'Review deleted successfully!']);
         } else {
             wp_send_json_error(['message' => 'Failed to delete review.']);
+        }
+    }
+
+    /**
+     * AJAX Handler: Allows a Provider to post/update a Public Reply to an approved review.
+     */
+    public function handle_provider_reply_review(): void
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Please log in as a provider.', 'cosy-appointments')]);
+        }
+
+        $user_id    = get_current_user_id();
+        $review_id  = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
+        $reply_text = isset($_POST['reply_text']) ? sanitize_textarea_field($_POST['reply_text']) : '';
+
+        if (!$review_id || empty($reply_text)) {
+            wp_send_json_error(['message' => __('Please enter a valid reply text.', 'cosy-appointments')]);
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+
+        // Check that the review exists and belongs to this provider
+        $review = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE id = %d AND provider_id = %d",
+            $review_id,
+            $user_id
+        ));
+
+        if (!$review) {
+            wp_send_json_error(['message' => __('Review not found or unauthorized.', 'cosy-appointments')]);
+        }
+
+        $updated = $wpdb->update(
+            $table_name,
+            [
+                'provider_reply' => $reply_text,
+                'reply_date'     => current_time('mysql')
+            ],
+            ['id' => $review_id],
+            ['%s', '%s'],
+            ['%d']
+        );
+
+        if ($updated !== false) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'reviews',
+                'PROVIDER_REPLY',
+                sprintf(__('Provider #%d posted a public response for Review #%d.', 'cosy-appointments'), $user_id, $review_id),
+                $user_id
+            );
+            wp_send_json_success(['message' => __('Public reply posted successfully!', 'cosy-appointments')]);
+        } else {
+            wp_send_json_error(['message' => __('Failed to save reply.', 'cosy-appointments')]);
         }
     }
 

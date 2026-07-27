@@ -158,7 +158,7 @@ if (!empty($provider_data['ID'])) {
                             <div class="cosy-icon-box">
                                 <i class="cosy-total-price fa-solid fa-comment-dots"></i>
                             </div>
-                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Reviews', 'cosy-appointments'); ?></h5>
+                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Parent Reviews', 'cosy-appointments'); ?></h5>
                         </div>
                         <button class="cosy-btn-add-review btn btn-sm text-white px-3" id="addReviewBtn">
                             <?php echo '+ ' . esc_html__('Add Review', 'cosy-appointments'); ?>
@@ -193,7 +193,7 @@ if (!empty($provider_data['ID'])) {
                                     <div class="cosy-review-avatar rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-uppercase">
                                         <?php echo esc_html(substr($rev['customer_name'], 0, 1)); ?>
                                     </div>
-                                    <div>
+                                    <div class="flex-grow-1">
                                         <h6 class="mb-0 fw-bold"><?php echo esc_html($rev['customer_name']); ?></h6>
                                         <small class="text-warning">
                                             <?php for ($star = 1; $star <= 5; $star++): ?>
@@ -201,6 +201,15 @@ if (!empty($provider_data['ID'])) {
                                             <?php endfor; ?>
                                         </small>
                                         <p class="cosy-review-text small text-muted mb-0 mt-1"><?php echo esc_html($rev['review']); ?></p>
+
+                                        <?php if (!empty($rev['provider_reply'])) : ?>
+                                            <div class="mt-3 p-3 rounded-3 w-100" style="background: #fdf5fc; border-left: 3.5px solid #a44390; font-size: 0.88rem; width: 100%;">
+                                                <strong style="color: #6d2e67; font-size: 0.88rem; display: block; margin-bottom: 4px;">
+                                                    <i class="fas fa-reply me-1"></i> <?php echo esc_html($provider_data['first_name'] ?: 'Provider'); ?>'s Response:
+                                                </strong>
+                                                <p class="mb-0 text-dark small" style="font-size: 0.9rem; color: #334155;"><?php echo esc_html($rev['provider_reply']); ?></p>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -210,6 +219,8 @@ if (!empty($provider_data['ID'])) {
                     </div>
                 </div>
             </div>
+
+
         </div>
         <div class="col-lg-5">
             <div class="sticky-top" style="top: 20px;">
@@ -359,7 +370,8 @@ if (!empty($provider_data['ID'])) {
         </div>
 
     </div>
-</div>
+
+
 
 <!-- Video Popup Modal -->
 <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">

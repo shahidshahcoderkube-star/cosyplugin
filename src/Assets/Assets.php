@@ -42,6 +42,7 @@ class Assets
             'cc-booking_page_cosy-media-approve',
             'cc-booking_page_cosy-documentation',
             'cc-booking_page_cosy-users',
+            'cc-booking_page_cosy-reviews',
             'cc-booking_page_cosy-logs',
             'users.php', // Required for the verification dropdown
         ];
@@ -83,6 +84,19 @@ class Assets
         wp_enqueue_style(
             'cosy-font-awesome',
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
+        );
+
+        wp_enqueue_style(
+            'sweetalert2',
+            'https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css'
+        );
+
+        wp_enqueue_script(
+            'sweetalert2',
+            'https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js',
+            [],
+            '11.10.5',
+            true
         );
 
         wp_enqueue_style(

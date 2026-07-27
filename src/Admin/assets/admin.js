@@ -679,10 +679,136 @@ jQuery(document).ready(function ($) {
     };
 
     // =========================================================================
+    // MODULE: CosyReviewsAdmin
+    // Handles approve, reject and delete actions for provider reviews.
+    // =========================================================================
+    const CosyReviewsAdmin = {
+        init: function () {
+            // Select all checkboxes
+            $(document).on('change', '#cosy-select-all-reviews, #cosy-select-all-reviews-footer', function () {
+                const checked = $(this).prop('checked');
+                $('.cosy-review-checkbox').prop('checked', checked);
+                $('#cosy-select-all-reviews, #cosy-select-all-reviews-footer').prop('checked', checked);
+                $('#cosy-reviews-btn-delete-selected').prop('disabled', $('.cosy-review-checkbox:checked').length === 0);
+            });
+
+            $(document).on('change', '.cosy-review-checkbox', function () {
+                const checkedCount = $('.cosy-review-checkbox:checked').length;
+                const totalCount = $('.cosy-review-checkbox').length;
+                $('#cosy-select-all-reviews, #cosy-select-all-reviews-footer').prop('checked', checkedCount === totalCount && totalCount > 0);
+                $('#cosy-reviews-btn-delete-selected').prop('disabled', checkedCount === 0);
+            });
+
+            // Handlers
+            $(document).on('click', '.btn-approve-review', this.handleApprove);
+            $(document).on('click', '.btn-reject-review', this.handleReject);
+            $(document).on('click', '.btn-delete-review', this.handleDelete);
+            $(document).on('click', '#cosy-reviews-btn-delete-selected', this.handleBulkDelete);
+        },
+
+        handleApprove: function () {
+            const reviewId = $(this).data('id');
+            CosyAlert.confirm({
+                title: 'Approve Review?',
+                message: 'This review will be published on the parent profile page and an email notification will be sent to the provider.',
+                confirmText: 'Yes, Approve',
+                cancelText: 'Cancel',
+                type: 'info',
+                onConfirm: function () {
+                    $.post(ajaxurl, { action: 'cosy_admin_approve_review', review_id: reviewId }, function (res) {
+                        if (res.success) {
+                            CosyAlert.toast(res.data.message || 'Review approved successfully.', 'success');
+                            setTimeout(function () { location.reload(); }, 1000);
+                        } else {
+                            CosyAlert.toast(res.data.message || 'Error approving review.', 'danger');
+                        }
+                    });
+                }
+            });
+        },
+
+        handleReject: function () {
+            const reviewId = $(this).data('id');
+            CosyAlert.confirm({
+                title: 'Reject Review?',
+                message: 'This review will be marked as rejected.',
+                confirmText: 'Yes, Reject',
+                cancelText: 'Cancel',
+                type: 'warning',
+                onConfirm: function () {
+                    $.post(ajaxurl, { action: 'cosy_admin_reject_review', review_id: reviewId }, function (res) {
+                        if (res.success) {
+                            CosyAlert.toast(res.data.message || 'Review rejected.', 'warning');
+                            setTimeout(function () { location.reload(); }, 1000);
+                        } else {
+                            CosyAlert.toast(res.data.message || 'Error rejecting review.', 'danger');
+                        }
+                    });
+                }
+            });
+        },
+
+        handleDelete: function () {
+            const reviewId = $(this).data('id');
+            const $row = $('#review-row-' + reviewId);
+            CosyAlert.confirm({
+                title: 'Delete Review?',
+                message: 'Are you sure you want to delete this review? An audit log notification will be sent to the provider dashboard.',
+                confirmText: 'Yes, Delete',
+                cancelText: 'Cancel',
+                type: 'danger',
+                onConfirm: function () {
+                    $.post(ajaxurl, { action: 'cosy_admin_delete_review', review_id: reviewId }, function (res) {
+                        if (res.success) {
+                            $row.fadeOut(300, function () { $(this).remove(); });
+                            CosyAlert.toast(res.data.message || 'Review deleted successfully.', 'success');
+                        } else {
+                            CosyAlert.toast(res.data.message || 'Error deleting review.', 'danger');
+                        }
+                    });
+                }
+            });
+        },
+
+        handleBulkDelete: function () {
+            const selectedIds = [];
+            $('.cosy-review-checkbox:checked').each(function () {
+                selectedIds.push($(this).val());
+            });
+            if (selectedIds.length === 0) return;
+
+            CosyAlert.confirm({
+                title: 'Delete Selected Reviews?',
+                message: 'Are you sure you want to delete ' + selectedIds.length + ' selected review(s)? An audit log notification will be recorded.',
+                confirmText: 'Yes, Delete All',
+                cancelText: 'Cancel',
+                type: 'danger',
+                onConfirm: function () {
+                    let completed = 0;
+                    selectedIds.forEach(function (id) {
+                        $.post(ajaxurl, { action: 'cosy_admin_delete_review', review_id: id }, function (res) {
+                            completed++;
+                            if (res.success) {
+                                $('#review-row-' + id).fadeOut(300, function () { $(this).remove(); });
+                            }
+                            if (completed === selectedIds.length) {
+                                $('#cosy-reviews-btn-delete-selected').prop('disabled', true);
+                                $('#cosy-select-all-reviews, #cosy-select-all-reviews-footer').prop('checked', false);
+                                CosyAlert.toast('Selected reviews deleted successfully.', 'success');
+                            }
+                        });
+                    });
+                }
+            });
+        }
+    };
+
+    // =========================================================================
     // BOOT: Initialize all admin modules
     // =========================================================================
     CosyMediaAdmin.init();
     CosyOrdersAdmin.init();
     CosyLogsAdmin.init();
+    CosyReviewsAdmin.init();
 
 });

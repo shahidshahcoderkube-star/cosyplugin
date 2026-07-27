@@ -13,14 +13,11 @@ class Database
      */
     public function run_db_migrations(): void
     {
-        $installed_ver = get_option('cosy_db_version', '0.0.0');
-        if (version_compare($installed_ver, COSY_APPT_VER, '<')) {
-            $this->create_services_table();
-            $this->create_media_table();
-            $this->create_reviews_table();
-            $this->create_activity_logs_table();
-            update_option('cosy_db_version', COSY_APPT_VER);
-        }
+        $this->create_services_table();
+        $this->create_media_table();
+        $this->create_reviews_table();
+        $this->create_activity_logs_table();
+        update_option('cosy_db_version', COSY_APPT_VER);
     }
 
     /**
@@ -113,21 +110,37 @@ class Database
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
         $charset_collate = $wpdb->get_charset_collate();
 
-        if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) != $table_name) {
-            $sql = "CREATE TABLE $table_name (
-                id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-                provider_id BIGINT(20) UNSIGNED NOT NULL,
-                customer_id BIGINT(20) UNSIGNED NOT NULL,
-                customer_name VARCHAR(255) NOT NULL,
-                rating TINYINT(1) UNSIGNED NOT NULL,
-                review TEXT NOT NULL,
-                status VARCHAR(20) NOT NULL DEFAULT 'pending',
-                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (id)
-            ) $charset_collate;";
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
+        $sql = "CREATE TABLE $table_name (
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            provider_id BIGINT(20) UNSIGNED NOT NULL,
+            customer_id BIGINT(20) UNSIGNED NOT NULL,
+            customer_name VARCHAR(255) NOT NULL,
+            rating TINYINT(1) UNSIGNED NOT NULL,
+            review TEXT NOT NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'pending',
+            provider_reply TEXT DEFAULT NULL,
+            reply_date DATETIME DEFAULT NULL,
+            is_audit_logged TINYINT(1) DEFAULT 0,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        dbDelta($sql);
+
+        // Ensure columns exist on existing installs
+        $reply_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'provider_reply'");
+        if (empty($reply_check)) {
+            $wpdb->query("ALTER TABLE `$table_name` ADD `provider_reply` TEXT DEFAULT NULL");
+        }
+        $reply_date_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'reply_date'");
+        if (empty($reply_date_check)) {
+            $wpdb->query("ALTER TABLE `$table_name` ADD `reply_date` DATETIME DEFAULT NULL");
+        }
+        $audit_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'is_audit_logged'");
+        if (empty($audit_check)) {
+            $wpdb->query("ALTER TABLE `$table_name` ADD `is_audit_logged` TINYINT(1) DEFAULT 0");
         }
     }
 
