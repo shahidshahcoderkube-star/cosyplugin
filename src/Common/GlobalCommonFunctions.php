@@ -416,7 +416,7 @@ trait GlobalCommonFunctions
                 'description' => get_user_meta($user_id, 'description', true),
                 'gender' => get_user_meta($user_id, 'gender', true),
                 'profile_image' => get_user_meta($user_id, 'profile_image', true),
-                'age_group' => cosy_format_age_group(get_user_meta($user_id, 'age_group', true)),
+                'age_group' => get_user_meta($user_id, 'age_group', true),
                 'introduction_video' => get_user_meta($user_id, 'introduction_video', true),
                 'price' => isset($provider_prices[$user_id]) ? $provider_prices[$user_id]->price : '0.00',
                 'rating' => $avg_rating
@@ -742,51 +742,5 @@ trait GlobalCommonFunctions
         }
 
         return false;
-    }
-}
-
-if (!function_exists('cosy_format_age_group')) {
-    /**
-     * Converts numeric age ranges or raw numbers to standard Age Group labels.
-     *
-     * @param string $age_group Raw age group meta value.
-     * @return string Formatted Age Group label (e.g., Teenager, Young Adult, Middle Aged, Senior, Golden Senior).
-     */
-    function cosy_format_age_group($age_group) {
-        if (empty($age_group)) {
-            return '';
-        }
-
-        $clean = trim($age_group);
-
-        $map = [
-            '13-17'   => 'Teenager',
-            '18-25'   => 'Young Adult',
-            '18-30'   => 'Young Adult',
-            '26-35'   => 'Young Adult',
-            '36-50'   => 'Middle Aged',
-            '36-45'   => 'Middle Aged',
-            '46-55'   => 'Middle Aged',
-            '50+'     => 'Senior',
-            '51-65'   => 'Senior',
-            '55-65'   => 'Senior',
-            '65+'     => 'Golden Senior',
-            '66+'     => 'Golden Senior'
-        ];
-
-        if (isset($map[$clean])) {
-            return $map[$clean];
-        }
-
-        if (is_numeric($clean)) {
-            $age = intval($clean);
-            if ($age < 18) return 'Teenager';
-            if ($age <= 30) return 'Young Adult';
-            if ($age <= 50) return 'Middle Aged';
-            if ($age <= 65) return 'Senior';
-            return 'Golden Senior';
-        }
-
-        return $clean;
     }
 }

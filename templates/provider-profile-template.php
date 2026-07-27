@@ -123,7 +123,7 @@ if (!empty($provider_data['ID'])) {
                         <div class="col-4 py-3">
                             <?php if (!empty($provider_data['age_group'])) { ?>
                                 <div class="cosy-age-group h5 fw-bold mb-1">
-                                    <?php echo esc_html(cosy_format_age_group($provider_data['age_group'])); ?>
+                                    <?php echo esc_html($provider_data['age_group']); ?>
                                 </div>
                                 <small class="cosy-price-label text-muted text-uppercase fw-bold"><?php esc_html_e('Age Group', 'cosy-appointments'); ?></small>
                             <?php } ?>
