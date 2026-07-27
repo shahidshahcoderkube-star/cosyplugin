@@ -220,7 +220,7 @@ if (!empty($provider_data['ID'])) {
                             <div class="cosy-icon-box">
                                 <i class="cosy-total-price fas fa-calendar-alt"></i>
                             </div>
-                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Select Date', 'cosy-appointments'); ?></h5>
+                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Choose the date you\'d like to begin', 'cosy-appointments'); ?></h5>
                         </div>
 
                         <!-- Month Navigation -->

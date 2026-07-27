@@ -65,7 +65,8 @@ function renderCalendar() {
         const dateString = `${cellYear}-${cellMonth}-${cellDayStr}`;
         const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateString);
 
-        const isUnavailable = isPast || isHoliday;
+        // Today and past days are unavailable / greyed-out
+        const isUnavailable = isPast || isToday || isHoliday;
 
         let bg = '#f8fafc';
         let color = '#1e293b';
@@ -77,11 +78,6 @@ function renderCalendar() {
             color = '#cbd5e1';
         } else if (isSelected) {
             bg = '#fff';
-            color = '#a44390';
-            border = '1.5px solid #a44390';
-            fontWeight = '700';
-        } else if (isToday) {
-            bg = '#fdf2fb';
             color = '#a44390';
             border = '1.5px solid #a44390';
             fontWeight = '700';
