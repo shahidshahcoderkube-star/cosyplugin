@@ -80,12 +80,18 @@ if (!empty($provider_data['ID'])) {
                                     <?php echo esc_html($provider_data['first_name']); ?>
                                 </h2>
                             <?php } ?>
-                            <div class="d-flex gap-3 opacity-75 small fw-medium text-white">
+                            <div class="d-flex flex-wrap align-items-center gap-3 opacity-75 small fw-medium text-white mt-1">
                                 <?php if (!empty($provider_data['gender'])): ?>
                                     <span class="text-white"><i class="fas fa-venus me-1 text-white"></i>
                                         <?php echo esc_html(ucwords(strtolower($provider_data['gender']))); ?></span>
                                 <?php endif ?>
-                                <span class="text-white"><i class="fas fa-user-check me-1 text-white"></i> <?php esc_html_e('Verified Specialist', 'cosy-appointments'); ?></span>
+                                <span class="text-white"><i class="fas fa-user-check me-1 text-white"></i> <?php esc_html_e('Verified Parent', 'cosy-appointments'); ?></span>
+
+                                <?php if (!empty($provider_data['services'])): 
+                                    $service_titles = array_column($provider_data['services'], 'title');
+                                ?>
+                                    <span class="text-white"><i class="fas fa-tags me-1 text-white"></i> <?php echo esc_html(implode(' • ', $service_titles)); ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -126,51 +132,10 @@ if (!empty($provider_data['ID'])) {
                 </div>
                 <div class="card-body py-4 px-5">
                     <p class="text-muted text-center italic mb-0" style="font-size: 0.95rem;">
-                        <?php esc_html_e('Experience premium sessions tailored to your needs with our verified specialists.', 'cosy-appointments'); ?>
+                        <?php esc_html_e('Could this parent\'s experiences be relevant to your own?', 'cosy-appointments'); ?>
                     </p>
                 </div>
             </div>
-
-            <!-- Separate Services Section -->
-            <?php if (!empty($provider_data['services'])): ?>
-                <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4 px-5">
-                        <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-3 pb-2 border-bottom">
-                            <div class="cosy-icon-box">
-                                <i class="cosy-total-price fas fa-concierge-bell"></i>
-                            </div>
-                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Offered Services', 'cosy-appointments'); ?></h5>
-                        </div>
-                        <div class="services-list-premium">
-                            <?php foreach ($provider_data['services'] as $service):
-                                $s_id = intval($service['ID']);
-                                $s_title = esc_js($service['title']);
-                                $s_price = esc_js($service['price']);
-                                $s_time = esc_js($service['time'] ?? '60');
-                            ?>
-                                <div class="cosy-service-row service-item-row d-flex justify-content-between align-items-center p-3 mb-3 cursor-pointer"
-                                    onclick="selectServiceItem(this, <?php echo $s_id; ?>, '<?php echo $s_title; ?>', <?php echo $s_price; ?>, <?php echo $s_time; ?>)">
-
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="cosy-service-check-box">
-                                            <i class="cosy-service-check-icon fas fa-check-circle service-check-icon"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="cosy-service-title mb-0 fw-bold">
-                                                <?php echo esc_html($service['title']); ?>
-                                            </h6>
-                                            <small class="text-muted"><?php printf(esc_html__('%s mins session', 'cosy-appointments'), esc_html($service['time'] ?? '60')); ?></small>
-                                        </div>
-                                    </div>
-                                    <div class="cosy-service-price-box">
-                                        <?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($service['price']); ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
 
             <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
                 <div class="card-body p-4 px-5">
@@ -178,68 +143,11 @@ if (!empty($provider_data['ID'])) {
                         <div class="cosy-icon-box">
                             <i class="cosy-total-price fa-solid fa-user"></i>
                         </div>
-                        <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('About Me', 'cosy-appointments'); ?></h5>
+                        <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('My Story', 'cosy-appointments'); ?></h5>
                     </div>
                     <p class="cosy-about-desc text-muted lh-lg mb-0">
                         <?php echo nl2br(esc_html($provider_data['description'])); ?>
                     </p>
-                </div>
-            </div>
-
-            <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
-                <div class="card-body p-4 px-5">
-                    <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-3 pb-2 border-bottom">
-                        <div class="cosy-icon-box">
-                            <i class="cosy-total-price fa-solid fa-calendar-check"></i>
-                        </div>
-                        <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Availability', 'cosy-appointments'); ?></h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table border-0 mb-0">
-                            <tbody class="text-secondary small">
-                                <?php
-                                $days_display = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                                foreach ($days_display as $day):
-                                    $day_avail = $availability[$day];
-                                    $is_available = !empty($day_avail) && !empty($day_avail['start_time']) && !empty($day_avail['end_time']);
-
-                                    // Skip unavailable days
-                                    if (!$is_available) continue;
-                                ?>
-                                    <tr>
-                                        <td class="border-0 fw-bold py-3 text-dark">
-                                            <?php echo esc_html($day); ?>
-                                        </td>
-                                        <td class="border-0 text-end py-3">
-                                            <?php
-                                            $start = date("h:i A", strtotime($day_avail['start_time']));
-                                            $end = date("h:i A", strtotime($day_avail['end_time']));
-                                            $is_break_valid = false;
-                                            if (!empty($day_avail['break_start']) && !empty($day_avail['break_end'])) {
-                                                $start_ts = strtotime($day_avail['start_time']);
-                                                $end_ts = strtotime($day_avail['end_time']);
-                                                $b_start_ts = strtotime($day_avail['break_start']);
-                                                $b_end_ts = strtotime($day_avail['break_end']);
-
-                                                if ($b_start_ts > $start_ts && $b_end_ts < $end_ts) {
-                                                    $is_break_valid = true;
-                                                }
-                                            }
-
-                                            if ($is_break_valid) {
-                                                $b_start = date("h:i A", strtotime($day_avail['break_start']));
-                                                $b_end = date("h:i A", strtotime($day_avail['break_end']));
-                                                echo esc_html($start . " - " . $b_start . " & " . $b_end . " - " . $end);
-                                            } else {
-                                                echo esc_html($start . " - " . $end);
-                                            }
-                                            ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
 
@@ -474,6 +382,17 @@ if (!empty($provider_data['ID'])) {
 
 <!-- // ===== Custom Premium Calendar ===== -->
 <?php
+$default_service = null;
+if (!empty($provider_data['services'])) {
+    $first_srv = reset($provider_data['services']);
+    $default_service = [
+        'id'       => intval($first_srv['ID']),
+        'title'    => $first_srv['title'],
+        'price'    => floatval($first_srv['price']),
+        'duration' => intval($first_srv['time'] ?? 10)
+    ];
+}
+
 wp_enqueue_script(
     'provider-profile-js',
     COSY_APPT_URL . 'src/Assets/js/calendar.js',
@@ -482,9 +401,13 @@ wp_enqueue_script(
     true
 );
 wp_localize_script('provider-profile-js', 'cosyCalendar', [
-    'currencySymbol' => cosy_get_currency_symbol()
+    'currencySymbol' => cosy_get_currency_symbol(),
+    'defaultService' => $default_service
 ]);
 ?>
+<script>
+    window.cosyDefaultService = <?php echo json_encode($default_service); ?>;
+</script>
 
 <!-- Time Slot Selection Modal -->
 <div class="modal fade" id="timeSlotModal" tabindex="-1" aria-hidden="true">

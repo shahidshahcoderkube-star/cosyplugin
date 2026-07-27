@@ -102,12 +102,13 @@ function renderCalendar() {
 
 function selectDay(el, day) {
     if (!selectedService) {
-        if (typeof CosyAlert !== 'undefined') {
-            CosyAlert.warning('Select a Service', "Please select a service from <span style='color: #a44390; font-weight: 700;'>Offered Services</span> before selecting a date.");
+        if (window.cosyDefaultService) {
+            selectedService = window.cosyDefaultService;
+        } else if (typeof cosyCalendar !== 'undefined' && cosyCalendar.defaultService) {
+            selectedService = cosyCalendar.defaultService;
         } else {
-            alert('Please select a service from Offered Services before selecting a date.');
+            selectedService = { id: 0, title: 'Parent Conversation', price: 0, duration: 10 };
         }
-        return;
     }
 
     const year = parseInt(el.dataset.year);
@@ -516,10 +517,15 @@ document.addEventListener('DOMContentLoaded', () => {
         bookServiceBtn.addEventListener('click', (e) => {
             e.preventDefault();
 
-            // 1. Check if a service is selected
+            // 1. Ensure service is assigned
             if (!selectedService) {
-                CosyAlert.warning('Select a Service', 'Please select a service from the Offered Services section.');
-                return;
+                if (window.cosyDefaultService) {
+                    selectedService = window.cosyDefaultService;
+                } else if (typeof cosyCalendar !== 'undefined' && cosyCalendar.defaultService) {
+                    selectedService = cosyCalendar.defaultService;
+                } else {
+                    selectedService = { id: 0, title: 'Parent Conversation', price: 0, duration: 10 };
+                }
             }
 
             // 2. Check if at least one slot is selected
