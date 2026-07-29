@@ -176,5 +176,64 @@ jQuery(document).ready(function ($) {
         $('#modalCustStatusBg').css('background-color', statusBg);
         $('#modalCustStatusText').text(statusText);
     });
+
+    // ---------------- Provider Profile Reviews & Replies ----------------
+    $(document).on('click', '#btnLoadMoreReviews', function () {
+        var $btn = $(this);
+        var $wrapper = $('.cosy-extra-reviews-wrapper');
+        var remaining = $btn.data('remaining') || 1;
+
+        if ($wrapper.is(':visible')) {
+            $wrapper.slideUp(300, function () {
+                $wrapper.attr('style', 'display: none !important;');
+            });
+            $btn.find('.btn-text').text('Load More Reviews (' + remaining + ' remaining)');
+            $btn.find('.btn-icon').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        } else {
+            $wrapper.attr('style', 'display: flex !important;').hide().slideDown(300);
+            $btn.find('.btn-text').text('Show Less Reviews');
+            $btn.find('.btn-icon').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        }
+    });
+
+    $(document).on('click', '.btn-toggle-cust-reply', function () {
+        var revId = $(this).data('review-id');
+        $('#cust-reply-form-' + revId).slideToggle(200);
+    });
+
+    $(document).on('click', '.btn-cancel-cust-reply', function () {
+        var revId = $(this).data('review-id');
+        $('#cust-reply-form-' + revId).slideUp(200);
+    });
+
+    $(document).on('submit', '.cosy-customer-reply-form', function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var revId = form.data('review-id');
+        var replyText = form.find('.cust-reply-text').val().trim();
+        var submitBtn = form.find('button[type="submit"]');
+
+        if (!replyText) return;
+
+        submitBtn.prop('disabled', true).css({ 'color': '#ffffff', 'opacity': '0.95' }).html('<i class="fas fa-spinner fa-spin me-1" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important;">Posting...</span>');
+
+        var ajaxUrl = (typeof cosy_ajax !== 'undefined' && cosy_ajax.ajax_url) ? cosy_ajax.ajax_url : (window.ajaxUrl || '/wp-admin/admin-ajax.php');
+
+        $.post(ajaxUrl, {
+            action: 'cosy_customer_reply_review',
+            review_id: revId,
+            reply_text: replyText
+        }, function (res) {
+            if (res.success) {
+                location.reload();
+            } else {
+                alert(res.data.message || 'Error posting follow-up reply.');
+                submitBtn.prop('disabled', false).html('Submit Follow-up');
+            }
+        }).fail(function () {
+            alert('Server error posting follow-up reply. Please try again.');
+            submitBtn.prop('disabled', false).html('Submit Follow-up');
+        });
+    });
 });
 

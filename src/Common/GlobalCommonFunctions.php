@@ -518,6 +518,7 @@ trait GlobalCommonFunctions
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+        $replies_table = $wpdb->prefix . 'cosy_review_replies';
 
         if ($approved_only) {
             $reviews = $wpdb->get_results(
@@ -536,6 +537,39 @@ trait GlobalCommonFunctions
                 ARRAY_A
             );
         }
+
+        // Attach multi-level thread replies to each review
+        foreach ($reviews as &$r) {
+            $r_replies = $wpdb->get_results(
+                $wpdb->prepare("SELECT * FROM $replies_table WHERE review_id = %d ORDER BY reply_level ASC, created_at ASC", $r['id']),
+                ARRAY_A
+            );
+
+            // Backward compatibility: If level 1 is missing in replies table, prepend legacy provider_reply
+            $has_l1_entry = false;
+            foreach ($r_replies as $rep_item) {
+                if (intval($rep_item['reply_level']) === 1) {
+                    $has_l1_entry = true;
+                    break;
+                }
+            }
+            if (!$has_l1_entry && !empty($r['provider_reply'])) {
+                $prov_user = get_userdata($provider_id);
+                $prov_name = $prov_user ? ($prov_user->first_name ?: $prov_user->display_name) : 'Provider';
+                array_unshift($r_replies, [
+                    'id'          => 0,
+                    'review_id'   => $r['id'],
+                    'sender_id'   => $provider_id,
+                    'sender_role' => 'provider',
+                    'sender_name' => $prov_name,
+                    'reply_text'  => $r['provider_reply'],
+                    'reply_level' => 1,
+                    'created_at'  => $r['reply_date'] ?: $r['created_at']
+                ]);
+            }
+            $r['replies'] = $r_replies ?: [];
+        }
+        unset($r);
 
         // Calculate metrics based on APPROVED reviews
         $approved_reviews = array_filter($reviews, function ($r) {

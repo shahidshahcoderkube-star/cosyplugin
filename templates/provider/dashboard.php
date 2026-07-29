@@ -40,9 +40,32 @@
                     data-bs-target="#nonworking" type="button" role="tab">
                     <i class="fas fa-calendar-times"></i> <?php esc_html_e('Holidays', 'cosy-appointments'); ?>
                 </button>
+                <?php
+                // Calculate pending provider review actions
+                $prov_rev_helper = new class { use \Cosy\Appointments\Common\GlobalCommonFunctions; };
+                $prov_reviews_data = $prov_rev_helper->get_provider_reviews(get_current_user_id(), true);
+                $pending_review_actions = 0;
+                if (!empty($prov_reviews_data['approved'])) {
+                    foreach ($prov_reviews_data['approved'] as $pa_rev) {
+                        $pa_replies = $pa_rev['replies'] ?? [];
+                        $pa_l1 = false; $pa_l2 = false; $pa_l3 = false;
+                        foreach ($pa_replies as $par) {
+                            if (intval($par['reply_level']) === 1) $pa_l1 = true;
+                            if (intval($par['reply_level']) === 2) $pa_l2 = true;
+                            if (intval($par['reply_level']) === 3) $pa_l3 = true;
+                        }
+                        if (!$pa_l1 || ($pa_l2 && !$pa_l3)) {
+                            $pending_review_actions++;
+                        }
+                    }
+                }
+                ?>
                 <button class="nav-link cosy-tab mb-2" data-tab="reviews" id="reviews-tab" data-bs-toggle="pill"
                     data-bs-target="#reviews" type="button" role="tab">
                     <i class="fas fa-star"></i> <?php esc_html_e('Reviews', 'cosy-appointments'); ?>
+                    <?php if ($pending_review_actions > 0) : ?>
+                        <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.68rem; padding: 3px 7px; vertical-align: middle;"><?php echo intval($pending_review_actions); ?></span>
+                    <?php endif; ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="invoices" id="invoices-tab" data-bs-toggle="pill"
                     data-bs-target="#invoices" type="button" role="tab">

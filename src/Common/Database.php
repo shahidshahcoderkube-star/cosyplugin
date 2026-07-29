@@ -16,6 +16,7 @@ class Database
         $this->create_services_table();
         $this->create_media_table();
         $this->create_reviews_table();
+        $this->create_review_replies_table();
         $this->create_activity_logs_table();
         update_option('cosy_db_version', COSY_APPT_VER);
     }
@@ -142,6 +143,33 @@ class Database
         if (empty($audit_check)) {
             $wpdb->query("ALTER TABLE `$table_name` ADD `is_audit_logged` TINYINT(1) DEFAULT 0");
         }
+    }
+
+    /**
+     * Create the review replies table for multi-level conversation threads.
+     */
+    public function create_review_replies_table(): void
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_review_replies';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+        $sql = "CREATE TABLE $table_name (
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            review_id BIGINT(20) UNSIGNED NOT NULL,
+            sender_id BIGINT(20) UNSIGNED NOT NULL,
+            sender_role VARCHAR(20) NOT NULL DEFAULT 'provider',
+            sender_name VARCHAR(255) NOT NULL,
+            reply_text TEXT NOT NULL,
+            reply_level TINYINT(2) NOT NULL DEFAULT 1,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY review_id (review_id)
+        ) $charset_collate;";
+
+        dbDelta($sql);
     }
 
     /**

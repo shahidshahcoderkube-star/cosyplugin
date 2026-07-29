@@ -91,10 +91,54 @@ if (!defined('ABSPATH')) {
               </div>
             </td>
             <td style="color:#475569; font-size:12px;">
-              "<?php echo esc_html($rev->review); ?>"
-              <?php if (!empty($rev->provider_reply)) : ?>
-                <br><span style="color:#a44390; font-weight:600; font-size:11px;">Reply: <?php echo esc_html($rev->provider_reply); ?></span>
-              <?php endif; ?>
+              <div style="font-style: normal; background: #f8fafc; padding: 8px 12px; border-radius: 8px; border-left: 3px solid #cbd5e1; margin-bottom: 6px; color: #334155; line-height: 1.4;">
+                <strong>Customer Review:</strong> "<?php echo esc_html($rev->review); ?>"
+              </div>
+              <?php
+              $replies_table = $wpdb->prefix . 'cosy_review_replies';
+              $thread_replies = $wpdb->get_results($wpdb->prepare("SELECT * FROM $replies_table WHERE review_id = %d ORDER BY reply_level ASC, created_at ASC", $rev->id), ARRAY_A);
+              
+              // Prepend legacy provider_reply if Level 1 is missing in replies table
+              $has_l1_adm = false;
+              foreach ($thread_replies as $tr_chk) {
+                if (intval($tr_chk['reply_level']) === 1) {
+                  $has_l1_adm = true;
+                  break;
+                }
+              }
+              if (!$has_l1_adm && !empty($rev->provider_reply)) {
+                array_unshift($thread_replies, [
+                  'reply_level' => 1,
+                  'sender_name' => $provider_name,
+                  'sender_role' => 'provider',
+                  'reply_text'  => $rev->provider_reply,
+                  'created_at'  => $rev->reply_date ?: $rev->created_at
+                ]);
+              }
+
+              if (!empty($thread_replies)) :
+                foreach ($thread_replies as $tr) :
+                  $r_lvl = intval($tr['reply_level']);
+                  $level_label = ($r_lvl === 1) ? 'Provider Reply (L1)' : (($r_lvl === 2) ? 'Customer Follow-up (L2)' : 'Provider Closing (L3)');
+                  $badge_bg = ($r_lvl === 1) ? '#fdf5fc' : (($r_lvl === 2) ? '#eff6ff' : '#f0fdf4');
+                  $badge_color = ($r_lvl === 1) ? '#6d2e67' : (($r_lvl === 2) ? '#1e40af' : '#065f46');
+                  $border_color = ($r_lvl === 1) ? '#a44390' : (($r_lvl === 2) ? '#3b82f6' : '#10b981');
+                  $indent = ($r_lvl > 1) ? 'margin-left: ' . (($r_lvl - 1) * 14) . 'px;' : '';
+              ?>
+                  <div style="margin-top: 6px; <?php echo $indent; ?> padding: 8px 10px; background: <?php echo $badge_bg; ?>; border-left: 3px solid <?php echo $border_color; ?>; border-radius: 8px; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                      <strong style="color: <?php echo $badge_color; ?>; font-weight: 700;">
+                        <span style="display: inline-block; padding: 2px 7px; background: <?php echo $border_color; ?>; color: #fff; border-radius: 10px; font-size: 9px; margin-right: 5px; text-transform: uppercase; letter-spacing: 0.3px;"><?php echo esc_html($level_label); ?></span>
+                        <?php echo esc_html($tr['sender_name']); ?>
+                      </strong>
+                      <span style="color: #94a3b8; font-size: 10px;"><?php echo esc_html(date('d M Y - h:i A', strtotime($tr['created_at']))); ?></span>
+                    </div>
+                    <div style="color: #334155; line-height: 1.4; padding-left: 2px;"><?php echo esc_html($tr['reply_text']); ?></div>
+                  </div>
+              <?php
+                endforeach;
+              endif;
+              ?>
             </td>
             <td style="color:#475569; font-size:12px;"><?php echo esc_html(date('M d, Y', strtotime($rev->created_at))); ?></td>
             <td><span class="status <?php echo $status_class; ?>"><?php echo esc_html($rev->status); ?></span></td>

@@ -140,6 +140,8 @@ class Class_Reviews_Admin
         }
 
         $provider_id = $review->provider_id;
+        $replies_table = $wpdb->prefix . 'cosy_review_replies';
+        $wpdb->delete($replies_table, ['review_id' => $review_id], ['%d']);
         $deleted = $wpdb->delete($table_name, ['id' => $review_id], ['%d']);
 
         if ($deleted) {

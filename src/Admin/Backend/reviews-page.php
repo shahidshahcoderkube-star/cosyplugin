@@ -110,11 +110,69 @@ $providers = get_users(['role' => 'provider']);
                 <?php echo str_repeat('★', intval($rev->rating)); ?><?php echo str_repeat('☆', 5 - intval($rev->rating)); ?>
               </div>
             </td>
-            <td style="color:#475569; font-size:12px;">
-              "<?php echo esc_html($rev->review); ?>"
-              <?php if (!empty($rev->provider_reply)) : ?>
-                <br><span style="color:#a44390; font-weight:600; font-size:11px;">Reply: <?php echo esc_html($rev->provider_reply); ?></span>
-              <?php endif; ?>
+            <td style="color:#475569; font-size:12px; vertical-align: top; max-width: 420px;">
+              <div class="cosy-admin-review-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                <!-- Customer Root Review -->
+                <div style="font-size: 12px; color: #1e293b; font-weight: 600; line-height: 1.4; margin-bottom: 6px; word-break: break-word;">
+                  <span style="color: #a44390; font-size: 14px; font-weight: 800; margin-right: 2px;">“</span><?php echo esc_html($rev->review); ?><span style="color: #a44390; font-size: 14px; font-weight: 800; margin-left: 2px;">”</span>
+                </div>
+
+                <?php
+                $replies_table = $wpdb->prefix . 'cosy_review_replies';
+                $thread_replies = $wpdb->get_results($wpdb->prepare("SELECT * FROM $replies_table WHERE review_id = %d ORDER BY reply_level ASC, created_at ASC", $rev->id), ARRAY_A);
+                
+                // Prepend legacy provider_reply if Level 1 is missing in replies table
+                $has_l1_adm = false;
+                foreach ($thread_replies as $tr_chk) {
+                  if (intval($tr_chk['reply_level']) === 1) {
+                    $has_l1_adm = true;
+                    break;
+                  }
+                }
+                if (!$has_l1_adm && !empty($rev->provider_reply)) {
+                  array_unshift($thread_replies, [
+                    'reply_level' => 1,
+                    'sender_name' => $provider_name,
+                    'sender_role' => 'provider',
+                    'reply_text'  => $rev->provider_reply,
+                    'created_at'  => $rev->reply_date ?: $rev->created_at
+                  ]);
+                }
+
+                if (!empty($thread_replies)) :
+                  echo '<div class="admin-thread-timeline" style="border-left: 2px solid #cbd5e1; padding-left: 10px; margin-left: 4px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">';
+                  foreach ($thread_replies as $tr) :
+                    $r_lvl = intval($tr['reply_level']);
+                    if ($r_lvl === 1) {
+                      $badge_bg = '#fdf5fc';
+                      $badge_text = '#6d2e67';
+                      $badge_border = '#f1e4ef';
+                      $label_title = 'Provider Reply (L1)';
+                    } elseif ($r_lvl === 2) {
+                      $badge_bg = '#eff6ff';
+                      $badge_text = '#1e40af';
+                      $badge_border = '#dbeafe';
+                      $label_title = 'Customer Follow-up (L2)';
+                    } else {
+                      $badge_bg = '#f0fdf4';
+                      $badge_text = '#065f46';
+                      $badge_border = '#dcfce7';
+                      $label_title = 'Provider Closing (L3)';
+                    }
+                ?>
+                    <div style="font-size: 11px; line-height: 1.4; word-break: break-word;">
+                      <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px; flex-wrap: wrap;">
+                        <span style="background: <?php echo $badge_bg; ?>; color: <?php echo $badge_text; ?>; border: 1px solid <?php echo $badge_border; ?>; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.3px;"><?php echo esc_html($label_title); ?></span>
+                        <strong style="color: #1e293b; font-size: 11px;"><?php echo esc_html($tr['sender_name']); ?>:</strong>
+                      </div>
+                      <div style="color: #475569; font-size: 11px; padding-left: 2px;"><?php echo esc_html($tr['reply_text']); ?></div>
+                    </div>
+                <?php
+                  endforeach;
+                  echo '</div>';
+                endif;
+                ?>
+              </div>
             </td>
             <td style="color:#475569; font-size:12px;"><?php echo esc_html(date('M d, Y', strtotime($rev->created_at))); ?></td>
             <td><span class="status <?php echo $status_class; ?>"><?php echo esc_html($rev->status); ?></span></td>

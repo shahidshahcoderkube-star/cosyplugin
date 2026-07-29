@@ -2687,3 +2687,28 @@ body .swal2-icon {
 span#closePopup {
     cursor: pointer;
 }
+
+/* Universal High-Contrast Disabled/Processing Buttons */
+button:disabled,
+button[disabled],
+.btn:disabled,
+.btn[disabled],
+.cosy-btn-filled:disabled,
+.cosy-modal-confirm-btn:disabled,
+button:disabled *,
+button[disabled] *,
+.btn:disabled *,
+.btn[disabled] * {
+    color: #ffffff !important;
+    opacity: 0.95 !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+button:disabled i,
+button[disabled] i,
+.btn:disabled i,
+.btn[disabled] i {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+}

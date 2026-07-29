@@ -442,7 +442,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             postReviewBtn.disabled = true;
-            postReviewBtn.textContent = 'Posting...';
+            postReviewBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important;">Posting...</span>';
+            postReviewBtn.style.setProperty('color', '#ffffff', 'important');
 
             // Send AJAX request
             jQuery.ajax({

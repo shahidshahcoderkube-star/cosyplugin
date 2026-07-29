@@ -38,6 +38,8 @@ class Dashboard
             'cosy_approve_provider_review'     => 'handle_approve_review',
             'cosy_delete_provider_review'      => 'handle_delete_review',
             'cosy_provider_reply_review'       => 'handle_provider_reply_review',
+            'cosy_customer_reply_review'       => 'handle_customer_reply_review',
+            'cosy_dismiss_audit_alerts'        => 'handle_dismiss_audit_alerts',
             'cosy_check_profile_completeness'  => 'handle_check_profile_completeness', // Checks profile completion dynamically
         ];
 
@@ -554,7 +556,68 @@ class Dashboard
  
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
- 
+        $replies_table = $wpdb->prefix . 'cosy_review_replies';
+
+        // Check if customer already has a review thread for this provider
+        $existing_review = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE provider_id = %d AND customer_id = %d ORDER BY id ASC LIMIT 1",
+            $provider_id,
+            $current_user->ID
+        ));
+
+        if ($existing_review) {
+            // Check if provider has replied (Level 1)
+            $has_level1 = !empty($existing_review->provider_reply);
+            if (!$has_level1) {
+                $has_level1 = $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(*) FROM $replies_table WHERE review_id = %d AND reply_level = 1",
+                    $existing_review->id
+                ));
+            }
+
+            if (!$has_level1) {
+                wp_send_json_error(['message' => __('You have already submitted a review for this parent. Please wait for their response before posting a follow-up.', 'cosy-appointments')]);
+            }
+
+            // Check if customer already posted Level 2 follow-up
+            $has_level2 = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM $replies_table WHERE review_id = %d AND reply_level = 2",
+                $existing_review->id
+            ));
+
+            if ($has_level2) {
+                wp_send_json_error(['message' => __('You have already posted your follow-up in this review thread.', 'cosy-appointments')]);
+            }
+
+            // Insert Level 2 Customer Follow-up Reply into replies table
+            $cust_name = !empty($current_user->first_name) ? $current_user->first_name : $current_user->display_name;
+            $inserted_reply = $wpdb->insert(
+                $replies_table,
+                [
+                    'review_id'   => $existing_review->id,
+                    'sender_id'   => $current_user->ID,
+                    'sender_role' => 'customer',
+                    'sender_name' => $cust_name,
+                    'reply_text'  => $review_text,
+                    'reply_level' => 2,
+                    'created_at'  => current_time('mysql')
+                ],
+                ['%d', '%d', '%s', '%s', '%s', '%d', '%s']
+            );
+
+            if ($inserted_reply) {
+                \Cosy\Appointments\Common\LogManager::log(
+                    'reviews',
+                    'CUSTOMER_FOLLOWUP_REPLY',
+                    sprintf(__('Customer "%s" added a follow-up response to Review #%d.', 'cosy-appointments'), $cust_name, $existing_review->id),
+                    $current_user->ID
+                );
+                wp_send_json_success(['message' => __('Your response has been added to your review conversation thread!', 'cosy-appointments')]);
+            } else {
+                wp_send_json_error(['message' => __('Failed to save response. Please try again.', 'cosy-appointments')]);
+            }
+        }
+
         // 5. Insert pending review into custom DB table
         $inserted = $wpdb->insert(
             $table_name,
@@ -763,6 +826,7 @@ class Dashboard
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+        $replies_table = $wpdb->prefix . 'cosy_review_replies';
 
         // Check that the review exists and belongs to this provider
         $review = $wpdb->get_row($wpdb->prepare(
@@ -775,28 +839,168 @@ class Dashboard
             wp_send_json_error(['message' => __('Review not found or unauthorized.', 'cosy-appointments')]);
         }
 
-        $updated = $wpdb->update(
-            $table_name,
+        // Determine level of provider reply (Level 1 initial reply vs Level 3 final reply)
+        $existing_replies = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM $replies_table WHERE review_id = %d ORDER BY reply_level ASC",
+            $review_id
+        ), ARRAY_A);
+
+        $has_level1 = !empty($review->provider_reply);
+        $has_level2 = false;
+        foreach ($existing_replies as $er) {
+            if ($er['reply_level'] == 1) $has_level1 = true;
+            if ($er['reply_level'] == 2) $has_level2 = true;
+        }
+
+        $target_level = 1;
+        if ($has_level1 && $has_level2) {
+            $target_level = 3;
+        } elseif ($has_level1 && !$has_level2) {
+            // Updating existing Level 1 reply if customer hasn't responded yet
+            $target_level = 1;
+        }
+
+        $prov_user = get_userdata($user_id);
+        $prov_name = $prov_user ? ($prov_user->first_name ?: $prov_user->display_name) : 'Provider';
+
+        // Delete previous reply at target_level if provider is updating it
+        $wpdb->delete($replies_table, ['review_id' => $review_id, 'reply_level' => $target_level], ['%d', '%d']);
+
+        $inserted = $wpdb->insert(
+            $replies_table,
             [
-                'provider_reply' => $reply_text,
-                'reply_date'     => current_time('mysql')
+                'review_id'   => $review_id,
+                'sender_id'   => $user_id,
+                'sender_role' => 'provider',
+                'sender_name' => $prov_name,
+                'reply_text'  => $reply_text,
+                'reply_level' => $target_level,
+                'created_at'  => current_time('mysql')
             ],
-            ['id' => $review_id],
-            ['%s', '%s'],
-            ['%d']
+            ['%d', '%d', '%s', '%s', '%s', '%d', '%s']
         );
 
-        if ($updated !== false) {
+        if ($target_level === 1) {
+            $wpdb->update(
+                $table_name,
+                [
+                    'provider_reply' => $reply_text,
+                    'reply_date'     => current_time('mysql')
+                ],
+                ['id' => $review_id],
+                ['%s', '%s'],
+                ['%d']
+            );
+        }
+
+        if ($inserted !== false) {
             \Cosy\Appointments\Common\LogManager::log(
                 'reviews',
                 'PROVIDER_REPLY',
-                sprintf(__('Provider #%d posted a public response for Review #%d.', 'cosy-appointments'), $user_id, $review_id),
+                sprintf(__('Provider #%d posted Level %d response for Review #%d.', 'cosy-appointments'), $user_id, $target_level, $review_id),
                 $user_id
             );
             wp_send_json_success(['message' => __('Public reply posted successfully!', 'cosy-appointments')]);
         } else {
             wp_send_json_error(['message' => __('Failed to save reply.', 'cosy-appointments')]);
         }
+    }
+
+    /**
+     * AJAX Handler: Allows a Customer to post a follow-up response in their review thread.
+     */
+    public function handle_customer_reply_review(): void
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Please log in as a customer to reply.', 'cosy-appointments')]);
+        }
+
+        $user_id    = get_current_user_id();
+        $review_id  = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
+        $reply_text = isset($_POST['reply_text']) ? sanitize_textarea_field($_POST['reply_text']) : '';
+
+        if (!$review_id || empty($reply_text)) {
+            wp_send_json_error(['message' => __('Please enter a valid reply text.', 'cosy-appointments')]);
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_provider_reviews';
+        $replies_table = $wpdb->prefix . 'cosy_review_replies';
+
+        $review = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE id = %d AND customer_id = %d",
+            $review_id,
+            $user_id
+        ));
+
+        if (!$review) {
+            wp_send_json_error(['message' => __('Review thread not found or unauthorized.', 'cosy-appointments')]);
+        }
+
+        // Verify provider reply (Level 1) exists
+        $has_level1 = !empty($review->provider_reply);
+        if (!$has_level1) {
+            $has_level1 = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM $replies_table WHERE review_id = %d AND reply_level = 1",
+                $review_id
+            ));
+        }
+
+        if (!$has_level1) {
+            wp_send_json_error(['message' => __('You can post a response after the provider replies.', 'cosy-appointments')]);
+        }
+
+        // Check if customer already posted Level 2 reply
+        $has_level2 = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $replies_table WHERE review_id = %d AND reply_level = 2",
+            $review_id
+        ));
+
+        if ($has_level2) {
+            wp_send_json_error(['message' => __('You have already posted your response in this review thread.', 'cosy-appointments')]);
+        }
+
+        $cust_user = get_userdata($user_id);
+        $cust_name = $cust_user ? ($cust_user->first_name ?: $cust_user->display_name) : 'Customer';
+
+        $inserted = $wpdb->insert(
+            $replies_table,
+            [
+                'review_id'   => $review_id,
+                'sender_id'   => $user_id,
+                'sender_role' => 'customer',
+                'sender_name' => $cust_name,
+                'reply_text'  => $reply_text,
+                'reply_level' => 2,
+                'created_at'  => current_time('mysql')
+            ],
+            ['%d', '%d', '%s', '%s', '%s', '%d', '%s']
+        );
+
+        if ($inserted) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'reviews',
+                'CUSTOMER_REPLY',
+                sprintf(__('Customer #%d posted Level 2 follow-up response for Review #%d.', 'cosy-appointments'), $user_id, $review_id),
+                $user_id
+            );
+            wp_send_json_success(['message' => __('Your response has been added to the review thread!', 'cosy-appointments')]);
+        } else {
+            wp_send_json_error(['message' => __('Failed to post response.', 'cosy-appointments')]);
+        }
+    }
+
+    /**
+     * AJAX Handler: Allows a Provider to clear/dismiss audit trail notices.
+     */
+    public function handle_dismiss_audit_alerts(): void
+    {
+        $user_id = get_current_user_id();
+        if ($user_id) {
+            delete_user_meta($user_id, 'cosy_review_audit_alerts');
+            wp_send_json_success(['message' => __('Audit notices cleared.', 'cosy-appointments')]);
+        }
+        wp_send_json_error(['message' => __('Unauthorized access.', 'cosy-appointments')]);
     }
 
     /**
