@@ -110,6 +110,12 @@ class FormsData
             return;
         }
 
+        // Validate platform declarations
+        if (empty($_POST['declaration_1']) || empty($_POST['declaration_2']) || empty($_POST['declaration_3']) || empty($_POST['declaration_4']) || empty($_POST['declaration_5'])) {
+            $this->send_response(false, __('Please accept all platform declarations to register.', 'cosy-appointments'));
+            return;
+        }
+
         if (!is_email($email)) {
             $this->send_response(false, __('Please enter a valid email address.', 'cosy-appointments'));
             return;
@@ -152,6 +158,8 @@ class FormsData
         update_user_meta($user_id, 'first_name', $name);
         update_user_meta($user_id, 'role_type', 'customer');
         update_user_meta($user_id, 'account_status', 'pending'); // Set customer status to pending
+        update_user_meta($user_id, 'cosy_declarations_accepted', 1);
+        update_user_meta($user_id, 'cosy_declarations_accepted_at', current_time('mysql'));
 
         // Assign role
         $user = new WP_User($user_id);

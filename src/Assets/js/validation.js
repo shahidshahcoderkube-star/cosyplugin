@@ -119,15 +119,22 @@ var CosyApp = (function ($) {
                     prov_name: { required: true, minlength: 3 },
                     prov_email: { required: true, email: true },
                     prov_pass: { required: true, minlength: 6 },
-                    terms: { required: true }
+                    terms: { required: true },
+                    declaration_1: { required: true },
+                    declaration_2: { required: true },
+                    declaration_3: { required: true },
+                    declaration_4: { required: true },
+                    declaration_5: { required: true }
                 },
                 errorClass: "cosy-error",
                 errorElement: "span",
                 errorPlacement: function (error, element) {
                     if (element.parent('.cosy-password-wrapper').length) {
                         error.insertAfter(element.parent('.cosy-password-wrapper'));
-                    } else if (element.attr('name') === 'terms') {
-                        error.insertAfter(element.closest('.terms-container'));
+                    } else if (element.closest('.cosy-declaration-wrapper').length) {
+                        error.appendTo(element.closest('.cosy-declaration-wrapper'));
+                    } else if (element.closest('.cosy-declaration-item').length) {
+                        error.insertAfter(element.closest('.cosy-declaration-item'));
                     } else {
                         error.insertAfter(element);
                     }

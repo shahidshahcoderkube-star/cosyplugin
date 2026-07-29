@@ -41,7 +41,8 @@
 
         <!-- Right Column: Image -->
         <div class="cosy-reg-message">
-            <img src="<?php echo plugin_dir_url(__DIR__); ?>src/Assets/images/log-in.jpg" alt="<?php esc_attr_e('Login Illustration', 'cosy-appointments'); ?>">
+            <?php $login_img = get_option('cosy_login_image_url') ?: (plugin_dir_url(__DIR__) . 'src/Assets/images/log-in.jpg'); ?>
+            <img src="<?php echo esc_url($login_img); ?>" alt="<?php esc_attr_e('Login Illustration', 'cosy-appointments'); ?>">
         </div>
     </div>
 </div>

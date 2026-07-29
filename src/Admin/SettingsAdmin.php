@@ -8,6 +8,14 @@ class SettingsAdmin
     {
         $loader->add_action('admin_menu', $this, 'add_settings_page');
         $loader->add_action('admin_init', $this, 'register_settings');
+        $loader->add_action('admin_enqueue_scripts', $this, 'enqueue_settings_assets');
+    }
+
+    public function enqueue_settings_assets($hook): void
+    {
+        if (strpos($hook, 'cosy-settings') !== false) {
+            wp_enqueue_media();
+        }
     }
 
     public function add_settings_page(): void
@@ -71,6 +79,14 @@ class SettingsAdmin
         ]);
         register_setting('cosy_payment_settings', 'cosy_ai_api_key', [
             'sanitize_callback' => 'sanitize_text_field'
+        ]);
+
+        // Branding & Page Image Settings
+        register_setting('cosy_payment_settings', 'cosy_registration_image_url', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_login_image_url', [
+            'sanitize_callback' => 'esc_url_raw'
         ]);
 
         // Media Upload settings

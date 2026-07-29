@@ -47,6 +47,10 @@ defined('ABSPATH') || exit;
                             <i class="fa-solid fa-brain fs-4 w-20"></i>
                             <span class="fw-bold">AI Search Engine</span>
                         </button>
+                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-branding-tab" data-bs-toggle="pill" data-bs-target="#v-pills-branding" type="button" role="tab" aria-controls="v-pills-branding" aria-selected="false">
+                            <i class="fa-solid fa-image fs-4 w-20"></i>
+                            <span class="fw-bold">Page Images</span>
+                        </button>
                     </div>
                 </div>
 
@@ -246,6 +250,76 @@ defined('ABSPATH') || exit;
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Page Images Settings Tab -->
+                        <div class="tab-pane fade" id="v-pills-branding" role="tabpanel" aria-labelledby="v-pills-branding-tab">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-image fs-2 text-primary" style="color: #a44390 !important;"></i>
+                                    Registration &amp; Login Page Images
+                                </h3>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-12">
+                                    <label for="cosy_registration_image_url" class="form-label fw-bold text-secondary">User Registration Page Image</label>
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-image"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2 cosy-img-input" name="cosy_registration_image_url" id="cosy_registration_image_url" value="<?php echo esc_attr(get_option('cosy_registration_image_url')); ?>" placeholder="Select or upload image from Media Library">
+                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn" data-target="#cosy_registration_image_url" data-preview="#cosy_reg_preview" style="color: #a44390; border: 1.5px solid #a44390; background: #ffffff;">
+                                            <i class="fa-solid fa-folder-open me-1" style="color: #a44390;"></i> Choose Image
+                                        </button>
+                                    </div>
+                                    <div class="form-text text-muted">Select or upload the right-side banner image for the Customer Registration page (/user-registration/).</div>
+                                    <?php $reg_preview = get_option('cosy_registration_image_url'); ?>
+                                    <div id="cosy_reg_preview" class="mt-2 <?php echo empty($reg_preview) ? 'd-none' : ''; ?>">
+                                        <img src="<?php echo esc_url($reg_preview); ?>" style="max-height: 120px; border-radius: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="cosy_login_image_url" class="form-label fw-bold text-secondary">Customer Login Page Image</label>
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-image"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2 cosy-img-input" name="cosy_login_image_url" id="cosy_login_image_url" value="<?php echo esc_attr(get_option('cosy_login_image_url')); ?>" placeholder="Select or upload image from Media Library">
+                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn" data-target="#cosy_login_image_url" data-preview="#cosy_login_preview" style="color: #a44390; border: 1.5px solid #a44390; background: #ffffff;">
+                                            <i class="fa-solid fa-folder-open me-1" style="color: #a44390;"></i> Choose Image
+                                        </button>
+                                    </div>
+                                    <div class="form-text text-muted">Select or upload the right-side banner image for the Customer Login page (/login/).</div>
+                                    <?php $login_preview = get_option('cosy_login_image_url'); ?>
+                                    <div id="cosy_login_preview" class="mt-2 <?php echo empty($login_preview) ? 'd-none' : ''; ?>">
+                                        <img src="<?php echo esc_url($login_preview); ?>" style="max-height: 120px; border-radius: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                        jQuery(document).ready(function($) {
+                            $('.cosy-media-select-btn').on('click', function(e) {
+                                e.preventDefault();
+                                var btn = $(this);
+                                var targetInput = $(btn.data('target'));
+                                var previewDiv = $(btn.data('preview'));
+
+                                var mediaFrame = wp.media({
+                                    title: 'Select or Upload Page Image',
+                                    button: { text: 'Use This Image' },
+                                    multiple: false
+                                });
+
+                                mediaFrame.on('select', function() {
+                                    var attachment = mediaFrame.state().get('selection').first().toJSON();
+                                    targetInput.val(attachment.url);
+                                    if (previewDiv.length) {
+                                        previewDiv.removeClass('d-none').find('img').attr('src', attachment.url);
+                                    }
+                                });
+
+                                mediaFrame.open();
+                            });
+                        });
+                        </script>
 
                         <script>
                         document.addEventListener('DOMContentLoaded', function() {
