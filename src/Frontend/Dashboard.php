@@ -566,56 +566,7 @@ class Dashboard
         ));
 
         if ($existing_review) {
-            // Check if provider has replied (Level 1)
-            $has_level1 = !empty($existing_review->provider_reply);
-            if (!$has_level1) {
-                $has_level1 = $wpdb->get_var($wpdb->prepare(
-                    "SELECT COUNT(*) FROM $replies_table WHERE review_id = %d AND reply_level = 1",
-                    $existing_review->id
-                ));
-            }
-
-            if (!$has_level1) {
-                wp_send_json_error(['message' => __('You have already submitted a review for this parent. Please wait for their response before posting a follow-up.', 'cosy-appointments')]);
-            }
-
-            // Check if customer already posted Level 2 follow-up
-            $has_level2 = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM $replies_table WHERE review_id = %d AND reply_level = 2",
-                $existing_review->id
-            ));
-
-            if ($has_level2) {
-                wp_send_json_error(['message' => __('You have already posted your follow-up in this review thread.', 'cosy-appointments')]);
-            }
-
-            // Insert Level 2 Customer Follow-up Reply into replies table
-            $cust_name = !empty($current_user->first_name) ? $current_user->first_name : $current_user->display_name;
-            $inserted_reply = $wpdb->insert(
-                $replies_table,
-                [
-                    'review_id'   => $existing_review->id,
-                    'sender_id'   => $current_user->ID,
-                    'sender_role' => 'customer',
-                    'sender_name' => $cust_name,
-                    'reply_text'  => $review_text,
-                    'reply_level' => 2,
-                    'created_at'  => current_time('mysql')
-                ],
-                ['%d', '%d', '%s', '%s', '%s', '%d', '%s']
-            );
-
-            if ($inserted_reply) {
-                \Cosy\Appointments\Common\LogManager::log(
-                    'reviews',
-                    'CUSTOMER_FOLLOWUP_REPLY',
-                    sprintf(__('Customer "%s" added a follow-up response to Review #%d.', 'cosy-appointments'), $cust_name, $existing_review->id),
-                    $current_user->ID
-                );
-                wp_send_json_success(['message' => __('Your response has been added to your review conversation thread!', 'cosy-appointments')]);
-            } else {
-                wp_send_json_error(['message' => __('Failed to save response. Please try again.', 'cosy-appointments')]);
-            }
+            wp_send_json_error(['message' => __('You have already submitted a review for this parent. If your previous review is removed by Admin, you can post a new review.', 'cosy-appointments')]);
         }
 
         // 5. Insert pending review into custom DB table
