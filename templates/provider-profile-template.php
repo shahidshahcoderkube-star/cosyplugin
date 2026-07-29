@@ -161,23 +161,9 @@ if (!empty($provider_data['ID'])) {
                             </div>
                             <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Parent Reviews', 'cosy-appointments'); ?></h5>
                         </div>
-                        <?php
-                        $user_has_active_review = false;
-                        if ($is_logged_in) {
-                            global $wpdb;
-                            $rev_check_table = $wpdb->prefix . 'cosy_provider_reviews';
-                            $user_has_active_review = (bool) $wpdb->get_var($wpdb->prepare(
-                                "SELECT COUNT(*) FROM $rev_check_table WHERE provider_id = %d AND customer_id = %d",
-                                $provider_id,
-                                $current_user->ID
-                            ));
-                        }
-                        if (!$user_has_active_review) :
-                        ?>
-                            <button class="cosy-btn-add-review btn btn-sm text-white px-3" id="addReviewBtn">
-                                <?php echo '+ ' . esc_html__('Add Review', 'cosy-appointments'); ?>
-                            </button>
-                        <?php endif; ?>
+                        <button class="cosy-btn-add-review btn btn-sm text-white px-3" id="addReviewBtn">
+                            <?php echo '+ ' . esc_html__('Add Review', 'cosy-appointments'); ?>
+                        </button>
                     </div>
 
                     <div class="collapse mb-4" id="reviewForm">

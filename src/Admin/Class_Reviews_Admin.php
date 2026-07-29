@@ -151,7 +151,7 @@ class Class_Reviews_Admin
             $existing_alerts[] = [
                 'review_id'   => $review_id,
                 'customer'    => $review->customer_name,
-                'message'     => sprintf(__('Admin removed Review #%d by %s for profile moderation policy compliance.', 'cosy-appointments'), $review_id, $review->customer_name),
+                'message'     => sprintf(__('Admin removed a review by %s for profile moderation policy compliance.', 'cosy-appointments'), $review->customer_name),
                 'deleted_at'  => current_time('mysql')
             ];
             update_user_meta($provider_id, 'cosy_review_audit_alerts', $existing_alerts);

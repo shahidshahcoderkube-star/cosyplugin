@@ -34,7 +34,7 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                     <i class="fas fa-info-circle flex-shrink-0" style="color: #3b82f6; font-size: 1rem;"></i>
                     <span class="text-truncate" style="color: #1e40af;">
                         <strong><?php esc_html_e('Audit Trail Notice:', 'cosy-appointments'); ?></strong>
-                        <?php echo esc_html($latest_alert['message']); ?>
+                        <?php echo esc_html(preg_replace('/Review #\d+\s*/i', 'a review ', $latest_alert['message'])); ?>
                     </span>
                     <?php if ($total_alerts_count > 1) : ?>
                         <span class="badge bg-primary rounded-pill flex-shrink-0" style="font-size: 0.68rem; padding: 2px 7px;">+<?php echo ($total_alerts_count - 1); ?> <?php esc_html_e('more', 'cosy-appointments'); ?></span>
@@ -310,9 +310,10 @@ jQuery(document).ready(function($) {
         });
     });
 
-    $('.btn-clear-audit-alerts').on('click', function() {
+    $(document).on('click', '.btn-clear-audit-alerts', function(e) {
+        e.preventDefault();
+        $('.cosy-audit-notice-banner').remove();
         var ajaxUrl = (typeof cosy_ajax !== 'undefined' && cosy_ajax.ajax_url) ? cosy_ajax.ajax_url : '/wp-admin/admin-ajax.php';
-        $('.cosy-audit-notice-banner').fadeOut(200);
         $.post(ajaxUrl, { action: 'cosy_dismiss_audit_alerts' });
     });
 });
