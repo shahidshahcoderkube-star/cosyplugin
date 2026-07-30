@@ -123,28 +123,61 @@ jQuery(document).ready(function ($) {
         let addedCount = 0;
         let dayOffset = 0;
 
-        while (addedCount < 6 && dayOffset < 14) {
+        while (dayOffset < 7) {
             const nextDate = new Date(baseDate);
             nextDate.setDate(baseDate.getDate() + dayOffset);
             const dateStr = nextDate.toDateString();
             const dayName = dayNames[nextDate.getDay()];
             dayOffset++;
 
+            const cellYear = nextDate.getFullYear();
+            const cellMonth = String(nextDate.getMonth() + 1).padStart(2, '0');
+            const cellDayStr = String(nextDate.getDate()).padStart(2, '0');
+            const dateISO = `${cellYear}-${cellMonth}-${cellDayStr}`;
+
+            const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateISO);
+            let isDayOff = false;
+            if (window.providerAvailability && typeof window.providerAvailability === 'object') {
+                const dayConfig = window.providerAvailability[dayName];
+                if (!dayConfig || (!dayConfig.start_time && !dayConfig.end_time)) {
+                    isDayOff = true;
+                }
+            }
+
+            // Skip provider's off-days completely so only active working days are rendered
+            if (isDayOff) {
+                continue;
+            }
+
             const safeIdKey = dateStr.replace(/[^a-zA-Z0-9]/g, '-');
             const formattedDayDate = nextDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             const selectedDuration = selectedSlotsByDay[dateStr] ? selectedSlotsByDay[dateStr].length * 10 : 0;
 
-            slotsRowsHtml += `
-                <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-white shadow-sm" style="border-color: #f1f5f9 !important;">
-                    <div class="text-start">
-                        <h6 class="fw-bold mb-1" style="color: #1e293b; font-size: 0.95rem;">${dayName} (${formattedDayDate})</h6>
-                        <p class="small text-muted mb-0" id="duration-${safeIdKey}">${selectedDuration} minutes Call Duration</p>
+            if (isHoliday) {
+                slotsRowsHtml += `
+                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-light opacity-75 shadow-sm" style="border-color: #f1f5f9 !important;">
+                        <div class="text-start">
+                            <h6 class="fw-bold mb-1 text-muted" style="font-size: 0.95rem;">${dayName} (${formattedDayDate})</h6>
+                            <p class="small text-danger mb-0">🚫 Holiday / Unavailable</p>
+                        </div>
+                        <button type="button" disabled class="btn btn-sm px-3 py-2 fw-semibold text-muted bg-white border" style="border-radius: 12px; font-size: 0.82rem; cursor: not-allowed;">
+                            Unavailable
+                        </button>
                     </div>
-                    <button type="button" id="btn-time-${safeIdKey}" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm btn-open-time-modal" data-date="${dateStr}" style="background: #a44390; border-radius: 12px; font-size: 0.82rem;">
-                        ${selectedDuration > 0 ? 'Edit Time' : 'Select Time'}
-                    </button>
-                </div>
-            `;
+                `;
+            } else {
+                slotsRowsHtml += `
+                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-white shadow-sm" style="border-color: #f1f5f9 !important;">
+                        <div class="text-start">
+                            <h6 class="fw-bold mb-1" style="color: #1e293b; font-size: 0.95rem;">${dayName} (${formattedDayDate})</h6>
+                            <p class="small text-muted mb-0" id="duration-${safeIdKey}">${selectedDuration} minutes Call Duration</p>
+                        </div>
+                        <button type="button" id="btn-time-${safeIdKey}" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm btn-open-time-modal" data-date="${dateStr}" style="background: #a44390; border-radius: 12px; font-size: 0.82rem;">
+                            ${selectedDuration > 0 ? 'Edit Time' : 'Select Time'}
+                        </button>
+                    </div>
+                `;
+            }
             addedCount++;
         }
 
@@ -221,7 +254,8 @@ jQuery(document).ready(function ($) {
                 <div class="p-3 rounded-4 mb-4 text-center" style="background: #faf5ff; border: 1.5px solid #e9d5ff;">
                     <small class="text-muted d-block fw-bold text-uppercase mb-1" style="font-size: 0.75rem;">Total Estimated Price</small>
                     <h3 class="fw-bold mb-0" id="txtLiveTotalAmount" style="color: #a44390;">${currencySymbol} 0.00</h3>
-                    <small class="text-muted" style="font-size: 0.78rem;">Calculated at 10-minute slot increments</small>
+                    <small class="text-muted d-block" style="font-size: 0.78rem;">Calculated at 10-minute slot increments</small>
+                    <div id="txtLiveTotalNote" class="mt-2 pt-2 border-top small text-muted" style="font-size: 0.76rem; color: #64748b; display: none;"></div>
                 </div>
 
                 <!-- Action Button -->
@@ -543,15 +577,50 @@ jQuery(document).ready(function ($) {
         return 6.67; // Fallback default unit price
     }
 
-    // Recalculate Live Price Formula: Total Slots * Unit Price * Weeks
+    function calculateTotalActiveSlotsAcrossWeeks(weeks) {
+        let totalActiveSlots = 0;
+        Object.keys(selectedSlotsByDay).forEach(dateStr => {
+            const slotsCount = selectedSlotsByDay[dateStr] ? selectedSlotsByDay[dateStr].length : 0;
+            if (slotsCount === 0) return;
+
+            const baseSlotDate = new Date(dateStr);
+            for (let w = 0; w < weeks; w++) {
+                const checkDate = new Date(baseSlotDate);
+                checkDate.setDate(baseSlotDate.getDate() + (w * 7));
+
+                const cYear = checkDate.getFullYear();
+                const cMonth = String(checkDate.getMonth() + 1).padStart(2, '0');
+                const cDayStr = String(checkDate.getDate()).padStart(2, '0');
+                const dateISO = `${cYear}-${cMonth}-${cDayStr}`;
+                const dayNamesMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const dayNameStr = dayNamesMap[checkDate.getDay()];
+
+                const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateISO);
+                let isDayOff = false;
+                if (window.providerAvailability && typeof window.providerAvailability === 'object') {
+                    const dayConfig = window.providerAvailability[dayNameStr];
+                    if (!dayConfig || (!dayConfig.start_time && !dayConfig.end_time)) {
+                        isDayOff = true;
+                    }
+                }
+
+                if (!isHoliday && !isDayOff) {
+                    totalActiveSlots += slotsCount;
+                }
+            }
+        });
+        return totalActiveSlots;
+    }
+
+    // Recalculate Live Price Formula: Total Active Non-Holiday Slots Across Weeks * Unit Price
     function calculateLiveTotal() {
-        let totalSlots = 0;
+        let totalSlots1Week = 0;
         Object.values(selectedSlotsByDay).forEach(slots => {
-            totalSlots += slots.length;
+            totalSlots1Week += slots.length;
         });
 
         const panel = $('#bookingCalculationPanel');
-        if (totalSlots > 0) {
+        if (totalSlots1Week > 0) {
             if (panel.is(':hidden')) {
                 panel.slideDown(300);
             }
@@ -561,9 +630,17 @@ jQuery(document).ready(function ($) {
 
         const unitPrice = getUnitPrice();
         const weeks = parseInt($('#selDurationWeeks').val()) || 1;
-        const totalCost = totalSlots * unitPrice * weeks;
+        const totalActiveSlots = calculateTotalActiveSlotsAcrossWeeks(weeks);
+        const totalCost = totalActiveSlots * unitPrice;
 
         $('#txtLiveTotalAmount').text(`${currencySymbol} ${totalCost.toFixed(2)}`);
+
+        const $note = $('#txtLiveTotalNote');
+        if (weeks > 1 && $note.length) {
+            $note.html('<i class="fas fa-info-circle me-1" style="color: #a44390;"></i> Note: Price is calculated ONLY for active available sessions. Provider holidays and non-working days are automatically excluded.').slideDown(200);
+        } else if ($note.length) {
+            $note.slideUp(200);
+        }
     }
 
     $(document).on('change', '#selDurationWeeks', function () {
@@ -588,7 +665,8 @@ jQuery(document).ready(function ($) {
 
         const unitPrice = getUnitPrice();
         const weeks = parseInt($('#selDurationWeeks').val()) || 1;
-        const serviceCostVal = totalSlots * unitPrice * weeks;
+        const totalActiveSlots = calculateTotalActiveSlotsAcrossWeeks(weeks);
+        const serviceCostVal = totalActiveSlots * unitPrice;
         const serviceCost = serviceCostVal.toFixed(2);
 
         const feeType = (window.cosyCheckout && window.cosyCheckout.feeType) || 'flat';
