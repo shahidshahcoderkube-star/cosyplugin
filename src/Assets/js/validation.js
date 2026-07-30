@@ -916,6 +916,57 @@ var CosyApp = (function ($) {
                 }
             });
         });
+
+        // Remove Availability Day handler via event delegation
+        $(container).off("click", ".remove-availability-day-btn").on("click", ".remove-availability-day-btn", function (e) {
+            e.preventDefault();
+            const dayName = $(this).data('day');
+            if (!dayName) return;
+
+            const $badge = $('#avail-badge-' + dayName);
+
+            if (typeof CosyAlert !== 'undefined') {
+                CosyAlert.confirm(
+                    'Remove Availability?',
+                    'Are you sure you want to remove working hours for ' + dayName + '?',
+                    'Yes, Remove It'
+                ).then(function () {
+                    executeDeleteDay(dayName, $badge);
+                });
+            } else if (confirm('Remove availability for ' + dayName + '?')) {
+                executeDeleteDay(dayName, $badge);
+            }
+        });
+
+        function executeDeleteDay(dayName, $badge) {
+            $.ajax({
+                url: cosy_ajax.ajax_url,
+                type: "POST",
+                data: {
+                    action: 'delete_provider_availability_day',
+                    nonce: $('#cosy_dashboard_nonce_field').val(),
+                    day: dayName
+                },
+                success: function (res) {
+                    if (res.success) {
+                        $badge.fadeOut(300, function () { $(this).remove(); });
+                        if (window.savedAvailability) {
+                            delete window.savedAvailability[dayName];
+                        }
+                        if (typeof CosyAlert !== 'undefined') {
+                            CosyAlert.success('Removed!', dayName + ' availability has been removed.');
+                        }
+                        syncProfileCompleteness();
+                    } else {
+                        if (typeof CosyAlert !== 'undefined') {
+                            CosyAlert.error('Error!', res.data || 'Failed to remove availability.');
+                        } else {
+                            alert(res.data || 'Failed to remove availability.');
+                        }
+                    }
+                }
+            });
+        }
     }
 
     /**

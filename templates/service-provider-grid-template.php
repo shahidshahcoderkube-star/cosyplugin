@@ -73,7 +73,17 @@
                             <i class="fas fa-play-circle"></i> <?php esc_html_e('Intro', 'cosy-appointments'); ?>
                         </button>
                     <?php endif; ?>
-                    <a href="<?php echo esc_url(get_author_posts_url($provider['ID'])); ?>" class="btn-premium btn-profile-v2">
+                    <?php
+                    // Retrieve provider profile base URL
+                    $profile_url = get_author_posts_url($provider['ID']);
+                    // Detect active service category selected in directory filters
+                    $selected_cat = !empty($active_service_slug) ? $active_service_slug : (isset($_POST['service_category']) ? sanitize_text_field($_POST['service_category']) : (isset($_GET['service_category']) ? sanitize_text_field($_GET['service_category']) : (isset($_GET['service_name']) ? sanitize_text_field($_GET['service_name']) : '')));
+                    // Append service_name query parameter if a specific category was filtered
+                    if (!empty($selected_cat)) {
+                        $profile_url = add_query_arg('service_name', $selected_cat, $profile_url);
+                    }
+                    ?>
+                    <a href="<?php echo esc_url($profile_url); ?>" class="btn-premium btn-profile-v2">
                         <?php esc_html_e('View Profile', 'cosy-appointments'); ?> <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>

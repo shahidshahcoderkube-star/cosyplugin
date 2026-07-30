@@ -524,10 +524,11 @@
 }
 
 .cosy-btn-select-time {
-    background: linear-gradient(135deg, #a44390, #c25ca9) !important;
+    background: #a44390 !important;
     border-radius: 12px !important;
     border: none !important;
     font-size: 0.7rem !important;
+    color: #ffffff !important;
 }
 
 .cosy-duration-label {
@@ -543,7 +544,7 @@
     font-size: 0.85rem !important;
     cursor: pointer !important;
     appearance: none !important;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E') !important;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E') !important;
     background-repeat: no-repeat !important;
     background-position: right 1rem center !important;
     background-size: 1.2em !important;
@@ -565,10 +566,11 @@
 }
 
 .cosy-btn-book-now {
-    background: linear-gradient(135deg, #a44390, #6d2e67) !important;
+    background: #a44390 !important;
     border-radius: 12px !important;
     border: none !important;
     font-size: 0.95rem !important;
+    color: #ffffff !important;
     transition: all 0.2s !important;
 }
 
@@ -597,6 +599,7 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    color: #a44390 !important;
 }
 
 .cosy-modal-legend-dot {
@@ -634,7 +637,8 @@
 }
 
 .cosy-modal-confirm-btn {
-    background: linear-gradient(135deg, #a44390, #6d2e67) !important;
+    background: #a44390 !important;
+    color: #ffffff !important;
     border-radius: 12px !important;
     border: none !important;
     min-width: 140px !important;

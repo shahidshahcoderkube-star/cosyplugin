@@ -124,7 +124,10 @@ if (!isset($availability)) {
                         $s = date("h:i A", strtotime($avail['start_time']));
                         $e = date("h:i A", strtotime($avail['end_time']));
                         $short_day = substr($day_name, 0, 3);
-                        echo '<span class="badge availability-badge">' . esc_html("$short_day: $s - $e") . '</span>';
+                        echo '<span class="badge availability-badge d-inline-flex align-items-center gap-2" id="avail-badge-' . esc_attr($day_name) . '" style="background: rgba(164, 67, 144, 0.08); color: #a44390; border: 1px solid rgba(164, 67, 144, 0.2); padding: 8px 14px; border-radius: 20px; font-size: 0.88rem; font-weight: 600;">';
+                        echo esc_html("$short_day: $s - $e");
+                        echo ' <button type="button" class="btn-close remove-availability-day-btn ms-1" data-day="' . esc_attr($day_name) . '" style="font-size: 0.65rem; opacity: 0.7; cursor: pointer;" title="' . esc_attr__('Remove this day\'s availability', 'cosy-appointments') . '"></button>';
+                        echo '</span>';
                     }
                 }
                 ?>

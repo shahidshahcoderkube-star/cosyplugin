@@ -65,8 +65,19 @@ function renderCalendar() {
         const dateString = `${cellYear}-${cellMonth}-${cellDayStr}`;
         const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateString);
 
-        // Today and past days are unavailable / greyed-out
-        const isUnavailable = isPast || isToday || isHoliday;
+        // Check if provider has configured working hours for this day of the week
+        const dayNamesMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNamesMap[cellDate.getDay()];
+        let isDayOff = false;
+        if (window.providerAvailability && typeof window.providerAvailability === 'object') {
+            const dayConfig = window.providerAvailability[dayName];
+            if (!dayConfig || (!dayConfig.start_time && !dayConfig.end_time)) {
+                isDayOff = true;
+            }
+        }
+
+        // Today, past days, holidays, and non-working days are unavailable / greyed-out
+        const isUnavailable = isPast || isToday || isHoliday || isDayOff;
 
         let bg = '#f8fafc';
         let color = '#1e293b';
@@ -90,7 +101,7 @@ function renderCalendar() {
                         font-size:0.85rem; font-weight:${fontWeight}; border-radius:12px;
                         background:${bg}; color:${color}; border:${border};
                         cursor:${isUnavailable ? 'not-allowed' : 'pointer'}; transition:all 0.2s;"
-                 title="${isHoliday ? 'Holiday / Unavailable' : ''}">
+                 title="${isHoliday ? 'Holiday / Unavailable' : (isDayOff ? 'Non-working day' : '')}">
                 ${d}
             </div>`;
     }
@@ -112,57 +123,67 @@ function selectDay(el, day) {
     selectedDate = new Date(year, month, day);
     renderCalendar();
 
-    const bookingSection = document.getElementById('bookingTimeSlots');
-    const displayDateText = document.getElementById('displaySelectedDate');
-    const slotsList = document.getElementById('timeSlotsList');
+    // Format start date as DD-MM-YYYY
+    const monthStr = String(month + 1).padStart(2, '0');
+    const dayStr = String(day).padStart(2, '0');
+    const formattedDate = `${dayStr}-${monthStr}-${year}`;
 
-    if (bookingSection) {
-        bookingSection.style.display = 'block';
-        displayDateText.textContent = selectedDate.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+    // Read service parameter from current profile URL bar to maintain exact selected category
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlServiceName = urlParams.get('service_name') || urlParams.get('service_category');
 
-        slotsList.innerHTML = '';
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    let serviceTitle = '';
+    let serviceSlug = '';
 
-        let addedCount = 0;
-        let dayOffset = 0;
-
-        while (addedCount < 6 && dayOffset < 14) {
-            const nextDate = new Date(selectedDate);
-            nextDate.setDate(selectedDate.getDate() + dayOffset);
-            const dayIndex = nextDate.getDay();
-            const dateStr = nextDate.toDateString();
-            const dayName = dayNames[dayIndex];
-
-            dayOffset++;
-
-            // Skip if no availability set for this day
-            const avail = window.providerAvailability ? window.providerAvailability[dayName] : null;
-            if (!avail || !avail.start_time || !avail.end_time) continue;
-
-            addedCount++;
-
-            const slotDur = avail.slot_duration ? parseInt(avail.slot_duration) : 15;
-            const duration = selectedTimeSlotsByDay[dateStr] ? selectedTimeSlotsByDay[dateStr].length * slotDur : 0;
-            const formattedDate = nextDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-            slotsList.innerHTML += `
-                <div class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-4 border bg-white cosy-slot-row-bg">
-                    <div class="text-start">
-                        <h6 class="fw-bold mb-1 cosy-slot-day-text">${dayNames[dayIndex]} (${formattedDate})</h6>
-                        <p class="small text-muted mb-0 cosy-booking-for-another" id="duration-${dateStr}">${duration} minutes Call Duration</p>
-                    </div>
-                    <button onclick="openTimeSlotModal('${dateStr}')" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm cosy-btn-select-time">
-                        ${duration > 0 ? 'Edit Time' : 'Select Time'}
-                    </button>
-                </div>
-            `;
-        }
+    // Prioritize URL service parameter over defaults to avoid resetting to default service
+    if (urlServiceName) {
+        serviceSlug = urlServiceName;
+        serviceTitle = urlServiceName.replace(/[-_]+/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    } else if (selectedService && selectedService.title) {
+        serviceTitle = selectedService.title;
+        serviceSlug = selectedService.slug || serviceTitle.toLowerCase().replace(/\s+/g, '-');
+    } else if (window.cosyDefaultService && window.cosyDefaultService.title) {
+        serviceTitle = window.cosyDefaultService.title;
+        serviceSlug = window.cosyDefaultService.slug || serviceTitle.toLowerCase().replace(/\s+/g, '-');
+    } else {
+        serviceTitle = 'Parent Conversation';
+        serviceSlug = 'parent-conversation';
     }
+
+    const serviceId = (selectedService && selectedService.id) ? selectedService.id : (window.cosyDefaultService ? window.cosyDefaultService.id : 1);
+    const servicePrice = (selectedService && selectedService.price) ? selectedService.price : (window.cosyDefaultService ? window.cosyDefaultService.price : 0);
+
+    // Save selection details to localStorage for smooth transition
+    localStorage.setItem('cosy_selected_start_date', formattedDate);
+    localStorage.setItem('cosy_selected_provider_id', window.providerId || 0);
+    localStorage.setItem('cosy_selected_provider_name', window.providerName || '');
+    localStorage.setItem('cosy_selected_service_name', serviceTitle);
+    localStorage.setItem('cosy_selected_service_id', serviceId);
+    if (servicePrice) {
+        localStorage.setItem('cosy_selected_service_price', servicePrice);
+    }
+
+    // Initialize fresh pending booking session to eliminate stale cache from previous sessions
+    try {
+        const freshBooking = {
+            service: serviceTitle,
+            serviceId: serviceId,
+            unitPrice: servicePrice || 0,
+            providerId: window.providerId || 0,
+            providerName: window.providerName || '',
+            startDate: formattedDate,
+            slots: {},
+            slotsTimeline: ''
+        };
+        localStorage.setItem('cosy_pending_booking', JSON.stringify(freshBooking));
+    } catch (e) { }
+
+    // Redirect to the dedicated Call Schedule / Checkout page with parameters
+    const baseUrl = window.checkoutUrl || (window.location.origin + '/cosy-checkout/');
+    const separator = baseUrl.includes('?') ? '&' : '?';
+    window.location.href = baseUrl + separator + 'step=schedule&provider_id=' + (window.providerId || 0) + '&start_date=' + formattedDate + '&service_name=' + encodeURIComponent(serviceSlug);
 }
+
 
 function changeMonth(dir) {
     currentDate.setMonth(currentDate.getMonth() + dir);
@@ -400,6 +421,10 @@ function openVideoPopup(url) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Clear old pending booking data from previous sessions when landing on profile page
+    localStorage.removeItem('cosy_pending_booking');
+    selectedTimeSlotsByDay = {};
+
     const stars = document.querySelectorAll('.rating-star');
     const ratingInput = document.getElementById('selectedRating');
     const addReviewBtn = document.getElementById('addReviewBtn');
@@ -624,8 +649,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const pendingBooking = {
                 serviceId: selectedService.id,
                 service: selectedService.title,
-
                 serviceDuration: selectedService.duration,
+                unitPrice: selectedService.price,
                 providerName: providerName,
                 providerId: providerId,
                 startDate: startDateStr,

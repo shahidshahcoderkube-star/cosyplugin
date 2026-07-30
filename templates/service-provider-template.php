@@ -1,5 +1,20 @@
 <?php 
-$all_providers   = $this->get_all_service_providers(); 
+$uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$active_service_slug = isset($_GET['service_name']) ? sanitize_text_field($_GET['service_name']) : (isset($_GET['service_category']) ? sanitize_text_field($_GET['service_category']) : '');
+if (empty($active_service_slug) && !empty($uri_path)) {
+    $current_url = trim($uri_path, '/');
+    $url_segments = explode('/', $current_url);
+    $last_segment = end($url_segments);
+    if ($last_segment !== 'service-provider' && $last_segment !== 'cosyplugin') {
+        $active_service_slug = $last_segment;
+    }
+}
+
+$filters = [];
+if (!empty($active_service_slug)) {
+    $filters['service_category'] = $active_service_slug;
+}
+$all_providers   = $this->get_all_service_providers($filters); 
 $total_providers = count($all_providers);
 $per_page        = 9;
 $paged           = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;

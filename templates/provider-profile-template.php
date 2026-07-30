@@ -34,6 +34,43 @@ if (!empty($provider_data['ID'])) {
     $availability      = $availability_data['availability'];
     $holiday_dates     = $availability_data['holiday_dates'];
 }
+
+// Initialize selected service object and parse service parameter from URL
+$selected_service_obj = null;
+$url_service = isset($_GET['service_name']) ? sanitize_text_field($_GET['service_name']) : (isset($_GET['service_category']) ? sanitize_text_field($_GET['service_category']) : (isset($_GET['category']) ? sanitize_text_field($_GET['category']) : ''));
+
+// Search provider's assigned services for a matching service title or slug
+if (!empty($provider_data['services'])) {
+    if (!empty($url_service)) {
+        $clean_url_srv = strtolower(trim(str_replace(['-', '_'], ' ', $url_service)));
+        $slug_url_srv  = strtolower(trim(str_replace(' ', '-', $url_service)));
+        foreach ($provider_data['services'] as $srv) {
+            $srv_title_clean = strtolower(trim(str_replace(['-', '_'], ' ', $srv['title'])));
+            $srv_title_slug  = strtolower(trim(str_replace(' ', '-', $srv['title'])));
+            if ($srv_title_clean === $clean_url_srv || $srv_title_slug === $slug_url_srv || strpos($srv_title_clean, $clean_url_srv) !== false || strpos($clean_url_srv, $srv_title_clean) !== false) {
+                $selected_service_obj = $srv;
+                break;
+            }
+        }
+    }
+}
+
+// Fallback logic to ensure title, ID, price, and slug are always defined
+if ($selected_service_obj) {
+    $selected_service_title = $selected_service_obj['title'];
+    $selected_service_id    = $selected_service_obj['ID'];
+    $selected_service_price = $selected_service_obj['price'];
+} elseif (!empty($url_service)) {
+    $selected_service_title = ucwords(str_replace(['-', '_'], ' ', $url_service));
+    $selected_service_id    = !empty($provider_data['services'][0]['ID']) ? $provider_data['services'][0]['ID'] : 1;
+    $selected_service_price = !empty($provider_data['services'][0]['price']) ? $provider_data['services'][0]['price'] : 0;
+} else {
+    $selected_service_obj   = !empty($provider_data['services'][0]) ? $provider_data['services'][0] : null;
+    $selected_service_title = $selected_service_obj ? $selected_service_obj['title'] : 'Parent Conversation';
+    $selected_service_id    = $selected_service_obj ? $selected_service_obj['ID'] : 1;
+    $selected_service_price = $selected_service_obj ? $selected_service_obj['price'] : 0;
+}
+$selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_replace(' ', '-', $selected_service_title));
 ?>
 
 <!-- 
@@ -51,6 +88,13 @@ if (!empty($provider_data['ID'])) {
     };
     window.providerId = <?php echo wp_json_encode($provider_data['ID'] ?? 0); ?>;
     window.providerName = <?php echo wp_json_encode($provider_data['first_name'] ?? ''); ?>;
+    window.cosyDefaultService = {
+        id: <?php echo wp_json_encode($selected_service_id); ?>,
+        title: <?php echo wp_json_encode($selected_service_title); ?>,
+        slug: <?php echo wp_json_encode($selected_service_slug); ?>,
+        price: <?php echo wp_json_encode($selected_service_price); ?>,
+        duration: 10
+    };
     window.ajaxUrl = <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>;
     window.checkoutUrl = <?php echo wp_json_encode(cosy_get_page_url('cosy-checkout')); ?>;
     window.nonce = <?php echo wp_json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
@@ -88,10 +132,8 @@ if (!empty($provider_data['ID'])) {
                                 <?php endif ?>
                                 <span class="text-white"><i class="fas fa-user-check me-1 text-white"></i> <?php esc_html_e('Verified Parent', 'cosy-appointments'); ?></span>
 
-                                <?php if (!empty($provider_data['services'])): 
-                                    $service_titles = array_column($provider_data['services'], 'title');
-                                ?>
-                                    <span class="text-white"><i class="fas fa-tags me-1 text-white"></i> <?php echo esc_html(implode(' • ', $service_titles)); ?></span>
+                                <?php if (!empty($selected_service_title)): ?>
+                                    <span class="text-white"><i class="fas fa-tags me-1 text-white"></i> <?php echo esc_html($selected_service_title); ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -103,12 +145,10 @@ if (!empty($provider_data['ID'])) {
                         <div class="col-4 py-3">
                             <?php
                             if (!empty($provider_data['services'])):
-                                // Saari services ke prices nikaal kar sab se kam (minimum) price dhoondna
-                                $prices = array_column($provider_data['services'], 'price');
-                                $min_price = !empty($prices) ? min($prices) : '0.00';
+                                $display_price = (!empty($selected_service_price) && floatval($selected_service_price) > 0) ? $selected_service_price : min(array_column($provider_data['services'], 'price'));
                             ?>
                                 <div class="cosy-price-min h5 fw-bold mb-1">
-                                    <?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($min_price); ?>
+                                    <?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($display_price); ?>
                                 </div>
                                 <small class="cosy-price-label text-muted text-uppercase fw-bold">
                                     <?php esc_html_e('Starting From Hourly Rate', 'cosy-appointments'); ?>
@@ -429,79 +469,6 @@ if (!empty($provider_data['ID'])) {
                     </div>
                 </div>
 
-                <div id="bookingTimeSlots" class="card border-0 shadow-sm"
-                    style="display: none; border-radius: 24px; overflow: hidden; background: #fff;">
-                    <div class="card-body p-4 pb-2">
-                        <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-4 pb-2 border-bottom">
-                            <div class="cosy-icon-box">
-                                <i class="cosy-total-price fas fa-clock"></i>
-                            </div>
-                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Call Schedule', 'cosy-appointments'); ?></h5>
-                        </div>
-
-
-                        <!-- <div class="bookingForAnother">
-                            <input class="cosy-checkbox" type="checkbox" id="bookingForAnother">
-                            <label for="bookingForAnother" class="cosy-slot-duration-text small text-muted fw-bold mb-0 cursor-pointer"><?php esc_html_e('Booking for another person', 'cosy-appointments'); ?></label>
-                        </div> -->
-
-                        <div class="cosy-date-display-box p-2 px-3 fw-bold text-dark mb-3 d-flex align-items-center justify-content-between">
-                            <span><i class="fas fa-calendar-day me-2 text-muted"></i> <?php esc_html_e('Start Date:', 'cosy-appointments'); ?></span>
-                            <span class="cosy-date-text" id="displaySelectedDate"><?php esc_html_e('May 13, 2026', 'cosy-appointments'); ?></span>
-                        </div>
-
-                        <div id="timeSlotsList" class="d-flex flex-column gap-2 mb-0">
-                            <!-- Rows will be populated by JS -->
-                        </div>
-
-                        <!-- DYNAMIC WEEKLY PRICING SECTION -->
-                        <div id="weeklyPricingSection" style="display: none;" class="mt-4 pt-4 border-top">
-                            <div class="text-center">
-                                <p class="cosy-duration-label small text-muted fw-bold mb-3 text-uppercase"><?php esc_html_e('Select Booking Duration', 'cosy-appointments'); ?></p>
-
-                                <div class="px-2 mb-3 position-relative">
-                                    <select id="totalBookingWeeks"
-                                        class="form-select border shadow-sm fw-bold py-2 ps-3 pe-5"
-                                        style="border-radius: 12px; background: #ffffff; border-color: #e2e8f0; color: #1e293b; font-size: 0.85rem; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a44390%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em;"
-                                        onchange="updateFinalPrice()">
-                                        <option value="1"><?php esc_html_e('1 Week Duration', 'cosy-appointments'); ?></option>
-                                        <option value="2"><?php esc_html_e('2 Weeks Recurring', 'cosy-appointments'); ?></option>
-                                        <option value="3"><?php esc_html_e('3 Weeks Recurring', 'cosy-appointments'); ?></option>
-                                        <option value="4"><?php esc_html_e('4 Weeks (1 Month)', 'cosy-appointments'); ?></option>
-                                        <option value="5"><?php esc_html_e('5 Weeks Recurring', 'cosy-appointments'); ?></option>
-                                        <option value="6"><?php esc_html_e('6 Weeks Recurring', 'cosy-appointments'); ?></option>
-                                        <option value="7"><?php esc_html_e('7 Weeks Recurring', 'cosy-appointments'); ?></option>
-                                        <option value="8"><?php esc_html_e('8 Weeks (2 Months)', 'cosy-appointments'); ?></option>
-                                        <option value="9"><?php esc_html_e('9 Weeks Recurring', 'cosy-appointments'); ?></option>
-                                        <option value="10"><?php esc_html_e('10 Weeks Recurring', 'cosy-appointments'); ?></option>
-                                        <option value="11"><?php esc_html_e('11 Weeks Recurring', 'cosy-appointments'); ?></option>
-                                        <option value="12"><?php esc_html_e('12 Weeks (Quarterly)', 'cosy-appointments'); ?></option>
-                                    </select>
-                                </div>
-
-                                <div class="cosy-total-amount-box p-2 mb-3 rounded-4">
-                                    <span class="cosy-total-label text-muted d-block mb-1 fw-bold"><?php esc_html_e('Total Service Amount', 'cosy-appointments'); ?></span>
-                                    <h4 class="cosy-total-price fw-bold mb-0" id="finalTotalAmountText"><?php echo esc_html(cosy_get_currency_symbol()); ?> 0.00
-                                    </h4>
-                                </div>
-
-                                <?php if ($is_logged_in && $is_customer): ?>
-                                    <button class="cosy-btn-book-now btn w-100 py-2 fw-bold text-white shadow-sm"
-                                        onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';"
-                                        id="bookServiceBtn">
-                                        <?php esc_html_e('Book Service Now', 'cosy-appointments'); ?>
-                                    </button>
-                                <?php else: ?>
-                                    <div class="alert alert-warning py-3 px-3 mb-0 text-center fw-bold d-flex align-items-center justify-content-center gap-2"
-                                        style="border-radius: 12px; font-size: 0.8rem; background: #fffbeb; border: 1px solid #fef3c7; color: #d97706; font-family: var(--cosy-font-family);">
-                                        <i class="cosy-login-alert-icon fas fa-lock"></i>
-                                        <span><?php esc_html_e('Please log in as a Customer to book this service.', 'cosy-appointments'); ?></span>
-                                    </div>
-                                <?php endif; ?>
-                                <p class="cosy-secure-payment-text small text-muted mt-3 mb-0"><?php esc_html_e('Secure payment via CosyChats Checkout', 'cosy-appointments'); ?></p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

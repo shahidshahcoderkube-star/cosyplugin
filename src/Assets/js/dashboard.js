@@ -626,7 +626,7 @@ jQuery(document).ready(function ($) {
             invoiceDoc += `Service: ${service}\n`;
             invoiceDoc += `Amount Paid: ${currencySymbol}${total}\n`;
             invoiceDoc += `Status: PAID / SECURED\n`;
-            invoiceDoc += `Payment Method: Worldpay FIS\n`;
+            invoiceDoc += `Payment Method: Stripe\n`;
             invoiceDoc += `===================================\n`;
             invoiceDoc += `Thank you for your business!`;
 

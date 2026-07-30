@@ -2410,11 +2410,10 @@ body .swal2-icon {
 .cosy-checkout-root {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background-color: transparent;
-    /* Inherit theme background color */
     color: var(--cosy-text-dark);
     min-height: auto;
-    padding: 0px 0 40px 0;
-    /* Minimized top padding to zero */
+    padding: 50px 0 50px 0;
+    /* Generous top padding for clean spacing below header */
 }
 
 .cosy-checkout-root h2,
@@ -2442,35 +2441,31 @@ body .swal2-icon {
 }
 
 .cosy-checkout-back-btn {
-    background: var(--cosy-brand-dark);
-    /* Branded deep purple */
-    color: #ffffff;
+    background: transparent !important;
+    color: #a44390 !important;
     border: none;
-    padding: 10px 24px;
+    padding: 6px 0;
     font-size: 0.9rem;
     font-weight: 700;
-    border-radius: 12px;
-    /* Branded rounded corner */
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     transition: all 0.2s ease;
     text-decoration: none;
-    box-shadow: 0 4px 10px rgba(109, 46, 103, 0.15);
+    box-shadow: none !important;
 }
 
 .cosy-checkout-back-btn:hover {
-    background: var(--cosy-brand-purple);
-    /* Highlight brand purple */
+    background: transparent !important;
+    color: #6d2e67 !important;
     transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(164, 67, 144, 0.25);
+    box-shadow: none !important;
 }
 
 .cosy-checkout-back-btn i,
 .cosy-checkout-back-btn svg {
-    color: #ffffff;
-    /* Force white arrow color */
+    color: inherit;
     font-size: 0.95rem;
     /* Match text size proportions */
     line-height: 1;

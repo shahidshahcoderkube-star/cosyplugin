@@ -32,6 +32,7 @@ class Dashboard
             'delete_video'                     => 'ajax_delete_video',       // Deletes provider video
             'load_dashboard_tab'               => 'cosy_load_dashboard_tab', // Loads tabs via AJAX
             'save_provider_availability'       => 'handle_availability_save', // Saves working hours
+            'delete_provider_availability_day' => 'handle_delete_availability_day', // Deletes working hours for a day
             'cosy_add_holiday'                 => 'handle_add_holiday',      // Adds a non-working day
             'cosy_delete_holiday'              => 'handle_delete_holiday',   // Deletes a non-working day
             'cosy_add_provider_review'         => 'handle_add_review',
@@ -514,7 +515,31 @@ class Dashboard
             $user_id
         );
  
-        wp_send_json_success('Availability saved successfully for ' . $days_string);
+        wp_send_json_success('Availability for ' . $days_string . ' saved successfully.');
+    }
+
+    /**
+     * AJAX Handler: Deletes availability working hours for a specific day.
+     */
+    public function handle_delete_availability_day(): void
+    {
+        $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
+        $day = sanitize_text_field($_POST['day'] ?? '');
+
+        if (!empty($day)) {
+            delete_user_meta($user_id, "cosy_availability_{$day}");
+            
+            \Cosy\Appointments\Common\LogManager::log(
+                'dashboard',
+                'availability_deleted',
+                sprintf(__('Provider removed availability working hours for %s.', 'cosy-appointments'), $day),
+                $user_id
+            );
+
+            wp_send_json_success('Availability for ' . $day . ' removed successfully.');
+        }
+
+        wp_send_json_error('Invalid day parameter.');
     }
     /**
      * AJAX Handler: Adds a new review for a service provider.
