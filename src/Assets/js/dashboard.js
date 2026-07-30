@@ -569,84 +569,10 @@ jQuery(document).ready(function ($) {
     };
 
     // ============================================================
-    // 4. PROVIDER INVOICES MODULE
-    // ============================================================
-    /**
-     * CosyInvoices: Handles rendering invoice metadata inside detail modals
-     * and dynamic client-side TXT/PDF payment receipt downloads.
-     */
-    const CosyInvoices = {
-        init() {
-            $(document).on('click', '.btn-view-invoice', this.viewInvoice);
-            $(document).on('click', '.btn-download-invoice, #btnDownloadInvoicePdf', this.download);
-        },
-
-        /**
-         * Populator: Maps invoice details into the designated dynamic modal placeholders.
-         * Saves invoice attributes directly to the download button as DOM data-references.
-         */
-        viewInvoice() {
-            const id = $(this).data('id');
-            const customer = $(this).data('customer');
-            const email = $(this).data('email');
-            const service = $(this).data('service');
-            const start = $(this).data('start');
-            const cost = $(this).data('cost');
-            const fee = $(this).data('fee') || '0.00';
-            const total = $(this).data('total');
-
-            $('#modalInvoiceTitle').text('Invoice Details - INV-' + id);
-            $('#modalInvCustomerName').text(customer);
-            $('#modalInvCustomerEmail').text('(' + email + ')');
-            $('#modalInvServiceName').text(service);
-            $('#modalInvDate').text(start);
-            $('#modalInvProviderShare').text(currencySymbol + cost);
-            $('#modalInvServiceFee').text(currencySymbol + fee);
-            $('#modalInvTotalPaid').text(currencySymbol + total);
-
-            // Cascade references to the print/download button inside the modal footer
-            $('#btnDownloadInvoicePdf').data('id', id).data('customer', customer).data('service', service).data('total', total);
-        },
-
-        /**
-         * Receipt Generator: Builds a structured payment receipt locally, packs it into 
-         * a safe browser Binary Large Object (Blob), and programmatically downloads it.
-         */
-        download(e) {
-            e.preventDefault();
-            const id = $(this).data('id');
-            const customer = $(this).data('customer');
-            const service = $(this).data('service');
-            const total = $(this).data('total');
-
-            let invoiceDoc = `COSY APPOINTMENTS INVOICE RECEIPT\n`;
-            invoiceDoc += `===================================\n`;
-            invoiceDoc += `Invoice Reference: INV-${id}\n`;
-            invoiceDoc += `Customer Name: ${customer}\n`;
-            invoiceDoc += `Service: ${service}\n`;
-            invoiceDoc += `Amount Paid: ${currencySymbol}${total}\n`;
-            invoiceDoc += `Status: PAID / SECURED\n`;
-            invoiceDoc += `Payment Method: Stripe\n`;
-            invoiceDoc += `===================================\n`;
-            invoiceDoc += `Thank you for your business!`;
-
-            // Build receipt blob download pipeline
-            const element = document.createElement("a");
-            const file = new Blob([invoiceDoc], { type: 'text/plain' });
-            element.href = URL.createObjectURL(file);
-            element.download = "invoice_INV_" + id + ".txt";
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        }
-    };
-
-    // ============================================================
     // 5. INITIALIZE ALL MODULES
     // ============================================================
     // Bootstraps all registered dashboard modules upon document ready
     CosyHolidays.init();
     CosyOrders.init();
-    CosyInvoices.init();
 
 });

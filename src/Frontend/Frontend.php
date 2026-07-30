@@ -972,7 +972,7 @@ class Frontend
                     <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency_symbol}{$total_payable}</td></tr>
                 </table>
                 
-                <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>Please log in to your Provider Dashboard to manage your dashboard schedule and check invoice receipts.</p>
+                <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>Please log in to your Provider Dashboard to manage your schedule and orders.</p>
             ";
             cosy_send_html_email($provider_email, $provider_subject, __('New Appointment Notification', 'cosy-appointments'), $provider_content);
         }

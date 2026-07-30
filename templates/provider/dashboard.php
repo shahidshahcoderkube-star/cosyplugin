@@ -11,7 +11,7 @@
                 </div>
                 <h4 class="m-0"
                     style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem; color: #1e293b; letter-spacing: 0.5px; text-transform: uppercase;">
-                    <?php esc_html_e('Provider Dashboard', 'cosy-appointments'); ?></h4>
+                    <?php esc_html_e('Dashboard', 'cosy-appointments'); ?></h4>
             </div>
 
             <div class="nav flex-column cc__dashboard nav-pills" id="cosyDashboardTabs" role="tablist"
@@ -66,10 +66,6 @@
                     <?php if ($pending_review_actions > 0) : ?>
                         <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.68rem; padding: 3px 7px; vertical-align: middle;"><?php echo intval($pending_review_actions); ?></span>
                     <?php endif; ?>
-                </button>
-                <button class="nav-link cosy-tab mb-2" data-tab="invoices" id="invoices-tab" data-bs-toggle="pill"
-                    data-bs-target="#invoices" type="button" role="tab">
-                    <i class="fas fa-file-invoice-dollar"></i> <?php esc_html_e('Invoices', 'cosy-appointments'); ?>
                 </button>
             </div>
         </div>
@@ -186,9 +182,6 @@
                 </div>
                 <div class="tab-pane fade" id="reviews" role="tabpanel">
                     <?php include 'dashboard/customer-reviews.php'; ?>
-                </div>
-                <div class="tab-pane fade" id="invoices" role="tabpanel">
-                    <?php include 'dashboard/invoices.php'; ?>
                 </div>
             </div>
         </div>

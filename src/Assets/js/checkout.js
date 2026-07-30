@@ -183,10 +183,12 @@ jQuery(document).ready(function ($) {
 
         container.innerHTML = `
             <div class="cosy-checkout-header d-flex align-items-center justify-content-between mb-4">
-                <button id="cosyCheckoutBackBtn" class="cosy-checkout-back-btn btn border-0 fw-bold px-0 py-2" style="background: transparent !important; color: #a44390; box-shadow: none; border-radius: 0;">
-                    <i class="fas fa-arrow-left me-1" style="color: #a44390 !important;"></i> Back to Profile
+                <button id="cosyCheckoutBackBtn" class="cosy-checkout-back-btn btn border-0 fw-bold px-0 py-2 d-inline-flex align-items-center gap-2" style="background: transparent !important; color: #a44390; box-shadow: none; border-radius: 0; font-size: 0.95rem; line-height: 1;">
+                    <i class="fas fa-arrow-left" style="color: #a44390 !important; font-size: 0.95rem;"></i> <span>Back to Profile</span>
                 </button>
-                <h2 class="cosy-checkout-title h4 fw-bold mb-0" style="color: #1e293b;">Call Schedule</h2>
+                <h2 class="cosy-checkout-title h4 fw-bold mb-0 d-inline-flex align-items-center gap-2" style="color: #a44390; font-size: 1.25rem;">
+                    <i class="fas fa-calendar-check" style="color: #a44390;"></i> <span>Call Schedule</span>
+                </h2>
             </div>
 
             <!-- Header Card -->
@@ -373,10 +375,12 @@ jQuery(document).ready(function ($) {
 
         container.innerHTML = `
             <div class="cosy-checkout-header mb-4 d-flex align-items-center justify-content-between">
-                <button id="btnBackToSchedule" class="btn border-0 fw-bold px-0 py-2" style="background: transparent !important; color: #a44390; box-shadow: none; border-radius: 0;">
-                    <i class="fas fa-arrow-left me-1"></i> Back to Schedule
+                <button id="btnBackToSchedule" class="btn border-0 fw-bold px-0 py-2 d-inline-flex align-items-center gap-2" style="background: transparent !important; color: #a44390; box-shadow: none; border-radius: 0; font-size: 0.95rem; line-height: 1;">
+                    <i class="fas fa-arrow-left" style="color: #a44390 !important; font-size: 0.95rem;"></i> <span>Back to Schedule</span>
                 </button>
-                <h1 class="cosy-checkout-title h4 fw-bold mb-0" style="color: #1e293b;">Your Booking Summary</h1>
+                <h1 class="cosy-checkout-title h4 fw-bold mb-0 d-inline-flex align-items-center gap-2" style="color: #a44390; font-size: 1.25rem;">
+                    <i class="fas fa-file-alt" style="color: #a44390;"></i> <span>Your Booking Summary</span>
+                </h1>
             </div>
 
             <!-- Bento Card 1: Service Information -->
@@ -480,6 +484,57 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    function getDynamic10MinSlots(dateStr) {
+        const dateObj = new Date(dateStr);
+        const dayNamesMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayNameStr = dayNamesMap[dateObj.getDay()];
+
+        if (!window.providerAvailability || typeof window.providerAvailability !== 'object') {
+            return ['09:00 AM', '09:10 AM', '09:20 AM', '09:30 AM', '09:40 AM', '09:50 AM', '10:00 AM', '10:10 AM', '10:20 AM', '10:30 AM', '11:00 AM', '11:10 AM', '02:00 PM', '02:10 PM', '02:20 PM', '03:00 PM'];
+        }
+
+        const dayConfig = window.providerAvailability[dayNameStr];
+        if (!dayConfig || !dayConfig.start_time || !dayConfig.end_time) {
+            return [];
+        }
+
+        const parseMinutes = (tStr) => {
+            if (!tStr) return -1;
+            const parts = tStr.split(':');
+            if (parts.length < 2) return -1;
+            return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        };
+
+        const format12Hour = (totalMins) => {
+            const h24 = Math.floor(totalMins / 60);
+            const m = totalMins % 60;
+            const ampm = h24 >= 12 ? 'PM' : 'AM';
+            const h12 = h24 % 12 || 12;
+            const mStr = String(m).padStart(2, '0');
+            const hStr = String(h12).padStart(2, '0');
+            return `${hStr}:${mStr} ${ampm}`;
+        };
+
+        const startMins = parseMinutes(dayConfig.start_time);
+        const endMins = parseMinutes(dayConfig.end_time);
+        const breakStartMins = parseMinutes(dayConfig.break_start_time);
+        const breakEndMins = parseMinutes(dayConfig.break_end_time);
+
+        if (startMins < 0 || endMins < 0 || startMins >= endMins) {
+            return [];
+        }
+
+        const slots = [];
+        for (let current = startMins; current < endMins; current += 10) {
+            if (breakStartMins >= 0 && breakEndMins >= 0 && current >= breakStartMins && current < breakEndMins) {
+                continue;
+            }
+            slots.push(format12Hour(current));
+        }
+
+        return slots;
+    }
+
     // Open Time Slot Modal for specific day
     $(document).on('click', '.btn-open-time-modal', function (e) {
         e.preventDefault();
@@ -496,10 +551,20 @@ jQuery(document).ready(function ($) {
         `;
         modal.show();
 
-        // Generate 10-min slots from 09:00 AM to 05:00 PM for testing/selection
+        // Dynamically generate 10-min slots based on provider start, end & break times
         setTimeout(() => {
             let slotsHtml = '';
-            const times = ['09:00 AM', '09:10 AM', '09:20 AM', '09:30 AM', '09:40 AM', '09:50 AM', '10:00 AM', '10:10 AM', '10:20 AM', '10:30 AM', '11:00 AM', '11:10 AM', '02:00 PM', '02:10 PM', '02:20 PM', '03:00 PM'];
+            const times = getDynamic10MinSlots(currentModalDateStr);
+
+            if (!times || times.length === 0) {
+                grid.innerHTML = `
+                    <div class="text-center py-4 w-100" style="grid-column: 1 / -1;">
+                        <p class="small text-muted mb-0">No working time slots available for this day.</p>
+                    </div>
+                `;
+                return;
+            }
+
             const activeSlots = (selectedSlotsByDay[currentModalDateStr] || []).map(normalizeTimeStr);
 
             times.forEach((t, i) => {
@@ -517,7 +582,7 @@ jQuery(document).ready(function ($) {
             });
             grid.innerHTML = slotsHtml;
             $('#modalTotalDuration').text((activeSlots.length * 10) + ' minutes');
-        }, 200);
+        }, 150);
     });
 
     // Select/Deselect time slots inside modal

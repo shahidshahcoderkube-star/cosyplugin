@@ -343,7 +343,6 @@ class Dashboard
             'orders' => 'orders.php',
             'nonworking' => 'holidays.php',
             'reviews' => 'customer-reviews.php',
-            'invoices' => 'invoices.php',
         ];
 
         if (!isset($allowed_tabs[$tab])) {

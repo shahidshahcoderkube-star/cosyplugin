@@ -54,24 +54,14 @@ if (!isset($availability)) {
             </div>
         </div>
 
-        <!-- Slot Duration -->
+        <!-- Fixed 10-Minute Slot Duration & Break Times -->
+        <input type="hidden" id="slot_duration" value="10">
         <div class="row">
             <div class="col-md-6 mb-4">
-                <label class="form-label"><?php esc_html_e('Slot Duration', 'cosy-appointments'); ?></label>
-                <select class="form-select" id="slot_duration">
-                    <option value="10" selected><?php esc_html_e('10 Minutes', 'cosy-appointments'); ?></option>
-                    <option value="20"><?php esc_html_e('20 Minutes', 'cosy-appointments'); ?></option>
-                    <option value="30"><?php esc_html_e('30 Minutes', 'cosy-appointments'); ?></option>
-                    <option value="40"><?php esc_html_e('40 Minutes', 'cosy-appointments'); ?></option>
-                    <option value="50"><?php esc_html_e('50 Minutes', 'cosy-appointments'); ?></option>
-                    <option value="60"><?php esc_html_e('60 Minutes', 'cosy-appointments'); ?></option>
-                </select>
-            </div>
-            <div class="col-md-3 mb-4">
                 <label class="form-label"><?php esc_html_e('Break Start Time', 'cosy-appointments'); ?></label>
                 <input type="time" class="form-control" id="break_start_time">
             </div>
-            <div class="col-md-3 mb-4">
+            <div class="col-md-6 mb-4">
                 <label class="form-label"><?php esc_html_e('Break End Time', 'cosy-appointments'); ?></label>
                 <input type="time" class="form-control" id="break_end_time">
             </div>

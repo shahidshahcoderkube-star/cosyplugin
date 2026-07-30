@@ -7,7 +7,7 @@
             </div>
             <h3 class="mb-0" style="margin-bottom: 0 !important;"><?php esc_html_e('My Services', 'cosy-appointments'); ?></h3>
         </div>
-        <p class="text-muted mb-4" style="margin-left: 58px;"><?php esc_html_e('Manage your offerings, pricing, and session durations below.', 'cosy-appointments'); ?></p>
+        <p class="text-muted mb-4" style="margin-left: 58px;"><?php esc_html_e('Manage your offerings and pricing below.', 'cosy-appointments'); ?></p>
 
         <!-- Service Checkbox List -->
         <?php
@@ -43,7 +43,6 @@
                     <thead>
                         <tr>
                             <th><?php esc_html_e('Service Name', 'cosy-appointments'); ?></th>
-                            <th><?php esc_html_e('Duration', 'cosy-appointments'); ?></th>
                             <th><?php esc_html_e('Price', 'cosy-appointments'); ?></th>
                             <th><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
                         </tr>
