@@ -286,73 +286,64 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                                         ?>
 
                                         <?php if (!empty($replies)) : ?>
-                                            <div class="review-nested-thread mt-2 ps-3" style="border-left: 2px solid #f1f5f9; position: relative;">
-                                                <?php foreach ($replies as $rep) :
-                                                    $r_level = intval($rep['reply_level']);
-                                                    if ($r_level === 1) :
-                                                ?>
-                                                        <!-- Level 1: Provider Initial Public Reply -->
-                                                        <div class="thread-item level-1-item mb-2 rounded-3 shadow-sm" style="background: #fdf5fc; border-left: 3px solid #a44390; padding: 10px 14px;">
-                                                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
-                                                                <span class="fw-bold d-flex align-items-center gap-1" style="color: #6d2e67; font-size: 0.82rem;">
-                                                                    <i class="fas fa-reply" style="color: #a44390; font-size: 0.75rem;"></i>
-                                                                    <?php echo esc_html($rep['sender_name']); ?>
-                                                                    <span class="badge ms-1" style="background: #a44390; color: #ffffff; font-size: 0.65rem; font-weight: 600; border-radius: 10px; padding: 3px 7px;">
-                                                                        <i class="fas fa-user-check me-1"></i><?php esc_html_e('Verified Parent', 'cosy-appointments'); ?>
+                                            <div class="review-nested-thread cosy-review-thread-wrap">
+                                                     <?php foreach ($replies as $rep) :
+                                                        $r_level = intval($rep['reply_level']);
+                                                        if ($r_level === 1) :
+                                                    ?>
+                                                            <!-- Level 1: Provider Initial Public Reply -->
+                                                            <div class="thread-item level-1-item cosy-thread-provider-box">
+                                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                                                    <span class="cosy-thread-sender-name">
+                                                                        <i class="fas fa-reply cosy-thread-sender-icon-provider"></i>
+                                                                        <?php echo esc_html($rep['sender_name']); ?>
                                                                     </span>
-                                                                </span>
-                                                                <small class="text-muted" style="font-size: 0.72rem;"><?php echo date('d M Y - h:i A', strtotime($rep['created_at'])); ?></small>
-                                                            </div>
-                                                            <p class="mb-1 text-dark small mt-1" style="font-size: 0.85rem; line-height: 1.4; color: #334155;"><?php echo esc_html($rep['reply_text']); ?></p>
-
-                                                            <!-- Level 2 Reply Button (Visible strictly to the Customer who wrote this review) -->
-                                                            <?php 
-                                                            $is_review_author = $is_logged_in && !empty($rev['customer_id']) && (intval($current_user->ID) === intval($rev['customer_id']));
-                                                            if (!$has_level2 && $is_review_author) : 
-                                                            ?>
-                                                                <div class="mt-1 text-end">
-                                                                    <button type="button" class="btn btn-sm text-white px-2 py-0 btn-toggle-cust-reply" data-review-id="<?php echo esc_attr($rev['id']); ?>" style="background: #a44390; border-radius: 12px; font-weight: 600; font-size: 0.75rem; line-height: 1.6;">
-                                                                        <i class="fas fa-reply me-1"></i> <?php esc_html_e('Reply to Parent', 'cosy-appointments'); ?>
-                                                                    </button>
+                                                                    <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($rep['created_at'])); ?></small>
                                                                 </div>
-                                                            <?php endif; ?>
-                                                        </div>
+                                                                <p class="cosy-thread-body-provider"><?php echo esc_html($rep['reply_text']); ?></p>
 
-                                                    <?php elseif ($r_level === 2) : ?>
-                                                        <!-- Level 2: Customer Follow-up Reply -->
-                                                        <div class="thread-item level-2-item mb-2 ms-3 rounded-3 shadow-sm" style="background: #f0f7ff; border-left: 3px solid #3b82f6; padding: 10px 14px;">
-                                                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
-                                                                <span class="fw-bold d-flex align-items-center gap-1" style="color: #1e40af; font-size: 0.82rem;">
-                                                                    <i class="fas fa-comments" style="color: #3b82f6; font-size: 0.75rem;"></i>
-                                                                    <?php echo esc_html($rep['sender_name']); ?>
-                                                                    <span class="badge bg-primary text-white ms-1" style="font-size: 0.65rem; font-weight: 600; border-radius: 10px; padding: 3px 7px;">
-                                                                        <i class="fas fa-comment-dots me-1"></i><?php esc_html_e('Customer Follow-up', 'cosy-appointments'); ?>
-                                                                    </span>
-                                                                </span>
-                                                                <small class="text-muted" style="font-size: 0.72rem;"><?php echo date('d M Y - h:i A', strtotime($rep['created_at'])); ?></small>
+                                                                <!-- Level 2 Reply Button (Visible strictly to the Customer who wrote this review) -->
+                                                                <?php 
+                                                                $is_review_author = $is_logged_in && !empty($rev['customer_id']) && (intval($current_user->ID) === intval($rev['customer_id']));
+                                                                if (!$has_level2 && $is_review_author) : 
+                                                                ?>
+                                                                    <div class="mt-1 text-end">
+                                                                        <button type="button" class="btn btn-sm btn-toggle-cust-reply cosy-btn-reply-toggle" data-review-id="<?php echo esc_attr($rev['id']); ?>">
+                                                                            <i class="fas fa-reply me-1"></i> <?php esc_html_e('Reply', 'cosy-appointments'); ?>
+                                                                        </button>
+                                                                    </div>
+                                                                <?php endif; ?>
                                                             </div>
-                                                            <p class="mb-0 text-dark small mt-1" style="font-size: 0.85rem; line-height: 1.4; color: #1e293b;"><?php echo esc_html($rep['reply_text']); ?></p>
-                                                        </div>
 
-                                                    <?php elseif ($r_level === 3) : ?>
-                                                        <!-- Level 3: Provider Final Closing Response -->
-                                                        <div class="thread-item level-3-item mb-2 ms-4 rounded-3 shadow-sm" style="background: #f0fdf4; border-left: 3px solid #10b981; padding: 10px 14px;">
-                                                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
-                                                                <span class="fw-bold d-flex align-items-center gap-1" style="color: #065f46; font-size: 0.82rem;">
-                                                                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 0.75rem;"></i>
-                                                                    <?php echo esc_html($rep['sender_name']); ?>
-                                                                    <span class="badge bg-success text-white ms-1" style="font-size: 0.65rem; font-weight: 600; border-radius: 10px; padding: 3px 7px;">
-                                                                        <i class="fas fa-lock me-1"></i><?php esc_html_e('Final Response', 'cosy-appointments'); ?>
+                                                        <?php elseif ($r_level === 2) : ?>
+                                                            <!-- Level 2: Customer Follow-up Reply -->
+                                                            <div class="thread-item level-2-item cosy-thread-customer-box">
+                                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                                                    <span class="cosy-thread-sender-name">
+                                                                        <i class="fas fa-comment-dots cosy-thread-sender-icon-customer"></i>
+                                                                        <?php echo esc_html($rep['sender_name']); ?>
                                                                     </span>
-                                                                </span>
-                                                                <small class="text-muted" style="font-size: 0.72rem;"><?php echo date('d M Y - h:i A', strtotime($rep['created_at'])); ?></small>
+                                                                    <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($rep['created_at'])); ?></small>
+                                                                </div>
+                                                                <p class="cosy-thread-body-customer"><?php echo esc_html($rep['reply_text']); ?></p>
                                                             </div>
-                                                            <p class="mb-0 text-dark small mt-1" style="font-size: 0.85rem; line-height: 1.4; color: #064e3b;"><?php echo esc_html($rep['reply_text']); ?></p>
-                                                        </div>
-                                                <?php
-                                                    endif;
-                                                endforeach;
-                                                ?>
+
+                                                        <?php elseif ($r_level === 3) : ?>
+                                                            <!-- Level 3: Provider Final Closing Response -->
+                                                            <div class="thread-item level-3-item cosy-thread-provider-box">
+                                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                                                    <span class="cosy-thread-sender-name">
+                                                                        <i class="fas fa-check-circle cosy-thread-sender-icon-provider"></i>
+                                                                        <?php echo esc_html($rep['sender_name']); ?>
+                                                                    </span>
+                                                                    <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($rep['created_at'])); ?></small>
+                                                                </div>
+                                                                <p class="cosy-thread-body-provider"><?php echo esc_html($rep['reply_text']); ?></p>
+                                                            </div>
+                                                    <?php
+                                                        endif;
+                                                    endforeach;
+                                                    ?>
                                             </div>
                                         <?php endif; ?>
 

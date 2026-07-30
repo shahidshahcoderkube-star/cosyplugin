@@ -159,13 +159,13 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                             }
                                         }
                                     ?>
-                                        <div class="review-thread-container mt-3 ps-3 d-flex flex-column gap-2" style="border-left: 2px solid #f1f5f9; position: relative;">
+                                        <div class="review-thread-container cosy-review-thread-wrap d-flex flex-column gap-2">
                                             <!-- Level 1: Initial Provider Reply -->
                                             <?php if ($has_level1) : ?>
-                                                <div class="provider-reply-box rounded-3 shadow-sm" style="background: #fdf5fc; border-left: 3px solid #a44390; border: 1px solid rgba(164, 67, 144, 0.15); padding: 10px 14px;">
+                                                <div class="provider-reply-box cosy-thread-provider-box">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                                        <strong style="color: #6d2e67; font-size: 0.82rem;">
-                                                            <i class="fas fa-reply me-1" style="color: #a44390;"></i> <?php esc_html_e('Your Public Reply (Level 1):', 'cosy-appointments'); ?>
+                                                        <strong class="cosy-thread-sender-name">
+                                                            <i class="fas fa-reply me-1 cosy-thread-sender-icon-provider"></i> <?php esc_html_e('Your Public Reply:', 'cosy-appointments'); ?>
                                                         </strong>
                                                         <?php if (!$has_level2) : ?>
                                                             <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none btn-edit-reply" data-id="<?php echo esc_attr($r['id']); ?>" style="color: #a44390; font-size: 0.78rem; font-weight: 600;">
@@ -173,10 +173,10 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                                             </button>
                                                         <?php endif; ?>
                                                     </div>
-                                                    <p class="mb-0 text-dark small mt-1" style="font-size: 0.85rem; line-height: 1.4; color: #334155;">
+                                                    <p class="cosy-thread-body-provider">
                                                         <?php echo esc_html($level1_text); ?>
                                                     </p>
-                                                    <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
+                                                    <small class="cosy-thread-date d-block mt-1">
                                                         <?php echo date('d M Y - h:i A', strtotime($level1_date)); ?>
                                                     </small>
                                                 </div>
@@ -184,16 +184,16 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
 
                                             <!-- Level 2: Customer Follow-up -->
                                             <?php if ($has_level2) : ?>
-                                                <div class="customer-followup-box ms-3 rounded-3 shadow-sm" style="background: #eff6ff; border-left: 3px solid #3b82f6; border: 1px solid #bfdbfe; padding: 10px 14px;">
+                                                <div class="customer-followup-box cosy-thread-customer-box">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                                        <strong style="color: #1e40af; font-size: 0.82rem;">
-                                                            <i class="fas fa-comments me-1" style="color: #3b82f6;"></i> <?php echo esc_html($level2_sender); ?> <?php esc_html_e('(Customer Follow-up - Level 2):', 'cosy-appointments'); ?>
+                                                        <strong class="cosy-thread-sender-name">
+                                                            <i class="fas fa-comment-dots me-1 cosy-thread-sender-icon-customer"></i> <?php echo esc_html($level2_sender); ?>
                                                         </strong>
                                                     </div>
-                                                    <p class="mb-0 text-dark small mt-1" style="font-size: 0.85rem; line-height: 1.4; color: #1e293b;">
+                                                    <p class="cosy-thread-body-customer">
                                                         <?php echo esc_html($level2_text); ?>
                                                     </p>
-                                                    <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
+                                                    <small class="cosy-thread-date d-block mt-1">
                                                         <?php echo date('d M Y - h:i A', strtotime($level2_date)); ?>
                                                     </small>
                                                 </div>
@@ -201,16 +201,16 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
 
                                             <!-- Level 3: Provider Final Closing Response -->
                                             <?php if ($has_level3) : ?>
-                                                <div class="provider-closing-box ms-4 rounded-3 shadow-sm" style="background: #f0fdf4; border-left: 3px solid #10b981; border: 1px solid #a7f3d0; padding: 10px 14px;">
+                                                <div class="provider-closing-box cosy-thread-provider-box">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                                        <strong style="color: #065f46; font-size: 0.82rem;">
-                                                            <i class="fas fa-check-circle me-1" style="color: #10b981;"></i> <?php esc_html_e('Your Final Response (Level 3 - Closed):', 'cosy-appointments'); ?>
+                                                        <strong class="cosy-thread-sender-name">
+                                                            <i class="fas fa-check-circle me-1 cosy-thread-sender-icon-provider"></i> <?php esc_html_e('Your Final Response:', 'cosy-appointments'); ?>
                                                         </strong>
                                                     </div>
-                                                    <p class="mb-0 text-dark small mt-1" style="font-size: 0.85rem; line-height: 1.4; color: #064e3b;">
+                                                    <p class="cosy-thread-body-provider">
                                                         <?php echo esc_html($level3_text); ?>
                                                     </p>
-                                                    <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
+                                                    <small class="cosy-thread-date d-block mt-1">
                                                         <?php echo date('d M Y - h:i A', strtotime($level3_date)); ?>
                                                     </small>
                                                 </div>

@@ -2812,3 +2812,99 @@ label.error,
     text-align: left !important;
     -webkit-text-fill-color: #dc2626 !important;
 }
+
+/* ============================================================
+   THREADED REVIEWS & DASHBOARD STYLES
+   ============================================================ */
+
+.cosy-review-thread-wrap {
+    position: relative;
+    margin-top: 1rem;
+    padding-top: 0.25rem;
+}
+
+.cosy-thread-provider-box {
+    background: #fdf5fc;
+    border-left: 3px solid #a44390;
+    padding: 10px 14px;
+    margin-bottom: 0.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cosy-thread-customer-box {
+    background: #ffffff;
+    border-left: 3px solid #6d2e67;
+    border: 1px solid #f3e8fc;
+    padding: 10px 14px;
+    margin-bottom: 0.5rem;
+    margin-left: 0.75rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cosy-thread-sender-name {
+    font-weight: 700;
+    color: #6d2e67;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cosy-thread-sender-icon-provider {
+    color: #a44390;
+    font-size: 0.78rem;
+}
+
+.cosy-thread-sender-icon-customer {
+    color: #6d2e67;
+    font-size: 0.78rem;
+}
+
+.cosy-thread-date {
+    font-size: 0.72rem;
+    color: #64748b;
+}
+
+.cosy-thread-body-provider {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #334155;
+    margin-top: 4px;
+}
+
+.cosy-thread-body-customer {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #1e293b;
+    margin-top: 4px;
+}
+
+.cosy-btn-reply-toggle {
+    background: #a44390;
+    color: #ffffff;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    padding: 2px 10px;
+    border: none;
+}
+
+.cosy-btn-reply-toggle:hover {
+    background: #6d2e67;
+    color: #ffffff;
+}
+
+.cosy-sidebar-heading {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1e293b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0;
+}
