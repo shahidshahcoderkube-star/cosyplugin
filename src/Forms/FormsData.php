@@ -308,7 +308,7 @@ class FormsData
             } elseif (in_array('provider', $roles)) {
                 $redirect_url = home_url('/provider-dashboard/');
             } elseif (in_array('customer', $roles)) {
-                $redirect_url = home_url('/customer-profile/');
+                $redirect_url = home_url('/');
             }
 
             // Log user login
