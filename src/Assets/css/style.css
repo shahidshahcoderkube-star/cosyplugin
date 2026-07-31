@@ -330,12 +330,52 @@ a:focus {
     max-width: 100%;
 }
 
+.cosy-provider-registration .form-group {
+    margin-bottom: 20px;
+}
+
+.cosy-provider-registration .form-column .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.cosy-provider-registration .sign-offs-container {
+    margin-top: 8px !important;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.cosy-provider-registration .sign-offs-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.cosy-provider-registration .sign-off-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.cosy-provider-registration .sign-off-item input[type="checkbox"] {
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.cosy-provider-registration .sign-off-item label {
+    font-weight: 400;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #444;
+}
+
 .cosy-reg-form h2 {
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
     font-size: 2.4rem;
     color: var(--cosy-text-dark);
-    margin-bottom: 8px;
+    margin-bottom: 30px;
 }
 
 .cosy-reg-form .subtitle {

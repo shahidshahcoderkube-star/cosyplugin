@@ -191,7 +191,7 @@ ob_start();
     <!-- Service Details -->
     <div class="col-md-12">
         <div class="p-3 rounded-4 bg-light modal-info-box-secondary" style="border: 1px solid var(--cosy-border);">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-concierge-bell modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Service Details', 'cosy-appointments'); ?></h6>
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-comments modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Conversations', 'cosy-appointments'); ?></h6>
             <p class="mb-3 fw-bold text-slate" style="font-size: 1.1rem; color: var(--cosy-brand-dark);" id="modalServiceName"></p>
 
             <div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
@@ -228,13 +228,14 @@ ob_start();
                 <strong id="modalProviderShare" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
             </div>
             <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
-                <span>Service Fee:</span>
+                <span>Service Fee*:</span>
                 <strong id="modalServiceFee" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
             </div>
             <div class="d-flex justify-content-between border-top pt-2 mt-2" style="font-size: 0.95rem;">
                 <span class="fw-bold text-dark">Total Paid:</span>
                 <strong id="modalTotalPaid" style="color: var(--cosy-brand-purple); font-size: 1.15rem; font-weight: 800;"></strong>
             </div>
+            <p class="mb-0 mt-2 text-muted" style="font-size: 0.78rem; font-style: italic;">* <?php esc_html_e('Service Charge – helps us provide and continually improve the CosyChats platform, including secure bookings, payment processing and customer support.', 'cosy-appointments'); ?></p>
         </div>
     </div>
 </div>

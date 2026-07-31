@@ -26,7 +26,7 @@
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="services" id="services-tab" data-bs-toggle="pill"
                     data-bs-target="#services" type="button" role="tab">
-                    <i class="fas fa-concierge-bell"></i> <?php esc_html_e('Services', 'cosy-appointments'); ?>
+                    <i class="fas fa-heart"></i> <?php esc_html_e('Experiences', 'cosy-appointments'); ?>
                 </button>
                 <button class="nav-link cosy-tab mb-2" data-tab="availability" id="availability-tab"
                     data-bs-toggle="pill" data-bs-target="#availability" type="button" role="tab">
@@ -109,7 +109,7 @@
                 $missing_requirements[] = __('Profile Information', 'cosy-appointments');
             }
             if (!$has_services) {
-                $missing_requirements[] = __('My Services', 'cosy-appointments');
+                $missing_requirements[] = __('What I\'m Happy to Talk About', 'cosy-appointments');
             }
             if (!$has_availability) {
                 $missing_requirements[] = __('Availability', 'cosy-appointments');

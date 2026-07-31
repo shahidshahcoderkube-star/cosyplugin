@@ -202,6 +202,11 @@ class FormsData
             return;
         }
 
+        if (empty($_POST['declaration_1']) || empty($_POST['declaration_2']) || empty($_POST['declaration_3']) || empty($_POST['declaration_4']) || empty($_POST['declaration_5'])) {
+            $this->send_response(false, __('Please accept all platform declarations to complete registration.', 'cosy-appointments'));
+            return;
+        }
+
         if (!is_email($email)) {
             $this->send_response(false, __('Please enter a valid email address.', 'cosy-appointments'));
             return;

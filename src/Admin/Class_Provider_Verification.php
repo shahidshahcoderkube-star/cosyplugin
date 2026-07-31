@@ -137,23 +137,23 @@ class Class_Provider_Verification
         if ($old_status !== $status) {
             if ($user) {
                 if ($status === 'active') {
-                    $subject = "Your Provider Account is Now Active!";
+                    $subject = "Your CosyChats Account is now Active";
                     $html_content = "
                         <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
                         <p>Congratulations! Your account has been reviewed and approved by the administrator. Your profile is now live and visible to parents.</p>
                         <p style='text-align: center; margin: 30px 0;'>
                             <a href='" . esc_url(home_url('/login')) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Login to Your Account</a>
                         </p>
-                        <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Thank you,<br><strong>Cosy Appointments Team</strong></p>
+                        <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
                     ";
                     cosy_send_html_email($user->user_email, $subject, "Account Active!", $html_content);
                 } elseif ($status === 'deactive') {
-                    $subject = "Your Provider Account is Temporarily Deactivated";
+                    $subject = "Your CosyChats Account is Temporarily Deactivated";
                     $html_content = "
                         <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
-                        <p>Your provider account has been temporarily deactivated by the site administrator. During this time, your services will not be bookable and your profile will not be visible to customers.</p>
-                        <p>If you believe this is a mistake or have questions, please reach out to our administration/support team.</p>
-                        <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Thank you,<br><strong>Cosy Appointments Team</strong></p>
+                        <p>Your parent account has been temporarily deactivated by a CosyChats administrator. While your account is inactive, your profile won't be visible to customers and you won't be able to receive new bookings.</p>
+                        <p>If you have any questions or think this has happened in error, please don't hesitate to get in touch with the CosyChats team at contact@cosychats.com.</p>
+                        <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
                     ";
                     cosy_send_html_email($user->user_email, $subject, "Account Deactivated", $html_content);
                 }

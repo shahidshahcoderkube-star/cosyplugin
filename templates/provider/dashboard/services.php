@@ -5,9 +5,9 @@
                 style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-tools" style="color: #a44390; font-size: 1.2rem;"></i>
             </div>
-            <h3 class="mb-0" style="margin-bottom: 0 !important;"><?php esc_html_e('My Services', 'cosy-appointments'); ?></h3>
+            <h3 class="mb-0" style="margin-bottom: 0 !important;"><?php esc_html_e('What I&#39;m Happy to Talk About', 'cosy-appointments'); ?></h3>
         </div>
-        <p class="text-muted mb-4" style="margin-left: 58px;"><?php esc_html_e('Manage your offerings and pricing below.', 'cosy-appointments'); ?></p>
+        <p class="text-muted mb-4" style="margin-left: 58px;"><?php esc_html_e('Select the experiences you\'re happy to talk about and set your hourly rate.', 'cosy-appointments'); ?></p>
 
         <!-- Service Checkbox List -->
         <?php
@@ -16,7 +16,7 @@
 
         if (!empty($services)): ?>
             <div class="service-checkbox-container">
-                <label class="form-label d-block mb-3 fw-bold text-dark"><?php esc_html_e('Select Services', 'cosy-appointments'); ?></label>
+                <label class="form-label d-block mb-3 fw-bold text-dark"><?php esc_html_e('Choose Experiences', 'cosy-appointments'); ?></label>
                 <div class="d-flex flex-wrap gap-3">
                     <?php foreach ($services as $service): ?>
                         <div class="form-check">
@@ -42,7 +42,7 @@
                 <table class="table align-middle" id="servicesTable">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e('Service Name', 'cosy-appointments'); ?></th>
+                            <th><?php esc_html_e('Experience', 'cosy-appointments'); ?></th>
                             <th><?php esc_html_e('Price', 'cosy-appointments'); ?></th>
                             <th><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
                         </tr>
