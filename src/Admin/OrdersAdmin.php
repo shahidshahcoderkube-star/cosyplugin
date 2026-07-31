@@ -106,7 +106,7 @@ class OrdersAdmin
             <th scope="col" class="manage-column" style="width: 80px;">Order ID</th>
             <th scope="col" class="manage-column">Customer</th>
             <th scope="col" class="manage-column">Provider</th>
-            <th scope="col" class="manage-column">Service</th>
+            <th scope="col" class="manage-column">Experience</th>
             <th scope="col" class="manage-column" style="width: 25%;">Date &amp; Time</th>
             <th scope="col" class="manage-column">Amount</th>
             <th scope="col" class="manage-column">Status</th>
@@ -117,7 +117,7 @@ class OrdersAdmin
           <?php if (empty($appointments)) : ?>
             <tr>
               <td colspan="9" class="text-center" style="text-align: center; padding: 40px; color: #64748b;">
-                No orders found matching the filter criteria.
+                No conversations found matching the filter criteria.
               </td>
             </tr>
           <?php else : ?>
@@ -182,7 +182,7 @@ class OrdersAdmin
             <th scope="col">Order ID</th>
             <th scope="col">Customer</th>
             <th scope="col">Provider</th>
-            <th scope="col">Service</th>
+            <th scope="col">Experience</th>
             <th scope="col">Date &amp; Time</th>
             <th scope="col">Amount</th>
             <th scope="col">Status</th>
@@ -203,7 +203,7 @@ class OrdersAdmin
     <div id="cosyAdminOrderModal" class="cosy-admin-modal">
       <div class="cosy-admin-modal-content">
         <div class="cosy-admin-modal-header">
-          <h2 id="modalAdminOrderTitle">Order Details</h2>
+          <h2 id="modalAdminOrderTitle">Conversations</h2>
           <span class="cosy-admin-modal-close">&times;</span>
         </div>
         <div class="cosy-admin-modal-body">
@@ -224,8 +224,8 @@ class OrdersAdmin
           </div>
 
           <div class="cosy-admin-card info-card full" style="margin-top: 12px;">
-            <h3><span class="dashicons dashicons-clipboard"></span> Service &amp; Schedule</h3>
-            <p><strong>Service:</strong> <span id="modalAdminServiceName"></span></p>
+            <h3><span class="dashicons dashicons-clipboard"></span> Experience &amp; Schedule</h3>
+            <p><strong>Experience:</strong> <span id="modalAdminServiceName"></span></p>
             <p><strong>Schedule:</strong> <span id="modalAdminSchedule"></span></p>
             <p><strong>Duration:</strong> <span id="modalAdminDuration"></span></p>
             <p><strong>Weeks Booked:</strong> <span id="modalAdminWeeks"></span></p>
@@ -241,7 +241,7 @@ class OrdersAdmin
                 <td style="text-align: right; font-weight: 600;" id="modalAdminCost"></td>
               </tr>
               <tr>
-                <td>Platform Fee:</td>
+                <td>Service Fee*:</td>
                 <td style="text-align: right; font-weight: 600;" id="modalAdminFee"></td>
               </tr>
               <tr style="font-weight: bold; border-top: 1px solid #dcdcde;">
@@ -249,6 +249,7 @@ class OrdersAdmin
                 <td style="text-align: right; padding-top: 10px; color: #2271b1; font-size: 1.1em;" id="modalAdminTotal"></td>
               </tr>
             </table>
+            <p style="font-size: 11px; color: #64748b; margin-top: 8px; margin-bottom: 0; font-style: italic;">*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
           </div>
 
           <div style="margin-top: 16px; padding: 10px; border-radius: 4px; text-align: center; border: 1px solid transparent;" id="modalAdminStatusBg">

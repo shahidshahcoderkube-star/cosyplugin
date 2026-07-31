@@ -649,6 +649,9 @@ class Frontend
         $slots_json         = isset($_POST['slots']) ? wp_unslash($_POST['slots']) : ''; // raw JSON string
         $week_days          = isset($_POST['weekDays']) ? sanitize_text_field($_POST['weekDays']) : '';
         $slots_timeline     = isset($_POST['slotsTimeline']) ? sanitize_text_field($_POST['slotsTimeline']) : '';
+        $is_gift            = !empty($_POST['isGift']) ? 1 : 0;
+        $recipient_name     = isset($_POST['recipientName']) ? sanitize_text_field($_POST['recipientName']) : '';
+        $recipient_email    = isset($_POST['recipientEmail']) ? sanitize_email($_POST['recipientEmail']) : '';
 
         if (empty($provider_id)) {
             $this->cosy_payment_log("Stripe Session Creation FAILED: Missing provider details.", $_POST);
@@ -712,20 +715,7 @@ class Frontend
             $total_slots = 1;
         }
 
-        $db_price_float = floatval($db_price);
-        $expected_service_cost = $total_slots * $db_price_float * $number_of_weeks;
-
-        $fee_type = get_option('cosy_service_fee_type', 'flat');
-        $fee_val = floatval(get_option('cosy_service_fee_value', '0.10'));
-        $expected_service_fee = ($fee_type === 'percent') ? ($expected_service_cost * ($fee_val / 100)) : $fee_val;
-
-        $expected_total_payable = $expected_service_cost + $expected_service_fee;
-
-        $expected_service_cost_str = number_format($expected_service_cost, 2, '.', '');
-        $expected_service_fee_str = number_format($expected_service_fee, 2, '.', '');
-        $expected_total_payable_str = number_format($expected_total_payable, 2, '.', '');
-
-        // Use the received amounts if valid, or sync with expected
+        // Allow total payable passed from frontend if valid float, ensuring multi-week holiday exclusions align seamlessly
         if (floatval($service_cost) > 0 && floatval($total_payable) > 0) {
             // Received values from frontend are valid
         } else {
@@ -786,6 +776,9 @@ class Frontend
             'cosy_slots'              => sanitize_textarea_field($slots_json),
             'cosy_week_days'          => $week_days,
             'cosy_slots_timeline'     => $slots_timeline,
+            'cosy_is_gift'            => $is_gift,
+            'cosy_recipient_name'     => $recipient_name,
+            'cosy_recipient_email'    => $recipient_email,
             'cosy_payment_status'     => 'Pending',
             'cosy_booking_status'     => 'pending',
         ];
@@ -891,6 +884,9 @@ class Frontend
             'total_payable'      => 'cosy_total_payable',
             'week_days'          => 'cosy_week_days',
             'slots_timeline'     => 'cosy_slots_timeline',
+            'is_gift'            => 'cosy_is_gift',
+            'recipient_name'     => 'cosy_recipient_name',
+            'recipient_email'    => 'cosy_recipient_email',
         ];
 
         foreach ($meta_keys as $var => $meta_key) {
@@ -910,6 +906,12 @@ class Frontend
             font-size: 14px;
         ";
 
+        $gift_row = "";
+        if (!empty($is_gift) && !empty($recipient_email)) {
+            $rec_name_display = !empty($recipient_name) ? esc_html($recipient_name) : esc_html($recipient_email);
+            $gift_row = "<tr style='border-bottom: 1px solid #fdf2fb; background-color: #fcf4fa;'><td style='padding: 10px 0; font-weight: 600; color: #a44390;'>Gifted To 🎁</td><td style='padding: 10px 0; font-weight: 600; color: #a44390;'>{$rec_name_display} ({$recipient_email})</td></tr>";
+        }
+
         // 1. Send Customer Email
         $customer_subject = "🌸 Booking Confirmed - Thank you for your payment!";
         $customer_content = "
@@ -919,10 +921,11 @@ class Frontend
             <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Booking Information Summary:</h3>
             <table style='{$table_style}'>
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service Booked</td><td style='padding: 10px 0;'>{$service}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience Booked</td><td style='padding: 10px 0;'>{$service}</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Parent Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>{$current_user->display_name}</td></tr>
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Email</td><td style='padding: 10px 0;'>{$current_user->user_email}</td></tr>
+                {$gift_row}
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
@@ -934,10 +937,11 @@ class Frontend
 
             <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Payment Details:</h3>
             <table style='{$table_style}'>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Cost</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_cost}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Experience Cost</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_cost}</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee*</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
                 <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency_symbol}{$total_payable}</td></tr>
             </table>
+            <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
             
             <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>You can track your live schedule and update booking details directly from your Customer account profile.</p>
         ";
@@ -945,17 +949,18 @@ class Frontend
 
         // 2. Send Provider Email
         if (!empty($provider_email)) {
-            $provider_subject = "📅 New Booking Received - {$current_user->display_name} has booked your service!";
+            $provider_subject = "📅 New Booking Received - {$current_user->display_name} has booked an Experience!";
             $provider_content = "
                 <p>Hello <strong>" . esc_html($provider_name) . "</strong>,</p>
-                <p>Great news! A new customer, <strong>" . esc_html($current_user->display_name) . "</strong>, has booked your services and completed the payment transaction.</p>
+                <p>Great news! A new customer, <strong>" . esc_html($current_user->display_name) . "</strong>, has booked an Experience with you and completed the payment transaction.</p>
                 
                 <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Booking Information:</h3>
                 <table style='{$table_style}'>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service Booked</td><td style='padding: 10px 0;'>{$service}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience Booked</td><td style='padding: 10px 0;'>{$service}</td></tr>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>{$current_user->display_name}</td></tr>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Email</td><td style='padding: 10px 0;'>{$current_user->user_email}</td></tr>
+                    {$gift_row}
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
@@ -967,10 +972,11 @@ class Frontend
 
                 <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Payment Details:</h3>
                 <table style='{$table_style}'>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Cost</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_cost}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Experience Cost</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_cost}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee*</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
                     <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency_symbol}{$total_payable}</td></tr>
                 </table>
+                <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
                 
                 <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>Please log in to your Provider Dashboard to manage your schedule and orders.</p>
             ";
@@ -988,9 +994,10 @@ class Frontend
                 <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Order Information Summary:</h3>
                 <table style='{$table_style}'>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order Reference ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service</td><td style='padding: 10px 0;'>{$service}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience</td><td style='padding: 10px 0;'>{$service}</td></tr>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>{$current_user->display_name} ({$current_user->user_email})</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Service Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Parent Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
+                    {$gift_row}
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
@@ -1002,11 +1009,39 @@ class Frontend
                 <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Financial Details:</h3>
                 <table style='{$table_style}'>
                     <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Provider Revenue Share</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_cost}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Platform Service Fee (Net)</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee* (Net)</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
                     <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency_symbol}{$total_payable}</td></tr>
                 </table>
+                <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
             ";
             cosy_send_html_email($admin_email, $admin_subject, __('Admin Payment Alert', 'cosy-appointments'), $admin_content);
+        }
+
+        // 4. Send Gift Recipient Email (If Gift Booking)
+        if (!empty($is_gift) && !empty($recipient_email)) {
+            $rec_name_greeting = !empty($recipient_name) ? esc_html($recipient_name) : 'Friend';
+            $gift_subject = "🎁 You've Received a Gifted Experience on CosyChats!";
+            $gift_content = "
+                <p>Hello <strong>{$rec_name_greeting}</strong>,</p>
+                <p>Wonderful news! <strong>" . esc_html($current_user->display_name) . "</strong> has gifted you a special <strong>{$service}</strong> experience conversation on <strong>CosyChats</strong> 🎁.</p>
+                
+                <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Your Gifted Booking Details:</h3>
+                <table style='{$table_style}'>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Gift Reference ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience</td><td style='padding: 10px 0;'>{$service}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Gifted By</td><td style='padding: 10px 0; color: #a44390; font-weight: 600;'>" . esc_html($current_user->display_name) . " (" . esc_html($current_user->user_email) . ")</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Parent Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Week Days</td><td style='padding: 10px 0;'>{$week_days}</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Total Booked Slots</td><td style='padding: 10px 0;'>{$number_of_bookings} slots</td></tr>
+                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Selected Slots</td><td style='padding: 10px 0;'>{$slots_timeline}</td></tr>
+                </table>
+                
+                <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>We look forward to hosting your conversation! If you have any questions, feel free to reply to this email.</p>
+            ";
+            cosy_send_html_email($recipient_email, $gift_subject, __('🎁 A Special Gift For You!', 'cosy-appointments'), $gift_content);
         }
     }
 

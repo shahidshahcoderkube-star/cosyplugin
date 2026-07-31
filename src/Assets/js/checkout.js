@@ -826,7 +826,10 @@ jQuery(document).ready(function ($) {
             totalPayable: booking.totalPayable || '0.00',
             slots: slotsVal,
             weekDays: booking.weekDays || '',
-            slotsTimeline: booking.slotsTimeline || ''
+            slotsTimeline: booking.slotsTimeline || '',
+            isGift: booking.isGift ? 1 : 0,
+            recipientName: booking.recipientName || '',
+            recipientEmail: booking.recipientEmail || ''
         };
 
         $.ajax({

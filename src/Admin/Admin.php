@@ -100,8 +100,8 @@ class Admin
 
         add_submenu_page(
             'cosy-booking-dashboard',
-            __('Services', 'cosy-appointments'),
-            __('Services', 'cosy-appointments'),
+            __('Experiences', 'cosy-appointments'),
+            __('Experiences', 'cosy-appointments'),
             'manage_cosy_appointments',
             'edit.php?post_type=cosy_service'
         );

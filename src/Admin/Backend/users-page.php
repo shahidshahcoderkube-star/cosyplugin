@@ -96,7 +96,7 @@ defined('ABSPATH') || exit;
                 <th scope="col" class="manage-column" style="width: 220px;"><?php esc_html_e('Username & Name', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 100px;"><?php esc_html_e('Role', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 170px;"><?php esc_html_e('Email', 'cosy-appointments'); ?></th>
-                <th scope="col" class="manage-column" style="width: 320px;"><?php esc_html_e('Services', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column" style="width: 320px;"><?php esc_html_e('Experiences', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 130px;"><?php esc_html_e('Email Verify', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 120px;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 170px;"><?php esc_html_e('Actions', 'cosy-appointments'); ?></th>
