@@ -70,6 +70,60 @@ if (!function_exists('cosy_send_html_email')) {
     {
         $year = date('Y');
 
+        // --- Build Email Signature HTML ---
+        $sig_html = '';
+        if (get_option('cosy_sig_enabled', 1)) {
+            $sig_logo    = get_option('cosy_sig_logo_url', '');
+            $sig_name    = get_option('cosy_sig_name', 'The CosyChats Team');
+            $sig_title   = get_option('cosy_sig_title', 'Customer Support');
+            $sig_phone   = get_option('cosy_sig_phone', '');
+            $sig_email   = get_option('cosy_sig_email', '');
+            $sig_website = get_option('cosy_sig_website', '');
+            $sig_address = get_option('cosy_sig_address', '');
+            $sig_li      = get_option('cosy_sig_linkedin', '');
+            $sig_fb      = get_option('cosy_sig_facebook', '');
+            $sig_ig      = get_option('cosy_sig_instagram', '');
+            $sig_tw      = get_option('cosy_sig_twitter', '');
+
+            $logo_col = '';
+            if (!empty($sig_logo)) {
+                $logo_col = "
+                    <td style='width:110px; vertical-align:middle; padding-right:16px;'>
+                        <img src='" . esc_url($sig_logo) . "' alt='Logo' style='max-width:100px; height:auto; display:block;'>
+                    </td>
+                    <td style='width:2px; vertical-align:middle; padding:0 16px 0 0;'>
+                        <div style='width:2px; height:90px; background:linear-gradient(180deg,#a44390,#6d2e67);'></div>
+                    </td>";
+            }
+
+            $contact_rows = '';
+            if (!empty($sig_phone))   $contact_rows .= "<p style='margin:0 0 4px 0; font-size:12px; color:#334155;'>&#128222; " . esc_html($sig_phone) . "</p>";
+            if (!empty($sig_email))   $contact_rows .= "<p style='margin:0 0 4px 0; font-size:12px; color:#334155;'>&#9993; <a href='mailto:" . esc_attr($sig_email) . "' style='color:#a44390; text-decoration:none;'>" . esc_html($sig_email) . "</a></p>";
+            if (!empty($sig_website)) $contact_rows .= "<p style='margin:0 0 4px 0; font-size:12px; color:#334155;'>&#127760; <a href='" . esc_url($sig_website) . "' style='color:#a44390; text-decoration:none;'>" . esc_html($sig_website) . "</a></p>";
+            if (!empty($sig_address)) $contact_rows .= "<p style='margin:0 0 8px 0; font-size:12px; color:#334155;'>&#128205; " . esc_html($sig_address) . "</p>";
+
+            $social_badges = '';
+            if (!empty($sig_li))  $social_badges .= "<a href='" . esc_url($sig_li) . "' style='display:inline-block; margin-right:5px; background:#0077b5; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;'>LinkedIn</a>";
+            if (!empty($sig_fb))  $social_badges .= "<a href='" . esc_url($sig_fb) . "' style='display:inline-block; margin-right:5px; background:#1877f2; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;'>Facebook</a>";
+            if (!empty($sig_ig))  $social_badges .= "<a href='" . esc_url($sig_ig) . "' style='display:inline-block; margin-right:5px; background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;'>Instagram</a>";
+            if (!empty($sig_tw))  $social_badges .= "<a href='" . esc_url($sig_tw) . "' style='display:inline-block; margin-right:5px; background:#000000; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;'>X / Twitter</a>";
+
+            $sig_html = "
+            <div style='margin: 24px 0 0 0; padding: 18px 20px; background: #fdf6fc; border: 1px solid #f1e4ef; border-radius: 10px;'>
+                <table role='presentation' cellpadding='0' cellspacing='0' border='0' width='100%'>
+                    <tr>
+                        {$logo_col}
+                        <td style='vertical-align: middle;'>
+                            " . (!empty($sig_name) ? "<p style='margin:0 0 2px 0; font-size:15px; font-weight:700; color:#a44390;'>" . esc_html($sig_name) . "</p>" : '') . "
+                            " . (!empty($sig_title) ? "<p style='margin:0 0 8px 0; font-size:11px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;'>" . esc_html($sig_title) . "</p>" : '') . "
+                            {$contact_rows}
+                            " . (!empty($social_badges) ? "<p style='margin:4px 0 0 0;'>{$social_badges}</p>" : '') . "
+                        </td>
+                    </tr>
+                </table>
+            </div>";
+        }
+
         $message = "
         <!DOCTYPE html>
         <html>
@@ -95,6 +149,7 @@ if (!function_exists('cosy_send_html_email')) {
                     <!-- Body -->
                     <div style='padding: 35px 25px; font-size: 15px; line-height: 1.6;'>
                         " . $content_html . "
+                        " . $sig_html . "
                     </div>
                     
                     <!-- Footer -->

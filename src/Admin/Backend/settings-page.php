@@ -51,6 +51,10 @@ defined('ABSPATH') || exit;
                             <i class="fa-solid fa-image fs-4 w-20"></i>
                             <span class="fw-bold">Page Images</span>
                         </button>
+                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-signature-tab" data-bs-toggle="pill" data-bs-target="#v-pills-signature" type="button" role="tab" aria-controls="v-pills-signature" aria-selected="false">
+                            <i class="fa-solid fa-signature fs-4 w-20"></i>
+                            <span class="fw-bold">Email Signature</span>
+                        </button>
                     </div>
                 </div>
 
@@ -289,6 +293,194 @@ defined('ABSPATH') || exit;
                                     <?php $login_preview = get_option('cosy_login_image_url'); ?>
                                     <div id="cosy_login_preview" class="mt-2 <?php echo empty($login_preview) ? 'd-none' : ''; ?>">
                                         <img src="<?php echo esc_url($login_preview); ?>" style="max-height: 120px; border-radius: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email Signature Settings Tab -->
+                        <div class="tab-pane fade" id="v-pills-signature" role="tabpanel" aria-labelledby="v-pills-signature-tab">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-signature fs-2 text-primary" style="color: #a44390 !important;"></i>
+                                    Email Signature Configuration
+                                </h3>
+                                <div class="d-flex align-items-center m-0">
+                                    <label class="cosy-switch">
+                                        <input type="checkbox" name="cosy_sig_enabled" id="cosy_sig_enabled" value="1" <?php checked(1, get_option('cosy_sig_enabled', 1)); ?>>
+                                        <span class="cosy-slider round"></span>
+                                    </label>
+                                    <span class="fw-semibold text-secondary ms-2">Enable Signature in Emails</span>
+                                </div>
+                            </div>
+
+                            <div class="row g-4">
+                                <!-- Logo Upload -->
+                                <div class="col-md-12">
+                                    <label for="cosy_sig_logo_url" class="form-label fw-bold text-secondary">Company Logo</label>
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-image"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2 cosy-img-input" name="cosy_sig_logo_url" id="cosy_sig_logo_url" value="<?php echo esc_attr(get_option('cosy_sig_logo_url')); ?>" placeholder="Select or upload your company logo">
+                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn" data-target="#cosy_sig_logo_url" data-preview="#cosy_sig_logo_preview" style="color: #a44390; border: 1.5px solid #a44390; background: #ffffff;">
+                                            <i class="fa-solid fa-folder-open me-1" style="color: #a44390;"></i> Choose Logo
+                                        </button>
+                                    </div>
+                                    <div class="form-text text-muted">Upload your CosyChats company logo. Recommended: PNG with transparent background, max 200px wide.</div>
+                                    <?php $sig_logo = get_option('cosy_sig_logo_url'); ?>
+                                    <div id="cosy_sig_logo_preview" class="mt-2 <?php echo empty($sig_logo) ? 'd-none' : ''; ?>">
+                                        <img src="<?php echo esc_url($sig_logo); ?>" style="max-height: 80px; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05); padding: 6px; background: #fff;">
+                                    </div>
+                                </div>
+
+                                <!-- Name & Title -->
+                                <div class="col-md-6">
+                                    <label for="cosy_sig_name" class="form-label fw-bold text-secondary">Display Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_sig_name" id="cosy_sig_name" value="<?php echo esc_attr(get_option('cosy_sig_name', 'The CosyChats Team')); ?>" placeholder="e.g. The CosyChats Team">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Name shown in the signature (e.g. your name or team name).</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cosy_sig_title" class="form-label fw-bold text-secondary">Title / Role</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-badge"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_sig_title" id="cosy_sig_title" value="<?php echo esc_attr(get_option('cosy_sig_title', 'Customer Support')); ?>" placeholder="e.g. Customer Support">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Your role or designation shown below the name.</div>
+                                </div>
+
+                                <!-- Phone & Email -->
+                                <div class="col-md-6">
+                                    <label for="cosy_sig_phone" class="form-label fw-bold text-secondary">Phone Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-phone"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_sig_phone" id="cosy_sig_phone" value="<?php echo esc_attr(get_option('cosy_sig_phone')); ?>" placeholder="e.g. +44 123 456 7890">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Contact phone number displayed in the signature.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cosy_sig_email" class="form-label fw-bold text-secondary">Support Email</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-envelope"></i></span>
+                                        <input type="email" class="form-control border-start-0 py-2" name="cosy_sig_email" id="cosy_sig_email" value="<?php echo esc_attr(get_option('cosy_sig_email')); ?>" placeholder="e.g. support@cosychats.com">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Contact/support email shown in the signature.</div>
+                                </div>
+
+                                <!-- Website & Address -->
+                                <div class="col-md-6">
+                                    <label for="cosy_sig_website" class="form-label fw-bold text-secondary">Website URL</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-globe"></i></span>
+                                        <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_website" id="cosy_sig_website" value="<?php echo esc_attr(get_option('cosy_sig_website', home_url())); ?>" placeholder="https://cosychats.com">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Website link shown in the signature.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cosy_sig_address" class="form-label fw-bold text-secondary">Office Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-location-dot"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_sig_address" id="cosy_sig_address" value="<?php echo esc_attr(get_option('cosy_sig_address')); ?>" placeholder="e.g. London, United Kingdom">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Physical address or city shown in the signature.</div>
+                                </div>
+
+                                <!-- Social Media Links -->
+                                <div class="col-12 mt-2">
+                                    <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-share-nodes me-2" style="color: #a44390;"></i>Social Media Links</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="cosy_sig_linkedin" class="form-label fw-bold text-secondary">LinkedIn URL</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-linkedin"></i></span>
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_linkedin" id="cosy_sig_linkedin" value="<?php echo esc_attr(get_option('cosy_sig_linkedin')); ?>" placeholder="https://linkedin.com/company/...">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cosy_sig_facebook" class="form-label fw-bold text-secondary">Facebook URL</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-facebook"></i></span>
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_facebook" id="cosy_sig_facebook" value="<?php echo esc_attr(get_option('cosy_sig_facebook')); ?>" placeholder="https://facebook.com/cosychats">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cosy_sig_instagram" class="form-label fw-bold text-secondary">Instagram URL</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-instagram"></i></span>
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_instagram" id="cosy_sig_instagram" value="<?php echo esc_attr(get_option('cosy_sig_instagram')); ?>" placeholder="https://instagram.com/cosychats">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cosy_sig_twitter" class="form-label fw-bold text-secondary">Twitter / X URL</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-x-twitter"></i></span>
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_twitter" id="cosy_sig_twitter" value="<?php echo esc_attr(get_option('cosy_sig_twitter')); ?>" placeholder="https://twitter.com/cosychats">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Live Signature Preview -->
+                                <div class="col-12 mt-3">
+                                    <div class="border rounded-3 p-3" style="background: #fdfafd;">
+                                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-eye me-2" style="color: #a44390;"></i>Signature Preview</h6>
+                                        <?php
+                                        $sig_logo    = get_option('cosy_sig_logo_url');
+                                        $sig_name    = get_option('cosy_sig_name', 'The CosyChats Team');
+                                        $sig_title   = get_option('cosy_sig_title', 'Customer Support');
+                                        $sig_phone   = get_option('cosy_sig_phone');
+                                        $sig_email   = get_option('cosy_sig_email');
+                                        $sig_website = get_option('cosy_sig_website', home_url());
+                                        $sig_address = get_option('cosy_sig_address');
+                                        $sig_li      = get_option('cosy_sig_linkedin');
+                                        $sig_fb      = get_option('cosy_sig_facebook');
+                                        $sig_ig      = get_option('cosy_sig_instagram');
+                                        $sig_tw      = get_option('cosy_sig_twitter');
+                                        ?>
+                                        <div style="background:#ffffff; border:1px solid #f1e4ef; border-radius:12px; padding:20px; max-width:540px; font-family:'Segoe UI',Arial,sans-serif;">
+                                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                                                <tr>
+                                                    <?php if (!empty($sig_logo)) : ?>
+                                                    <td style="width:110px; vertical-align:middle; padding-right:16px;">
+                                                        <img src="<?php echo esc_url($sig_logo); ?>" alt="Logo" style="max-width:100px; height:auto; display:block;">
+                                                    </td>
+                                                    <td style="width:2px; vertical-align:middle; padding:0 16px 0 0;">
+                                                        <div style="width:2px; height:80px; background:linear-gradient(180deg,#a44390,#6d2e67);"></div>
+                                                    </td>
+                                                    <?php endif; ?>
+                                                    <td style="vertical-align:middle;">
+                                                        <?php if (!empty($sig_name)) : ?>
+                                                        <p style="margin:0 0 2px 0; font-size:15px; font-weight:700; color:#a44390;"><?php echo esc_html($sig_name); ?></p>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($sig_title)) : ?>
+                                                        <p style="margin:0 0 8px 0; font-size:12px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;"><?php echo esc_html($sig_title); ?></p>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($sig_phone)) : ?>
+                                                        <p style="margin:0 0 3px 0; font-size:12px; color:#334155;">📞 <?php echo esc_html($sig_phone); ?></p>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($sig_email)) : ?>
+                                                        <p style="margin:0 0 3px 0; font-size:12px; color:#334155;">✉️ <?php echo esc_html($sig_email); ?></p>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($sig_website)) : ?>
+                                                        <p style="margin:0 0 3px 0; font-size:12px; color:#334155;">🌐 <?php echo esc_html($sig_website); ?></p>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($sig_address)) : ?>
+                                                        <p style="margin:0 0 8px 0; font-size:12px; color:#334155;">📍 <?php echo esc_html($sig_address); ?></p>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($sig_li) || !empty($sig_fb) || !empty($sig_ig) || !empty($sig_tw)) : ?>
+                                                        <p style="margin:0;">
+                                                            <?php if (!empty($sig_li)) : ?><a href="<?php echo esc_url($sig_li); ?>" style="display:inline-block; margin-right:6px; background:#0077b5; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;">LinkedIn</a><?php endif; ?>
+                                                            <?php if (!empty($sig_fb)) : ?><a href="<?php echo esc_url($sig_fb); ?>" style="display:inline-block; margin-right:6px; background:#1877f2; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;">Facebook</a><?php endif; ?>
+                                                            <?php if (!empty($sig_ig)) : ?><a href="<?php echo esc_url($sig_ig); ?>" style="display:inline-block; margin-right:6px; background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;">Instagram</a><?php endif; ?>
+                                                            <?php if (!empty($sig_tw)) : ?><a href="<?php echo esc_url($sig_tw); ?>" style="display:inline-block; margin-right:6px; background:#000000; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;">X / Twitter</a><?php endif; ?>
+                                                        </p>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <p class="text-muted small mt-2 mb-0"><i class="fa-solid fa-info-circle me-1"></i>Save settings to refresh the live preview above.</p>
                                     </div>
                                 </div>
                             </div>

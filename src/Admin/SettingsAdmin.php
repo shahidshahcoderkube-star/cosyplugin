@@ -89,6 +89,44 @@ class SettingsAdmin
             'sanitize_callback' => 'esc_url_raw'
         ]);
 
+        // Email Signature Settings
+        register_setting('cosy_payment_settings', 'cosy_sig_logo_url', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_name', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_title', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_phone', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_email', [
+            'sanitize_callback' => 'sanitize_email'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_website', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_address', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_linkedin', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_facebook', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_instagram', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_twitter', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_enabled', [
+            'sanitize_callback' => 'absint'
+        ]);
+
         // Media Upload settings
         register_setting('cosy_media_settings', 'cosy_max_video_upload_size', [
             'sanitize_callback' => 'absint'
