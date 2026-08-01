@@ -342,13 +342,22 @@ class EmailTemplates
      */
     public static function get_video_approved_template(string $name): array
     {
-        $subject = __('Your CosyChats Introduction Video is Approved!', 'cosy-appointments');
+        $subject = __('Your Introduction Video Is Now Live', 'cosy-appointments');
         $heading = __('Video Approved!', 'cosy-appointments');
+
+        $dashboard_url = home_url('/dashboard');
 
         $html_content = "
             <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
-            <p>Great news! Your introduction video has been reviewed and approved by the site administrator. It is now active on your public profile page.</p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
+            <p>Great news! Your introduction video is now live on your CosyChats profile.</p>
+            <p>Parents visiting your profile can now watch your introduction, helping them get to know you and your experiences before booking a conversation.</p>
+            <p style='text-align: center; margin: 30px 0;'>
+                <a href='" . esc_url($dashboard_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Go to Dashboard</a>
+            </p>
+            <p>Thank you for taking the time to create your video. It adds a personal touch to your profile and helps bring your story to life.</p>
+            <p>If you have any questions or need any help, please don't hesitate to get in touch with us at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>—we're always happy to help.</p>
+            <p>Thank you for being part of CosyChats.</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm wishes,</p>
         ";
 
         return [
