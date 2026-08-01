@@ -372,18 +372,26 @@ class EmailTemplates
      */
     public static function get_video_rejected_template(string $name, string $reason): array
     {
-        $subject = __('Action Required: Your Introduction Video Needs Revision', 'cosy-appointments');
+        $subject = __('Your Introduction Video Needs Updating', 'cosy-appointments');
         $heading = __('Video Update Required', 'cosy-appointments');
+
+        $dashboard_url = home_url('/dashboard');
+        $reason_block  = !empty($reason)
+            ? "<div style='background: #fff5f5; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 6px;'><strong style='color: #991b1b;'>Reason / Feedback:</strong><p style='margin: 5px 0 0 0; color: #991b1b;'>" . esc_html($reason) . "</p></div>"
+            : "";
 
         $html_content = "
             <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
-            <p>Your introduction video was reviewed by our administrator and requires some updates before it can be published.</p>
-            <div style='background: #fff5f5; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 6px;'>
-                <strong>Reason / Feedback:</strong>
-                <p style='margin: 5px 0 0 0; color: #991b1b;'>" . esc_html($reason) . "</p>
-            </div>
-            <p>Please log in to your Provider Dashboard to re-upload an updated video.</p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
+            <p>Thank you for uploading your introduction video.</p>
+            <p>We've reviewed your video and, unfortunately, it isn't quite ready to be published on your CosyChats profile. This could be due to the video quality, format, file size, or because it doesn't meet our video guidelines.</p>
+            {$reason_block}
+            <p>Please log in to your dashboard to upload a new version.</p>
+            <p style='text-align: center; margin: 30px 0;'>
+                <a href='" . esc_url($dashboard_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Upload New Video</a>
+            </p>
+            <p>If you're unsure what needs changing or would like any help creating your video, please don't hesitate to get in touch with us at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>. We'll be happy to help you get your video ready to go live.</p>
+            <p>Thank you for taking the time to update it—we're looking forward to seeing your new introduction.</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm wishes,</p>
         ";
 
         return [
