@@ -13,7 +13,7 @@
                     <div class="form-column">
                         <div class="form-group">
                             <label for="prov_username"><?php esc_html_e('Username', 'cosy-appointments'); ?></label>
-                            <input type="text" name="prov_username" id="prov_username" placeholder="<?php esc_attr_e('Choose a username', 'cosy-appointments'); ?>"
+                            <input type="text" name="prov_username" id="prov_username" placeholder="<?php esc_attr_e('Username', 'cosy-appointments'); ?>"
                                 required>
                         </div>
 
