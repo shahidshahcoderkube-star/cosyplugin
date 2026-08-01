@@ -74,7 +74,7 @@ class EmailTemplates
             <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
             <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
             <p style='margin-top: 25px;'>Thank you for helping us make conversations based on shared experiences easier to find.</p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 15px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 15px;'>Kind regards,</p>
         ";
 
         return [
@@ -100,7 +100,7 @@ class EmailTemplates
             </p>
             <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you did not request this reset, you can safely ignore this email. Your password will remain unchanged.</p>
             <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($reset_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($reset_url) . "</a></p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [
@@ -124,7 +124,7 @@ class EmailTemplates
             <p style='text-align: center; margin: 30px 0;'>
                 <a href='" . esc_url(home_url('/login')) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Login to Your Account</a>
             </p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [
@@ -146,7 +146,7 @@ class EmailTemplates
             <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
             <p>Your parent account has been temporarily deactivated by a CosyChats administrator. While your account is inactive, your profile won't be visible to customers and you won't be able to receive new bookings.</p>
             <p>If you have any questions or think this has happened in error, please don't hesitate to get in touch with the CosyChats team at <a href='mailto:contact@cosychats.com' style='color: #a44390;'>contact@cosychats.com</a>.</p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [
@@ -187,7 +187,7 @@ class EmailTemplates
                 <tr style='border-top: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: bold; color: #6d2e67;'>Total Paid:</td><td style='padding: 10px 12px; font-weight: bold; color: #6d2e67;'>" . esc_html($currency . number_format($data['total_payable'], 2)) . "</td></tr>
             </table>
 
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [
@@ -225,7 +225,7 @@ class EmailTemplates
                 <a href='" . esc_url(home_url('/dashboard')) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>View Dashboard Schedule</a>
             </p>
 
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [
@@ -260,7 +260,7 @@ class EmailTemplates
                 <tr><td style='padding: 8px 12px; font-weight: bold;'>Start Date & Time:</td><td style='padding: 8px 12px;'>" . esc_html($data['start_date']) . " (" . esc_html($data['slots_timeline']) . ")</td></tr>
             </table>
 
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [
@@ -281,7 +281,7 @@ class EmailTemplates
         $html_content = "
             <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
             <p>Great news! Your introduction video has been reviewed and approved by the site administrator. It is now active on your public profile page.</p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [
@@ -307,7 +307,7 @@ class EmailTemplates
                 <p style='margin: 5px 0 0 0; color: #991b1b;'>" . esc_html($reason) . "</p>
             </div>
             <p>Please log in to your Provider Dashboard to re-upload an updated video.</p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [
@@ -352,7 +352,7 @@ class EmailTemplates
             <p style='text-align: center; margin: 30px 0;'>
                 <a href='" . esc_url($admin_review_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Review Provider in WP Admin</a>
             </p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [

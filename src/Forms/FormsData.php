@@ -220,11 +220,7 @@ class FormsData
             return;
         }
 
-        if (username_exists($username)) {
-            $this->send_response(false, __('This username is already taken.', 'cosy-appointments'));
-            return;
-        }
-
+        // Check if email already exists
         $existing_prov_id = email_exists($email);
         if ($existing_prov_id) {
             $account_status = get_user_meta($existing_prov_id, 'account_status', true);
@@ -235,6 +231,20 @@ class FormsData
                 return;
             }
             $this->send_response(false, __('This email is already registered. Please sign in instead.', 'cosy-appointments'));
+            return;
+        }
+
+        // Check if username already exists
+        $existing_user_by_uname = username_exists($username);
+        if ($existing_user_by_uname) {
+            $account_status = get_user_meta($existing_user_by_uname, 'account_status', true);
+            if ($account_status !== 'active') {
+                // Resend verification email
+                $this->send_verification_email($existing_user_by_uname, 'provider');
+                $this->send_response(true, __('The verification is pending on your email. We have resent the verification link to your email. Please check your inbox to verify your account.', 'cosy-appointments'));
+                return;
+            }
+            $this->send_response(false, __('This username is already taken. Please choose a different username.', 'cosy-appointments'));
             return;
         }
 
