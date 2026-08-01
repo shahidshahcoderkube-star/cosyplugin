@@ -393,4 +393,108 @@ class EmailTemplates
             'content' => $html_content,
         ];
     }
+
+    /**
+     * 12. Admin Payment Alert Email
+     */
+    public static function get_admin_payment_template(array $data): array
+    {
+        $subject = sprintf(__('🔔 New Secure Payment Received - Order #%s', 'cosy-appointments'), $data['appointment_id']);
+        $heading = __('Admin Payment Alert', 'cosy-appointments');
+
+        $currency = $data['currency_symbol'] ?? '£';
+        $gift_row = !empty($data['is_gift'])
+            ? "<tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Gift Recipient</td><td style='padding: 10px 0; color: #a44390; font-weight: 600;'>" . esc_html($data['recipient_name']) . " (" . esc_html($data['recipient_email']) . ")</td></tr>"
+            : "";
+
+        $html_content = "
+            <p>Hello Administrator,</p>
+            <p>A new payment transaction has been processed and authorized successfully.</p>
+            
+            <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Order Information Summary:</h3>
+            <table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order Reference ID</td><td style='padding: 10px 0;'>#" . esc_html($data['appointment_id']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience</td><td style='padding: 10px 0;'>" . esc_html($data['service_title']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>" . esc_html($data['customer_name']) . " (" . esc_html($data['customer_email']) . ")</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Parent Provider</td><td style='padding: 10px 0;'>" . esc_html($data['provider_name']) . "</td></tr>
+                {$gift_row}
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>" . esc_html($data['start_date']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>" . esc_html($data['end_date']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>" . esc_html($data['weekly_type']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Week Days Available</td><td style='padding: 10px 0;'>" . esc_html($data['week_days']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weeks &amp; Slots</td><td style='padding: 10px 0;'>" . esc_html($data['num_bookings']) . " slots over " . esc_html($data['num_weeks']) . " week(s)</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Selected Slots</td><td style='padding: 10px 0;'>" . esc_html($data['slots_timeline']) . "</td></tr>
+            </table>
+
+            <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Financial Details:</h3>
+            <table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Provider Revenue Share</td><td style='padding: 10px 0; text-align: right;'>{$currency}" . esc_html($data['service_cost']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee* (Net)</td><td style='padding: 10px 0; text-align: right;'>{$currency}" . esc_html($data['service_fee']) . "</td></tr>
+                <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency}" . esc_html($data['total_payable']) . "</td></tr>
+            </table>
+            <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
+        ";
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
+
+    /**
+     * 13. Provider Review Approved Notification Email
+     */
+    public static function get_provider_review_approved_template(string $provider_name, string $customer_name, int $rating, string $review_text): array
+    {
+        $subject = __('New Parent Review Approved on Your Profile!', 'cosy-appointments');
+        $heading = __('Parent Review Approved', 'cosy-appointments');
+
+        $html_content = sprintf(
+            '<p style="margin-bottom: 15px;">Hello <strong>%s</strong>,</p>
+            <p style="margin-bottom: 15px;">A new parent review from <strong>%s</strong> (<strong>%d Stars</strong>) has been approved by the Administrator and is now live on your profile page.</p>
+            <blockquote style="background: #fdf5fc; border-left: 4px solid #a44390; padding: 12px 16px; margin: 15px 0; font-style: italic;">"%s"</blockquote>
+            <p style="margin-bottom: 0;">You can view and post a public response to this review from your <strong>Provider Dashboard &rarr; Parent Reviews</strong> tab.</p>',
+            esc_html($provider_name),
+            esc_html($customer_name),
+            $rating,
+            esc_html($review_text)
+        );
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
+
+    /**
+     * 14. Admin New Review Submitted Alert Email
+     */
+    public static function get_admin_new_review_template(string $provider_name, string $customer_name, int $rating, string $review_text): array
+    {
+        $subject = __('New Customer Review Submitted for Moderation', 'cosy-appointments');
+        $heading = __('New Customer Review Alert', 'cosy-appointments');
+
+        $html_content = sprintf(
+            '<p style="margin-bottom: 15px;">Hello Administrator,</p>
+            <p style="margin-bottom: 15px;">A new customer review has been submitted for <strong>%s</strong> and is currently <strong>Pending Approval</strong>.</p>
+            <ul style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 25px; border-radius: 8px; margin-bottom: 20px;">
+                <li><strong>Customer:</strong> %s</li>
+                <li><strong>Rating:</strong> %d Stars</li>
+                <li><strong>Review:</strong> "%s"</li>
+            </ul>
+            <p style="margin-bottom: 0;">Log in to WP Admin &rarr; <strong>CC Booking &rarr; Reviews</strong> to approve or reject this review.</p>',
+            esc_html($provider_name),
+            esc_html($customer_name),
+            $rating,
+            esc_html($review_text)
+        );
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
 }

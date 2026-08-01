@@ -393,18 +393,9 @@ class FormsData
             'login'  => rawurlencode($user->user_login),
         ], wp_login_url());
 
-        // Send email
-        $subject = __('Password Reset Request', 'cosy-appointments');
-        $html_content = "
-            <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
-            <p>You requested a password reset for your account. Please click the button below to set a new password:</p>
-            <p style='text-align: center; margin: 30px 0;'>
-                <a href='" . esc_url($reset_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Reset Password</a>
-            </p>
-            <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you did not request this reset, you can safely ignore this email. Your password will remain unchanged.</p>
-            <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($reset_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($reset_url) . "</a></p>
-        ";
-        $mail_sent = cosy_send_html_email($email, $subject, $subject, $html_content);
+        // Send email via central EmailTemplates class
+        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_password_reset_template($user->display_name ?: $user->user_login, $reset_url);
+        $mail_sent = cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
 
         if ($mail_sent) {
             $this->send_response(true, __('A password reset link has been sent to your email.', 'cosy-appointments'));

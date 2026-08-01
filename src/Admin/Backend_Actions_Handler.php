@@ -63,20 +63,8 @@ class Backend_Actions_Handler
         // Send email to provider
         $user = get_userdata($user_id);
         if ($user) {
-            $subject = __('Your Introduction Video is Approved!', 'cosy-appointments');
-            $dashboard_url = esc_url(home_url('/provider-dashboard/'));
-            
-            $html_content = "
-                <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
-                <p>Great news! Your profile's introductory video has been reviewed and successfully approved by our administration team.</p>
-                <p>Your video is now live on your public profile page, allowing customers to see your introduction and learn more about your services.</p>
-                <p style='text-align: center; margin: 30px 0;'>
-                    <a href='" . esc_url($dashboard_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>" . __('Go to Dashboard', 'cosy-appointments') . "</a>
-                </p>
-                <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-bottom: 0;'>" . __('If you have any questions or need assistance, please feel free to reach out to our support team.', 'cosy-appointments') . "</p>
-            ";
-            
-            cosy_send_html_email($user->user_email, $subject, __('Video Approved!', 'cosy-appointments'), $html_content);
+            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_video_approved_template($user->display_name);
+            cosy_send_html_email($user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
             
             \Cosy\Appointments\Common\LogManager::log(
                 'media_approve',
@@ -130,26 +118,10 @@ class Backend_Actions_Handler
         // Send rejection email to provider
         $user = get_userdata($user_id);
         if ($user) {
-            $subject = __('Video Upload Update Required', 'cosy-appointments');
-            $dashboard_url = esc_url(home_url('/provider-dashboard/'));
-
             $limit_mb = intval(get_option('cosy_max_video_upload_size', 3));
-            if ($limit_mb <= 0) {
-                $limit_mb = 3;
-            }
-
-            $html_content = "
-                <p>Hello <strong>" . esc_html($user->display_name) . "</strong>,</p>
-                <p>Thank you for uploading your introductory video. During our review, we found that the video did not meet our guidelines or quality standards, and it has been rejected.</p>
-                <p>Please log in to your dashboard to upload a new video that complies with our guidelines (Max {$limit_mb} MB, MP4 format).</p>
-
-                <p style='text-align: center; margin: 30px 0;'>
-                    <a href='" . esc_url($dashboard_url) . "' style='background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);'>" . __('Upload New Video', 'cosy-appointments') . "</a>
-                </p>
-                <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-bottom: 0;'>" . __('If you have any questions or need assistance, please feel free to reach out to our support team.', 'cosy-appointments') . "</p>
-            ";
-
-            cosy_send_html_email($user->user_email, $subject, __('Video Update Required', 'cosy-appointments'), $html_content);
+            $reason = sprintf(__('Video did not meet guidelines or quality standards. Maximum size allowed: %d MB, MP4 format.', 'cosy-appointments'), $limit_mb > 0 ? $limit_mb : 3);
+            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_video_rejected_template($user->display_name, $reason);
+            cosy_send_html_email($user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
 
             \Cosy\Appointments\Common\LogManager::log(
                 'media_approve',

@@ -907,141 +907,50 @@ class Frontend
         ";
 
         $gift_row = "";
-        if (!empty($is_gift) && !empty($recipient_email)) {
-            $rec_name_display = !empty($recipient_name) ? esc_html($recipient_name) : esc_html($recipient_email);
-            $gift_row = "<tr style='border-bottom: 1px solid #fdf2fb; background-color: #fcf4fa;'><td style='padding: 10px 0; font-weight: 600; color: #a44390;'>Gifted To 🎁</td><td style='padding: 10px 0; font-weight: 600; color: #a44390;'>{$rec_name_display} ({$recipient_email})</td></tr>";
-        }
+        $booking_data = [
+            'appointment_id' => $appointment_id,
+            'customer_name'  => $current_user->display_name,
+            'customer_email' => $current_user->user_email,
+            'provider_name'  => $provider_name,
+            'provider_email' => $provider_email,
+            'service_title'  => $service,
+            'start_date'     => $start_date,
+            'end_date'       => $end_date,
+            'weekly_type'    => $weekly_booking,
+            'num_weeks'      => $number_of_weeks,
+            'week_days'      => $week_days,
+            'num_bookings'   => $number_of_bookings,
+            'slots_timeline' => $slots_timeline,
+            'service_cost'   => $service_cost,
+            'service_fee'    => $service_fee,
+            'total_payable'  => $total_payable,
+            'currency_symbol'=> $currency_symbol,
+            'is_gift'        => !empty($is_gift),
+            'recipient_name' => $recipient_name ?? '',
+            'recipient_email'=> $recipient_email ?? '',
+        ];
 
         // 1. Send Customer Email
-        $customer_subject = "🌸 Booking Confirmed - Thank you for your payment!";
-        $customer_content = "
-            <p>Hello <strong>" . esc_html($current_user->display_name) . "</strong>,</p>
-            <p>Thank you for choosing our platform. Your payment of <strong>{$currency_symbol}{$total_payable}</strong> has been successfully processed securely.</p>
-            
-            <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Booking Information Summary:</h3>
-            <table style='{$table_style}'>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience Booked</td><td style='padding: 10px 0;'>{$service}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Parent Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>{$current_user->display_name}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Email</td><td style='padding: 10px 0;'>{$current_user->user_email}</td></tr>
-                {$gift_row}
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Number of Weeks</td><td style='padding: 10px 0;'>{$number_of_weeks}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Week Days</td><td style='padding: 10px 0;'>{$week_days}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Total Booked Slots</td><td style='padding: 10px 0;'>{$number_of_bookings} slots</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Selected Slots</td><td style='padding: 10px 0;'>{$slots_timeline}</td></tr>
-            </table>
-
-            <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Payment Details:</h3>
-            <table style='{$table_style}'>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Experience Cost</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_cost}</td></tr>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee*</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
-                <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency_symbol}{$total_payable}</td></tr>
-            </table>
-            <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
-            
-            <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>You can track your live schedule and update booking details directly from your Customer account profile.</p>
-        ";
-        cosy_send_html_email($current_user->user_email, $customer_subject, __('Booking Confirmed!', 'cosy-appointments'), $customer_content);
+        $cust_tpl = \Cosy\Appointments\Common\EmailTemplates::get_booking_customer_template($booking_data);
+        cosy_send_html_email($current_user->user_email, $cust_tpl['subject'], $cust_tpl['heading'], $cust_tpl['content']);
 
         // 2. Send Provider Email
         if (!empty($provider_email)) {
-            $provider_subject = "📅 New Booking Received - {$current_user->display_name} has booked an Experience!";
-            $provider_content = "
-                <p>Hello <strong>" . esc_html($provider_name) . "</strong>,</p>
-                <p>Great news! A new customer, <strong>" . esc_html($current_user->display_name) . "</strong>, has booked an Experience with you and completed the payment transaction.</p>
-                
-                <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Booking Information:</h3>
-                <table style='{$table_style}'>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience Booked</td><td style='padding: 10px 0;'>{$service}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>{$current_user->display_name}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Email</td><td style='padding: 10px 0;'>{$current_user->user_email}</td></tr>
-                    {$gift_row}
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Number of Weeks</td><td style='padding: 10px 0;'>{$number_of_weeks}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Week Days</td><td style='padding: 10px 0;'>{$week_days}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Total Booked Slots</td><td style='padding: 10px 0;'>{$number_of_bookings} slots</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Selected Slots</td><td style='padding: 10px 0;'>{$slots_timeline}</td></tr>
-                </table>
-
-                <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Payment Details:</h3>
-                <table style='{$table_style}'>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Experience Cost</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_cost}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee*</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
-                    <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency_symbol}{$total_payable}</td></tr>
-                </table>
-                <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
-                
-                <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>Please log in to your Provider Dashboard to manage your schedule and orders.</p>
-            ";
-            cosy_send_html_email($provider_email, $provider_subject, __('New Appointment Notification', 'cosy-appointments'), $provider_content);
+            $prov_tpl = \Cosy\Appointments\Common\EmailTemplates::get_booking_provider_template($booking_data);
+            cosy_send_html_email($provider_email, $prov_tpl['subject'], $prov_tpl['heading'], $prov_tpl['content']);
         }
 
         // 3. Send Administrator Email
         $admin_email = get_option('admin_email');
         if (!empty($admin_email)) {
-            $admin_subject = "🔔 New Secure Payment Received - Order #{$appointment_id}";
-            $admin_content = "
-                <p>Hello Administrator,</p>
-                <p>A new payment transaction has been processed and authorized successfully.</p>
-                
-                <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Order Information Summary:</h3>
-                <table style='{$table_style}'>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order Reference ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience</td><td style='padding: 10px 0;'>{$service}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>{$current_user->display_name} ({$current_user->user_email})</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Parent Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
-                    {$gift_row}
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Week Days Available</td><td style='padding: 10px 0;'>{$week_days}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weeks & Slots</td><td style='padding: 10px 0;'>{$number_of_bookings} slots over {$number_of_weeks} week(s)</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Selected Slots</td><td style='padding: 10px 0;'>{$slots_timeline}</td></tr>
-                </table>
-
-                <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Financial Details:</h3>
-                <table style='{$table_style}'>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Provider Revenue Share</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_cost}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0;'>Service Fee* (Net)</td><td style='padding: 10px 0; text-align: right;'>{$currency_symbol}{$service_fee}</td></tr>
-                    <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency_symbol}{$total_payable}</td></tr>
-                </table>
-                <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
-            ";
-            cosy_send_html_email($admin_email, $admin_subject, __('Admin Payment Alert', 'cosy-appointments'), $admin_content);
+            $admin_tpl = \Cosy\Appointments\Common\EmailTemplates::get_admin_payment_template($booking_data);
+            cosy_send_html_email($admin_email, $admin_tpl['subject'], $admin_tpl['heading'], $admin_tpl['content']);
         }
 
         // 4. Send Gift Recipient Email (If Gift Booking)
         if (!empty($is_gift) && !empty($recipient_email)) {
-            $rec_name_greeting = !empty($recipient_name) ? esc_html($recipient_name) : 'Friend';
-            $gift_subject = "🎁 You've Received a Gifted Experience on CosyChats!";
-            $gift_content = "
-                <p>Hello <strong>{$rec_name_greeting}</strong>,</p>
-                <p>Wonderful news! <strong>" . esc_html($current_user->display_name) . "</strong> has gifted you a special <strong>{$service}</strong> experience conversation on <strong>CosyChats</strong> 🎁.</p>
-                
-                <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Your Gifted Booking Details:</h3>
-                <table style='{$table_style}'>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Gift Reference ID</td><td style='padding: 10px 0;'>#{$appointment_id}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience</td><td style='padding: 10px 0;'>{$service}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Gifted By</td><td style='padding: 10px 0; color: #a44390; font-weight: 600;'>" . esc_html($current_user->display_name) . " (" . esc_html($current_user->user_email) . ")</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Parent Provider</td><td style='padding: 10px 0;'>{$provider_name}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Start Date</td><td style='padding: 10px 0;'>{$start_date}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>End Date</td><td style='padding: 10px 0;'>{$end_date}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Weekly Schedule</td><td style='padding: 10px 0;'>{$weekly_booking}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Week Days</td><td style='padding: 10px 0;'>{$week_days}</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Total Booked Slots</td><td style='padding: 10px 0;'>{$number_of_bookings} slots</td></tr>
-                    <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Selected Slots</td><td style='padding: 10px 0;'>{$slots_timeline}</td></tr>
-                </table>
-                
-                <p style='margin-top: 30px; font-size: 14px; color: #64748b; text-align: center;'>We look forward to hosting your conversation! If you have any questions, feel free to reply to this email.</p>
-            ";
-            cosy_send_html_email($recipient_email, $gift_subject, __('🎁 A Special Gift For You!', 'cosy-appointments'), $gift_content);
+            $gift_tpl = \Cosy\Appointments\Common\EmailTemplates::get_gifted_booking_template($booking_data);
+            cosy_send_html_email($recipient_email, $gift_tpl['subject'], $gift_tpl['heading'], $gift_tpl['content']);
         }
     }
 

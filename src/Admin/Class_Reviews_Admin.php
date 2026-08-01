@@ -69,19 +69,13 @@ class Class_Reviews_Admin
 
             $provider = get_userdata($review->provider_id);
             if ($provider && !empty($provider->user_email) && function_exists('cosy_send_html_email')) {
-                $subject = __('New Parent Review Approved on Your Profile!', 'cosy-appointments');
-                $heading = __('Parent Review Approved', 'cosy-appointments');
-                $message_html = sprintf(
-                    '<p style="margin-bottom: 15px;">Hello <strong>%s</strong>,</p>
-                    <p style="margin-bottom: 15px;">A new parent review from <strong>%s</strong> (<strong>%d Stars</strong>) has been approved by the Administrator and is now live on your profile page.</p>
-                    <blockquote style="background: #fdf5fc; border-left: 4px solid #a44390; padding: 12px 16px; margin: 15px 0; font-style: italic;">"%s"</blockquote>
-                    <p style="margin-bottom: 0;">You can view and post a public response to this review from your <strong>Provider Dashboard &rarr; Parent Reviews</strong> tab.</p>',
-                    esc_html($provider->display_name),
-                    esc_html($review->customer_name),
+                $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_review_approved_template(
+                    $provider->display_name,
+                    $review->customer_name,
                     intval($review->rating),
-                    esc_html($review->review)
+                    $review->review
                 );
-                cosy_send_html_email($provider->user_email, $subject, $heading, $message_html);
+                cosy_send_html_email($provider->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
             }
 
             wp_send_json_success(['message' => __('Review approved successfully.', 'cosy-appointments')]);

@@ -635,23 +635,13 @@ class Dashboard
             $provider_name = $provider_user ? $provider_user->display_name : 'Provider #' . $provider_id;
 
             if (!empty($admin_email) && function_exists('cosy_send_html_email')) {
-                $subject = __('New Customer Review Submitted for Moderation', 'cosy-appointments');
-                $heading = __('New Customer Review Alert', 'cosy-appointments');
-                $msg = sprintf(
-                    '<p style="margin-bottom: 15px;">Hello Administrator,</p>
-                    <p style="margin-bottom: 15px;">A new customer review has been submitted for <strong>%s</strong> and is currently <strong>Pending Approval</strong>.</p>
-                    <ul style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 25px; border-radius: 8px; margin-bottom: 20px;">
-                        <li><strong>Customer:</strong> %s</li>
-                        <li><strong>Rating:</strong> %d Stars</li>
-                        <li><strong>Review:</strong> "%s"</li>
-                    </ul>
-                    <p style="margin-bottom: 0;">Log in to WP Admin &rarr; <strong>CC Booking &rarr; Reviews</strong> to approve or reject this review.</p>',
-                    esc_html($provider_name),
-                    esc_html($current_user->display_name),
+                $tpl = \Cosy\Appointments\Common\EmailTemplates::get_admin_new_review_template(
+                    $provider_name,
+                    $current_user->display_name,
                     intval($rating),
-                    esc_html($review_text)
+                    $review_text
                 );
-                cosy_send_html_email($admin_email, $subject, $heading, $msg);
+                cosy_send_html_email($admin_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
             }
 
             wp_send_json_success(['message' => 'Review submitted successfully! It will be displayed after approval.']);
