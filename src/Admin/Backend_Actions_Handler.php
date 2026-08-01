@@ -118,8 +118,11 @@ class Backend_Actions_Handler
         // Send rejection email to provider
         $user = get_userdata($user_id);
         if ($user) {
-            $limit_mb = intval(get_option('cosy_max_video_upload_size', 3));
-            $reason = sprintf(__('Video did not meet guidelines or quality standards. Maximum size allowed: %d MB, MP4 format.', 'cosy-appointments'), $limit_mb > 0 ? $limit_mb : 3);
+            $custom_reason = !empty($_POST['reason']) ? sanitize_text_field($_POST['reason']) : '';
+            $limit_mb      = intval(get_option('cosy_max_video_upload_size', 3));
+            $default_reason= sprintf(__('Video did not meet guidelines or quality standards. Maximum size allowed: %d MB, MP4 format.', 'cosy-appointments'), $limit_mb > 0 ? $limit_mb : 3);
+            $reason        = !empty($custom_reason) ? $custom_reason : $default_reason;
+
             $tpl = \Cosy\Appointments\Common\EmailTemplates::get_video_rejected_template($user->display_name, $reason);
             cosy_send_html_email($user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
 
