@@ -254,30 +254,45 @@ class EmailTemplates
      */
     public static function get_booking_provider_template(array $data): array
     {
-        $subject = sprintf(__('📅 New Booking Received - %s has booked your conversation!', 'cosy-appointments'), $data['customer_name']);
-        $heading = __('New Appointment Notification', 'cosy-appointments');
+        $subject = sprintf(__('📅 New Booking Received - %s has booked a conversation.', 'cosy-appointments'), $data['customer_name']);
+        $heading = __('New Booking Notification', 'cosy-appointments');
 
         $currency = $data['currency_symbol'] ?? '£';
+        $order_id = $data['order_id'] ?? $data['appointment_id'] ?? '';
 
         $html_content = "
             <p>Hello <strong>" . esc_html($data['provider_name']) . "</strong>,</p>
-            <p>Great news! A customer, <strong>" . esc_html($data['customer_name']) . "</strong> (" . esc_html($data['customer_email']) . "), has booked a session with you.</p>
+            <p>Great news! A new customer, <strong>" . esc_html($data['customer_name']) . "</strong>, has booked a conversation with you.</p>
+            <p>Please find the booking details below.</p>
+            <p>You can also log in to your account at any time to view your bookings, update your availability, or manage your profile.</p>
+            <p>Before the scheduled time, please arrange your conversation with the customer using their chosen communication method, such as setting up a virtual meeting or another agreed way to connect. At the scheduled time, simply begin your conversation.</p>
+            <p>If you have any questions or need any assistance before your booking, please don't hesitate to contact us at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
+            <p>Thank you for being part of CosyChats. We hope you enjoy your upcoming conversation, and we appreciate you helping make conversations based on shared experiences available to more parents.</p>
 
-            <h4 style='color: #6d2e67; margin-top: 20px; border-bottom: 2px solid #f1e4ef; padding-bottom: 5px;'>Booking Information Summary</h4>
-            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px;'>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Order ID:</td><td style='padding: 8px 12px;'>#" . esc_html($data['appointment_id']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Conversation:</td><td style='padding: 8px 12px;'>" . esc_html($data['service_title']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Customer Name:</td><td style='padding: 8px 12px;'>" . esc_html($data['customer_name']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Customer Email:</td><td style='padding: 8px 12px;'>" . esc_html($data['customer_email']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Start Date:</td><td style='padding: 8px 12px;'>" . esc_html($data['start_date']) . "</td></tr>
+            <h4 style='color: #6d2e67; margin-top: 25px; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Booking Information:</h4>
+            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;'>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold; width: 40%;'>Order ID:</td><td style='padding: 8px 12px;'>#" . esc_html($order_id) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Experience Booked:</td><td style='padding: 8px 12px;'>" . esc_html($data['service_title']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Customer Name:</td><td style='padding: 8px 12px;'>" . esc_html($data['customer_name']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Customer Email:</td><td style='padding: 8px 12px;'>" . esc_html($data['customer_email']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Start Date:</td><td style='padding: 8px 12px;'>" . esc_html($data['start_date']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>End Date:</td><td style='padding: 8px 12px;'>" . esc_html($data['end_date']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Weekly Schedule:</td><td style='padding: 8px 12px;'>" . esc_html($data['weekly_type']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Number of Weeks:</td><td style='padding: 8px 12px;'>" . esc_html($data['num_weeks']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Week Days:</td><td style='padding: 8px 12px;'>" . esc_html($data['week_days']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Total Booked Slots:</td><td style='padding: 8px 12px;'>" . esc_html($data['num_bookings']) . " slots</td></tr>
                 <tr><td style='padding: 8px 12px; font-weight: bold;'>Selected Slots:</td><td style='padding: 8px 12px;'>" . esc_html($data['slots_timeline']) . "</td></tr>
             </table>
 
-            <p style='text-align: center; margin: 30px 0;'>
-                <a href='" . esc_url(home_url('/dashboard')) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>View Dashboard Schedule</a>
-            </p>
+            <h4 style='color: #6d2e67; margin-top: 25px; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Payment Details:</h4>
+            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;'>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px;'>Experience Cost:</td><td style='padding: 8px 12px; font-weight: bold; text-align: right;'>" . esc_html($currency . number_format($data['service_cost'], 2)) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px;'>Service Fee*:</td><td style='padding: 8px 12px; font-weight: bold; text-align: right;'>" . esc_html($currency . number_format($data['service_fee'], 2)) . "</td></tr>
+                <tr style='background-color: #fdf2fb;'><td style='padding: 10px 12px; font-weight: bold; color: #a44390;'>Total Paid:</td><td style='padding: 10px 12px; font-weight: bold; text-align: right; color: #a44390;'>" . esc_html($currency . number_format($data['total_payable'], 2)) . "</td></tr>
+            </table>
+            <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
 
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm regards,</p>
         ";
 
         return [
