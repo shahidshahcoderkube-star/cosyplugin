@@ -109,7 +109,7 @@
                 $missing_requirements[] = __('Profile Information', 'cosy-appointments');
             }
             if (!$has_services) {
-                $missing_requirements[] = __('What I\'m Happy to Talk About', 'cosy-appointments');
+                $missing_requirements[] = __('Experiences', 'cosy-appointments');
             }
             if (!$has_availability) {
                 $missing_requirements[] = __('Availability', 'cosy-appointments');
