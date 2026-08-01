@@ -149,8 +149,10 @@ class EmailTemplates
 
         $html_content = "
             <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
-            <p>Your parent account has been temporarily deactivated by a CosyChats administrator. While your account is inactive, your profile won't be visible to customers and you won't be able to receive new bookings.</p>
-            <p>If you have any questions or think this has happened in error, please don't hesitate to get in touch with the CosyChats team at <a href='mailto:contact@cosychats.com' style='color: #a44390;'>contact@cosychats.com</a>.</p>
+            <p>Your parent account has been temporarily deactivated by a CosyChats administrator.</p>
+            <p>While your account is inactive, your profile won't be visible to customers and you won't be able to receive new bookings.</p>
+            <p>If you have any questions or think this has happened in error, please don't hesitate to get in touch with the CosyChats team. We'll be happy to help.</p>
+            <p>Contact the CosyChats team at <a href='mailto:contact@CosyChats.com' style='color: #a44390; font-weight: 600;'>contact@CosyChats.com</a>.</p>
             <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
