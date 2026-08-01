@@ -164,6 +164,31 @@ class EmailTemplates
     }
 
     /**
+     * 6. Provider Account Re-Activated Email
+     */
+    public static function get_provider_reactivated_template(string $name): array
+    {
+        $subject = __('Your CosyChats Account has been Re-activated', 'cosy-appointments');
+        $heading = __('Account Re-activated!', 'cosy-appointments');
+
+        $html_content = "
+            <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
+            <p>We're pleased to let you know that your CosyChats parent account has now been reactivated.</p>
+            <p>You can now sign in as normal, update your availability, manage your profile, and accept new bookings from customers.</p>
+            <p>We're sorry for any inconvenience caused while your account was unavailable, and we really appreciate your patience and understanding.</p>
+            <p>If you have any questions or need any assistance, simply reply to this email or get in touch with the CosyChats team—we're always happy to help.</p>
+            <p>Thank you for being part of CosyChats. We're delighted to have you back.</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm wishes,</p>
+        ";
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
+
+    /**
      * 6. Booking Confirmation Email (Customer)
      */
     public static function get_booking_customer_template(array $data): array

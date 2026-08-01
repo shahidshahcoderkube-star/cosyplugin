@@ -137,7 +137,11 @@ class Class_Provider_Verification
         if ($old_status !== $status) {
             if ($user) {
                 if ($status === 'active') {
-                    $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_active_template($user->display_name);
+                    if ($old_status === 'deactive') {
+                        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_reactivated_template($user->display_name);
+                    } else {
+                        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_active_template($user->display_name);
+                    }
                     cosy_send_html_email($user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
                 } elseif ($status === 'deactive') {
                     $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_deactivated_template($user->display_name);
