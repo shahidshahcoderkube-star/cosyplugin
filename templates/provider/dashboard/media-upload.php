@@ -37,9 +37,9 @@
 
                 <div id="video-dropzone-<?php echo esc_attr($user_id); ?>"
                     class="video-dropzone d-flex align-items-center justify-content-center flex-column p-5"
-                    style="cursor:pointer; min-height:220px;">
-                    <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
-                    <span class="mt-3 fw-bold"><?php esc_html_e('Click to upload your intro video', 'cosy-appointments'); ?></span>
+                    style="cursor:pointer; min-height:340px;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size:72px;"></i>
+                    <span class="mt-3 fw-bold"><?php esc_html_e('Drag & drop your video here, or click to browse', 'cosy-appointments'); ?></span>
                     <p class="text-muted small mt-1"><?php echo esc_html(sprintf(__('Recommended: MP4 format (Max %d MB)', 'cosy-appointments'), $limit_mb)); ?></p>
 
                 </div>
@@ -85,9 +85,9 @@
 
                 <div id="video-dropzone-<?php echo esc_attr($user_id); ?>"
                     class="video-dropzone d-flex align-items-center justify-content-center flex-column p-5"
-                    style="cursor:pointer; min-height:220px;">
-                    <i class="fas fa-cloud-upload-alt" style="font-size:54px;"></i>
-                    <span class="mt-3 fw-bold"><?php esc_html_e('Click to upload your intro video', 'cosy-appointments'); ?></span>
+                    style="cursor:pointer; min-height:340px;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size:72px;"></i>
+                    <span class="mt-3 fw-bold"><?php esc_html_e('Drag & drop your video here, or click to browse', 'cosy-appointments'); ?></span>
                     <p class="text-muted small mt-1"><?php echo esc_html(sprintf(__('Recommended: MP4 format (Max %d MB)', 'cosy-appointments'), $limit_mb)); ?></p>
 
                 </div>

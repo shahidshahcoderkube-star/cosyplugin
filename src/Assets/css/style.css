@@ -1627,30 +1627,49 @@ body .swal2-icon {
 }
 
 .cosy-video-card .video-dropzone {
-    border: 2px dashed var(--cosy-border) !important;
-    background: var(--cosy-bg) !important;
-    border-radius: 15px !important;
+    border: 2.5px dashed var(--cosy-primary-color) !important;
+    background: #fdf8fc !important;
+    border-radius: 20px !important;
     transition: all 0.3s ease;
+    min-height: 340px !important;
+    padding: 60px 30px !important;
 }
 
 .cosy-video-card .video-dropzone:hover {
-    border-color: var(--cosy-primary-color) !important;
-    background: rgba(155, 69, 147, 0.02) !important;
+    border-color: #6d2e67 !important;
+    background: #fcf0fa !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(164, 67, 144, 0.1);
+}
+
+.cosy-video-card .video-dropzone.drag-over {
+    border-color: #6d2e67 !important;
+    background: #f5e0f2 !important;
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(164, 67, 144, 0.2);
 }
 
 .cosy-video-card .video-dropzone i {
     color: var(--cosy-primary-color) !important;
+    font-size: 72px !important;
+    margin-bottom: 15px;
 }
 
 .cosy-video-card .video-dropzone span {
-    color: var(--cosy-subtext) !important;
+    color: #475569 !important;
     font-family: var(--cosy-font-family);
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
 }
 
 .cosy-video-card video {
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
     background: #000;
+    width: 100% !important;
+    min-height: 350px !important;
+    max-height: 550px !important;
+    object-fit: contain;
 }
 
 .cosy-video-card .remove-video {

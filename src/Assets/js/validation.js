@@ -260,12 +260,44 @@ var CosyApp = (function ($) {
             .off("click.cosyVideo", ".video-dropzone")
             .off("change.cosyVideo", ".video-upload")
             .off("submit.cosyVideo", ".video-upload-form")
-            .off("click.cosyVideo", ".remove-video");
+            .off("click.cosyVideo", ".remove-video")
+            .off("dragover.cosyVideo dragenter.cosyVideo", ".video-dropzone")
+            .off("dragleave.cosyVideo dragend.cosyVideo", ".video-dropzone")
+            .off("drop.cosyVideo", ".video-dropzone");
 
         // Open file picker
         $(document).on("click.cosyVideo", ".video-dropzone", function () {
             let input = $(this).closest("form").find(".video-upload")[0];
             if (input) input.click();
+        });
+
+        // Drag & Drop Support
+        $(document).on("dragover.cosyVideo dragenter.cosyVideo", ".video-dropzone", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass("drag-over");
+        });
+
+        $(document).on("dragleave.cosyVideo dragend.cosyVideo", ".video-dropzone", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass("drag-over");
+        });
+
+        $(document).on("drop.cosyVideo", ".video-dropzone", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass("drag-over");
+
+            const dt = e.originalEvent.dataTransfer;
+            if (dt && dt.files && dt.files.length > 0) {
+                const $form = $(this).closest("form");
+                const fileInput = $form.find(".video-upload")[0];
+                if (fileInput) {
+                    fileInput.files = dt.files;
+                    $(fileInput).trigger("change.cosyVideo");
+                }
+            }
         });
 
         // Preview on file select 
