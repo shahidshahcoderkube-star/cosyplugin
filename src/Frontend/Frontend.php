@@ -908,6 +908,7 @@ class Frontend
 
         $gift_row = "";
         $booking_data = [
+            'order_id'       => $appointment_id,
             'appointment_id' => $appointment_id,
             'customer_name'  => $current_user->display_name,
             'customer_email' => $current_user->user_email,
