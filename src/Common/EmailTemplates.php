@@ -115,12 +115,17 @@ class EmailTemplates
      */
     public static function get_provider_active_template(string $name): array
     {
-        $subject = __('Your CosyChats Account is now Active', 'cosy-appointments');
-        $heading = __('Account Active!', 'cosy-appointments');
+        $subject = __('Welcome to CosyChats – Your Parent Account Is Now Approved', 'cosy-appointments');
+        $heading = __('Account Approved!', 'cosy-appointments');
 
         $html_content = "
             <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
-            <p>Congratulations! Your account has been reviewed and approved by the administrator. Your profile is now live and visible to parents.</p>
+            <p>We're delighted to let you know that your CosyChats parent account has now been reviewed and approved.</p>
+            <p>Thank you for taking the time to join us. We're so pleased to welcome you to the CosyChats community.</p>
+            <p>You can now get ready to start having conversations with other parents based on shared experiences.</p>
+            <p>If you believe in what we're building, we'd love your help in spreading the word. Friends, family, and the people who know you best are often the first to tell others about something they genuinely believe in. By mentioning CosyChats or sharing it with people in your own network, you'll be helping more parents discover that these conversations are available when they need them.</p>
+            <p>If you have any questions or need any assistance getting started, we're always happy to help. Contact the CosyChats team at <a href='mailto:contact@CosyChats.com' style='color: #a44390; font-weight: 600;'>contact@CosyChats.com</a>.</p>
+            <p>Thank you for being part of CosyChats. We're excited to have you with us.</p>
             <p style='text-align: center; margin: 30px 0;'>
                 <a href='" . esc_url(home_url('/login')) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Login to Your Account</a>
             </p>
