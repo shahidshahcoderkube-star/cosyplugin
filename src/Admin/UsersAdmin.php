@@ -414,30 +414,6 @@ class UsersAdmin
             }
 
             update_user_meta($user_id, 'account_status', $status);
-
-            // Send notification email to customer if status changed
-            if ($old_status !== $status) {
-                $user = get_userdata($user_id);
-                if ($user) {
-                    if ($status === 'active') {
-                        $subject = __("Your Customer Account has been Re-activated", 'cosy-appointments');
-                        $html_content = "
-                            <p>Hello <strong>" . esc_html($user->display_name ?: $user->user_login) . "</strong>,</p>
-                            <p>Your customer account has been re-activated by the administrator. You can now log in and book appointments as usual.</p>
-                            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Thank you,<br><strong>The CosyChats Team</strong></p>
-                        ";
-                    } else {
-                        $subject = __("Your Customer Account has been Deactivated", 'cosy-appointments');
-                        $html_content = "
-                            <p>Hello <strong>" . esc_html($user->display_name ?: $user->user_login) . "</strong>,</p>
-                            <p>Your customer account has been temporarily deactivated by the administrator. During this time, you will not be able to log in to book appointments.</p>
-                            <p>For questions or support, please reach out to our team.</p>
-                            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Thank you,<br><strong>The CosyChats Team</strong></p>
-                        ";
-                    }
-                    cosy_send_html_email($user->user_email, $subject, $subject, $html_content);
-                }
-            }
         }
 
         $user = get_userdata($user_id);
