@@ -28,10 +28,10 @@ class EmailTemplates
             <p>To complete your registration, please click the verification link below. Once your email address has been verified, you'll be able to sign in and start exploring the parents on CosyChats.</p>
             <p>Every parent on CosyChats shares their own personal experiences of family life, making it easy to find someone whose journey feels relevant to your own.</p>
             <p><strong>Once you're ready, simply:</strong></p>
-            <ul style='background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 35px; border-radius: 8px; margin-bottom: 20px; list-style-type: disc;'>
+            <ul style='background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 35px; border-radius: 8px; margin: 10px 0 10px 0; list-style-type: disc;'>
                 <li style='margin-bottom: 8px;'>Browse parent profiles.</li>
                 <li style='margin-bottom: 8px;'>Choose the parent you'd like to talk to.</li>
-                <li style='margin-bottom: 8px;'>Book a virtual conversation at a time that suits you.</li>
+                <li>Book a virtual conversation at a time that suits you.</li>
             </ul>
             <p>If you have any questions or need any assistance getting started, we're always happy to help. Contact the CosyChats team at <a href='mailto:contact@CosyChats.com' style='color: #a44390; font-weight: 600;'>contact@CosyChats.com</a>.</p>
             <p>We look forward to welcoming you to your first conversation.</p>
@@ -41,6 +41,7 @@ class EmailTemplates
             </p>
             <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
             <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
         ";
 
         return [

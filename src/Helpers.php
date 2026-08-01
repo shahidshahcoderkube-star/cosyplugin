@@ -74,6 +74,9 @@ if (!function_exists('cosy_send_html_email')) {
         $sig_html = '';
         if (get_option('cosy_sig_enabled', 1)) {
             $sig_logo    = get_option('cosy_sig_logo_url', '');
+            if (empty($sig_logo) || strpos($sig_logo, 'localhost') !== false) {
+                $sig_logo = 'https://cosychats.com/wp-content/uploads/2024/10/logo.png';
+            }
             $sig_name    = get_option('cosy_sig_name', 'The CosyChats Team');
             $sig_title   = get_option('cosy_sig_title', 'Customer Support');
             $sig_phone   = get_option('cosy_sig_phone', '');
