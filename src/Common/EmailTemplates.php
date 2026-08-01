@@ -434,7 +434,8 @@ class EmailTemplates
      */
     public static function get_admin_payment_template(array $data): array
     {
-        $subject = sprintf(__('🔔 New Secure Payment Received - Order #%s', 'cosy-appointments'), $data['appointment_id']);
+        $order_id = $data['order_id'] ?? $data['appointment_id'] ?? '';
+        $subject = sprintf(__('🔔 New Secure Payment Received - Order #%s', 'cosy-appointments'), $order_id);
         $heading = __('Admin Payment Alert', 'cosy-appointments');
 
         $currency = $data['currency_symbol'] ?? '£';
@@ -448,7 +449,7 @@ class EmailTemplates
             
             <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>Order Information Summary:</h3>
             <table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>
-                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order Reference ID</td><td style='padding: 10px 0;'>#" . esc_html($data['appointment_id']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600; width: 40%;'>Order Reference ID</td><td style='padding: 10px 0;'>#" . esc_html($order_id) . "</td></tr>
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Experience</td><td style='padding: 10px 0;'>" . esc_html($data['service_title']) . "</td></tr>
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Customer Name</td><td style='padding: 10px 0;'>" . esc_html($data['customer_name']) . " (" . esc_html($data['customer_email']) . ")</td></tr>
                 <tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Parent Provider</td><td style='padding: 10px 0;'>" . esc_html($data['provider_name']) . "</td></tr>

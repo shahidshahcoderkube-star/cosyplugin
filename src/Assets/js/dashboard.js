@@ -529,6 +529,7 @@ jQuery(document).ready(function ($) {
                         data: {
                             action: 'cosy_update_booking_status',
                             nonce: nonce,
+                            order_id: orderId,
                             appointment_id: orderId,
                             status: newStatus
                         },
