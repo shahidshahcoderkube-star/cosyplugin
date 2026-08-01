@@ -193,33 +193,53 @@ class EmailTemplates
      */
     public static function get_booking_customer_template(array $data): array
     {
-        $subject = __('🌸 Booking Confirmed - Thank you for your payment!', 'cosy-appointments');
-        $heading = __('Booking Confirmed!', 'cosy-appointments');
+        $subject = __('🌸 Thank You for Your Booking with CosyChats', 'cosy-appointments');
+        $heading = __('Booking Confirmation', 'cosy-appointments');
 
         $currency = $data['currency_symbol'] ?? '£';
+        $gift_row = !empty($data['is_gift'])
+            ? "<tr style='border-bottom: 1px solid #e2e8f0; background-color: #fcf4fa;'><td style='padding: 8px 12px; font-weight: bold; color: #a44390;'>Gifted To 🎁</td><td style='padding: 8px 12px; color: #a44390; font-weight: 600;'>" . esc_html($data['recipient_name']) . " (" . esc_html($data['recipient_email']) . ")</td></tr>"
+            : "";
+
+        $order_id = $data['order_id'] ?? $data['appointment_id'] ?? '';
 
         $html_content = "
             <p>Hello <strong>" . esc_html($data['customer_name']) . "</strong>,</p>
-            <p>Thank you for choosing CosyChats. Your booking payment of <strong>" . esc_html($currency . number_format($data['total_payable'], 2)) . "</strong> has been successfully processed securely.</p>
+            <p>Thank you for booking a conversation through CosyChats.</p>
+            <p>We're delighted you've chosen CosyChats, and we hope you enjoy your upcoming conversation.</p>
+            <p>Please find your booking confirmation below.</p>
+            <p>Before your conversation, you can log in to your account at any time to view your booking details. At the scheduled time, your chosen parent will contact you to begin your conversation.</p>
+            <p>If you have any questions before your conversation, or if there's anything we can help with, please contact us at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
+            <p>After your conversation, we'd love to hear your feedback.</p>
+            <p>If you enjoy your CosyChats experience, we'd be grateful if you could tell your friends and family about us. Every recommendation helps more parents discover CosyChats and the conversations available.</p>
+            <p>Thank you again for choosing CosyChats. We really appreciate your support and look forward to welcoming you back.</p>
 
-            <h4 style='color: #6d2e67; margin-top: 20px; border-bottom: 2px solid #f1e4ef; padding-bottom: 5px;'>Booking Information Summary</h4>
-            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px;'>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Order ID:</td><td style='padding: 8px 12px;'>#" . esc_html($data['appointment_id']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Service / Conversation:</td><td style='padding: 8px 12px;'>" . esc_html($data['service_title']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Service Provider (Parent):</td><td style='padding: 8px 12px;'>" . esc_html($data['provider_name']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Start Date:</td><td style='padding: 8px 12px;'>" . esc_html($data['start_date']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Schedule:</td><td style='padding: 8px 12px;'>" . esc_html($data['weekly_type']) . " (" . esc_html($data['num_weeks']) . " Weeks)</td></tr>
+            <h4 style='color: #6d2e67; margin-top: 25px; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Booking Information Summary:</h4>
+            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;'>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold; width: 40%;'>Order ID:</td><td style='padding: 8px 12px;'>#" . esc_html($order_id) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Experience Booked:</td><td style='padding: 8px 12px;'>" . esc_html($data['service_title']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Service Provider:</td><td style='padding: 8px 12px;'>" . esc_html($data['provider_name']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Customer Name:</td><td style='padding: 8px 12px;'>" . esc_html($data['customer_name']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Customer Email:</td><td style='padding: 8px 12px;'>" . esc_html($data['customer_email']) . "</td></tr>
+                {$gift_row}
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Start Date:</td><td style='padding: 8px 12px;'>" . esc_html($data['start_date']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>End Date:</td><td style='padding: 8px 12px;'>" . esc_html($data['end_date']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Weekly Schedule:</td><td style='padding: 8px 12px;'>" . esc_html($data['weekly_type']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Number of Weeks:</td><td style='padding: 8px 12px;'>" . esc_html($data['num_weeks']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Week Days:</td><td style='padding: 8px 12px;'>" . esc_html($data['week_days']) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px; font-weight: bold;'>Total Booked Slots:</td><td style='padding: 8px 12px;'>" . esc_html($data['num_bookings']) . " slots</td></tr>
                 <tr><td style='padding: 8px 12px; font-weight: bold;'>Selected Slots:</td><td style='padding: 8px 12px;'>" . esc_html($data['slots_timeline']) . "</td></tr>
             </table>
 
-            <h4 style='color: #6d2e67; margin-top: 20px; border-bottom: 2px solid #f1e4ef; padding-bottom: 5px;'>Payment Breakdown</h4>
-            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px;'>
-                <tr><td style='padding: 8px 12px;'>Service Cost:</td><td style='padding: 8px 12px; font-weight: bold;'>" . esc_html($currency . number_format($data['service_cost'], 2)) . "</td></tr>
-                <tr><td style='padding: 8px 12px;'>Service Fee:</td><td style='padding: 8px 12px; font-weight: bold;'>" . esc_html($currency . number_format($data['service_fee'], 2)) . "</td></tr>
-                <tr style='border-top: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: bold; color: #6d2e67;'>Total Paid:</td><td style='padding: 10px 12px; font-weight: bold; color: #6d2e67;'>" . esc_html($currency . number_format($data['total_payable'], 2)) . "</td></tr>
+            <h4 style='color: #6d2e67; margin-top: 25px; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Payment Details:</h4>
+            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;'>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px;'>Experience Cost:</td><td style='padding: 8px 12px; font-weight: bold; text-align: right;'>" . esc_html($currency . number_format($data['service_cost'], 2)) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 8px 12px;'>Service Fee*:</td><td style='padding: 8px 12px; font-weight: bold; text-align: right;'>" . esc_html($currency . number_format($data['service_fee'], 2)) . "</td></tr>
+                <tr style='background-color: #fdf2fb;'><td style='padding: 10px 12px; font-weight: bold; color: #a44390;'>Total Paid:</td><td style='padding: 10px 12px; font-weight: bold; text-align: right; color: #a44390;'>" . esc_html($currency . number_format($data['total_payable'], 2)) . "</td></tr>
             </table>
+            <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
 
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm regards,</p>
         ";
 
         return [
