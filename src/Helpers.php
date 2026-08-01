@@ -66,7 +66,7 @@ if (!function_exists('cosy_send_html_email')) {
      * @param string $content_html  The core message body (can contain HTML, paragraphs, lists, tables).
      * @return bool                 Whether the email was successfully sent.
      */
-    function cosy_send_html_email($to, $subject, $heading, $content_html)
+    function cosy_send_html_email($to, $subject, $heading, $content_html, $show_signature = true)
     {
         $year = date('Y');
 
@@ -152,7 +152,7 @@ if (!function_exists('cosy_send_html_email')) {
                     <!-- Body -->
                     <div style='padding: 35px 25px; font-size: 15px; line-height: 1.6;'>
                         " . $content_html . "
-                        " . $sig_html . "
+                        " . ($show_signature ? $sig_html : '') . "
                     </div>
                     
                     <!-- Footer -->
