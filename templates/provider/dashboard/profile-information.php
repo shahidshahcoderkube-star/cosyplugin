@@ -39,15 +39,15 @@ $age_group     = $provider_data['age_group'] ?? '';
                 <!-- Left Column -->
                 <div class="col-md-6">
                     <div class="mb-5 d-flex justify-content-center">
-                        <div class="position-relative" style="width: 140px;">
-                            <div class="circle mx-auto">
+                        <div class="position-relative" style="width: 140px; height: 140px;">
+                            <div class="circle mx-auto" style="width: 140px; height: 140px; border-radius: 50%; overflow: hidden;">
                                 <?php if ($profile_image): ?>
-                                    <img class="profile-pic" src="<?php echo esc_url($profile_image); ?>">
+                                    <img class="profile-pic" src="<?php echo esc_url($profile_image); ?>" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
                                 <?php else: ?>
-                                    <img class="profile-pic" src="https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg">
+                                    <img class="profile-pic" src="https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
                                 <?php endif; ?>
                             </div>
-                            <div class="p-image position-absolute" style="bottom: 5px; right: 5px; transform: none; top: auto; left: auto;">
+                            <div class="p-image position-absolute" style="bottom: 0px; right: 0px; transform: none; top: auto; left: auto; z-index: 10;">
                                 <i class="bi bi-camera upload-button"></i>
                                 <input class="file-upload" id="upload-button" name="profile_image" type="file" accept="image/*" />
                             </div>

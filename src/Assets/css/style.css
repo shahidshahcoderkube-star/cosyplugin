@@ -668,10 +668,14 @@ a {
     font-weight: 600;
 }
 
-.profile-pic {
-    width: 200px;
-    max-height: 200px;
-    display: inline-block;
+.profile-pic,
+.circle img,
+.cosy-profile-card .circle img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
 }
 
 .file-upload {
@@ -679,14 +683,16 @@ a {
 }
 
 .circle {
-    border-radius: 100% !important;
+    border-radius: 50% !important;
     overflow: hidden;
-    width: 128px;
-    height: 128px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    width: 140px;
+    height: 140px;
+    border: 3px solid rgba(164, 67, 144, 0.3);
     margin: 0 auto;
-    /* position: absolute;
-    top: 72px; */
+    background-color: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 img {
@@ -1398,6 +1404,16 @@ body .swal2-icon {
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     border-radius: 50%;
+    background-color: #f8fafc;
+}
+
+.cosy-profile-card .circle img,
+.cosy-profile-card .profile-pic {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
 }
 
 .cosy-profile-card .p-image {
