@@ -670,30 +670,12 @@ trait GlobalCommonFunctions
         ], home_url('/provider-verify'));
 
         if ($role_type === 'provider') {
-            $subject = __('Confirm Your CosyChats Account', 'cosy-appointments');
-            $html_content = "
-                <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
-                <p>Thank you for joining CosyChats. Please click the button below to verify your email address and activate your account:</p>
-                <p style='text-align: center; margin: 30px 0;'>
-                    <a href='" . esc_url($verify_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Verify &amp; Activate Account</a>
-                </p>
-                <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
-                <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
-            ";
+            $tpl = EmailTemplates::get_provider_verification_template($name, $verify_url);
         } else {
-            $subject = __('Confirm Your Customer Account', 'cosy-appointments');
-            $html_content = "
-                <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
-                <p>Thank you for registering a customer account with us! Please click the button below to verify your email address and activate your account:</p>
-                <p style='text-align: center; margin: 30px 0;'>
-                    <a href='" . esc_url($verify_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Verify & Activate Account</a>
-                </p>
-                <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
-                <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
-            ";
+            $tpl = EmailTemplates::get_customer_verification_template($name, $verify_url);
         }
 
-        return (bool) cosy_send_html_email($email, $subject, __('Confirm Your Account', 'cosy-appointments'), $html_content);
+        return (bool) cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
     }
 
     /**

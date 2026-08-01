@@ -122,8 +122,16 @@ class FormsData
         }
 
         // Check if email already exists
-        if (email_exists($email)) {
-            $this->send_response(false, __('This email is already registered.', 'cosy-appointments'));
+        $existing_user_id = email_exists($email);
+        if ($existing_user_id) {
+            $account_status = get_user_meta($existing_user_id, 'account_status', true);
+            if ($account_status !== 'active') {
+                // Resend verification email
+                $this->send_verification_email($existing_user_id, 'customer');
+                $this->send_response(true, __('The verification is pending on your email. We have resent the verification link to your email. Please check your inbox to verify your account.', 'cosy-appointments'));
+                return;
+            }
+            $this->send_response(false, __('This email is already registered. Please sign in instead.', 'cosy-appointments'));
             return;
         }
 
@@ -217,8 +225,16 @@ class FormsData
             return;
         }
 
-        if (email_exists($email)) {
-            $this->send_response(false, __('This email is already registered.', 'cosy-appointments'));
+        $existing_prov_id = email_exists($email);
+        if ($existing_prov_id) {
+            $account_status = get_user_meta($existing_prov_id, 'account_status', true);
+            if ($account_status !== 'active') {
+                // Resend verification email
+                $this->send_verification_email($existing_prov_id, 'provider');
+                $this->send_response(true, __('The verification is pending on your email. We have resent the verification link to your email. Please check your inbox to verify your account.', 'cosy-appointments'));
+                return;
+            }
+            $this->send_response(false, __('This email is already registered. Please sign in instead.', 'cosy-appointments'));
             return;
         }
 
@@ -262,6 +278,11 @@ class FormsData
             sprintf(__('New service provider registered: %s (%s).', 'cosy-appointments'), $username, $email),
             $user_id
         );
+
+        // Send notification email to Administrator for new provider profile review
+        if (function_exists('cosy_notify_admin_provider_setup_ready')) {
+            cosy_notify_admin_provider_setup_ready($user_id);
+        }
 
         // Send verification email
         $this->send_verification_email($user_id, 'provider');

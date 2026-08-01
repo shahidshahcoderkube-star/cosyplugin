@@ -292,3 +292,66 @@ if (!function_exists('cosy_get_page_url')) {
         return site_url('/' . $key);
     }
 }
+
+if (!function_exists('cosy_notify_admin_provider_setup_ready')) {
+    /**
+     * Sends an email alert to site administrator when a new Provider setup is complete or updated.
+     *
+     * @param int $user_id Provider User ID.
+     * @param bool $force  Whether to bypass already-notified check.
+     * @return bool
+     */
+    function cosy_notify_admin_provider_setup_ready($user_id, $force = false)
+    {
+        if (empty($user_id)) {
+            return false;
+        }
+
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return false;
+        }
+
+        // Only send if user has provider role or role_type
+        $user_roles = (array) $user->roles;
+        $role_type  = get_user_meta($user_id, 'role_type', true);
+        if (!in_array('provider', $user_roles, true) && $role_type !== 'provider') {
+            return false;
+        }
+
+        $admin_email = get_option('admin_email');
+        if (empty($admin_email) || !function_exists('cosy_send_html_email')) {
+            return false;
+        }
+
+        // Check if already notified unless forced
+        if (!$force) {
+            $already_notified = get_user_meta($user_id, 'cosy_admin_profile_ready_notified', true);
+            if (!empty($already_notified)) {
+                return false;
+            }
+        }
+
+        $first_name = get_user_meta($user_id, 'first_name', true) ?: $user->first_name;
+        $last_name  = get_user_meta($user_id, 'last_name', true) ?: $user->last_name;
+        $provider_name = trim($first_name . ' ' . $last_name);
+        if (empty($provider_name)) {
+            $provider_name = $user->display_name;
+        }
+
+        $prov_status = get_user_meta($user_id, 'cosy_provider_status', true) ?: 'deactive (pending review)';
+
+        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_admin_provider_setup_template(
+            $provider_name,
+            $user->user_login,
+            $user->user_email,
+            $prov_status
+        );
+
+        $sent = cosy_send_html_email($admin_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+        if ($sent) {
+            update_user_meta($user_id, 'cosy_admin_profile_ready_notified', current_time('mysql'));
+        }
+        return $sent;
+    }
+}

@@ -17,7 +17,7 @@
 
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label for="cust_email"><?php esc_html_e('Email Address', 'cosy-appointments'); ?></label>
-                    <input type="email" name="cust_email" id="cust_email" placeholder="<?php esc_attr_e('john@example.com', 'cosy-appointments'); ?>" required autocomplete="off">
+                    <input type="email" name="cust_email" id="cust_email" placeholder="<?php esc_attr_e('Email', 'cosy-appointments'); ?>" required autocomplete="off">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 18px;">

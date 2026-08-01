@@ -158,6 +158,11 @@ class Dashboard
                 $user_id
             );
 
+            // Send notification email to Administrator if provider setup/profile is updated
+            if (function_exists('cosy_notify_admin_provider_setup_ready')) {
+                cosy_notify_admin_provider_setup_ready($user_id);
+            }
+
             $forms = new FormsData();
             $forms->send_response(true, ['message' => 'Profile updated successfully!', 'data' => $provider_meta]);
         }
@@ -513,7 +518,12 @@ class Dashboard
             sprintf(__('Provider saved availability working hours for %s.', 'cosy-appointments'), $days_string),
             $user_id
         );
- 
+
+        // Send notification email to Administrator if provider setup/availability is updated
+        if (function_exists('cosy_notify_admin_provider_setup_ready')) {
+            cosy_notify_admin_provider_setup_ready($user_id);
+        }
+
         wp_send_json_success('Availability for ' . $days_string . ' saved successfully.');
     }
 

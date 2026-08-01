@@ -24,7 +24,7 @@
 
                         <div class="form-group">
                             <label for="prov_email"><?php esc_html_e('Email Address', 'cosy-appointments'); ?></label>
-                            <input type="email" name="prov_email" id="prov_email" placeholder="<?php esc_attr_e('email@example.com', 'cosy-appointments'); ?>"
+                            <input type="email" name="prov_email" id="prov_email" placeholder="<?php esc_attr_e('Email', 'cosy-appointments'); ?>"
                                 required>
                         </div>
 
