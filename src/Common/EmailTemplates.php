@@ -56,18 +56,25 @@ class EmailTemplates
      */
     public static function get_provider_verification_template(string $name, string $verify_url): array
     {
-        $subject = __('Confirm Your Provider Account', 'cosy-appointments');
+        $subject = __('Welcome to CosyChats – Please verify your email', 'cosy-appointments');
         $heading = __('Confirm Your Account', 'cosy-appointments');
 
         $html_content = "
             <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
-            <p>Thank you for joining as a Service Provider! Please click the button below to verify your email address and activate your provider account:</p>
+            <p>Welcome to CosyChats, and thank you for registering.</p>
+            <p>To complete your registration, please click the verification link below. Once your email address has been verified, you'll be able to sign in and continue setting up your parent account.</p>
+            <p>We're delighted you've chosen to be part of CosyChats.</p>
+            <p>Our aim is simple: to make it easier for parents to find someone they can have a genuine conversation with, based on shared life experiences. The more people who know about CosyChats, the more parents have the opportunity to discover the platform when they're looking for someone to talk to.</p>
+            <p>If you believe in what we're building, we'd love your help in spreading the word. Whether it's mentioning CosyChats to friends and family, sharing it on social media, or simply telling someone who might benefit from a conversation, every introduction helps more people discover us.</p>
+            <p>If you have any questions or need any assistance getting started, we're always happy to help. Contact the CosyChats team at <a href='mailto:contact@CosyChats.com' style='color: #a44390; font-weight: 600;'>contact@CosyChats.com</a>.</p>
+            <p style='margin-top: 20px;'>Please click the button below to verify your email address and activate your account:</p>
             <p style='text-align: center; margin: 30px 0;'>
                 <a href='" . esc_url($verify_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Verify &amp; Activate Account</a>
             </p>
             <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
             <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='" . esc_url($verify_url) . "' style='color: #a44390; text-decoration: none;'>" . esc_html($verify_url) . "</a></p>
-            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
+            <p style='margin-top: 25px;'>Thank you for helping us make conversations based on shared experiences easier to find.</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 15px;'>Kind regards,<br><strong>The CosyChats Team</strong></p>
         ";
 
         return [
