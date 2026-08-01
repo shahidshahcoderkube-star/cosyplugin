@@ -156,9 +156,15 @@ if (!function_exists('cosy_send_html_email')) {
                     </div>
                     
                     <!-- Footer -->
-                    <div style='background-color: #fdf2fb; padding: 20px; text-align: center; font-size: 12px; color: #8a7a88; border-top: 1px solid #f1e4ef;'>
-                        &copy; {$year} " . esc_html(get_bloginfo('name')) . ". All rights reserved.
-                    </div>
+                    " . (function() use ($year) {
+                        $site_name = get_bloginfo('name');
+                        if (empty($site_name) || strtolower($site_name) === 'cosyplugin' || strtolower($site_name) === 'wordpress') {
+                            $site_name = 'CosyChats';
+                        }
+                        return "<div style='background-color: #fdf2fb; padding: 20px; text-align: center; font-size: 12px; color: #8a7a88; border-top: 1px solid #f1e4ef;'>
+                            &copy; {$year} " . esc_html($site_name) . ". All rights reserved.
+                        </div>";
+                    })() . "
 
                 </div>
             </div>
