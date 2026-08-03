@@ -98,8 +98,8 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
     window.ajaxUrl = <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>;
     window.checkoutUrl = <?php echo wp_json_encode(cosy_get_page_url('cosy-checkout')); ?>;
     window.nonce = <?php echo wp_json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
-    window.serviceFeeType = <?php echo wp_json_encode(get_option('cosy_service_fee_type', 'flat')); ?>;
-    window.serviceFeeValue = <?php echo wp_json_encode(floatval(get_option('cosy_service_fee_value', '0.10'))); ?>;
+    window.serviceFeeType = 'percent';
+    window.serviceFeeValue = <?php echo wp_json_encode(floatval(get_option('cosy_stripe_charge', '0'))); ?>;
 </script>
 
 <main id="primary" class="site-main cosy-main-page-content">

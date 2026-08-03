@@ -760,10 +760,10 @@
                 <div class="cdoc-step">
                     <div class="cdoc-step-num"><i class="fas fa-calculator"></i></div>
                     <div class="cdoc-step-body">
-                        <h4>Booking Fees Configuration</h4>
-                        <p>Configure dynamic service fees under <strong>CC Booking → Settings → Booking Fees</strong>.
-                            <br>• <strong>Service Fee Type:</strong> Choose between a <code>Flat Fee</code> (added to the service total) or a <code>Percentage Fee (%)</code> (calculated from the base service cost).
-                            <br>• <strong>Service Fee Value:</strong> Specify the exact value (e.g. <code>0.10</code> for flat fee, or <code>10.00</code> for a 10% fee).
+                        <h4>Service Fee (Transaction Charge)</h4>
+                        <p>The service fee is configured as a percentage via the <strong>Transaction Charge (%)</strong> field in <strong>CC Booking → Settings → Stripe</strong>.
+                            <br>• This percentage is applied to the base service cost to calculate the service fee.
+                            <br>• For example, setting it to <code>10.00</code> will add a 10% fee to each booking.
                         </p>
                     </div>
                 </div>

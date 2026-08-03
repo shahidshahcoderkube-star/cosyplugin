@@ -39,10 +39,7 @@ defined('ABSPATH') || exit;
                             <i class="fa-solid fa-globe fs-4 w-20"></i>
                             <span class="fw-bold">WorldPay</span>
                         </button>
-                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-fees-tab" data-bs-toggle="pill" data-bs-target="#v-pills-fees" type="button" role="tab" aria-controls="v-pills-fees" aria-selected="false">
-                            <i class="fa-solid fa-calculator fs-4 w-20"></i>
-                            <span class="fw-bold">Booking Fees</span>
-                        </button>
+
                         <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-aisearch-tab" data-bs-toggle="pill" data-bs-target="#v-pills-aisearch" type="button" role="tab" aria-controls="v-pills-aisearch" aria-selected="false">
                             <i class="fa-solid fa-brain fs-4 w-20"></i>
                             <span class="fw-bold">AI Search Engine</span>
@@ -174,40 +171,7 @@ defined('ABSPATH') || exit;
                             </div>
                         </div>
 
-                        <!-- Booking Fees Settings Tab -->
-                        <div class="tab-pane fade" id="v-pills-fees" role="tabpanel" aria-labelledby="v-pills-fees-tab">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-calculator fs-2 text-primary" style="color: #a44390 !important;"></i>
-                                    Booking Fees Configuration
-                                </h3>
-                            </div>
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label for="cosy_service_fee_type" class="form-label fw-bold text-secondary">Service Fee Type</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-gears"></i></span>
-                                        <?php
-                                        $fee_type = get_option('cosy_service_fee_type', 'flat');
-                                        ?>
-                                        <select class="form-select border-start-0 py-2" name="cosy_service_fee_type" id="cosy_service_fee_type">
-                                            <option value="flat" <?php selected($fee_type, 'flat'); ?>>Flat Fee</option>
-                                            <option value="percent" <?php selected($fee_type, 'percent'); ?>>Percentage Fee (%)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Choose whether the service fee is a fixed flat amount or a percentage of the service cost.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_service_fee_value" class="form-label fw-bold text-secondary">Service Fee Value</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-coins"></i></span>
-                                        <input type="number" step="0.01" class="form-control border-start-0 py-2" name="cosy_service_fee_value" id="cosy_service_fee_value" value="<?php echo esc_attr(get_option('cosy_service_fee_value', '0.10')); ?>" placeholder="0.00">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Specify the service fee amount (e.g. 0.10 for flat fee, or 10.00 for 10% fee).</div>
-                                </div>
-                            </div>
 
-                        </div>
 
                         <!-- AI Search Settings Tab -->
                         <div class="tab-pane fade" id="v-pills-aisearch" role="tabpanel" aria-labelledby="v-pills-aisearch-tab">

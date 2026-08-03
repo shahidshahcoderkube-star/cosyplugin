@@ -346,8 +346,8 @@ class Assets
                 'stripePublishableKey' => esc_js(get_option('cosy_stripe_publishable_key')),
                 'currencySymbol'       => cosy_get_currency_symbol(),
                 'currencyCode'         => cosy_get_currency_code(),
-                'feeType'              => get_option('cosy_service_fee_type', 'flat'),
-                'feeValue'             => floatval(get_option('cosy_service_fee_value', '0.10')),
+                'feeType'              => 'percent',
+                'feeValue'             => floatval(get_option('cosy_stripe_charge', '0')),
             ]);
         }
     }
