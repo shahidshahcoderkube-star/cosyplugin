@@ -415,7 +415,11 @@ class UsersAdmin
             );
         }
 
-        wp_send_json_success(__('Status updated successfully.', 'cosy-appointments'));
+        $msg = ($status === 'active')
+            ? __('User status set to Active.', 'cosy-appointments')
+            : __('User status set to Deactive.', 'cosy-appointments');
+
+        wp_send_json_success($msg);
     }
 
     /**

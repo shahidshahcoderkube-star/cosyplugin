@@ -93,8 +93,18 @@ class Class_Provider_Verification
                             setTimeout(function() {
                                 select.css('border-color', originalColor);
                             }, 1500);
+
+                            if (typeof CosyAlert !== 'undefined') {
+                                var alertType = (status === 'active') ? 'success' : 'warning';
+                                var msg = response.data || (status === 'active' ? 'Provider status set to Active.' : 'Provider status set to Deactive.');
+                                CosyAlert.toast(msg, alertType);
+                            }
                         } else {
-                            alert(response.data || 'Failed to update status.');
+                            if (typeof CosyAlert !== 'undefined') {
+                                CosyAlert.toast(response.data || 'Failed to update status.', 'danger');
+                            } else {
+                                alert(response.data || 'Failed to update status.');
+                            }
                         }
                     });
                 });
@@ -150,6 +160,10 @@ class Class_Provider_Verification
             }
         }
 
-        wp_send_json_success('Status updated successfully.');
+        $msg = ($status === 'active')
+            ? __('Provider status set to Active.', 'cosy-appointments')
+            : __('Provider status set to Deactive.', 'cosy-appointments');
+
+        wp_send_json_success($msg);
     }
 }

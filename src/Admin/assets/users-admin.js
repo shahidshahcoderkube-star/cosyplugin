@@ -95,6 +95,10 @@ jQuery(document).ready(function ($) {
                     setTimeout(function () {
                         select.css('border-color', originalColor);
                     }, 1500);
+
+                    var alertType = (status === 'active') ? 'success' : 'warning';
+                    var msg = response.data || (status === 'active' ? 'User status set to Active.' : 'User status set to Deactive.');
+                    CosyAlert.toast(msg, alertType);
                 } else {
                     CosyAlert.toast(response.data || i18n.statusFailed, 'danger');
                 }
