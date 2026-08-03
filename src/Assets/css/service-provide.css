@@ -222,7 +222,7 @@
 }
 
 /* Modal Styling */
-.modal, #videoModal {
+.cosy-video-modal-wrapper, #videoModal {
     display: none;
     position: fixed !important;
     inset: 0 !important;
@@ -234,25 +234,38 @@
 }
 
 .cosy-video-modal-content-v2 {
-    width: 95%;
-    max-width: 900px;
-    aspect-ratio: 16/9;
-    background: #000 !important;
-    border-radius: 20px;
-    overflow: hidden;
-    position: relative;
-    border: none !important;
-    box-shadow: none !important;
+    width: 90% !important;
+    max-width: 850px !important;
+    height: 500px !important;
+    max-height: 80vh !important;
+    background: #000000 !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: auto !important;
 }
 
 .close-modal {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    color: #fff;
-    font-size: 30px;
-    cursor: pointer;
-    z-index: 10;
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    color: #ffffff !important;
+    font-size: 28px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    z-index: 999999 !important;
+    line-height: 1 !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /* Service Provider Profile Layout Custom Premium Styles */

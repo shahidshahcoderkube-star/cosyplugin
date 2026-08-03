@@ -130,17 +130,26 @@ $providers       = array_slice($all_providers, $offset, $per_page);
             videoFrame.style.display = 'block';
         }
         
-        modal.style.display = 'flex';
+        if (modal) {
+            modal.style.setProperty('display', 'flex', 'important');
+        }
     }
 
     function closeVideo() {
-        document.getElementById('videoModal').style.display = 'none';
+        var modal = document.getElementById('videoModal');
+        if (modal) {
+            modal.style.setProperty('display', 'none', 'important');
+        }
         
         var videoFrame = document.getElementById('videoFrame');
         var videoPlayer = document.getElementById('videoPlayer');
         
-        videoFrame.src = '';
-        videoPlayer.pause();
-        videoPlayer.src = '';
+        if (videoFrame) {
+            videoFrame.src = '';
+        }
+        if (videoPlayer) {
+            videoPlayer.pause();
+            videoPlayer.src = '';
+        }
     }
 </script>

@@ -1,11 +1,19 @@
 <?php
 get_header();
+$queried_obj = get_queried_object();
 $author_slug = get_query_var('author_name');
+if (empty($author_slug) && $queried_obj instanceof \WP_User) {
+    $author_slug = $queried_obj->user_nicename ?: $queried_obj->user_login;
+}
+
 $common = new class {
     use \Cosy\Appointments\Common\GlobalCommonFunctions;
 };
 $provider_data = $common->get_provider_with_services($author_slug);
-
+if (empty($provider_data['ID']) && $queried_obj instanceof \WP_User) {
+    $provider_data = array_merge($common->get_provider_data($queried_obj->ID), $provider_data);
+    $provider_data['ID'] = $queried_obj->ID;
+}
 
 $current_user = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
@@ -121,12 +129,13 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                                 alt="<?php echo esc_attr($provider_data['first_name']); ?>">
                         </div>
                         <div class="profile-info-top">
-                            <?php
-                            if (!empty($provider_data['first_name'])) { ?>
-                                <h2 class="mb-2 fw-bold h4">
-                                    <?php echo esc_html($provider_data['first_name']); ?>
-                                </h2>
-                            <?php } ?>
+                            <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                                <?php if (!empty($provider_data['first_name'])) { ?>
+                                    <h2 class="mb-0 fw-bold h4 text-white">
+                                        <?php echo esc_html($provider_data['first_name']); ?>
+                                    </h2>
+                                <?php } ?>
+                            </div>
                             <div class="d-flex flex-wrap align-items-center gap-3 opacity-75 small fw-medium text-white mt-1">
                                 <?php if (!empty($provider_data['gender'])): ?>
                                     <span class="text-white"><i class="fas fa-venus me-1 text-white"></i>
@@ -144,7 +153,7 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
 
                 <div class="card-body p-0">
                     <div class="cosy-bg-fafbfc row text-center g-0 border-bottom">
-                        <div class="col-4 py-3">
+                        <div class="col py-3">
                             <?php
                             if (!empty($provider_data['services'])):
                                 $display_price = (!empty($selected_service_price) && floatval($selected_service_price) > 0) ? $selected_service_price : min(array_column($provider_data['services'], 'price'));
@@ -157,13 +166,15 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                                 </small>
                             <?php endif; ?>
                         </div>
-                        <div class="col-4 py-3 border-start border-end">
-                            <div class="cosy-section-title h5 fw-bold mb-1 text-warning"><i
-                                    class="cosy-rating-star fas fa-star me-1"></i><?php echo ($average_rating > 0) ? number_format($average_rating, 1) : '0.0'; ?></div>
+                        <?php if (!empty($total_reviews) && $total_reviews > 0) : ?>
+                            <div class="col py-3 border-start border-end">
+                                <div class="cosy-section-title h5 fw-bold mb-1 text-warning"><i
+                                        class="cosy-rating-star fas fa-star me-1"></i><?php echo ($average_rating > 0) ? number_format($average_rating, 1) : '0.0'; ?></div>
 
-                            <small class="cosy-price-label text-muted text-uppercase fw-bold"><?php echo esc_html(sprintf(_n('(%s Review)', '(%s Reviews)', $total_reviews, 'cosy-appointments'), esc_html($total_reviews))); ?></small>
-                        </div>
-                        <div class="col-4 py-3">
+                                <small class="cosy-price-label text-muted text-uppercase fw-bold"><?php echo esc_html(sprintf(_n('(%s Review)', '(%s Reviews)', $total_reviews, 'cosy-appointments'), esc_html($total_reviews))); ?></small>
+                            </div>
+                        <?php endif; ?>
+                        <div class="col py-3 <?php echo (!empty($total_reviews) && $total_reviews > 0) ? '' : 'border-start'; ?>">
                             <?php if (!empty($provider_data['age_group'])) { ?>
                                 <div class="cosy-age-group h5 fw-bold mb-1">
                                     <?php echo esc_html($provider_data['age_group']); ?>
@@ -389,8 +400,6 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                     </div>
                 </div>
             </div>
-
-
         </div>
         <div class="col-lg-5">
             <div class="sticky-top" style="top: 20px;">
@@ -465,7 +474,6 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                 </div>
             </div>
         </div>
-
     </div>
 
 
