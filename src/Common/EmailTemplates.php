@@ -345,7 +345,7 @@ class EmailTemplates
         $subject = __('Your Introduction Video Is Now Live', 'cosy-appointments');
         $heading = __('Video Approved!', 'cosy-appointments');
 
-        $dashboard_url = home_url('/dashboard');
+        $dashboard_url = home_url('/provider-dashboard/#profile');
 
         $html_content = "
             <p>Hello <strong>" . esc_html($name) . "</strong>,</p>
@@ -409,7 +409,7 @@ class EmailTemplates
         $subject = __('New Provider Profile Ready for Review', 'cosy-appointments');
         $heading = __('New Provider Profile Alert', 'cosy-appointments');
 
-        $admin_review_url = admin_url('admin.php?page=cosy-users-admin');
+        $admin_review_url = admin_url('admin.php?page=cosy-users');
 
         $html_content = "
             <p style='margin-bottom: 15px;'>Hello Administrator,</p>

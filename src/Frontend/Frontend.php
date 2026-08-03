@@ -22,6 +22,8 @@ class Frontend
         $loader->add_action('wp_footer', $this, 'render_register_popup');
         $loader->add_action('template_redirect', $this, 'restrict_direct_page_access');
         $loader->add_action('after_setup_theme', $this, 'hide_admin_menu');
+        $loader->add_action('admin_init', $this, 'redirect_provider_from_admin');
+        $loader->add_filter('login_redirect', $this, 'custom_login_redirect', 10, 3);
 
         // FormsData handles its own registration in constructor
         new FormsData();
@@ -467,6 +469,43 @@ class Frontend
                 exit;
             }
         }
+    }
+
+    /**
+     * Redirects service providers attempting to access WP Admin (/wp-admin/)
+     * to their provider dashboard profile tab (e.g. /provider-dashboard/#profile).
+     */
+    public function redirect_provider_from_admin(): void
+    {
+        // Allow AJAX and REST API requests to process normally
+        if (wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+            return;
+        }
+
+        if (is_user_logged_in()) {
+            $user  = wp_get_current_user();
+            $roles = (array) $user->roles;
+
+            // Redirect non-admin providers from WP Admin to provider dashboard profile
+            if (in_array('provider', $roles, true) && !current_user_can('manage_options')) {
+                $target_url = rtrim(cosy_get_page_url('provider-dashboard'), '/') . '/#profile';
+                wp_redirect($target_url);
+                exit;
+            }
+        }
+    }
+
+    /**
+     * Filters login redirect URL for providers to send them directly to provider-dashboard/#profile.
+     */
+    public function custom_login_redirect(string $redirect_to, string $request, $user)
+    {
+        if ($user instanceof \WP_User && isset($user->roles) && is_array($user->roles)) {
+            if (in_array('provider', $user->roles, true) && !user_can($user, 'manage_options')) {
+                return rtrim(cosy_get_page_url('provider-dashboard'), '/') . '/#profile';
+            }
+        }
+        return $redirect_to;
     }
 
 
