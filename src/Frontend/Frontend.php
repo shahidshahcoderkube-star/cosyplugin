@@ -51,7 +51,6 @@ class Frontend
         add_shortcode('cosy_customer_registration', [$this, 'customer_registration_shortcode']);
         add_shortcode('cosy_provider_registration', [$this, 'provider_registration_shortcode']);
         add_shortcode('customer_profile', [$this, 'customer_profile_shortcode']);
-        // add_shortcode('cosy_profile_dashboard', [$this, 'provider_profile_dashboard_shortcode']);
         add_shortcode('cosy_verify_provider', [$this, 'provider_verify_shortcode']);
         add_shortcode('cosy_login_form', [$this, 'login_form']);
         add_shortcode('cosy_customer_order', [$this, 'customer_order_page']);
@@ -1042,14 +1041,6 @@ class Frontend
 
         $currency_symbol = cosy_get_currency_symbol();
 
-        $table_style = "
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 14px;
-        ";
-
-        $gift_row = "";
         $booking_data = [
             'order_id'       => $order_id,
             'customer_name'  => $current_user->display_name,
