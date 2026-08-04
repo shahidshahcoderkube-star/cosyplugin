@@ -459,7 +459,7 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                             </span>
                             <span style="display: flex; align-items: center; gap: 6px;">
                                 <span
-                                    style="width: 10px; height: 10px; border-radius: 50%; background: #e9d5e9; display: inline-block;"></span>
+                                    style="width: 10px; height: 10px; border-radius: 50%; background: #fdf5fc; border: 1.5px solid #a44390; display: inline-block; box-sizing: border-box;"></span>
                                 <?php esc_html_e('Available', 'cosy-appointments'); ?>
                             </span>
                             <span style="display: flex; align-items: center; gap: 6px;">

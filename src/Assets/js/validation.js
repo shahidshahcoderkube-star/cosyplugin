@@ -833,7 +833,73 @@ var CosyApp = (function ($) {
                 $('#break_start_time').val('');
                 $('#break_end_time').val('');
             }
+            updateLiveTimeBadges();
         });
+
+        function normalizePmTime(timeStr, refStr) {
+            if (!timeStr) return timeStr;
+            const parts = timeStr.split(':');
+            if (parts.length < 2) return timeStr;
+            let h = parseInt(parts[0], 10);
+            const m = parts[1];
+
+            let refH = 0;
+            if (refStr) {
+                const refParts = refStr.split(':');
+                refH = parseInt(refParts[0], 10);
+            }
+
+            if (h > 0 && h <= 11 && refH >= 1 && h <= refH) {
+                h += 12;
+            }
+            return String(h).padStart(2, '0') + ':' + m;
+        }
+
+        function updateLiveTimeBadges() {
+            const format12 = (val, refVal) => {
+                if (!val) return '';
+                const normalized = normalizePmTime(val, refVal);
+                const parts = normalized.split(':');
+                let h = parseInt(parts[0], 10);
+                const m = parts[1];
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const h12 = h % 12 || 12;
+                const hStr = String(h12).padStart(2, '0');
+                const wasAutoConv = (val !== normalized);
+                return `<i class="far fa-clock me-1"></i> Selected: ${hStr}:${m} ${ampm} ${wasAutoConv ? '(PM)' : ''}`;
+            };
+
+            const startVal = $('#start_time').val();
+            const endVal = $('#end_time').val();
+            const breakStartVal = $('#break_start_time').val();
+            const breakEndVal = $('#break_end_time').val();
+
+            if (startVal) {
+                $('#start_time_badge').html(format12(startVal, null)).show();
+            } else {
+                $('#start_time_badge').hide();
+            }
+
+            if (endVal) {
+                $('#end_time_badge').html(format12(endVal, startVal)).show();
+            } else {
+                $('#end_time_badge').hide();
+            }
+
+            if (breakStartVal) {
+                $('#break_start_time_badge').html(format12(breakStartVal, startVal)).show();
+            } else {
+                $('#break_start_time_badge').hide();
+            }
+
+            if (breakEndVal) {
+                $('#break_end_time_badge').html(format12(breakEndVal, breakStartVal || startVal)).show();
+            } else {
+                $('#break_end_time_badge').hide();
+            }
+        }
+
+        $(container).off('input change', '#start_time, #end_time, #break_start_time, #break_end_time').on('input change', '#start_time, #end_time, #break_start_time, #break_end_time', updateLiveTimeBadges);
 
         // Select All Weekdays helper
         $(container).off('click', '#select_all_weekdays').on('click', '#select_all_weekdays', function (e) {
@@ -873,16 +939,26 @@ var CosyApp = (function ($) {
                 days.push(mainDay);
             }
 
+            const rawStart = $('#start_time').val();
+            const rawEnd = $('#end_time').val();
+            const rawBreakStart = $('#break_start_time').val();
+            const rawBreakEnd = $('#break_end_time').val();
+
+            const startTime = rawStart;
+            const endTime = normalizePmTime(rawEnd, startTime);
+            const breakStart = normalizePmTime(rawBreakStart, startTime);
+            const breakEnd = normalizePmTime(rawBreakEnd, breakStart || startTime);
+
             const data = {
                 action: 'save_provider_availability',
                 nonce: $('#cosy_dashboard_nonce_field').val(),
                 day: mainDay,
                 days: days,
-                start_time: $('#start_time').val(),
-                end_time: $('#end_time').val(),
+                start_time: startTime,
+                end_time: endTime,
                 slot_duration: $('#slot_duration').val(),
-                break_start: $('#break_start_time').val(),
-                break_end: $('#break_end_time').val()
+                break_start: breakStart,
+                break_end: breakEnd
             };
 
             // Basic frontend validation to verify day and times are selected

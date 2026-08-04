@@ -261,7 +261,7 @@ jQuery(document).ready(function ($) {
                 </div>
 
                 <!-- Action Button -->
-                <button type="button" id="btnProceedToSummary" class="btn w-100 py-3 fw-bold text-white shadow-sm" style="background: linear-gradient(135deg, var(--cosy-brand-purple) 0%, var(--cosy-brand-dark) 100%); border-radius: 14px; font-size: 1rem; transition: all 0.2s;">
+                <button type="button" id="btnProceedToSummary" class="btn w-100 py-3 fw-bold text-white shadow-sm" style="background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); border-radius: 14px; font-size: 1rem; transition: all 0.2s;">
                     Book Service Now <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </div>
@@ -506,8 +506,9 @@ jQuery(document).ready(function ($) {
         };
 
         const format12Hour = (totalMins) => {
-            const h24 = Math.floor(totalMins / 60);
-            const m = totalMins % 60;
+            const normalizedMins = totalMins % (24 * 60);
+            const h24 = Math.floor(normalizedMins / 60);
+            const m = normalizedMins % 60;
             const ampm = h24 >= 12 ? 'PM' : 'AM';
             const h12 = h24 % 12 || 12;
             const mStr = String(m).padStart(2, '0');
@@ -516,12 +517,24 @@ jQuery(document).ready(function ($) {
         };
 
         const startMins = parseMinutes(dayConfig.start_time);
-        const endMins = parseMinutes(dayConfig.end_time);
-        const breakStartMins = parseMinutes(dayConfig.break_start_time);
-        const breakEndMins = parseMinutes(dayConfig.break_end_time);
+        let endMins = parseMinutes(dayConfig.end_time);
+        let breakStartMins = parseMinutes(dayConfig.break_start_time || dayConfig.break_start);
+        let breakEndMins = parseMinutes(dayConfig.break_end_time || dayConfig.break_end);
 
-        if (startMins < 0 || endMins < 0 || startMins >= endMins) {
+        if (startMins < 0 || endMins < 0) {
             return [];
+        }
+
+        // Support overnight shifts (e.g. 10:00 to 06:00 next day)
+        if (endMins <= startMins) {
+            endMins += 24 * 60;
+        }
+
+        if (breakStartMins >= 0 && breakStartMins < startMins) {
+            breakStartMins += 24 * 60;
+        }
+        if (breakEndMins >= 0 && breakEndMins <= breakStartMins) {
+            breakEndMins += 24 * 60;
         }
 
         const slots = [];
@@ -551,38 +564,94 @@ jQuery(document).ready(function ($) {
         `;
         modal.show();
 
-        // Dynamically generate 10-min slots based on provider start, end & break times
-        setTimeout(() => {
-            let slotsHtml = '';
-            const times = getDynamic10MinSlots(currentModalDateStr);
+        const ajaxUrl = (window.cosyCheckout && window.cosyCheckout.ajaxUrl) || window.ajaxurl || '/wp-admin/admin-ajax.php';
+        const targetProviderId = providerIdParam || (window.cosyCheckout && window.cosyCheckout.providerId) || 0;
 
-            if (!times || times.length === 0) {
-                grid.innerHTML = `
-                    <div class="text-center py-4 w-100" style="grid-column: 1 / -1;">
-                        <p class="small text-muted mb-0">No working time slots available for this day.</p>
-                    </div>
-                `;
-                return;
+        // Fetch already booked slots for this provider & date via AJAX
+        $.ajax({
+            url: ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'cosy_get_booked_slots',
+                provider_id: targetProviderId,
+                date: currentModalDateStr
+            },
+            success: function (res) {
+                let bookedSlots = [];
+                if (res.success && Array.isArray(res.data)) {
+                    bookedSlots = res.data.map(normalizeTimeStr);
+                }
+
+                let slotsHtml = '';
+                const times = getDynamic10MinSlots(currentModalDateStr);
+
+                if (!times || times.length === 0) {
+                    grid.innerHTML = `
+                        <div class="text-center py-4 w-100" style="grid-column: 1 / -1;">
+                            <p class="small text-muted mb-0">No working time slots available for this day.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const activeSlots = (selectedSlotsByDay[currentModalDateStr] || []).map(normalizeTimeStr);
+
+                times.forEach((t) => {
+                    const normT = normalizeTimeStr(t);
+                    const isSelected = activeSlots.includes(normT);
+                    const isBooked = bookedSlots.includes(normT);
+
+                    let bg = '#ffffff';
+                    let color = '#1e293b';
+                    let border = '1px solid #e2e8f0';
+                    let btnClass = 'select-slot-btn';
+                    let cursor = 'pointer';
+                    let titleAttr = '';
+
+                    if (isBooked) {
+                        bg = '#e2e8f0';
+                        color = '#94a3b8';
+                        border = '1px solid #cbd5e1';
+                        btnClass = 'booked-slot-btn';
+                        cursor = 'not-allowed';
+                        titleAttr = 'title="Already Booked"';
+                    } else if (isSelected) {
+                        bg = '#a44390';
+                        color = '#ffffff';
+                        border = '1.5px solid #a44390';
+                    }
+
+                    slotsHtml += `
+                        <div class="time-block-item text-center p-2 rounded-3 ${btnClass}" data-time="${t}" ${titleAttr} style="background: ${bg}; color: ${color}; border: ${border}; font-weight: 600; font-size: 0.8rem; cursor: ${cursor}; transition: all 0.2s;">
+                            ${t}
+                        </div>
+                    `;
+                });
+                grid.innerHTML = slotsHtml;
+                $('#modalTotalDuration').text((activeSlots.length * 10) + ' minutes');
+            },
+            error: function () {
+                let slotsHtml = '';
+                const times = getDynamic10MinSlots(currentModalDateStr);
+                const activeSlots = (selectedSlotsByDay[currentModalDateStr] || []).map(normalizeTimeStr);
+
+                times.forEach((t) => {
+                    const normT = normalizeTimeStr(t);
+                    const isSelected = activeSlots.includes(normT);
+                    const bg = isSelected ? '#a44390' : '#ffffff';
+                    const color = isSelected ? '#ffffff' : '#1e293b';
+                    const border = isSelected ? '1.5px solid #a44390' : '1px solid #e2e8f0';
+
+                    slotsHtml += `
+                        <div class="time-block-item text-center p-2 rounded-3 select-slot-btn" data-time="${t}" style="background: ${bg}; color: ${color}; border: ${border}; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">
+                            ${t}
+                        </div>
+                    `;
+                });
+                grid.innerHTML = slotsHtml;
+                $('#modalTotalDuration').text((activeSlots.length * 10) + ' minutes');
             }
-
-            const activeSlots = (selectedSlotsByDay[currentModalDateStr] || []).map(normalizeTimeStr);
-
-            times.forEach((t, i) => {
-                const normT = normalizeTimeStr(t);
-                const isSelected = activeSlots.includes(normT);
-                const bg = isSelected ? '#a44390' : '#ffffff';
-                const color = isSelected ? '#ffffff' : '#1e293b';
-                const border = isSelected ? '1.5px solid #a44390' : '1px solid #e2e8f0';
-
-                slotsHtml += `
-                    <div class="time-block-item text-center p-2 rounded-3 cursor-pointer select-slot-btn" data-time="${t}" style="background: ${bg}; color: ${color}; border: ${border}; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">
-                        ${t}
-                    </div>
-                `;
-            });
-            grid.innerHTML = slotsHtml;
-            $('#modalTotalDuration').text((activeSlots.length * 10) + ' minutes');
-        }, 150);
+        });
     });
 
     // Select/Deselect time slots inside modal
@@ -744,13 +813,78 @@ jQuery(document).ready(function ($) {
         const existingPending = JSON.parse(localStorage.getItem('cosy_pending_booking') || '{}');
         const activeServiceId = localStorage.getItem('cosy_selected_service_id') || existingPending.serviceId || 1;
 
+        // Compute End Date
+        let computedEndDate = '';
+        if (startDateParam) {
+            try {
+                let sObj;
+                if (/^\d{2}-\d{2}-\d{4}$/.test(startDateParam)) {
+                    const parts = startDateParam.split('-');
+                    sObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                } else {
+                    sObj = new Date(startDateParam);
+                }
+                if (!isNaN(sObj.getTime())) {
+                    sObj.setDate(sObj.getDate() + (weeks * 7) - 1);
+                    const dd = String(sObj.getDate()).padStart(2, '0');
+                    const mm = String(sObj.getMonth() + 1).padStart(2, '0');
+                    const yyyy = sObj.getFullYear();
+                    computedEndDate = `${dd}-${mm}-${yyyy}`;
+                }
+            } catch (e) { }
+        }
+
+        // Compute Week Days
+        let computedWeekDaysArr = [];
+        const daysMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        Object.keys(selectedSlotsByDay).forEach(dKey => {
+            if (selectedSlotsByDay[dKey] && selectedSlotsByDay[dKey].length > 0) {
+                let dObj;
+                if (/^\d{2}-\d{2}-\d{4}$/.test(dKey)) {
+                    const parts = dKey.split('-');
+                    dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                } else {
+                    dObj = new Date(dKey);
+                }
+                if (dObj && !isNaN(dObj.getTime())) {
+                    const dName = daysMap[dObj.getDay()];
+                    if (!computedWeekDaysArr.includes(dName)) computedWeekDaysArr.push(dName);
+                } else {
+                    if (!computedWeekDaysArr.includes(dKey)) computedWeekDaysArr.push(dKey);
+                }
+            }
+        });
+        const computedWeekDays = computedWeekDaysArr.join(', ');
+
+        // Compute Selected Slots Timeline
+        let computedTimelineArr = [];
+        Object.keys(selectedSlotsByDay).forEach(dKey => {
+            const timesArr = selectedSlotsByDay[dKey];
+            if (Array.isArray(timesArr) && timesArr.length > 0) {
+                let dObj;
+                if (/^\d{2}-\d{2}-\d{4}$/.test(dKey)) {
+                    const parts = dKey.split('-');
+                    dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                } else {
+                    dObj = new Date(dKey);
+                }
+                let dateHeader = dKey;
+                if (dObj && !isNaN(dObj.getTime())) {
+                    dateHeader = dObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+                const normalizedTimes = timesArr.map(normalizeTimeStr).join(', ');
+                computedTimelineArr.push(`${dateHeader}: ${normalizedTimes}`);
+            }
+        });
+        const computedSlotsTimeline = computedTimelineArr.join(' | ');
+
         const bookingPayload = {
             serviceId: activeServiceId,
             service: activeServiceTitle,
             providerId: existingPending.providerId || providerIdParam || 0,
             providerName: providerNameParam,
             startDate: startDateParam || new Date().toISOString().split('T')[0],
-            endDate: existingPending.endDate || '',
+            endDate: computedEndDate || existingPending.endDate || startDateParam || '',
             weeklyBooking: weeks + (weeks === 1 ? ' Week Duration' : ' Weeks Recurring'),
             numberOfWeeks: weeks,
             numberOfBookings: totalSlots,
@@ -761,8 +895,8 @@ jQuery(document).ready(function ($) {
             recipientName: $('#recipientName').val() || '',
             recipientEmail: $('#recipientEmail').val() || '',
             slots: selectedSlotsByDay,
-            weekDays: existingPending.weekDays || '',
-            slotsTimeline: existingPending.slotsTimeline || ''
+            weekDays: computedWeekDays || existingPending.weekDays || '',
+            slotsTimeline: computedSlotsTimeline || existingPending.slotsTimeline || ''
         };
 
         const $btn = $(this);

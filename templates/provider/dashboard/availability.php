@@ -47,10 +47,12 @@ if (!isset($availability)) {
             <div class="col-md-3 mb-4">
                 <label class="form-label"><?php esc_html_e('Start Time', 'cosy-appointments'); ?></label>
                 <input type="time" class="form-control" id="start_time">
+                <div id="start_time_badge" class="mt-1" style="font-size: 0.8rem; font-weight: 600; color: #a44390; display: none;"></div>
             </div>
             <div class="col-md-3 mb-4">
                 <label class="form-label"><?php esc_html_e('End Time', 'cosy-appointments'); ?></label>
                 <input type="time" class="form-control" id="end_time">
+                <div id="end_time_badge" class="mt-1" style="font-size: 0.8rem; font-weight: 600; color: #a44390; display: none;"></div>
             </div>
         </div>
 
@@ -60,10 +62,12 @@ if (!isset($availability)) {
             <div class="col-md-6 mb-4">
                 <label class="form-label"><?php esc_html_e('Break Start Time', 'cosy-appointments'); ?></label>
                 <input type="time" class="form-control" id="break_start_time">
+                <div id="break_start_time_badge" class="mt-1" style="font-size: 0.8rem; font-weight: 600; color: #a44390; display: none;"></div>
             </div>
             <div class="col-md-6 mb-4">
                 <label class="form-label"><?php esc_html_e('Break End Time', 'cosy-appointments'); ?></label>
                 <input type="time" class="form-control" id="break_end_time">
+                <div id="break_end_time_badge" class="mt-1" style="font-size: 0.8rem; font-weight: 600; color: #a44390; display: none;"></div>
             </div>
         </div>
 

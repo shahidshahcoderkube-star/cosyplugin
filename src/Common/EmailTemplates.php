@@ -198,7 +198,7 @@ class EmailTemplates
 
         $currency = $data['currency_symbol'] ?? '£';
         $gift_row = !empty($data['is_gift'])
-            ? "<tr style='border-bottom: 1px solid #e2e8f0; background-color: #fcf4fa;'><td style='padding: 8px 12px; font-weight: bold; color: #a44390;'>Gifted To 🎁</td><td style='padding: 8px 12px; color: #a44390; font-weight: 600;'>" . esc_html($data['recipient_name']) . " (" . esc_html($data['recipient_email']) . ")</td></tr>"
+            ? "<tr style='border-bottom: 1px solid #e2e8f0; background-color: #fcf4fa;'><td style='padding: 8px 12px; font-weight: bold; color: #a44390;'>Gifted To 🎁</td><td style='padding: 8px 12px; color: #a44390; font-weight: 600;'>" . esc_html($data['recipient_name'] ?? '') . " (" . esc_html($data['recipient_email'] ?? '') . ")</td></tr>"
             : "";
 
         $order_id = $data['order_id'] ?? $data['appointment_id'] ?? '';
@@ -310,21 +310,30 @@ class EmailTemplates
         $subject = __('🎁 A Special Gift For You! You have received a CosyChats conversation', 'cosy-appointments');
         $heading = __('🎁 A Special Gift For You!', 'cosy-appointments');
 
-        $html_content = "
-            <p>Hello <strong>" . esc_html($data['recipient_name']) . "</strong>,</p>
-            <p><strong>" . esc_html($data['sender_name']) . "</strong> (" . esc_html($data['sender_email']) . ") has gifted you a parent conversation session on CosyChats!</p>
+        $recipient_name = $data['recipient_name'] ?? 'Friend';
+        $sender_name    = $data['sender_name'] ?? $data['customer_name'] ?? 'A Friend';
+        $sender_email   = $data['sender_email'] ?? $data['customer_email'] ?? '';
+        $gift_message   = $data['gift_message'] ?? '';
+        $service_title  = $data['service_title'] ?? '';
+        $provider_name  = $data['provider_name'] ?? '';
+        $start_date     = $data['start_date'] ?? '';
+        $slots_timeline = $data['slots_timeline'] ?? '';
 
-            " . (!empty($data['gift_message']) ? "
+        $html_content = "
+            <p>Hello <strong>" . esc_html($recipient_name) . "</strong>,</p>
+            <p><strong>" . esc_html($sender_name) . "</strong> " . (!empty($sender_email) ? "(" . esc_html($sender_email) . ")" : "") . " has gifted you a parent conversation session on CosyChats!</p>
+
+            " . (!empty($gift_message) ? "
             <div style='background: #fff0fa; border-left: 4px solid #a44390; padding: 15px; border-radius: 6px; margin: 20px 0;'>
-                <p style='margin: 0; font-style: italic; color: #6d2e67;'>\"" . esc_html($data['gift_message']) . "\"</p>
+                <p style='margin: 0; font-style: italic; color: #6d2e67;'>\"" . esc_html($gift_message) . "\"</p>
             </div>
             " : "") . "
 
             <h4 style='color: #6d2e67; margin-top: 20px; border-bottom: 2px solid #f1e4ef; padding-bottom: 5px;'>Session Details</h4>
             <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px;'>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Service / Topic:</td><td style='padding: 8px 12px;'>" . esc_html($data['service_title']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Service Provider (Parent):</td><td style='padding: 8px 12px;'>" . esc_html($data['provider_name']) . "</td></tr>
-                <tr><td style='padding: 8px 12px; font-weight: bold;'>Start Date & Time:</td><td style='padding: 8px 12px;'>" . esc_html($data['start_date']) . " (" . esc_html($data['slots_timeline']) . ")</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Service / Topic:</td><td style='padding: 8px 12px;'>" . esc_html($service_title) . "</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Service Provider (Parent):</td><td style='padding: 8px 12px;'>" . esc_html($provider_name) . "</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Start Date & Time:</td><td style='padding: 8px 12px;'>" . esc_html($start_date) . " (" . esc_html($slots_timeline) . ")</td></tr>
             </table>
 
             <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
@@ -527,7 +536,7 @@ class EmailTemplates
     public static function get_admin_new_review_template(string $provider_name, string $customer_name, int $rating, string $review_text): array
     {
         $subject = __('New Customer Review Submitted for Moderation', 'cosy-appointments');
-        $heading = __('New Customer Review Alert', 'cosy-appointments');
+        $heading = __('New Customer Review', 'cosy-appointments');
 
         $html_content = sprintf(
             '<p style="margin-bottom: 15px;">Hello Administrator,</p>
@@ -543,6 +552,118 @@ class EmailTemplates
             $rating,
             esc_html($review_text)
         );
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
+
+    /**
+     * 15. Customer Review Reply Email
+     */
+    public static function get_customer_review_reply_template(string $customer_name, string $provider_name, string $reply_text, string $original_review): array
+    {
+        $subject = sprintf(__('New Response from %s on Your Review!', 'cosy-appointments'), $provider_name);
+        $heading = __('Provider Response Received', 'cosy-appointments');
+
+        $html_content = sprintf(
+            '<p style="margin-bottom: 15px;">Hello <strong>%s</strong>,</p>
+            <p style="margin-bottom: 15px;"><strong>%s</strong> has posted a response to your review on CosyChats.</p>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 15px 0;">
+                <p style="margin: 0 0 8px 0; font-size: 13px; color: #64748b;"><strong>Your Original Review:</strong></p>
+                <p style="margin: 0 0 15px 0; font-style: italic; color: #334155;">"%s"</p>
+                <div style="border-top: 1px dashed #cbd5e1; padding-top: 12px;">
+                    <p style="margin: 0 0 6px 0; font-size: 13px; color: #a44390;"><strong>%s\'s Response:</strong></p>
+                    <p style="margin: 0; color: #1e293b; font-weight: 500;">"%s"</p>
+                </div>
+            </div>
+            <p style="margin-bottom: 0;">You can view the response thread anytime by visiting the parent\'s profile on CosyChats.</p>',
+            esc_html($customer_name),
+            esc_html($provider_name),
+            esc_html($original_review),
+            esc_html($provider_name),
+            esc_html($reply_text)
+        );
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
+
+    /**
+     * 11. Booking Cancellation Email (Customer)
+     */
+    public static function get_booking_cancelled_customer_template(array $data): array
+    {
+        $order_id = $data['order_id'] ?? '';
+        $subject  = sprintf(__('❌ Important Update: Your CosyChats Appointment Has Been Cancelled (#%s)', 'cosy-appointments'), $order_id);
+        $heading  = __('Appointment Cancelled', 'cosy-appointments');
+
+        $customer_name  = $data['customer_name'] ?? 'Customer';
+        $provider_name  = $data['provider_name'] ?? 'Provider';
+        $service_title  = $data['service_title'] ?? '';
+        $start_date     = $data['start_date'] ?? '';
+        $slots_timeline = $data['slots_timeline'] ?? '';
+
+        $html_content = "
+            <p>Hello <strong>" . esc_html($customer_name) . "</strong>,</p>
+            <p>We are writing to inform you that your upcoming conversation session with <strong>" . esc_html($provider_name) . "</strong> has been cancelled by the parent provider.</p>
+
+            <h4 style='color: #6d2e67; margin-top: 20px; border-bottom: 2px solid #f1e4ef; padding-bottom: 5px;'>Cancelled Booking Details</h4>
+            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px;'>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Order ID:</td><td style='padding: 8px 12px;'>#" . esc_html($order_id) . "</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Experience / Topic:</td><td style='padding: 8px 12px;'>" . esc_html($service_title) . "</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Provider:</td><td style='padding: 8px 12px;'>" . esc_html($provider_name) . "</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Scheduled Date & Time:</td><td style='padding: 8px 12px;'>" . esc_html($start_date) . " (" . esc_html($slots_timeline) . ")</td></tr>
+            </table>
+
+            <p>We apologize for any inconvenience this may cause. If you have any questions regarding refunds or re-booking another parent, please contact our support team at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
+        ";
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
+
+    /**
+     * 12. Booking Status Update Email (Customer)
+     */
+    public static function get_booking_status_update_customer_template(array $data): array
+    {
+        $order_id     = $data['order_id'] ?? '';
+        $status_label = ucfirst($data['status'] ?? 'Updated');
+        $subject      = sprintf(__('✅ Update: Your CosyChats Appointment Status is now %s (#%s)', 'cosy-appointments'), $status_label, $order_id);
+        $heading      = sprintf(__('Appointment %s', 'cosy-appointments'), $status_label);
+
+        $customer_name  = $data['customer_name'] ?? 'Customer';
+        $provider_name  = $data['provider_name'] ?? 'Provider';
+        $service_title  = $data['service_title'] ?? '';
+        $start_date     = $data['start_date'] ?? '';
+        $slots_timeline = $data['slots_timeline'] ?? '';
+
+        $html_content = "
+            <p>Hello <strong>" . esc_html($customer_name) . "</strong>,</p>
+            <p>Great news! Your booking status with <strong>" . esc_html($provider_name) . "</strong> has been updated to <strong>" . esc_html($status_label) . "</strong>.</p>
+
+            <h4 style='color: #6d2e67; margin-top: 20px; border-bottom: 2px solid #f1e4ef; padding-bottom: 5px;'>Booking Summary</h4>
+            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px;'>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Order ID:</td><td style='padding: 8px 12px;'>#" . esc_html($order_id) . "</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Experience / Topic:</td><td style='padding: 8px 12px;'>" . esc_html($service_title) . "</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Provider:</td><td style='padding: 8px 12px;'>" . esc_html($provider_name) . "</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Scheduled Date & Time:</td><td style='padding: 8px 12px;'>" . esc_html($start_date) . " (" . esc_html($slots_timeline) . ")</td></tr>
+                <tr><td style='padding: 8px 12px; font-weight: bold;'>Current Status:</td><td style='padding: 8px 12px; color: #a44390; font-weight: bold;'>" . esc_html($status_label) . "</td></tr>
+            </table>
+
+            <p>You can view your booking details at any time in your account dashboard.</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
+        ";
 
         return [
             'subject' => $subject,

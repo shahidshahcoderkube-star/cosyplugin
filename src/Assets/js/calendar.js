@@ -79,19 +79,29 @@ function renderCalendar() {
         // Today, past days, holidays, and non-working days are unavailable / greyed-out
         const isUnavailable = isPast || isToday || isHoliday || isDayOff;
 
-        let bg = '#f8fafc';
-        let color = '#1e293b';
-        let border = '1px solid transparent';
+        let bg = '#ffffff';
+        let color = '#a44390';
+        let border = '1.5px solid #a44390';
         let fontWeight = '600';
+        let boxShadow = 'none';
 
         if (isUnavailable) {
             bg = 'transparent';
             color = '#cbd5e1';
+            border = '1px solid transparent';
+            boxShadow = 'none';
         } else if (isSelected) {
-            bg = '#fff';
-            color = '#a44390';
+            bg = 'linear-gradient(135deg, #a44390 0%, #6d2e67 100%)';
+            color = '#ffffff';
             border = '1.5px solid #a44390';
             fontWeight = '700';
+            boxShadow = '0 4px 12px rgba(164, 67, 144, 0.35)';
+        } else {
+            bg = '#fdf5fc';
+            color = '#a44390';
+            border = '1.5px solid #a44390';
+            fontWeight = '600';
+            boxShadow = 'none';
         }
 
         container.innerHTML += `
@@ -99,8 +109,10 @@ function renderCalendar() {
                  data-day="${d}" data-month="${month}" data-year="${year}"
                  style="aspect-ratio:1; display:flex; align-items:center; justify-content:center;
                         font-size:0.85rem; font-weight:${fontWeight}; border-radius:12px;
-                        background:${bg}; color:${color}; border:${border};
+                        background:${bg}; color:${color}; border:${border}; box-shadow:${boxShadow};
                         cursor:${isUnavailable ? 'not-allowed' : 'pointer'}; transition:all 0.2s;"
+                 ${isUnavailable ? '' : `onmouseover="if(!this.classList.contains('selected-cell')){this.style.background='#a44390';this.style.color='#ffffff';}" onmouseout="if(!this.classList.contains('selected-cell')){this.style.background='${bg}';this.style.color='${color}';}"`}
+                 class="${isSelected ? 'selected-cell' : ''}"
                  title="${isHoliday ? 'Holiday / Unavailable' : (isDayOff ? 'Non-working day' : '')}">
                 ${d}
             </div>`;
@@ -295,11 +307,17 @@ function openTimeSlotModal(dateStr) {
                 if (!isInBreak) {
                     slotsCount++;
                     const isSelected = selectedTimeSlotsByDay[dateStr] && selectedTimeSlotsByDay[dateStr].includes(timeStr);
-                    const isBooked = bookedSlots.includes(timeStr);
+                    const normDisplayTime = displayTime.trim().toUpperCase().replace(/^0+/, '');
+                    const isBooked = bookedSlots.some(b => {
+                        const normB = String(b).trim().toUpperCase().replace(/^0+/, '');
+                        return normB === normDisplayTime || b === timeStr || b === displayTime;
+                    });
 
                     grid.innerHTML += `
                             <div class="time-block p-2 text-center small fw-bold ${isSelected ? 'selected' : ''} ${isBooked ? 'booked' : ''}" 
-                                 onclick="${isBooked ? '' : `toggleTimeSlot('${timeStr}', this)`}">
+                                 style="${isBooked ? 'background:#e2e8f0; color:#94a3b8; cursor:not-allowed;' : ''}"
+                                 onclick="${isBooked ? '' : `toggleTimeSlot('${timeStr}', this)`}"
+                                 title="${isBooked ? 'Already Booked' : ''}">
                                 ${displayTime}
                             </div>
                         `;

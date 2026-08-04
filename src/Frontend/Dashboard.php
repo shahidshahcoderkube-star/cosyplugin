@@ -497,12 +497,41 @@ class Dashboard
             wp_send_json_error('Day is required');
         }
 
+        $start_time  = sanitize_text_field($_POST['start_time']);
+        $end_time    = sanitize_text_field($_POST['end_time']);
+        $break_start = sanitize_text_field($_POST['break_start']);
+        $break_end   = sanitize_text_field($_POST['break_end']);
+
+        // Smart Normalization: Convert 12-hour inputs (e.g. 06:00 for 6 PM, 01:00 for 1 PM) to 24-hour PM automatically
+        $normalize_pm = function ($time_str, $ref_str) {
+            if (empty($time_str)) return $time_str;
+            $parts = explode(':', $time_str);
+            if (count($parts) < 2) return $time_str;
+            $h = intval($parts[0]);
+            $m = $parts[1];
+
+            $ref_h = 0;
+            if (!empty($ref_str)) {
+                $ref_parts = explode(':', $ref_str);
+                $ref_h = intval($ref_parts[0]);
+            }
+
+            if ($h > 0 && $h <= 11 && $ref_h >= 1 && $h <= $ref_h) {
+                $h += 12;
+            }
+            return sprintf('%02d:%s', $h, $m);
+        };
+
+        $end_time    = $normalize_pm($end_time, $start_time);
+        $break_start = $normalize_pm($break_start, $start_time);
+        $break_end   = $normalize_pm($break_end, $break_start ?: $start_time);
+
         $availability_data = [
-            'start_time'    => sanitize_text_field($_POST['start_time']),
-            'end_time'      => sanitize_text_field($_POST['end_time']),
+            'start_time'    => $start_time,
+            'end_time'      => $end_time,
             'slot_duration' => sanitize_text_field($_POST['slot_duration']),
-            'break_start'   => sanitize_text_field($_POST['break_start']),
-            'break_end'     => sanitize_text_field($_POST['break_end']),
+            'break_start'   => $break_start,
+            'break_end'     => $break_end,
         ];
 
         foreach ($days as $day) {
@@ -875,6 +904,22 @@ class Dashboard
                 sprintf(__('Provider #%d posted Level %d response for Review #%d.', 'cosy-appointments'), $user_id, $target_level, $review_id),
                 $user_id
             );
+
+            // Send Email notification to Customer about Provider's response
+            if (!empty($review->customer_id)) {
+                $customer_user = get_userdata($review->customer_id);
+                if ($customer_user && !empty($customer_user->user_email) && function_exists('cosy_send_html_email')) {
+                    $customer_name = !empty($review->customer_name) ? $review->customer_name : $customer_user->display_name;
+                    $tpl = \Cosy\Appointments\Common\EmailTemplates::get_customer_review_reply_template(
+                        $customer_name,
+                        $prov_name,
+                        $reply_text,
+                        $review->review
+                    );
+                    cosy_send_html_email($customer_user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+                }
+            }
+
             wp_send_json_success(['message' => __('Public reply posted successfully!', 'cosy-appointments')]);
         } else {
             wp_send_json_error(['message' => __('Failed to save reply.', 'cosy-appointments')]);

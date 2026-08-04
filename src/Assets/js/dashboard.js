@@ -523,48 +523,69 @@ jQuery(document).ready(function ($) {
                 'Do you want to mark this booking as ' + newStatus + '?',
                 'Yes, change it!'
             ).then(function () {
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'cosy_update_booking_status',
-                            nonce: nonce,
-                            order_id: orderId,
-                            appointment_id: orderId,
-                            status: newStatus
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                CosyAlert.success('Success', response.data.message);
+                var row = $('#order-row-' + orderId);
+                var rowBtns = row.find('.action-update-status');
 
-                                var row = $('#order-row-' + orderId);
-                                if (row.length) {
-                                    row.attr('data-status', newStatus);
+                // Find the specific button to show spinner
+                var targetBtn = btn.hasClass('order-action-btn') ? btn : row.find('.action-update-status[data-status="' + newStatus + '"]');
+                if (!targetBtn.length) {
+                    targetBtn = btn;
+                }
+                var originalIconHtml = targetBtn.html();
 
-                                    var badgeHtml = '';
-                                    if (newStatus === 'confirmed') {
-                                        badgeHtml = '<span class="badge badge-confirmed" style="background:#0ea5e9;color:#fff;"><i class="fas fa-thumbs-up me-1"></i> Confirmed</span>';
-                                    } else if (newStatus === 'completed') {
-                                        badgeHtml = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
-                                    } else if (newStatus === 'cancelled') {
-                                        badgeHtml = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
-                                    } else {
-                                        badgeHtml = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
-                                    }
-                                    row.find('.status-cell').html(badgeHtml);
-                                    var detailsBtn = row.find('.btn-view-order-details');
-                                    detailsBtn.attr('data-status', newStatus);
-                                    detailsBtn.data('status', newStatus);
-                                    row.find('.action-update-status').remove();
+                // Set spinning loader icon on target button & disable row action buttons
+                targetBtn.html('<i class="fas fa-spinner fa-spin"></i>');
+                rowBtns.prop('disabled', true).css({ 'pointer-events': 'none', 'opacity': '0.7' });
+
+                if (btn.parents('#orderDetailsModal').length) {
+                    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Processing...');
+                }
+
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: 'cosy_update_booking_status',
+                        nonce: nonce,
+                        order_id: orderId,
+                        appointment_id: orderId,
+                        status: newStatus
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            CosyAlert.success('Success', response.data.message);
+
+                            if (row.length) {
+                                row.attr('data-status', newStatus);
+
+                                var badgeHtml = '';
+                                if (newStatus === 'confirmed') {
+                                    badgeHtml = '<span class="badge badge-confirmed" style="background:#0ea5e9;color:#fff;"><i class="fas fa-thumbs-up me-1"></i> Confirmed</span>';
+                                } else if (newStatus === 'completed') {
+                                    badgeHtml = '<span class="badge badge-completed"><i class="fas fa-check-circle me-1"></i> Completed</span>';
+                                } else if (newStatus === 'cancelled') {
+                                    badgeHtml = '<span class="badge badge-cancelled"><i class="fas fa-times-circle me-1"></i> Cancelled</span>';
+                                } else {
+                                    badgeHtml = '<span class="badge badge-pending"><i class="fas fa-clock me-1"></i> Pending</span>';
                                 }
-                            } else {
-                                CosyAlert.error('Failed', response.data.message);
+                                row.find('.status-cell').html(badgeHtml);
+                                var detailsBtn = row.find('.btn-view-order-details');
+                                detailsBtn.attr('data-status', newStatus);
+                                detailsBtn.data('status', newStatus);
+                                row.find('.action-update-status').remove();
                             }
-                        },
-                        error: function () {
-                            CosyAlert.error('Error', 'Failed to communicate with the server.');
+                        } else {
+                            targetBtn.html(originalIconHtml);
+                            rowBtns.prop('disabled', false).css({ 'pointer-events': 'auto', 'opacity': '1' });
+                            CosyAlert.error('Failed', response.data.message);
                         }
-                    });
+                    },
+                    error: function () {
+                        targetBtn.html(originalIconHtml);
+                        rowBtns.prop('disabled', false).css({ 'pointer-events': 'auto', 'opacity': '1' });
+                        CosyAlert.error('Error', 'Failed to communicate with the server.');
+                    }
+                });
             }).catch(function() { /* Cancelled */ });
         }
     };

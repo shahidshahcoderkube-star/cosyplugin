@@ -582,6 +582,40 @@ class Frontend
             $current_user_id
         );
 
+        // Send email notification to customer & admin on status update (Confirmed/Completed/Cancelled)
+        $admin_email = get_option('admin_email');
+        $slots_timeline = get_post_meta($order_id, 'cosy_slots_timeline', true);
+        $email_payload = [
+            'order_id'       => $order_id,
+            'customer_name'  => $customer_name ?: 'Customer',
+            'customer_email' => $customer_email,
+            'provider_name'  => $provider_name ?: $current_user->display_name,
+            'service_title'  => $service_name ?: 'Parent Conversation',
+            'start_date'     => $start_date ?: '',
+            'slots_timeline' => $slots_timeline ?: '',
+            'status'         => $new_status,
+        ];
+
+        if ($new_status === 'cancelled') {
+            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_booking_cancelled_customer_template($email_payload);
+            if (!empty($customer_email)) {
+                cosy_send_html_email($customer_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+            }
+            if (!empty($admin_email)) {
+                $admin_subject = sprintf(__('[ADMIN ALERT] Order #%s Cancelled by Provider (%s)', 'cosy-appointments'), $order_id, $provider_name ?: 'Provider');
+                cosy_send_html_email($admin_email, $admin_subject, $tpl['heading'], $tpl['content']);
+            }
+        } else {
+            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_booking_status_update_customer_template($email_payload);
+            if (!empty($customer_email)) {
+                cosy_send_html_email($customer_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+            }
+            if (!empty($admin_email)) {
+                $admin_subject = sprintf(__('[ADMIN NOTICE] Order #%s Status Updated to %s', 'cosy-appointments'), $order_id, ucfirst($new_status));
+                cosy_send_html_email($admin_email, $admin_subject, $tpl['heading'], $tpl['content']);
+            }
+        }
+
         wp_send_json_success(['message' => 'Status updated successfully to ' . ucfirst($new_status)]);
     }
 
@@ -592,18 +626,21 @@ class Frontend
      */
     public function handle_get_booked_slots(): void
     {
-        check_ajax_referer('cosy_calendar_nonce', 'nonce');
         $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
-        $date_str    = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : ''; // e.g. "Wed May 20 2026"
+        $date_str    = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
 
         if (empty($provider_id) || empty($date_str)) {
             wp_send_json_error(['message' => 'Missing provider or date parameter.']);
         }
 
+        // Normalize target date to timestamp or YYYY-MM-DD
+        $target_time = strtotime($date_str);
+        $target_formatted = $target_time ? date('Y-m-d', $target_time) : $date_str;
+
         $args = [
             'post_type'      => 'cosy_appointment',
             'posts_per_page' => -1,
-            'post_status'    => 'publish',
+            'post_status'    => ['publish', 'draft'],
             'meta_query'     => [
                 'relation' => 'AND',
                 [
@@ -624,24 +661,46 @@ class Frontend
 
         if ($query->have_posts()) {
             foreach ($query->posts as $appt) {
+                // If draft (pending stripe), ignore if created more than 30 minutes ago
+                if ($appt->post_status === 'draft') {
+                    $created = strtotime($appt->post_date);
+                    if ($created && (time() - $created > 1800)) {
+                        continue;
+                    }
+                }
+
                 $slots_meta = get_post_meta($appt->ID, 'cosy_slots', true);
                 if (!empty($slots_meta)) {
-                    // slots_meta is expected to be a JSON string like:
-                    // [{"date":"Wed May 20 2026","time":"09:00"}]
-                    // Decoded with html_entity_decode to handle any WordPress escaping
                     $decoded = html_entity_decode($slots_meta);
                     $slots = json_decode($decoded, true);
-
-                    // Fallback to normal json_decode if decode fails
                     if (!is_array($slots)) {
                         $slots = json_decode($slots_meta, true);
                     }
 
                     if (is_array($slots)) {
-                        foreach ($slots as $slot) {
-                            if (isset($slot['date']) && $slot['date'] === $date_str) {
-                                if (isset($slot['time'])) {
-                                    $booked_slots[] = $slot['time']; // "HH:MM" e.g. "09:00"
+                        foreach ($slots as $k => $v) {
+                            // Case 1: Key-Value Dictionary {"05-08-2026": ["10:00 AM", "10:10 AM"]}
+                            if (is_array($v) && !isset($v['date'])) {
+                                $k_time = strtotime($k);
+                                $k_formatted = $k_time ? date('Y-m-d', $k_time) : $k;
+
+                                if ($k === $date_str || $k_formatted === $target_formatted) {
+                                    foreach ($v as $time_val) {
+                                        $booked_slots[] = $time_val;
+                                    }
+                                }
+                            }
+                            // Case 2: Array of objects [{"date": "...", "time": "..."}]
+                            elseif (is_array($v) || is_object($v)) {
+                                $slot_obj = (array) $v;
+                                if (isset($slot_obj['date'])) {
+                                    $s_time = strtotime($slot_obj['date']);
+                                    $s_formatted = $s_time ? date('Y-m-d', $s_time) : $slot_obj['date'];
+                                    if ($slot_obj['date'] === $date_str || $s_formatted === $target_formatted) {
+                                        if (isset($slot_obj['time'])) {
+                                            $booked_slots[] = $slot_obj['time'];
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -690,6 +749,50 @@ class Frontend
         $is_gift            = !empty($_POST['isGift']) ? 1 : 0;
         $recipient_name     = isset($_POST['recipientName']) ? sanitize_text_field($_POST['recipientName']) : '';
         $recipient_email    = isset($_POST['recipientEmail']) ? sanitize_email($_POST['recipientEmail']) : '';
+
+        // Fallback calculation if End Date, Week Days, or Slots Timeline are missing
+        if (empty($end_date) && !empty($start_date)) {
+            $s_time = strtotime($start_date);
+            if ($s_time) {
+                $num_w = max(1, $number_of_weeks);
+                $e_time = strtotime("+{$num_w} weeks -1 day", $s_time);
+                $end_date = date('d-m-Y', $e_time);
+            }
+        }
+
+        if (empty($week_days) || empty($slots_timeline)) {
+            $slots_arr = json_decode($slots_json, true);
+            $parsed_days = [];
+            $timeline_parts = [];
+
+            if (is_array($slots_arr)) {
+                foreach ($slots_arr as $date_key => $times) {
+                    if (!empty($times) && is_array($times)) {
+                        $dt = strtotime($date_key);
+                        if ($dt) {
+                            $day_name = date('l', $dt);
+                            if (!in_array($day_name, $parsed_days)) {
+                                $parsed_days[] = $day_name;
+                            }
+                            $formatted_dt = date('d M Y', $dt);
+                            $timeline_parts[] = sprintf('%s (%s): %s', $formatted_dt, $day_name, implode(', ', $times));
+                        } else {
+                            if (!in_array($date_key, $parsed_days)) {
+                                $parsed_days[] = $date_key;
+                            }
+                            $timeline_parts[] = sprintf('%s: %s', $date_key, implode(', ', $times));
+                        }
+                    }
+                }
+            }
+
+            if (empty($week_days) && !empty($parsed_days)) {
+                $week_days = implode(', ', $parsed_days);
+            }
+            if (empty($slots_timeline) && !empty($timeline_parts)) {
+                $slots_timeline = implode(' | ', $timeline_parts);
+            }
+        }
 
         if (empty($provider_id)) {
             $this->cosy_payment_log("Stripe Session Creation FAILED: Missing provider details.", $_POST);
@@ -951,6 +1054,8 @@ class Frontend
             'order_id'       => $order_id,
             'customer_name'  => $current_user->display_name,
             'customer_email' => $current_user->user_email,
+            'sender_name'    => $current_user->display_name,
+            'sender_email'   => $current_user->user_email,
             'provider_name'  => $provider_name,
             'provider_email' => $provider_email,
             'service_title'  => $service,
