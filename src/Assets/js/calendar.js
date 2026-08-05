@@ -169,6 +169,7 @@ function selectDay(el, day) {
     localStorage.setItem('cosy_selected_start_date', formattedDate);
     localStorage.setItem('cosy_selected_provider_id', window.providerId || 0);
     localStorage.setItem('cosy_selected_provider_name', window.providerName || '');
+    localStorage.setItem('cosy_selected_provider_url', window.providerProfileUrl || window.location.href);
     localStorage.setItem('cosy_selected_service_name', serviceTitle);
     localStorage.setItem('cosy_selected_service_id', serviceId);
     if (servicePrice) {

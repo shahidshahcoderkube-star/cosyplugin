@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 $provider_id = isset($_GET['provider_id']) ? intval($_GET['provider_id']) : (isset($_COOKIE['cosy_selected_provider_id']) ? intval($_COOKIE['cosy_selected_provider_id']) : 0);
 $availability = [];
 $holiday_dates = [];
+$provider_profile_url = '';
 
 if ($provider_id > 0) {
     if (!isset($common) || !method_exists($common, 'get_provider_availability_data')) {
@@ -13,14 +14,16 @@ if ($provider_id > 0) {
             use \Cosy\Appointments\Common\GlobalCommonFunctions;
         };
     }
-    $avail_data    = $common->get_provider_availability_data($provider_id);
-    $availability  = $avail_data['availability'];
-    $holiday_dates = $avail_data['holiday_dates'];
+    $avail_data           = $common->get_provider_availability_data($provider_id);
+    $availability         = $avail_data['availability'];
+    $holiday_dates        = $avail_data['holiday_dates'];
+    $provider_profile_url = get_author_posts_url($provider_id);
 }
 ?>
 <script>
     window.providerAvailability = <?php echo wp_json_encode($availability); ?>;
     window.providerHolidays = <?php echo wp_json_encode($holiday_dates); ?>;
+    window.providerProfileUrl = <?php echo wp_json_encode($provider_profile_url); ?>;
 </script>
 
 <div class="cosy-checkout-root" style="padding-top: 50px; padding-bottom: 50px;">

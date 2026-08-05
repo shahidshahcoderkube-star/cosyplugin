@@ -924,8 +924,11 @@ jQuery(document).ready(function ($) {
     $(document).on('click', '#cosyCheckoutBackBtn', function (e) {
         e.preventDefault();
         localStorage.removeItem('cosy_pending_booking');
-        if (window.cosyCheckout && window.cosyCheckout.providerUrl) {
-            window.location.href = window.cosyCheckout.providerUrl;
+        const targetUrl = (window.providerProfileUrl && window.providerProfileUrl.length > 5)
+            ? window.providerProfileUrl
+            : (localStorage.getItem('cosy_selected_provider_url') || (window.cosyCheckout && window.cosyCheckout.providerUrl));
+        if (targetUrl && targetUrl.length > 5) {
+            window.location.href = targetUrl;
         } else {
             window.history.back();
         }
