@@ -779,10 +779,17 @@ jQuery(document).ready(function ($) {
         $('#txtLiveTotalAmount').text(`${currencySymbol} ${totalCost.toFixed(2)}`);
 
         const $note = $('#txtLiveTotalNote');
-        if (weeks > 1 && $note.length) {
-            $note.html('<i class="fas fa-info-circle me-1" style="color: #a44390;"></i> Note: Price is calculated ONLY for active available sessions. Provider holidays and non-working days are automatically excluded.').slideDown(200);
-        } else if ($note.length) {
-            $note.slideUp(200);
+        const maxPossibleSlots = totalSlots1Week * weeks;
+        const hasHolidayExclusion = (weeks > 1 && totalActiveSlots < maxPossibleSlots);
+
+        if ($note.length) {
+            if (weeks > 1 && hasHolidayExclusion) {
+                $note.html('<i class="fas fa-info-circle me-1" style="color: #a44390;"></i> Some of your selected booking dates fall during the parent\'s holiday. Those sessions will be skipped and won\'t be charged.').slideDown(200);
+            } else if (weeks > 1) {
+                $note.html('<i class="fas fa-info-circle me-1" style="color: #a44390;"></i> Note: Price is calculated ONLY for active available sessions.').slideDown(200);
+            } else {
+                $note.slideUp(200);
+            }
         }
     }
 
