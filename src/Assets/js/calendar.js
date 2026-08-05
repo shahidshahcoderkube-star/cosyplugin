@@ -591,7 +591,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 3. Get total weeks and calculations
             const weeks = parseInt(document.getElementById('totalBookingWeeks').value) || 1;
-            const serviceCost = totalSlots * selectedService.price * weeks;
+            const dynamicHourlyRate = (selectedService && selectedService.price) ? parseFloat(selectedService.price) : ((window.cosyDefaultService && window.cosyDefaultService.price) ? parseFloat(window.cosyDefaultService.price) : 0);
+            const slotUnitPrice = dynamicHourlyRate / 6.0;
+            const serviceCost = totalSlots * slotUnitPrice * weeks;
             const feeType = window.serviceFeeType || 'flat';
             const feeVal = parseFloat(window.serviceFeeValue) || 0.00;
             const serviceFee = (feeType === 'percent') ? (serviceCost * (feeVal / 100)) : feeVal;

@@ -702,13 +702,22 @@ jQuery(document).ready(function ($) {
 
     function getUnitPrice() {
         const existingPending = JSON.parse(localStorage.getItem('cosy_pending_booking') || '{}');
+        let rawRate = 0;
         if (existingPending.unitPrice && parseFloat(existingPending.unitPrice) > 0) {
-            return parseFloat(existingPending.unitPrice);
+            rawRate = parseFloat(existingPending.unitPrice);
+        } else if (existingPending.servicePrice && parseFloat(existingPending.servicePrice) > 0) {
+            rawRate = parseFloat(existingPending.servicePrice);
+        } else if (window.cosyDefaultService && window.cosyDefaultService.price) {
+            rawRate = parseFloat(window.cosyDefaultService.price);
+        } else {
+            const savedPrice = localStorage.getItem('cosy_selected_service_price');
+            if (savedPrice && parseFloat(savedPrice) > 0) {
+                rawRate = parseFloat(savedPrice);
+            }
         }
-        if (existingPending.serviceCost && existingPending.numberOfBookings && parseFloat(existingPending.serviceCost) > 0) {
-            return parseFloat(existingPending.serviceCost) / parseFloat(existingPending.numberOfBookings);
-        }
-        return 6.67; // Fallback default unit price
+        // Configured rate is provider's Hourly Rate (£ ph). Each slot is 10 minutes (1/6 hour).
+        // Dynamic Slot Unit Price = Provider Hourly Rate / 6
+        return rawRate / 6.0;
     }
 
     function calculateTotalActiveSlotsAcrossWeeks(weeks) {

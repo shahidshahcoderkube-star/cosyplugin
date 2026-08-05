@@ -610,7 +610,7 @@ class Frontend
                 cosy_send_html_email($customer_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
             }
             if (!empty($admin_email)) {
-                $admin_subject = sprintf(__('[ADMIN NOTICE] Order #%s Status Updated to %s', 'cosy-appointments'), $order_id, ucfirst($new_status));
+                $admin_subject = sprintf(__('Provider Order #%s Status Updated to %s', 'cosy-appointments'), $order_id, ucfirst($new_status));
                 cosy_send_html_email($admin_email, $admin_subject, $tpl['heading'], $tpl['content']);
             }
         }
@@ -833,7 +833,7 @@ class Frontend
             if (!empty($meta_rate) && floatval($meta_rate) > 0) {
                 $db_price = $meta_rate;
             } else {
-                $db_price = (floatval($service_cost) > 0) ? $service_cost : '20.00';
+                $db_price = (floatval($service_cost) > 0) ? $service_cost : '0.00';
             }
         }
 
@@ -854,6 +854,23 @@ class Frontend
         if ($total_slots === 0) {
             $total_slots = 1;
         }
+
+        // Expected cost calculation: Provider fee is Hourly Rate (£ ph), each 10-min slot is 1/6th of hour
+        $expected_slot_unit_price  = floatval($db_price) / 6.0;
+        $expected_service_cost     = $total_slots * $expected_slot_unit_price;
+        $expected_service_cost_str = number_format($expected_service_cost, 2, '.', '');
+
+        $fee_type  = get_option('cosy_service_fee_type', 'flat');
+        $fee_value = floatval(get_option('cosy_service_fee_value', 0));
+        if ($fee_type === 'percent') {
+            $expected_service_fee = $expected_service_cost * ($fee_value / 100.0);
+        } else {
+            $expected_service_fee = $fee_value;
+        }
+        $expected_service_fee_str = number_format($expected_service_fee, 2, '.', '');
+
+        $expected_total_payable     = $expected_service_cost + $expected_service_fee;
+        $expected_total_payable_str = number_format($expected_total_payable, 2, '.', '');
 
         // Allow total payable passed from frontend if valid float, ensuring multi-week holiday exclusions align seamlessly
         if (floatval($service_cost) > 0 && floatval($total_payable) > 0) {
