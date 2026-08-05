@@ -931,9 +931,17 @@ jQuery(document).ready(function ($) {
     $(document).on('click', '#cosyCheckoutBackBtn', function (e) {
         e.preventDefault();
         localStorage.removeItem('cosy_pending_booking');
+        
+        // If coming from profile page, use history.back() to keep history stack clean
+        if (document.referrer && (document.referrer.includes('/author/') || document.referrer.includes('provider-profile') || document.referrer.includes('/service-details/'))) {
+            window.history.back();
+            return;
+        }
+
         const targetUrl = (window.providerProfileUrl && window.providerProfileUrl.length > 5)
             ? window.providerProfileUrl
             : (localStorage.getItem('cosy_selected_provider_url') || (window.cosyCheckout && window.cosyCheckout.providerUrl));
+        
         if (targetUrl && targetUrl.length > 5) {
             window.location.href = targetUrl;
         } else {

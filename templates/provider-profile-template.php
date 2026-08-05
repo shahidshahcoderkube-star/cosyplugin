@@ -501,6 +501,9 @@ wp_localize_script('provider-profile-js', 'cosyCalendar', [
 ?>
 <script>
     window.cosyDefaultService = <?php echo json_encode($default_service); ?>;
+    window.providerId = <?php echo intval($provider_data['ID'] ?? 0); ?>;
+    window.providerName = <?php echo json_encode($provider_data['first_name'] ?? ($provider_data['display_name'] ?? 'Provider')); ?>;
+    window.checkoutUrl = <?php echo json_encode(cosy_get_page_url('cosy-checkout')); ?>;
 </script>
 
 <!-- Time Slot Selection Modal -->

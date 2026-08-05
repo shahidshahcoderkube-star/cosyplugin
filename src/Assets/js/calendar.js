@@ -189,10 +189,12 @@ function selectDay(el, day) {
             slotsTimeline: ''
         };
         localStorage.setItem('cosy_pending_booking', JSON.stringify(freshBooking));
+        localStorage.setItem('cosy_selected_provider_url', window.location.href);
     } catch (e) { }
 
     // Redirect to the dedicated Call Schedule / Checkout page with parameters
-    const baseUrl = window.checkoutUrl || (window.location.origin + '/cosy-checkout/');
+    const fallbackPath = (window.location.pathname.indexOf('/cosyplugin') !== -1 ? '/cosyplugin' : '') + '/cosy-checkout/';
+    const baseUrl = window.checkoutUrl || (window.location.origin + fallbackPath);
     const separator = baseUrl.includes('?') ? '&' : '?';
     window.location.href = baseUrl + separator + 'step=schedule&provider_id=' + (window.providerId || 0) + '&start_date=' + formattedDate + '&service_name=' + encodeURIComponent(serviceSlug);
 }
