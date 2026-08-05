@@ -17,8 +17,6 @@ if (empty($provider_data['ID']) && $queried_obj instanceof \WP_User) {
 
 $current_user = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
-$user_role = !empty($current_user->roles) ? reset($current_user->roles) : '';
-$is_customer = in_array('customer', (array) $current_user->roles);
 
 $approved_reviews = [];
 $total_reviews = 0;
@@ -449,8 +447,6 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                             </span>
                         </div>
                     </div>
-                </div>
-
                 </div>
             </div>
         </div>
