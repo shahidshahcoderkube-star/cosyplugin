@@ -56,6 +56,7 @@ class Frontend
         add_shortcode('cosy_customer_order', [$this, 'customer_order_page']);
         add_shortcode('cosy_service_provider_list', [$this, 'service_provider_shortcode']);
         add_shortcode('cosy_checkout', [$this, 'checkout_page']);
+        add_shortcode('cosy_leave_review', [$this, 'leave_review_page']);
     }
 
 
@@ -341,6 +342,17 @@ class Frontend
         return ob_get_clean();
     }
 
+    /**
+     * Renders the token-based leave review page.
+     * Used by shortcode: [cosy_leave_review]
+     */
+    public function leave_review_page(): string
+    {
+        ob_start();
+        include COSY_APPT_PATH . 'templates/leave-review-template.php';
+        return ob_get_clean();
+    }
+
 
     /**
      * Renders the identity verification form for service providers.
@@ -612,6 +624,45 @@ class Frontend
             if (!empty($admin_email)) {
                 $admin_subject = sprintf(__('Provider Order #%s Status Updated to %s', 'cosy-appointments'), $order_id, ucfirst($new_status));
                 cosy_send_html_email($admin_email, $admin_subject, $tpl['heading'], $tpl['content']);
+            }
+        }
+
+        // Send Review Invite Email when order is marked COMPLETED
+        if ($new_status === 'completed' && !empty($customer_email)) {
+            global $wpdb;
+            $tokens_table = $wpdb->prefix . 'cosy_review_tokens';
+            $customer_user_id = intval(get_post_meta($order_id, 'cosy_customer_id', true));
+            if (empty($customer_user_id)) {
+                $appt_post = get_post($order_id);
+                $customer_user_id = $appt_post ? intval($appt_post->post_author) : 0;
+            }
+
+            // Only send if no unused token already exists for this order
+            $existing_token = $wpdb->get_var($wpdb->prepare(
+                "SELECT token FROM $tokens_table WHERE order_id = %d AND used = 0 LIMIT 1",
+                $order_id
+            ));
+
+            if (empty($existing_token) && $customer_user_id > 0) {
+                $review_token = bin2hex(random_bytes(32));
+                $wpdb->insert($tokens_table, [
+                    'token'          => $review_token,
+                    'order_id'       => $order_id,
+                    'provider_id'    => $provider_id,
+                    'customer_id'    => $customer_user_id,
+                    'customer_email' => $customer_email,
+                    'used'           => 0,
+                    'created_at'     => current_time('mysql'),
+                ], ['%s', '%d', '%d', '%d', '%s', '%d', '%s']);
+
+                $review_page_url = add_query_arg('token', $review_token, cosy_get_page_url('cosy-leave-review'));
+                $review_tpl = \Cosy\Appointments\Common\EmailTemplates::get_review_invite_template([
+                    'customer_name' => $customer_name ?: 'Customer',
+                    'provider_name' => $provider_name ?: $current_user->display_name,
+                    'service_title' => $service_name ?: 'Parent Conversation',
+                    'review_url'    => $review_page_url,
+                ]);
+                cosy_send_html_email($customer_email, $review_tpl['subject'], $review_tpl['heading'], $review_tpl['content']);
             }
         }
 

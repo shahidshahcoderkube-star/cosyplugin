@@ -166,17 +166,8 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                                 </small>
                             <?php endif; ?>
                         </div>
-                        <?php if (!empty($total_reviews) && $total_reviews > 0) : ?>
-                            <div class="col py-3 border-start border-end">
-                                <div class="cosy-section-title h5 fw-bold mb-1 text-warning"><i
-                                        class="cosy-rating-star fas fa-star me-1"></i><?php echo ($average_rating > 0) ? number_format($average_rating, 1) : '0.0'; ?></div>
-
-                                <small class="cosy-price-label text-muted text-uppercase fw-bold"><?php echo esc_html(sprintf(_n('(%s Review)', '(%s Reviews)', $total_reviews, 'cosy-appointments'), esc_html($total_reviews))); ?></small>
-                            </div>
-                        <?php endif; ?>
-                        <div class="col py-3 <?php echo (!empty($total_reviews) && $total_reviews > 0) ? '' : 'border-start'; ?>">
-                            <?php if (!empty($provider_data['age_group'])) { ?>
-                                <div class="cosy-age-group h5 fw-bold mb-1">
+                        <div class="col py-3 border-start"><?php if (!empty($provider_data['age_group'])) { ?>
+                                <div class="cosy-age-group h5 fw-bold mb-1" style="color: #a44390;">
                                     <?php echo esc_html($provider_data['age_group']); ?>
                                 </div>
                                 <small class="cosy-price-label text-muted text-uppercase fw-bold"><?php esc_html_e('Age Group', 'cosy-appointments'); ?></small>
@@ -207,37 +198,28 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
 
             <div class="cosy-card-rounded card border-0 shadow-sm mb-4">
                 <div class="card-body p-4 px-5">
-                    <div class="cosy-border-f1f5f9 d-flex align-items-center justify-content-between gap-3 mb-3 pb-2 border-bottom">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="cosy-icon-box">
-                                <i class="cosy-total-price fa-solid fa-comment-dots"></i>
-                            </div>
-                            <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Parent Reviews', 'cosy-appointments'); ?></h5>
+                    <div class="cosy-border-f1f5f9 d-flex align-items-center gap-3 mb-3 pb-2 border-bottom">
+                        <div class="cosy-icon-box">
+                            <i class="cosy-total-price fa-solid fa-star"></i>
                         </div>
-                        <button class="cosy-btn-add-review btn btn-sm text-white px-3" id="addReviewBtn">
-                            <?php echo '+ ' . esc_html__('Add Review', 'cosy-appointments'); ?>
-                        </button>
+                        <h5 class="cosy-price-min fw-bold mb-0"><?php esc_html_e('Parent Reviews', 'cosy-appointments'); ?></h5>
                     </div>
 
-                    <div class="collapse mb-4" id="reviewForm">
-                        <div class="cosy-review-form-box p-4 rounded-4">
-                            <label class="small fw-bold text-muted mb-2 d-block"><?php esc_html_e('Rating', 'cosy-appointments'); ?></label>
-                            <div class="star-rating-input d-flex gap-2 mb-3">
-                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <i class="cosy-rating-star-btn fa-star far cursor-pointer rating-star" data-rating="<?php echo esc_attr($i); ?>"></i>
-                                <?php endfor; ?>
-                                <input type="hidden" name="rating" id="selectedRating" value="0">
-                            </div>
-
-                            <label class="small fw-bold text-muted mb-2 d-block"><?php esc_html_e('Your Review', 'cosy-appointments'); ?></label>
-                            <textarea class="cosy-review-textarea form-control mb-3 border-0 shadow-sm" rows="3"
-                                id="reviewText"
-                                placeholder="<?php esc_attr_e('Share your experience...', 'cosy-appointments'); ?>"></textarea>
-
-                            <button class="cosy-btn-primary btn w-100 py-2 fw-bold text-white shadow-sm" id="postReviewBtn">
-                                <?php esc_html_e('Post Review', 'cosy-appointments'); ?>
-                            </button>
+                    <!-- Rating Score Summary (Matches Client Mockup) -->
+                    <div class="mb-4">
+                        <div class="fw-bold mb-1" style="font-size: 1.4rem; color: #a44390; letter-spacing: -0.5px;">
+                            <?php if ($total_reviews > 0 && $average_rating > 0): ?>
+                                <?php echo number_format($average_rating, 1); ?> <span style="font-size: 0.85em; color: #64748b; font-weight: 500;">/ 10</span>
+                            <?php else: ?>
+                                &mdash; <span style="font-size: 0.85em; color: #64748b; font-weight: 500;">/ 10</span>
+                            <?php endif; ?>
                         </div>
+                        <div class="fw-semibold mb-2" style="font-size: 0.95rem; color: #475569;">
+                            <?php echo $total_reviews > 0 ? esc_html(sprintf(_n('%s Review', '%s Reviews', $total_reviews, 'cosy-appointments'), $total_reviews)) : esc_html__('No reviews yet', 'cosy-appointments'); ?>
+                        </div>
+                        <p class="fst-italic text-muted mb-0" style="font-size: 0.85rem; line-height: 1.5; color: #64748b !important;">
+                            <?php esc_html_e('Reviews are only accepted from customers who have completed a conversation.', 'cosy-appointments'); ?>
+                        </p>
                     </div>
 
                     <div class="reviews-list-container d-flex flex-column gap-3">
@@ -253,13 +235,13 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                                         <?php echo esc_html(substr($rev['customer_name'], 0, 1)); ?>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <h6 class="mb-0 fw-bold"><?php echo esc_html($rev['customer_name']); ?></h6>
-                                        <small class="text-warning">
-                                            <?php for ($star = 1; $star <= 5; $star++): ?>
-                                                <i class="<?php echo ($star <= $rev['rating']) ? 'fa-solid' : 'fa-regular'; ?> fa-star"></i>
-                                            <?php endfor; ?>
-                                        </small>
-                                        <p class="cosy-review-text small text-muted mb-0 mt-1"><?php echo esc_html($rev['review']); ?></p>
+                                         <div class="d-flex align-items-center gap-2 mb-1">
+                                             <h6 class="mb-0 fw-bold" style="color: #6d2e67; font-size: 0.98rem;"><?php echo esc_html($rev['customer_name']); ?></h6>
+                                             <span class="badge fw-bold" style="background: #fdf5fc; color: #a44390; border: 1.5px solid rgba(164, 67, 144, 0.25); font-size: 0.8rem; padding: 3px 10px; border-radius: 8px; margin-left: 4px;">
+                                                 <?php echo intval($rev['rating']); ?> / 10
+                                             </span>
+                                         </div>
+                                         <p class="cosy-review-text small text-muted mb-0"><?php echo esc_html($rev['review']); ?></p>
 
                                         <!-- 3-Level Thread Replies Container -->
                                         <?php
@@ -394,8 +376,6 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                                 </button>
                             <?php endif; ?>
 
-                        <?php else: ?>
-                            <p class="text-muted small mb-0"><?php esc_html_e('No reviews yet for this provider.', 'cosy-appointments'); ?></p>
                         <?php endif; ?>
                     </div>
                 </div>

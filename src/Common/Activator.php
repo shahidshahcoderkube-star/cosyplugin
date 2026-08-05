@@ -106,6 +106,7 @@ class Activator
             ['title' => 'Service Provider Listing', 'slug' => 'service-provider',    'content' => '[cosy_service_provider_list]'],
             ['title' => 'Provider Profile',         'slug' => 'provider-profile',    'content' => '[cosy_profile_dashboard]'],
             ['title' => 'Checkout',                 'slug' => 'cosy-checkout',       'content' => '[cosy_checkout]'],
+            ['title' => 'Leave a Review',           'slug' => 'cosy-leave-review',   'content' => '[cosy_leave_review]'],
         ];
 
         foreach ($pages as $page) {

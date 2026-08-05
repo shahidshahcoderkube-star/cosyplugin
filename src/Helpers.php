@@ -259,6 +259,7 @@ if (!function_exists('cosy_get_page_id')) {
             'service-provider'      => '[cosy_service_provider_list]',
             'provider-profile'      => '[cosy_profile_dashboard]',
             'cosy-checkout'         => '[cosy_checkout]',
+            'cosy-leave-review'     => '[cosy_leave_review]',
         ];
 
         // 3. Try lookup by shortcode

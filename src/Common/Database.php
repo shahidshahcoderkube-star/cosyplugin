@@ -17,6 +17,7 @@ class Database
         $this->create_media_table();
         $this->create_reviews_table();
         $this->create_review_replies_table();
+        $this->create_review_tokens_table();
         $this->create_activity_logs_table();
         update_option('cosy_db_version', COSY_APPT_VER);
     }
@@ -198,5 +199,33 @@ class Database
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             dbDelta($sql);
         }
+    }
+
+    /**
+     * Create the review tokens table for secure one-time review invitations.
+     */
+    public function create_review_tokens_table(): void
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cosy_review_tokens';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+        $sql = "CREATE TABLE $table_name (
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            token VARCHAR(64) NOT NULL,
+            order_id BIGINT(20) UNSIGNED NOT NULL,
+            provider_id BIGINT(20) UNSIGNED NOT NULL,
+            customer_id BIGINT(20) UNSIGNED NOT NULL,
+            customer_email VARCHAR(255) NOT NULL,
+            used TINYINT(1) NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY token (token),
+            KEY order_id (order_id)
+        ) $charset_collate;";
+
+        dbDelta($sql);
     }
 }

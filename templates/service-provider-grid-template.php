@@ -31,21 +31,7 @@
                             </h3>
                             <?php if (!empty($provider['rating']) && $provider['rating'] > 0): ?>
                                 <div class="rating-box-premium">
-                                    <div class="stars-flex">
-                                        <?php
-                                        $rating = floatval($provider['rating']);
-                                        $full_stars = floor($rating);
-                                        $half_star = ($rating - $full_stars >= 0.5);
-
-                                        for ($i = 0; $i < $full_stars; $i++) {
-                                            echo '<i class="fas fa-star"></i>';
-                                        }
-                                        if ($half_star) {
-                                            echo '<i class="fas fa-star-half-alt"></i>';
-                                        }
-                                        ?>
-                                    </div>
-                                    <span class="rating-val"><?php echo number_format($rating, 1); ?></span>
+                                    <span class="rating-val" style="color: #a44390; font-weight: 700; font-size: 0.9rem; background: #fdf5fc; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(164, 67, 144, 0.2);"><?php echo number_format(floatval($provider['rating']), 1); ?> / 10</span>
                                 </div>
                             <?php endif; ?>
                         </div>

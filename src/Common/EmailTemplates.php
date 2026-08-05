@@ -671,4 +671,51 @@ class EmailTemplates
             'content' => $html_content,
         ];
     }
+
+    /**
+     * Review Invite Email (Sent to customer when booking is completed)
+     *
+     * @param array $data Contains: customer_name, provider_name, service_title, review_url
+     * @return array ['subject', 'heading', 'content']
+     */
+    public static function get_review_invite_template(array $data): array
+    {
+        $customer_name = esc_html($data['customer_name'] ?? 'Customer');
+        $provider_name = esc_html($data['provider_name'] ?? 'Parent');
+        $service_title = esc_html($data['service_title'] ?? 'Parent Conversation');
+        $review_url    = esc_url($data['review_url'] ?? '#');
+
+        $subject = sprintf(__('⭐ How was your session with %s? Leave a Review', 'cosy-appointments'), $data['provider_name'] ?? 'Parent');
+        $heading = __('We\'d Love Your Feedback', 'cosy-appointments');
+
+        $html_content = "
+            <p>Hello <strong>{$customer_name}</strong>,</p>
+            <p>Thank you for your recent conversation with <strong>{$provider_name}</strong> on CosyChats.</p>
+            <p>We hope you found the session helpful and meaningful. Your feedback helps other parents discover the right person to talk to, and it means a great deal to the parents who share their experiences on CosyChats.</p>
+
+            <div style='background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; margin: 20px 0;'>
+                <p style='margin: 0 0 8px 0; font-weight: 600; color: #1d2327;'>Session Details:</p>
+                <p style='margin: 0 0 4px 0; color: #475569;'><strong>Parent:</strong> {$provider_name}</p>
+                <p style='margin: 0; color: #475569;'><strong>Experience:</strong> {$service_title}</p>
+            </div>
+
+            <p>If you'd like to share your experience, simply click the button below. Your review will be submitted for approval before appearing on the parent's profile.</p>
+
+            <p style='text-align: center; margin: 30px 0;'>
+                <a href='{$review_url}' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Leave Your Review</a>
+            </p>
+
+            <p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
+            <p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='{$review_url}' style='color: #a44390; text-decoration: none;'>{$review_url}</a></p>
+
+            <p style='font-size: 13px; color: #94a3b8; margin-top: 20px; font-style: italic;'>This is a one-time link. Once you've submitted your review, the link will no longer be active.</p>
+            <p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>
+        ";
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
 }

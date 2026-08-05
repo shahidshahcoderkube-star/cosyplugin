@@ -42,6 +42,7 @@ class Dashboard
             'cosy_customer_reply_review'       => 'handle_customer_reply_review',
             'cosy_dismiss_audit_alerts'        => 'handle_dismiss_audit_alerts',
             'cosy_check_profile_completeness'  => 'handle_check_profile_completeness', // Checks profile completion dynamically
+            'cosy_submit_token_review'         => 'handle_submit_token_review',
         ];
 
         // Register all AJAX handlers dynamically
@@ -1108,6 +1109,87 @@ class Dashboard
         wp_send_json_success([
             'is_complete' => empty($missing_requirements),
             'html' => $html
+        ]);
+    }
+
+    /**
+     * AJAX Handler: Submits a token-validated review from email link.
+     */
+    public function handle_submit_token_review(): void
+    {
+        check_ajax_referer('cosy_review_nonce', 'nonce');
+
+        $token       = isset($_POST['token']) ? sanitize_text_field($_POST['token']) : '';
+        $rating      = isset($_POST['rating']) ? intval($_POST['rating']) : 0;
+        $review_text = isset($_POST['review']) ? sanitize_textarea_field($_POST['review']) : '';
+
+        if (empty($token)) {
+            wp_send_json_error(['message' => __('Missing review token.', 'cosy-appointments')]);
+        }
+
+        if ($rating < 1 || $rating > 10) {
+            wp_send_json_error(['message' => __('Please select a rating score between 1 and 10.', 'cosy-appointments')]);
+        }
+
+        if (empty($review_text) || strlen($review_text) < 5) {
+            wp_send_json_error(['message' => __('Please write a review comment.', 'cosy-appointments')]);
+        }
+
+        global $wpdb;
+        $tokens_table  = $wpdb->prefix . 'cosy_review_tokens';
+        $reviews_table = $wpdb->prefix . 'cosy_provider_reviews';
+
+        $token_row = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $tokens_table WHERE token = %s LIMIT 1",
+            $token
+        ));
+
+        if (!$token_row) {
+            wp_send_json_error(['message' => __('Invalid review link. Please check your email.', 'cosy-appointments')]);
+        }
+
+        if (intval($token_row->used) === 1) {
+            wp_send_json_error(['message' => __('This review link has already been used.', 'cosy-appointments')]);
+        }
+
+        $customer_user = get_userdata($token_row->customer_id);
+        $customer_name = $customer_user ? ($customer_user->display_name ?: $customer_user->first_name) : 'Customer';
+
+        // Insert pending review
+        $inserted = $wpdb->insert(
+            $reviews_table,
+            [
+                'provider_id'   => $token_row->provider_id,
+                'customer_id'   => $token_row->customer_id,
+                'customer_name' => $customer_name,
+                'rating'        => $rating,
+                'review'        => $review_text,
+                'status'        => 'pending',
+                'created_at'    => current_time('mysql'),
+            ],
+            ['%d', '%d', '%s', '%d', '%s', '%s', '%s']
+        );
+
+        if (!$inserted) {
+            wp_send_json_error(['message' => __('Database error: Failed to save review. Please try again.', 'cosy-appointments')]);
+        }
+
+        // Mark token as used
+        $wpdb->update(
+            $tokens_table,
+            ['used' => 1],
+            ['token' => $token],
+            ['%d'],
+            ['%s']
+        );
+
+        $provider_user = get_userdata($token_row->provider_id);
+        $provider_slug = $provider_user ? $provider_user->user_nicename : '';
+        $redirect_url  = !empty($provider_slug) ? site_url("/author/{$provider_slug}/") : site_url('/');
+
+        wp_send_json_success([
+            'message'      => __('Thank you! Your review has been submitted successfully and is pending admin approval.', 'cosy-appointments'),
+            'redirect_url' => $redirect_url
         ]);
     }
 }

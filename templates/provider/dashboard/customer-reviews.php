@@ -49,23 +49,13 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
         <!-- Rating Summary -->
         <div class="row mb-5 align-items-center p-3" style="background: #fdf5fc; border-radius: 16px; border: 1px solid rgba(164, 67, 144, 0.12);">
             <div class="col-md-4 text-center border-end">
-                <div class="rating-number" style="font-size: 2.8rem; font-weight: 800; color: #6d2e67; font-family: 'Outfit', sans-serif; line-height: 1;">
-                    <?php echo esc_html($average_rating_db > 0 ? number_format($average_rating_db, 1) : '0.0'); ?>
+                <div class="rating-number" style="font-size: 2.8rem; font-weight: 800; color: #a44390; font-family: 'Outfit', sans-serif; line-height: 1;">
+                    <?php echo esc_html($average_rating_db > 0 ? number_format($average_rating_db, 1) : '&mdash;'); ?> <span style="font-size: 1.2rem; color: #64748b; font-weight: 500;">/ 10</span>
                 </div>
-                <div class="my-2" style="color: #f59e0b; font-size: 1.1rem;">
-                    <?php
-                    $full_stars = floor($average_rating_db);
-                    $half_star = ($average_rating_db - $full_stars) >= 0.5;
-                    for ($star = 1; $star <= 5; $star++) {
-                        if ($star <= $full_stars) {
-                            echo '<i class="fas fa-star me-1"></i>';
-                        } elseif ($star == $full_stars + 1 && $half_star) {
-                            echo '<i class="fas fa-star-half-alt me-1"></i>';
-                        } else {
-                            echo '<i class="far fa-star me-1" style="color:#cbd5e1;"></i>';
-                        }
-                    }
-                    ?>
+                <div class="my-2">
+                    <span class="badge fw-bold" style="background: rgba(164, 67, 144, 0.1); color: #a44390; font-size: 0.85rem; padding: 5px 12px; border-radius: 50px;">
+                        <?php esc_html_e('Score out of 10', 'cosy-appointments'); ?>
+                    </span>
                 </div>
                 <p class="text-muted small fw-bold mb-0"><?php esc_html_e('Average Rating', 'cosy-appointments'); ?></p>
                 <p class="text-muted small mb-0"><?php printf(esc_html__('Based on %d approved reviews', 'cosy-appointments'), $total_approved); ?></p>
@@ -116,11 +106,9 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                                 <span class="badge bg-success text-white" style="font-size: 0.68rem; font-weight: 700; border-radius: 12px; padding: 4px 9px;"><i class="fas fa-check-circle me-1"></i> <?php esc_html_e('Approved & Live', 'cosy-appointments'); ?></span>
                                             <?php endif; ?>
                                         </div>
-                                        <div style="color: #f59e0b; font-size: 0.85rem;">
-                                            <?php for ($star = 1; $star <= 5; $star++): ?>
-                                                <i class="<?php echo esc_attr(($star <= $r['rating']) ? 'fas fa-star' : 'far fa-star'); ?>" style="<?php echo ($star > $r['rating']) ? 'color:#cbd5e1;' : ''; ?>"></i>
-                                            <?php endfor; ?>
-                                        </div>
+                                        <span class="badge fw-bold" style="background: #fdf5fc; color: #a44390; border: 1px solid rgba(164, 67, 144, 0.2); font-size: 0.8rem; padding: 4px 10px; border-radius: 6px;">
+                                            <?php echo intval($r['rating']); ?> / 10
+                                        </span>
                                     </div>
                                     <small class="text-muted d-block mb-2" style="font-size: 0.75rem;"><?php echo date('d M Y - h:i A', strtotime($r['created_at'])); ?></small>
                                     
@@ -167,18 +155,18 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                                         <strong class="cosy-thread-sender-name">
                                                             <i class="fas fa-reply me-1 cosy-thread-sender-icon-provider"></i> <?php esc_html_e('Your Public Reply:', 'cosy-appointments'); ?>
                                                         </strong>
-                                                        <?php if (!$has_level2) : ?>
-                                                            <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none btn-edit-reply" data-id="<?php echo esc_attr($r['id']); ?>" style="color: #a44390; font-size: 0.78rem; font-weight: 600;">
-                                                                <i class="fas fa-edit me-1"></i> <?php esc_html_e('Edit Reply', 'cosy-appointments'); ?>
-                                                            </button>
-                                                        <?php endif; ?>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($level1_date)); ?></small>
+                                                            <?php if (!$has_level2) : ?>
+                                                                <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none btn-edit-reply" data-id="<?php echo esc_attr($r['id']); ?>" style="color: #a44390; font-size: 0.78rem; font-weight: 600;">
+                                                                    <i class="fas fa-edit me-1"></i> <?php esc_html_e('Edit', 'cosy-appointments'); ?>
+                                                                </button>
+                                                            <?php endif; ?>
+                                                        </div>
                                                     </div>
-                                                    <p class="cosy-thread-body-provider">
+                                                    <p class="cosy-thread-body-provider mb-0">
                                                         <?php echo esc_html($level1_text); ?>
                                                     </p>
-                                                    <small class="cosy-thread-date d-block mt-1">
-                                                        <?php echo date('d M Y - h:i A', strtotime($level1_date)); ?>
-                                                    </small>
                                                 </div>
                                             <?php endif; ?>
 
@@ -189,13 +177,11 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                                         <strong class="cosy-thread-sender-name">
                                                             <i class="fas fa-comment-dots me-1 cosy-thread-sender-icon-customer"></i> <?php echo esc_html($level2_sender); ?>
                                                         </strong>
+                                                        <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($level2_date)); ?></small>
                                                     </div>
-                                                    <p class="cosy-thread-body-customer">
+                                                    <p class="cosy-thread-body-customer mb-0">
                                                         <?php echo esc_html($level2_text); ?>
                                                     </p>
-                                                    <small class="cosy-thread-date d-block mt-1">
-                                                        <?php echo date('d M Y - h:i A', strtotime($level2_date)); ?>
-                                                    </small>
                                                 </div>
                                             <?php endif; ?>
 
@@ -206,13 +192,11 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                                         <strong class="cosy-thread-sender-name">
                                                             <i class="fas fa-check-circle me-1 cosy-thread-sender-icon-provider"></i> <?php esc_html_e('Your Final Response:', 'cosy-appointments'); ?>
                                                         </strong>
+                                                        <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($level3_date)); ?></small>
                                                     </div>
-                                                    <p class="cosy-thread-body-provider">
+                                                    <p class="cosy-thread-body-provider mb-0">
                                                         <?php echo esc_html($level3_text); ?>
                                                     </p>
-                                                    <small class="cosy-thread-date d-block mt-1">
-                                                        <?php echo date('d M Y - h:i A', strtotime($level3_date)); ?>
-                                                    </small>
                                                 </div>
                                             <?php endif; ?>
 

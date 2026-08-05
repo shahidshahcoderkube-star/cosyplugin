@@ -86,8 +86,8 @@ if (!defined('ABSPATH')) {
             <td><strong><?php echo esc_html($rev->customer_name); ?></strong></td>
             <td><?php echo esc_html($provider_name); ?></td>
             <td>
-              <div style="color: #f59e0b; font-weight: 700;">
-                <?php echo str_repeat('★', intval($rev->rating)); ?><?php echo str_repeat('☆', 5 - intval($rev->rating)); ?>
+              <div style="color: #a44390; font-weight: 700;">
+                <?php echo intval($rev->rating); ?> / 10
               </div>
             </td>
             <td style="color:#475569; font-size:12px;">
