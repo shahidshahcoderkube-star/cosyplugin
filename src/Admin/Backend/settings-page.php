@@ -31,13 +31,6 @@ defined('ABSPATH') || exit;
                 <!-- Navigation Sidebar -->
                 <div class="col-md-3 mb-4">
                     <div class="nav flex-column nav-pills me-3 gap-2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                        <!-- Stripe Tab (Commented out for now, using WorldPay) -->
-                        <!--
-                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-stripe-tab" data-bs-toggle="pill" data-bs-target="#v-pills-stripe" type="button" role="tab" aria-controls="v-pills-stripe" aria-selected="false">
-                            <i class="fa-brands fa-stripe fs-4 w-20"></i>
-                            <span class="fw-bold">Stripe</span>
-                        </button>
-                        -->
                         <button class="nav-link active d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-worldpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-worldpay" type="button" role="tab" aria-controls="v-pills-worldpay" aria-selected="true">
                             <i class="fa-solid fa-globe fs-4 w-20"></i>
                             <span class="fw-bold">WorldPay</span>
@@ -62,74 +55,6 @@ defined('ABSPATH') || exit;
                 <!-- Tab Content Card -->
                 <div class="col-md-9">
                     <div class="tab-content bg-light bg-opacity-50 p-4 rounded-4 border border-secondary-subtle" id="v-pills-tabContent" style="min-height: 300px;">
-
-                        <!-- Stripe Settings Tab (Commented out for now) -->
-                        <div class="tab-pane fade" id="v-pills-stripe" role="tabpanel" aria-labelledby="v-pills-stripe-tab" style="display: none !important;">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-brands fa-stripe fs-2 text-primary" style="color: #635bff !important;"></i>
-                                    Stripe Configuration
-                                </h3>
-                                <div class="d-flex align-items-center m-0">
-                                    <label class="cosy-switch">
-                                        <input type="checkbox" name="cosy_stripe_test_mode" id="cosy_stripe_test_mode" value="1" <?php checked(1, get_option('cosy_stripe_test_mode')); ?>>
-                                        <span class="cosy-slider round"></span>
-                                    </label>
-                                    <span class="fw-semibold text-secondary ms-2">Sandbox / Test Mode</span>
-                                </div>
-                            </div>
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label for="cosy_stripe_key" class="form-label fw-bold text-secondary">Secret API Key</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
-                                        <input type="password" class="form-control border-start-0 py-2" name="cosy_stripe_key" id="cosy_stripe_key" value="<?php echo esc_attr(get_option('cosy_stripe_key')); ?>" placeholder="sk_test_...">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Enter your Stripe secret key. Keep this confidential.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_stripe_publishable_key" class="form-label fw-bold text-secondary">Publishable API Key</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
-                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_stripe_publishable_key" id="cosy_stripe_publishable_key" value="<?php echo esc_attr(get_option('cosy_stripe_publishable_key')); ?>" placeholder="pk_test_...">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Enter your Stripe publishable key for secure frontend transactions.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_stripe_charge" class="form-label fw-bold text-secondary">Transaction Charge (%)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
-                                        <input type="number" step="0.01" class="form-control border-start-0 py-2" name="cosy_stripe_charge" id="cosy_stripe_charge" value="<?php echo esc_attr(get_option('cosy_stripe_charge')); ?>" placeholder="0.00">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Specify additional convenience charges for this gateway.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_stripe_currency" class="form-label fw-bold text-secondary">Payment Currency</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-coins"></i></span>
-                                        <?php
-                                        $selected_currency = cosy_get_currency_code();
-                                        $currencies = [
-                                            'USD' => 'USD - United States Dollar ($)',
-                                            'EUR' => 'EUR - Euro (€)',
-                                            'GBP' => 'GBP - British Pound (£)',
-                                            'INR' => 'INR - Indian Rupee (₹)',
-                                            'AUD' => 'AUD - Australian Dollar (A$)',
-                                            'CAD' => 'CAD - Canadian Dollar (C$)',
-                                        ];
-                                        ?>
-                                        <select class="form-select border-start-0 py-2" name="cosy_stripe_currency" id="cosy_stripe_currency">
-                                            <?php foreach ($currencies as $code => $name) : ?>
-                                                <option value="<?php echo esc_attr($code); ?>" <?php selected($selected_currency, $code); ?>>
-                                                    <?php echo esc_html($name); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Select the payment currency for all transactions.</div>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- WorldPay Settings Tab (Active Default) -->
                         <div class="tab-pane fade show active" id="v-pills-worldpay" role="tabpanel" aria-labelledby="v-pills-worldpay-tab">

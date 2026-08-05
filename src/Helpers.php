@@ -188,14 +188,14 @@ if (!function_exists('cosy_send_html_email')) {
 
 if (!function_exists('cosy_get_currency_symbol')) {
     /**
-     * Gets the currency symbol based on the saved 'cosy_stripe_currency' option.
+     * Gets the currency symbol based on the saved 'cosy_payment_currency' option.
      * Defaults to '£' (GBP) if not set.
      *
      * @return string Currency symbol.
      */
     function cosy_get_currency_symbol()
     {
-        $currency = get_option('cosy_stripe_currency', 'GBP');
+        $currency = get_option('cosy_payment_currency', 'GBP');
 
         switch (strtoupper($currency)) {
             case 'USD':
@@ -223,7 +223,7 @@ if (!function_exists('cosy_get_currency_code')) {
      */
     function cosy_get_currency_code()
     {
-        return strtoupper(get_option('cosy_stripe_currency', 'GBP'));
+        return strtoupper(get_option('cosy_payment_currency', 'GBP'));
     }
 }
 

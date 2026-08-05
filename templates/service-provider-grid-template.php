@@ -31,7 +31,7 @@
                             </h3>
                             <?php if (!empty($provider['rating']) && $provider['rating'] > 0): ?>
                                 <div class="rating-box-premium">
-                                    <span class="rating-val" style="color: #a44390; font-weight: 700; font-size: 0.9rem; background: #fdf5fc; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(164, 67, 144, 0.2);"><?php echo number_format(floatval($provider['rating']), 1); ?> / 10</span>
+                                    <span class="rating-val"><?php echo number_format(floatval($provider['rating']), 1); ?> / 10</span>
                                 </div>
                             <?php endif; ?>
                         </div>

@@ -467,8 +467,8 @@ jQuery(document).ready(function ($) {
             </div>
 
             <!-- Pay Now Button -->
-            <button id="cosyPayNowBtn" class="btn w-100 py-3 fw-bold text-white shadow-sm" style="background: #a44390; border-radius: 14px; font-size: 1.1rem;">
-                Pay Now via Stripe <i class="fas fa-lock ms-2"></i>
+            <button id="cosyPayNowBtn" class="btn w-100 py-3 fw-bold text-white shadow-sm" style="background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); border-radius: 14px; font-size: 1.1rem;">
+                <i class="fas fa-globe me-2"></i> Pay Now via WorldPay <i class="fas fa-lock ms-2"></i>
             </button>
         `;
     }
@@ -949,7 +949,7 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    // Handle Pay Now via Stripe button click
+    // Handle Confirm & Complete Booking button click
     $(document).on('click', '#cosyPayNowBtn', function (e) {
         e.preventDefault();
 
@@ -966,12 +966,12 @@ jQuery(document).ready(function ($) {
 
         const booking = JSON.parse(pendingBookingData);
 
-        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Connecting to Stripe...');
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Connecting to WorldPay Hosted Gateway...');
 
         const slotsVal = typeof booking.slots === 'string' ? booking.slots : JSON.stringify(booking.slots || []);
 
         const postData = {
-            action: 'cosy_create_stripe_session',
+            action: 'cosy_create_worldpay_order',
             nonce: (window.cosyCheckout && window.cosyCheckout.nonce) || '',
             serviceId: booking.serviceId || localStorage.getItem('cosy_selected_service_id') || 1,
             service: activeServiceTitle || booking.service || 'Parent Conversation',
@@ -999,10 +999,11 @@ jQuery(document).ready(function ($) {
             data: postData,
             success: function (res) {
                 if (res.success && res.data && res.data.url) {
+                    localStorage.removeItem('cosy_pending_booking');
                     window.location.href = res.data.url;
                 } else {
-                    const msg = (res.data && res.data.message) ? res.data.message : 'Unable to create Stripe checkout session.';
-                    $btn.prop('disabled', false).html('Pay Now via Stripe <i class="fas fa-lock ms-2"></i>');
+                    const msg = (res.data && res.data.message) ? res.data.message : 'Unable to process WorldPay payment.';
+                    $btn.prop('disabled', false).html('<i class="fas fa-globe me-2"></i> Pay Now via WorldPay <i class="fas fa-lock ms-2"></i>');
                     if (typeof CosyAlert !== 'undefined') {
                         CosyAlert.error('Payment Error', msg);
                     } else {
@@ -1011,11 +1012,11 @@ jQuery(document).ready(function ($) {
                 }
             },
             error: function (xhr, status, error) {
-                $btn.prop('disabled', false).html('Pay Now via Stripe <i class="fas fa-lock ms-2"></i>');
+                $btn.prop('disabled', false).html('<i class="fas fa-globe me-2"></i> Pay Now via WorldPay <i class="fas fa-lock ms-2"></i>');
                 if (typeof CosyAlert !== 'undefined') {
                     CosyAlert.error('Server Error', 'Failed to communicate with payment server. Please try again.');
                 } else {
-                    alert('Server error: ' + error);
+                    alert('Failed to communicate with payment server. Please try again.');
                 }
             }
         });
