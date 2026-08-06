@@ -161,6 +161,9 @@ class ProviderServices
                         'service_updated',
                         sprintf(__('Provider "%s" updated service: %s.', 'cosy-appointments'), $provider_name, $service)
                     );
+                    if (function_exists('cosy_notify_admin_provider_setup_ready')) {
+                        cosy_notify_admin_provider_setup_ready($provider_id);
+                    }
                 }
             } else {
                 $message = 'Failed to update service';

@@ -330,6 +330,40 @@ if (!function_exists('cosy_notify_admin_provider_setup_ready')) {
             return false;
         }
 
+        // --- VERIFY THAT PROVIDER PROFILE IS 100% COMPLETE BEFORE NOTIFYING ADMIN ---
+        // 1. Profile Info Check
+        $has_profile_info = !empty(get_user_meta($user_id, 'first_name', true)) &&
+            !empty(get_user_meta($user_id, 'prov_phone', true)) &&
+            !empty(get_user_meta($user_id, 'dob', true)) &&
+            !empty(get_user_meta($user_id, 'gender', true)) &&
+            !empty(get_user_meta($user_id, 'age_group', true));
+
+        // 2. Services / Experiences Check
+        global $wpdb;
+        $services_table = $wpdb->prefix . 'provider_services';
+        $has_services = (bool) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM $services_table WHERE provider_id = %d AND checkbox_status = 'yes'",
+                $user_id
+            )
+        );
+
+        // 3. Availability Working Hours Check
+        $has_availability = false;
+        $days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        foreach ($days_of_week as $day) {
+            $day_data = get_user_meta($user_id, "cosy_availability_{$day}", true);
+            if (!empty($day_data) && !empty($day_data['start_time']) && !empty($day_data['end_time'])) {
+                $has_availability = true;
+                break;
+            }
+        }
+
+        // If any requirement is incomplete, DO NOT send email to admin yet!
+        if (!$has_profile_info || !$has_services || !$has_availability) {
+            return false;
+        }
+
         $admin_email = get_option('admin_email');
         if (empty($admin_email) || !function_exists('cosy_send_html_email')) {
             return false;

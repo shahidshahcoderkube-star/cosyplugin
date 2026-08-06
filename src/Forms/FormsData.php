@@ -289,11 +289,6 @@ class FormsData
             $user_id
         );
 
-        // Send notification email to Administrator for new provider profile review
-        if (function_exists('cosy_notify_admin_provider_setup_ready')) {
-            cosy_notify_admin_provider_setup_ready($user_id);
-        }
-
         // Send verification email
         $this->send_verification_email($user_id, 'provider');
 

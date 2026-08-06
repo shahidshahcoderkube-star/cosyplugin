@@ -416,7 +416,7 @@ class EmailTemplates
     public static function get_admin_provider_setup_template(string $provider_name, string $username, string $email, string $status): array
     {
         $subject = __('New Provider Profile Ready for Review', 'cosy-appointments');
-        $heading = __('New Provider Profile Alert', 'cosy-appointments');
+        $heading = __('New Provider Profile', 'cosy-appointments');
 
         $admin_review_url = admin_url('admin.php?page=cosy-users');
 
