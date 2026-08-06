@@ -38,7 +38,7 @@ class Class_Header_Menu
         <!-- Auth Buttons -->
         <?php if (!is_user_logged_in()) : ?>
             <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
-                <a href="javascript:void(0)" class="btn btn-filled openRegisterPopup" style="margin-left: 10px;">Sign In</a>
+                <a href="javascript:void(0)" class="btn btn-filled openRegisterPopup" style="margin-left: 10px;">Create Account</a>
             </li>
             <li class="menu-item login-btn-item" style="display: inline-flex; align-items: center;">
                 <a href="<?php echo esc_url(cosy_get_page_url('login')); ?>" class="btn btn-filled" style="margin-left: 10px;">Login</a>
