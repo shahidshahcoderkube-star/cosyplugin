@@ -223,7 +223,8 @@ if (!function_exists('cosy_get_currency_code')) {
      */
     function cosy_get_currency_code()
     {
-        return strtoupper(get_option('cosy_payment_currency', 'GBP'));
+        $code = strtoupper((string) get_option('cosy_payment_currency', 'GBP'));
+        return !empty($code) ? $code : 'GBP';
     }
 }
 

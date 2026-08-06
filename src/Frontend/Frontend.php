@@ -19,6 +19,7 @@ class Frontend
     {
         /* Register shortcode and footer action*/
         $loader->add_action('init', $this, 'register_shortcode');
+        $loader->add_action('init', $this, 'handle_worldpay_payment_response');
         $loader->add_action('wp_footer', $this, 'render_register_popup');
         $loader->add_action('template_redirect', $this, 'restrict_direct_page_access');
         $loader->add_action('after_setup_theme', $this, 'hide_admin_menu');
@@ -506,7 +507,7 @@ class Frontend
         $args = [
             'post_type'      => 'cosy_appointment',
             'posts_per_page' => -1,
-            'post_status'    => ['publish', 'draft'],
+            'post_status'    => 'publish', // ONLY Paid & Confirmed appointments block slots!
             'meta_query'     => [
                 'relation' => 'AND',
                 [
@@ -515,9 +516,14 @@ class Frontend
                     'compare' => '='
                 ],
                 [
+                    'key'     => 'cosy_payment_status',
+                    'value'   => 'Paid',
+                    'compare' => '='
+                ],
+                [
                     'key'     => 'cosy_booking_status',
-                    'value'   => 'cancelled',
-                    'compare' => '!='
+                    'value'   => 'confirmed',
+                    'compare' => '='
                 ]
             ]
         ];
@@ -527,13 +533,6 @@ class Frontend
 
         if ($query->have_posts()) {
             foreach ($query->posts as $appt) {
-                // If draft (pending booking), ignore if created more than 30 minutes ago
-                if ($appt->post_status === 'draft') {
-                    $created = strtotime($appt->post_date);
-                    if ($created && (time() - $created > 1800)) {
-                        continue;
-                    }
-                }
 
                 $slots_meta = get_post_meta($appt->ID, 'cosy_slots', true);
                 if (!empty($slots_meta)) {
@@ -743,9 +742,9 @@ class Frontend
             wp_send_json_error(['message' => 'Missing required provider details.']);
         }
 
-        // Create appointment post with 'publish' status (Confirmed)
+        // Create appointment post with 'draft' status (Pending Payment)
         $appointment_title = sprintf(
-            '%s booked %s by %s (WorldPay Paid)',
+            '%s booked %s by %s (WorldPay Pending)',
             $current_user->display_name,
             $service,
             $provider_name
@@ -754,7 +753,7 @@ class Frontend
         $order_id = wp_insert_post([
             'post_title'   => $appointment_title,
             'post_type'    => 'cosy_appointment',
-            'post_status'  => 'publish',
+            'post_status'  => 'draft', // Draft until payment is verified
             'post_author'  => $current_user->ID
         ]);
 
@@ -762,7 +761,7 @@ class Frontend
             wp_send_json_error(['message' => 'Failed to create order: ' . $order_id->get_error_message()]);
         }
 
-        // Save metadata
+        // Save metadata as Pending
         $meta_data = [
             'cosy_service_id'         => $service_id,
             'cosy_service_name'       => $service,
@@ -785,8 +784,8 @@ class Frontend
             'cosy_is_gift'            => $is_gift,
             'cosy_recipient_name'     => $recipient_name,
             'cosy_recipient_email'    => $recipient_email,
-            'cosy_payment_status'     => 'Paid',
-            'cosy_booking_status'     => 'confirmed',
+            'cosy_payment_status'     => 'Pending',
+            'cosy_booking_status'     => 'pending',
             'cosy_payment_gateway'    => 'worldpay',
         ];
 
@@ -794,51 +793,112 @@ class Frontend
             update_post_meta($order_id, $key, $value);
         }
 
-        // Execute WorldPay Order Creation if Service API Token is configured
-        $worldpay_token = get_option('cosy_worldpay_token');
-        $hosted_url     = '';
+        // Execute WorldPay Order Creation via WorldPay Hosted Payment Page (Approach 1: /wcc/purchase)
+        $installation_id     = get_option('cosy_worldpay_installation_id');
+        $worldpay_token      = get_option('cosy_worldpay_token');
+        $worldpay_client_key = get_option('cosy_worldpay_client_key');
+        $is_test_mode        = get_option('cosy_worldpay_test_mode');
 
-        if (!empty($worldpay_token)) {
-            $amount_in_pence = round(floatval($total_payable) * 100);
-            
-            $wp_payload = [
-                'orderDescription'  => "CosyChats Appointment Booking #$order_id",
-                'amount'            => $amount_in_pence,
-                'currencyCode'      => cosy_get_currency_code(),
-                'name'              => $current_user->display_name,
-                'customerOrderCode' => "COSY-$order_id"
-            ];
-
-            $wp_response = wp_remote_post('https://api.worldpay.com/v1/orders', [
-                'headers' => [
-                    'Authorization' => $worldpay_token,
-                    'Content-Type'  => 'application/json'
-                ],
-                'body'    => wp_json_encode($wp_payload),
-                'timeout' => 30
-            ]);
-            $this->cosy_payment_log("WorldPay API response for Order #$order_id:", $wp_response);
-
-            if (!is_wp_error($wp_response)) {
-                $body = json_decode(wp_remote_retrieve_body($wp_response), true);
-                if (isset($body['redirectUrl'])) {
-                    $hosted_url = $body['redirectUrl'];
-                }
-            }
+        if (empty($installation_id) && empty($worldpay_token) && empty($worldpay_client_key)) {
+            $this->cosy_payment_log("WorldPay Order Creation FAILED: No WorldPay Installation ID configured in settings.", $_POST);
+            wp_send_json_error(['message' => __('WorldPay is not configured. Please enter your WorldPay Installation ID in Admin Payment Settings.', 'cosy-appointments')]);
         }
 
-        // Send confirmation emails to customer & provider
-        $this->send_booking_emails($order_id);
+        $inst_id = !empty($installation_id) ? $installation_id : (!empty($worldpay_client_key) ? $worldpay_client_key : $worldpay_token);
+        $base_gateway_url = !empty($is_test_mode) 
+            ? 'https://secure-test.worldpay.com/wcc/purchase' 
+            : 'https://secure.worldpay.com/wcc/purchase';
 
-        $redirect_url = !empty($hosted_url) ? $hosted_url : add_query_arg([
+        $callback_url = add_query_arg([
             'booking_success' => 'true',
             'order_id'        => $order_id
         ], cosy_get_page_url('customer-profile'));
 
+        // Construct WorldPay Hosted Payment Page URL (/wcc/purchase)
+        $hosted_url = add_query_arg([
+            'instId'      => $inst_id,
+            'cartId'      => "COSY-$order_id",
+            'amount'      => number_format(floatval($total_payable), 2, '.', ''),
+            'currency'    => cosy_get_currency_code(),
+            'desc'        => "CosyChats Appointment Booking #$order_id",
+            'testMode'    => !empty($is_test_mode) ? '100' : '0',
+            'MC_orderId'  => $order_id,
+            'MC_callback' => urlencode($callback_url)
+        ], $base_gateway_url);
+
+        $this->cosy_payment_log("WorldPay Hosted Redirect URL generated for Order #$order_id (Draft Pending Payment):", $hosted_url);
+
+        // DO NOT SEND CONFIRMATION EMAILS HERE! Emails are sent only AFTER WorldPay confirms payment.
+
         wp_send_json_success([
             'message' => __('Redirecting to WorldPay Hosted Payment Gateway...', 'cosy-appointments'),
-            'url'     => $redirect_url
+            'url'     => $hosted_url
         ]);
+    }
+
+    /**
+     * handle_worldpay_payment_response
+     * 
+     * Handles payment verification callback when customer returns from WorldPay.
+     * Only converts order from draft to publish and sends emails IF payment was authorized (transStatus = Y).
+     */
+    public function handle_worldpay_payment_response(): void
+    {
+        $order_id = 0;
+        if (isset($_REQUEST['MC_orderId'])) {
+            $order_id = intval($_REQUEST['MC_orderId']);
+        } elseif (isset($_REQUEST['order_id'])) {
+            $order_id = intval($_REQUEST['order_id']);
+        } elseif (isset($_REQUEST['cartId']) && str_starts_with($_REQUEST['cartId'], 'COSY-')) {
+            $order_id = intval(str_replace('COSY-', '', $_REQUEST['cartId']));
+        }
+
+        $trans_status = isset($_REQUEST['transStatus']) ? sanitize_text_field($_REQUEST['transStatus']) : '';
+
+        if ($order_id > 0) {
+            $appt = get_post($order_id);
+            if ($appt && $appt->post_type === 'cosy_appointment') {
+                // WorldPay Payment SUCCESS check: ONLY when transStatus is 'Y' (Authorised) or 'SUCCESS'
+                if ($trans_status === 'Y' || $trans_status === 'SUCCESS') {
+                    if ($appt->post_status !== 'publish') {
+                        wp_update_post([
+                            'ID'          => $order_id,
+                            'post_title'  => str_replace('(WorldPay Pending)', '(WorldPay Paid)', $appt->post_title),
+                            'post_status' => 'publish'
+                        ]);
+                        update_post_meta($order_id, 'cosy_payment_status', 'Paid');
+                        update_post_meta($order_id, 'cosy_booking_status', 'confirmed');
+
+                        // Send confirmation emails ONLY NOW
+                        $this->send_booking_emails($order_id);
+
+                        \Cosy\Appointments\Common\LogManager::log(
+                            'orders',
+                            'worldpay_payment_success',
+                            "WorldPay Payment SUCCESS for Order #$order_id (Amount Paid).",
+                            get_current_user_id()
+                        );
+                    }
+                } elseif ($trans_status === 'C' || $trans_status === 'N' || (isset($_GET['booking_success']) && $trans_status !== 'Y')) {
+                    // Payment Cancelled, Refused, or Abandoned without authorization
+                    if ($appt->post_status === 'draft') {
+                        wp_update_post([
+                            'ID'          => $order_id,
+                            'post_status' => 'trash' // Trash draft so slots are FREED IMMEDIATELY!
+                        ]);
+                        update_post_meta($order_id, 'cosy_payment_status', 'Cancelled');
+                        update_post_meta($order_id, 'cosy_booking_status', 'cancelled');
+
+                        \Cosy\Appointments\Common\LogManager::log(
+                            'orders',
+                            'worldpay_payment_failed',
+                            "WorldPay Payment CANCELLED/REFUSED for Order #$order_id. Slots released.",
+                            get_current_user_id()
+                        );
+                    }
+                }
+            }
+        }
     }
 
     /**

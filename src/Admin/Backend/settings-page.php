@@ -73,6 +73,14 @@ defined('ABSPATH') || exit;
                             </div>
                             <div class="row g-4">
                                 <div class="col-md-6">
+                                    <label for="cosy_worldpay_installation_id" class="form-label fw-bold text-secondary">Installation ID</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-card"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_installation_id" id="cosy_worldpay_installation_id" value="<?php echo esc_attr(get_option('cosy_worldpay_installation_id')); ?>" placeholder="e.g. 1057361">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Enter your WorldPay Merchant Installation ID (e.g. 1057361).</div>
+                                </div>
+                                <div class="col-md-6">
                                     <label for="cosy_worldpay_token" class="form-label fw-bold text-secondary">Service API Token</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-shield"></i></span>

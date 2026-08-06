@@ -113,6 +113,9 @@ class SettingsAdmin
         ]);
 
         // WorldPay
+        register_setting('cosy_payment_settings', 'cosy_worldpay_installation_id', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
         register_setting('cosy_payment_settings', 'cosy_worldpay_token', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
