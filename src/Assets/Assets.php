@@ -316,11 +316,20 @@ class Assets
         }
 
         if (is_page('cosy-checkout') || (function_exists('cosy_get_page_id') && is_page(cosy_get_page_id('cosy-checkout')))) {
+            // Register Stripe JS Library
+            wp_register_script(
+                'stripe-js',
+                'https://js.stripe.com/v3/',
+                [],
+                null,
+                false // load in header so it is available before other scripts
+            );
+
             // 22. Checkout JS Controller (Handles dynamic rendering and payment processing on checkout)
             wp_enqueue_script(
                 'cosy-checkout',
                 COSY_APPT_URL . 'src/Assets/js/checkout.js',
-                ['jquery', 'sweetalert2'],
+                ['jquery', 'sweetalert2', 'stripe-js'],
                 time(),
                 true
             );
@@ -334,10 +343,11 @@ class Assets
                 'profileUrl'           => esc_url(cosy_get_page_url('customer-profile')),
                 'customerName'         => $current_user->exists() ? esc_html($current_user->display_name) : '',
                 'customerEmail'        => $current_user->exists() ? esc_html($current_user->user_email) : '',
+                'stripePublishableKey' => esc_js(get_option('cosy_stripe_publishable_key')),
                 'currencySymbol'       => cosy_get_currency_symbol(),
                 'currencyCode'         => cosy_get_currency_code(),
                 'feeType'              => 'percent',
-                'feeValue'             => floatval(get_option('cosy_worldpay_charge', '0')),
+                'feeValue'             => floatval(get_option('cosy_stripe_charge', '0')),
             ]);
         }
     }

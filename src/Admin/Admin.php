@@ -212,19 +212,19 @@ class Admin
     public function log_admin_settings_update($option, $old_value, $value): void
     {
         $cosy_settings_options = [
-            'cosy_worldpay_token',
-            'cosy_worldpay_client_key',
-            'cosy_worldpay_mode',
-            'cosy_worldpay_charge',
+            'cosy_stripe_test_mode',
+            'cosy_stripe_key',
+            'cosy_stripe_publishable_key',
             'cosy_charge_type',
             'cosy_provider_percentage',
             'cosy_fixed_charge',
+            'cosy_stripe_enabled',
             'cosy_worldpay_enabled'
         ];
         if (in_array($option, $cosy_settings_options)) {
-            // Avoid logging exact token/client key values
+            // Avoid logging exact secret/publishable key values
             $logged_val = $value;
-            if (in_array($option, ['cosy_worldpay_token', 'cosy_worldpay_client_key']) && !empty($value)) {
+            if (in_array($option, ['cosy_stripe_key', 'cosy_stripe_publishable_key']) && !empty($value)) {
                 $logged_val = substr($value, 0, 7) . '...';
             }
             if ($old_value !== $value) {
