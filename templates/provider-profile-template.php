@@ -222,11 +222,8 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
 
                     <div class="reviews-list-container d-flex flex-column gap-3">
                         <?php if (!empty($approved_reviews)): ?>
-                            <?php foreach ($approved_reviews as $idx => $rev): ?>
-
-                                <?php if ($idx === 1) : ?>
-                                    <div class="cosy-extra-reviews-wrapper d-flex flex-column gap-3" style="display: none !important;">
-                                <?php endif; ?>
+                            <div class="cosy-extra-reviews-wrapper d-flex flex-column gap-3" style="display: none !important;">
+                                <?php foreach ($approved_reviews as $idx => $rev): ?>
 
                                 <div class="cosy-border-f1f5f9 d-flex gap-3 pb-3 border-bottom animate__animated animate__fadeIn">
                                     <div class="cosy-review-avatar rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-uppercase">
@@ -361,19 +358,14 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                                         <?php endif; ?>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </div> <!-- Close cosy-extra-reviews-wrapper -->
 
-                            <!-- Load More / Show Less Reviews Toggle Button (Shown if count > 1) -->
-                            <?php if (count($approved_reviews) > 1) : 
-                                $remaining_count = count($approved_reviews) - 1;
-                            ?>
-                                </div> <!-- Close cosy-extra-reviews-wrapper -->
-                                <button type="button" class="btn btn-sm w-100 py-2 mt-3 fw-bold d-flex align-items-center justify-content-center gap-2" id="btnLoadMoreReviews" data-remaining="<?php echo esc_attr($remaining_count); ?>" style="background: #fdf5fc; color: #a44390; border: 1.5px solid rgba(164, 67, 144, 0.3); border-radius: 12px; font-size: 0.85rem; transition: all 0.2s ease;">
-                                    <span class="btn-text"><?php printf(esc_html__('Load More Reviews (%d remaining)', 'cosy-appointments'), $remaining_count); ?></span>
-                                    <i class="fas fa-chevron-down btn-icon" style="font-size: 0.78rem; color: #a44390; transition: transform 0.3s ease;"></i>
-                                </button>
-                            <?php endif; ?>
-
+                            <!-- View Reviews Button (Toggles all review text visibility) -->
+                            <button type="button" class="btn btn-sm w-100 py-2 mt-2 fw-bold d-flex align-items-center justify-content-center gap-2" id="btnLoadMoreReviews" data-total="<?php echo count($approved_reviews); ?>" style="background: #fdf5fc; color: #a44390; border: 1.5px solid rgba(164, 67, 144, 0.3); border-radius: 12px; font-size: 0.85rem; transition: all 0.2s ease;">
+                                <span class="btn-text"><?php printf(esc_html__('View Reviews (%d)', 'cosy-appointments'), count($approved_reviews)); ?></span>
+                                <i class="fas fa-chevron-down btn-icon" style="font-size: 0.78rem; color: #a44390; transition: transform 0.3s ease;"></i>
+                            </button>
                         <?php endif; ?>
                     </div>
                 </div>

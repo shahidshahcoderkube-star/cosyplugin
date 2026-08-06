@@ -181,17 +181,17 @@ jQuery(document).ready(function ($) {
     $(document).on('click', '#btnLoadMoreReviews', function () {
         var $btn = $(this);
         var $wrapper = $('.cosy-extra-reviews-wrapper');
-        var remaining = $btn.data('remaining') || 1;
+        var total = $btn.data('total') || 1;
 
         if ($wrapper.is(':visible')) {
             $wrapper.slideUp(300, function () {
                 $wrapper.attr('style', 'display: none !important;');
             });
-            $btn.find('.btn-text').text('Load More Reviews (' + remaining + ' remaining)');
+            $btn.find('.btn-text').text('View Reviews (' + total + ')');
             $btn.find('.btn-icon').removeClass('fa-chevron-up').addClass('fa-chevron-down');
         } else {
             $wrapper.attr('style', 'display: flex !important;').hide().slideDown(300);
-            $btn.find('.btn-text').text('Show Less Reviews');
+            $btn.find('.btn-text').text('Hide Reviews');
             $btn.find('.btn-icon').removeClass('fa-chevron-down').addClass('fa-chevron-up');
         }
     });
