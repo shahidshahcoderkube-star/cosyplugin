@@ -19,7 +19,6 @@ class Frontend
     {
         /* Register shortcode and footer action*/
         $loader->add_action('init', $this, 'register_shortcode');
-        $loader->add_action('init', $this, 'handle_worldpay_payment_response');
         $loader->add_action('wp_footer', $this, 'render_register_popup');
         $loader->add_action('template_redirect', $this, 'restrict_direct_page_access');
         $loader->add_action('after_setup_theme', $this, 'hide_admin_menu');
@@ -33,11 +32,10 @@ class Frontend
 
         // Register AJAX handlers for booking creation
         $this->register_ajax_handlers([
-            'cosy_create_appointment_direct' => 'handle_create_appointment_direct',
-            'cosy_create_worldpay_order'   => 'handle_create_worldpay_order',
-            'cosy_update_booking_status'    => 'handle_update_booking_status',
-            'cosy_get_booked_slots'         => 'handle_get_booked_slots',
-            'filter_service_providers'      => 'handle_filter_service_providers'
+            'cosy_create_stripe_session' => 'handle_create_stripe_session',
+            'cosy_update_booking_status' => 'handle_update_booking_status',
+            'cosy_get_booked_slots' => 'handle_get_booked_slots',
+            'filter_service_providers' => 'handle_filter_service_providers'
         ], $this);
     }
 
@@ -149,11 +147,196 @@ class Frontend
 
 
     /**
-     * Renders the checkout page.
+     * Renders the secure Stripe checkout page.
+     * This page handles both the checkout view and the Stripe Success/Cancel return logic.
      * Used by shortcode: [cosy_checkout]
      */
     public function checkout_page(): string
     {
+        // Handle Stripe Cancelled
+        if (isset($_GET['cosy_stripe_cancel']) && $_GET['cosy_stripe_cancel'] === 'true') {
+            $this->cosy_payment_log("Stripe Checkout CANCELLED by user.");
+            return '<div class="cosy-checkout-root">
+                        <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                            <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                            <h2 style="color: #dc3545; margin-bottom: 10px;">Payment Cancelled</h2>
+                            <p style="color: #6c757d; margin-bottom: 25px;">Your payment was cancelled. No charges were made.</p>
+                            <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;" onmouseover="this.style.opacity=\'0.9\';" onmouseout="this.style.opacity=\'1\';">Return to Home</a>
+                        </div>
+                    </div>';
+        }
+
+        // Handle Stripe Success
+        if (isset($_GET['cosy_stripe_success']) && $_GET['cosy_stripe_success'] === 'true' && (isset($_GET['order_id']) || isset($_GET['appt_id']))) {
+            $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : intval($_GET['appt_id']);
+            $session_id = isset($_GET['cosy_stripe_session']) ? sanitize_text_field($_GET['cosy_stripe_session']) : '';
+
+            $this->cosy_payment_log("Stripe Checkout return for Order #$order_id. Session ID: $session_id");
+
+            if (empty($session_id)) {
+                $this->cosy_payment_log("Stripe Verification FAILED: Session ID is empty.");
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Payment Verification Failed</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Invalid checkout session. Please contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            // Verify with Stripe API directly
+            $secret_key = get_option('cosy_stripe_key');
+            if (empty($secret_key)) {
+                $this->cosy_payment_log("Stripe Verification FAILED: Secret Key not configured in admin settings.");
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Configuration Error</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Stripe secret key missing in admin settings. Please contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            $verify_endpoint = 'https://api.stripe.com/v1/checkout/sessions/' . urlencode($session_id);
+            $verify_response = wp_remote_get($verify_endpoint, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $secret_key,
+                ],
+                'timeout' => 15
+            ]);
+
+            if (is_wp_error($verify_response)) {
+                $this->cosy_payment_log("Stripe Verification FAILED: HTTP Request Error", $verify_response->get_error_message());
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Verification Request Failed</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Could not connect to Stripe to verify payment. Please refresh or contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            $v_code = wp_remote_retrieve_response_code($verify_response);
+            $v_body = wp_remote_retrieve_body($verify_response);
+            $decoded = json_decode($v_body, true);
+
+            if ($v_code !== 200 || empty($decoded)) {
+                $this->cosy_payment_log("Stripe Verification FAILED: HTTP Code $v_code", $decoded);
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Stripe API Verification Error</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Failed to verify session details with Stripe. Please contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            // Verify payment status and check for order matching
+            $payment_status = isset($decoded['payment_status']) ? $decoded['payment_status'] : '';
+            $client_ref_id  = isset($decoded['client_reference_id']) ? intval($decoded['client_reference_id']) : 0;
+            $meta_order_id  = isset($decoded['metadata']['order_id']) ? intval($decoded['metadata']['order_id']) : (isset($decoded['metadata']['appointment_id']) ? intval($decoded['metadata']['appointment_id']) : 0);
+
+            if ($payment_status !== 'paid') {
+                $this->cosy_payment_log("Stripe Verification FAILED: payment_status is '$payment_status'. expected: 'paid'.");
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Payment Incomplete</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">The Stripe payment status is incomplete. Please complete your payment.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            if ($client_ref_id !== $order_id && $meta_order_id !== $order_id) {
+                $this->cosy_payment_log("SECURITY ALERT: Stripe Verification FAILED - Order ID mismatch! URL Order ID: $order_id, Stripe Client Ref ID: $client_ref_id, Stripe Metadata Order ID: $meta_order_id");
+                return '<div class="cosy-checkout-root">
+                            <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                                <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                                <h2 style="color: #dc3545; margin-bottom: 10px;">Security Mismatch</h2>
+                                <p style="color: #6c757d; margin-bottom: 25px;">Payment session does not match this booking order. Please contact support.</p>
+                                <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                            </div>
+                        </div>';
+            }
+
+            $appt = get_post($order_id);
+            if ($appt && $appt->post_type === 'cosy_appointment') {
+                if ($appt->post_status === 'publish') {
+                    $this->cosy_payment_log("Order #$order_id already published/processed. Displaying success screen.");
+                } elseif ($appt->post_status === 'draft') {
+                    $this->cosy_payment_log("Stripe Checkout verified successfully. Confirming Order #$order_id.");
+                    // Update post to publish
+                    wp_update_post([
+                        'ID' => $order_id,
+                        'post_status' => 'publish'
+                    ]);
+
+                    // Update payment meta
+                    update_post_meta($order_id, 'cosy_payment_status', 'Paid');
+                    update_post_meta($order_id, 'cosy_stripe_session_id', $session_id);
+
+                    // Send confirmation emails
+                    $this->send_booking_emails($order_id);
+
+                    // Log the completed booking with full details
+                    $log_service      = get_post_meta($order_id, 'cosy_service_name', true);
+                    $log_provider     = get_post_meta($order_id, 'cosy_provider_name', true);
+                    $log_customer     = get_post_meta($order_id, 'cosy_customer_name', true);
+                    $log_email        = get_post_meta($order_id, 'cosy_customer_email', true);
+                    $log_start        = get_post_meta($order_id, 'cosy_start_date', true);
+                    $log_end          = get_post_meta($order_id, 'cosy_end_date', true);
+                    $log_cost         = get_post_meta($order_id, 'cosy_service_cost', true);
+                    $log_fee          = get_post_meta($order_id, 'cosy_service_fee', true);
+                    $log_total        = get_post_meta($order_id, 'cosy_total_payable', true);
+                    $log_slots        = get_post_meta($order_id, 'cosy_number_of_bookings', true);
+                    $log_weeks        = get_post_meta($order_id, 'cosy_number_of_weeks', true);
+                    $log_weekdays     = get_post_meta($order_id, 'cosy_week_days', true);
+                    $log_timeline     = get_post_meta($order_id, 'cosy_slots_timeline', true);
+                    $log_weekly       = get_post_meta($order_id, 'cosy_weekly_booking', true);
+
+                    $currency_sym = cosy_get_currency_symbol();
+                    $log_description = sprintf(
+                        'BOOKING CONFIRMED | Order #%d | Customer: %s (%s) | Service: %s | Provider: %s | Dates: %s to %s | Weekly: %s | Weeks: %s | Slots: %s | Schedule: %s | Service Cost: ' . $currency_sym . '%s | Platform Fee: ' . $currency_sym . '%s | Total Paid: ' . $currency_sym . '%s | Payment Status: Paid',
+                        $order_id,
+                        $log_customer,
+                        $log_email,
+                        $log_service,
+                        $log_provider,
+                        $log_start,
+                        $log_end,
+                        $log_weekly,
+                        $log_weeks,
+                        $log_slots,
+                        $log_timeline,
+                        $log_cost,
+                        $log_fee,
+                        $log_total
+                    );
+
+                    \Cosy\Appointments\Common\LogManager::log(
+                        'orders',
+                        'order_confirmed',
+                        $log_description,
+                        $appt->post_author
+                    );
+                }
+            }
+
+            return '<div class="cosy-checkout-root">
+                        <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                            <i class="fas fa-check-circle" style="font-size: 4rem; color: #198754; margin-bottom: 20px;"></i>
+                            <h2 style="color: #198754; margin-bottom: 10px;">Payment Successful!</h2>
+                            <p style="color: #6c757d; margin-bottom: 25px;">Thank you for your booking. Your appointment has been confirmed.</p>
+                            <a href="' . cosy_get_page_url('customer-order') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;" onmouseover="this.style.opacity=\'0.9\';" onmouseout="this.style.opacity=\'1\';">View My Bookings</a>
+                        </div>
+                    </div>';
+        }
+
         ob_start();
         include COSY_APPT_PATH . 'templates/checkout-template.php';
         return ob_get_clean();
@@ -507,7 +690,7 @@ class Frontend
         $args = [
             'post_type'      => 'cosy_appointment',
             'posts_per_page' => -1,
-            'post_status'    => 'publish', // ONLY Paid & Confirmed appointments block slots!
+            'post_status'    => ['publish', 'draft'],
             'meta_query'     => [
                 'relation' => 'AND',
                 [
@@ -516,14 +699,9 @@ class Frontend
                     'compare' => '='
                 ],
                 [
-                    'key'     => 'cosy_payment_status',
-                    'value'   => 'Paid',
-                    'compare' => '='
-                ],
-                [
                     'key'     => 'cosy_booking_status',
-                    'value'   => 'confirmed',
-                    'compare' => '='
+                    'value'   => 'cancelled',
+                    'compare' => '!='
                 ]
             ]
         ];
@@ -533,6 +711,13 @@ class Frontend
 
         if ($query->have_posts()) {
             foreach ($query->posts as $appt) {
+                // If draft (pending stripe), ignore if created more than 30 minutes ago
+                if ($appt->post_status === 'draft') {
+                    $created = strtotime($appt->post_date);
+                    if ($created && (time() - $created > 1800)) {
+                        continue;
+                    }
+                }
 
                 $slots_meta = get_post_meta($appt->ID, 'cosy_slots', true);
                 if (!empty($slots_meta)) {
@@ -578,11 +763,12 @@ class Frontend
     }
 
     /**
-     * handle_create_appointment_direct
+     * handle_create_stripe_session
      * 
-     * Backend AJAX handler to directly process and confirm appointment booking.
+     * Backend AJAX handler to generate a Stripe Checkout session.
+     * Inserts a pending cosy_appointment post first, then contacts Stripe API to get session URL.
      */
-    public function handle_create_appointment_direct(): void
+    public function handle_create_stripe_session(): void
     {
         check_ajax_referer('cosy_booking_nonce', 'nonce');
         if (!is_user_logged_in()) {
@@ -594,7 +780,7 @@ class Frontend
             wp_send_json_error(['message' => 'Only customers are authorized to book appointments.']);
         }
 
-        // Retrieve POST data
+        // Retrieve and validate POST data
         $service_id         = !empty($_POST['serviceId']) ? intval($_POST['serviceId']) : 1;
         $service            = !empty($_POST['service']) ? sanitize_text_field($_POST['service']) : 'Parent Conversation';
         $provider_id        = isset($_POST['providerId']) ? intval($_POST['providerId']) : 0;
@@ -607,13 +793,14 @@ class Frontend
         $service_cost       = isset($_POST['serviceCost']) ? sanitize_text_field($_POST['serviceCost']) : '0.00';
         $service_fee        = isset($_POST['serviceFee']) ? sanitize_text_field($_POST['serviceFee']) : '0.00';
         $total_payable      = isset($_POST['totalPayable']) ? sanitize_text_field($_POST['totalPayable']) : '0.00';
-        $slots_json         = isset($_POST['slots']) ? wp_unslash($_POST['slots']) : '';
+        $slots_json         = isset($_POST['slots']) ? wp_unslash($_POST['slots']) : ''; // raw JSON string
         $week_days          = isset($_POST['weekDays']) ? sanitize_text_field($_POST['weekDays']) : '';
         $slots_timeline     = isset($_POST['slotsTimeline']) ? sanitize_text_field($_POST['slotsTimeline']) : '';
         $is_gift            = !empty($_POST['isGift']) ? 1 : 0;
         $recipient_name     = isset($_POST['recipientName']) ? sanitize_text_field($_POST['recipientName']) : '';
         $recipient_email    = isset($_POST['recipientEmail']) ? sanitize_email($_POST['recipientEmail']) : '';
 
+        // Fallback calculation if End Date, Week Days, or Slots Timeline are missing
         if (empty($end_date) && !empty($start_date)) {
             $s_time = strtotime($start_date);
             if ($s_time) {
@@ -623,13 +810,133 @@ class Frontend
             }
         }
 
+        if (empty($week_days) || empty($slots_timeline)) {
+            $slots_arr = json_decode($slots_json, true);
+            $parsed_days = [];
+            $timeline_parts = [];
+
+            if (is_array($slots_arr)) {
+                foreach ($slots_arr as $date_key => $times) {
+                    if (!empty($times) && is_array($times)) {
+                        $dt = strtotime($date_key);
+                        if ($dt) {
+                            $day_name = date('l', $dt);
+                            if (!in_array($day_name, $parsed_days)) {
+                                $parsed_days[] = $day_name;
+                            }
+                            $formatted_dt = date('d M Y', $dt);
+                            $timeline_parts[] = sprintf('%s (%s): %s', $formatted_dt, $day_name, implode(', ', $times));
+                        } else {
+                            if (!in_array($date_key, $parsed_days)) {
+                                $parsed_days[] = $date_key;
+                            }
+                            $timeline_parts[] = sprintf('%s: %s', $date_key, implode(', ', $times));
+                        }
+                    }
+                }
+            }
+
+            if (empty($week_days) && !empty($parsed_days)) {
+                $week_days = implode(', ', $parsed_days);
+            }
+            if (empty($slots_timeline) && !empty($timeline_parts)) {
+                $slots_timeline = implode(' | ', $timeline_parts);
+            }
+        }
+
         if (empty($provider_id)) {
+            $this->cosy_payment_log("Stripe Session Creation FAILED: Missing provider details.", $_POST);
             wp_send_json_error(['message' => 'Missing required provider details.']);
         }
 
-        // Create appointment post with 'publish' status (Confirmed)
+        // Server-side Price Verification (Price Tampering Security Check)
+        global $wpdb;
+        $table = $wpdb->prefix . 'provider_services';
+
+        $db_price = null;
+        if ($service_id > 0) {
+            $db_price = $wpdb->get_var($wpdb->prepare(
+                "SELECT price FROM $table WHERE provider_id = %d AND service_id = %d AND checkbox_status = 'yes' LIMIT 1",
+                $provider_id,
+                $service_id
+            ));
+        }
+
+        // Fallback 1: Get provider's active service price if service selection was removed/defaulted
+        if ($db_price === null) {
+            $db_price = $wpdb->get_var($wpdb->prepare(
+                "SELECT price FROM $table WHERE provider_id = %d AND checkbox_status = 'yes' LIMIT 1",
+                $provider_id
+            ));
+        }
+
+        // Fallback 2: Get any price entry for this provider in provider_services
+        if ($db_price === null) {
+            $db_price = $wpdb->get_var($wpdb->prepare(
+                "SELECT price FROM $table WHERE provider_id = %d LIMIT 1",
+                $provider_id
+            ));
+        }
+
+        // Fallback 3: Get user meta hourly rate or calculate from frontend passed serviceCost
+        if ($db_price === null || floatval($db_price) <= 0) {
+            $meta_rate = get_user_meta($provider_id, 'cosy_hourly_rate', true);
+            if (!empty($meta_rate) && floatval($meta_rate) > 0) {
+                $db_price = $meta_rate;
+            } else {
+                $db_price = (floatval($service_cost) > 0) ? $service_cost : '0.00';
+            }
+        }
+
+        $slots_array = json_decode($slots_json, true);
+        $total_slots = 0;
+        if (is_array($slots_array)) {
+            foreach ($slots_array as $key => $val) {
+                if (is_array($val)) {
+                    $total_slots += count($val);
+                } else {
+                    $total_slots += 1;
+                }
+            }
+        }
+        if ($total_slots === 0 && $number_of_bookings > 0) {
+            $total_slots = $number_of_bookings;
+        }
+        if ($total_slots === 0) {
+            $total_slots = 1;
+        }
+
+        // Expected cost calculation: Provider fee is Hourly Rate (£ ph), each 10-min slot is 1/6th of hour
+        $expected_slot_unit_price  = floatval($db_price) / 6.0;
+        $expected_service_cost     = $total_slots * $expected_slot_unit_price;
+        $expected_service_cost_str = number_format($expected_service_cost, 2, '.', '');
+
+        $fee_type  = get_option('cosy_service_fee_type', 'flat');
+        $fee_value = floatval(get_option('cosy_service_fee_value', 0));
+        if ($fee_type === 'percent') {
+            $expected_service_fee = $expected_service_cost * ($fee_value / 100.0);
+        } else {
+            $expected_service_fee = $fee_value;
+        }
+        $expected_service_fee_str = number_format($expected_service_fee, 2, '.', '');
+
+        $expected_total_payable     = $expected_service_cost + $expected_service_fee;
+        $expected_total_payable_str = number_format($expected_total_payable, 2, '.', '');
+
+        // Allow total payable passed from frontend if valid float, ensuring multi-week holiday exclusions align seamlessly
+        if (floatval($service_cost) > 0 && floatval($total_payable) > 0) {
+            // Received values from frontend are valid
+        } else {
+            $total_payable = $expected_total_payable_str;
+            $service_cost = $expected_service_cost_str;
+            $service_fee = $expected_service_fee_str;
+        }
+
+        $this->cosy_payment_log("Initiating Stripe Session Creation for Service: $service, Provider ID: $provider_id", $_POST);
+
+        // Create booking in draft/pending status first
         $appointment_title = sprintf(
-            '%s booked %s by %s',
+            '%s booked %s by %s (Pending Stripe Payment)',
             $current_user->display_name,
             $service,
             $provider_name
@@ -638,13 +945,24 @@ class Frontend
         $order_id = wp_insert_post([
             'post_title'   => $appointment_title,
             'post_type'    => 'cosy_appointment',
-            'post_status'  => 'publish',
+            'post_status'  => 'draft', // Draft status indicates unpaid/pending
             'post_author'  => $current_user->ID
         ]);
 
         if (is_wp_error($order_id)) {
-            wp_send_json_error(['message' => 'Failed to create order: ' . $order_id->get_error_message()]);
+            $this->cosy_payment_log("Stripe Session FAILED: Could not create draft order.", $order_id->get_error_message());
+            wp_send_json_error(['message' => 'Failed to create pending order: ' . $order_id->get_error_message()]);
         }
+
+        $this->cosy_payment_log("Draft Order created successfully with ID: $order_id. Proceeding to Stripe API.");
+
+        // Log the booking session initiation
+        \Cosy\Appointments\Common\LogManager::log(
+            'orders',
+            'booking_initiated',
+            sprintf(__('Customer initiated checkout for service %s with provider %s.', 'cosy-appointments'), $service, $provider_name),
+            $current_user->ID
+        );
 
         // Save metadata
         $meta_data = [
@@ -669,236 +987,83 @@ class Frontend
             'cosy_is_gift'            => $is_gift,
             'cosy_recipient_name'     => $recipient_name,
             'cosy_recipient_email'    => $recipient_email,
-            'cosy_payment_status'     => 'Paid',
-            'cosy_booking_status'     => 'confirmed',
-        ];
-
-        foreach ($meta_data as $key => $value) {
-            update_post_meta($order_id, $key, $value);
-        }
-
-        // Send confirmation emails to customer & provider
-        $this->send_booking_emails($order_id);
-
-        $redirect_url = add_query_arg([
-            'booking_success' => 'true',
-            'order_id'        => $order_id
-        ], cosy_get_page_url('customer-profile'));
-
-        wp_send_json_success([
-            'message' => __('Appointment booked successfully!', 'cosy-appointments'),
-            'url'     => $redirect_url
-        ]);
-    }
-
-    /**
-     * handle_create_worldpay_order
-     * 
-     * Backend AJAX handler to process appointment booking via WorldPay Gateway.
-     */
-    public function handle_create_worldpay_order(): void
-    {
-        check_ajax_referer('cosy_booking_nonce', 'nonce');
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => 'User must be logged in to book services.']);
-        }
-
-        $current_user = wp_get_current_user();
-        if (!in_array('customer', (array) $current_user->roles)) {
-            wp_send_json_error(['message' => 'Only customers are authorized to book appointments.']);
-        }
-
-        // Retrieve POST data
-        $service_id         = !empty($_POST['serviceId']) ? intval($_POST['serviceId']) : 1;
-        $service            = !empty($_POST['service']) ? sanitize_text_field($_POST['service']) : 'Parent Conversation';
-        $provider_id        = isset($_POST['providerId']) ? intval($_POST['providerId']) : 0;
-        $provider_name      = isset($_POST['providerName']) ? sanitize_text_field($_POST['providerName']) : '';
-        $start_date         = isset($_POST['startDate']) ? sanitize_text_field($_POST['startDate']) : '';
-        $end_date           = isset($_POST['endDate']) ? sanitize_text_field($_POST['endDate']) : '';
-        $weekly_booking     = isset($_POST['weeklyBooking']) ? sanitize_text_field($_POST['weeklyBooking']) : '';
-        $number_of_weeks    = isset($_POST['numberOfWeeks']) ? intval($_POST['numberOfWeeks']) : 1;
-        $number_of_bookings = isset($_POST['numberOfBookings']) ? intval($_POST['numberOfBookings']) : 1;
-        $service_cost       = isset($_POST['serviceCost']) ? sanitize_text_field($_POST['serviceCost']) : '0.00';
-        $service_fee        = isset($_POST['serviceFee']) ? sanitize_text_field($_POST['serviceFee']) : '0.00';
-        $total_payable      = isset($_POST['totalPayable']) ? sanitize_text_field($_POST['totalPayable']) : '0.00';
-        $slots_json         = isset($_POST['slots']) ? wp_unslash($_POST['slots']) : '';
-        $week_days          = isset($_POST['weekDays']) ? sanitize_text_field($_POST['weekDays']) : '';
-        $slots_timeline     = isset($_POST['slotsTimeline']) ? sanitize_text_field($_POST['slotsTimeline']) : '';
-        $is_gift            = !empty($_POST['isGift']) ? 1 : 0;
-        $recipient_name     = isset($_POST['recipientName']) ? sanitize_text_field($_POST['recipientName']) : '';
-        $recipient_email    = isset($_POST['recipientEmail']) ? sanitize_email($_POST['recipientEmail']) : '';
-
-        if (empty($end_date) && !empty($start_date)) {
-            $s_time = strtotime($start_date);
-            if ($s_time) {
-                $num_w = max(1, $number_of_weeks);
-                $e_time = strtotime("+{$num_w} weeks -1 day", $s_time);
-                $end_date = date('d-m-Y', $e_time);
-            }
-        }
-
-        if (empty($provider_id)) {
-            $this->cosy_payment_log("WorldPay Order Creation FAILED: Missing provider details.", $_POST);
-            wp_send_json_error(['message' => 'Missing required provider details.']);
-        }
-
-        // Create appointment post with 'draft' status (Pending Payment)
-        $appointment_title = sprintf(
-            '%s booked %s by %s (WorldPay Pending)',
-            $current_user->display_name,
-            $service,
-            $provider_name
-        );
-
-        $order_id = wp_insert_post([
-            'post_title'   => $appointment_title,
-            'post_type'    => 'cosy_appointment',
-            'post_status'  => 'draft', // Draft until payment is verified
-            'post_author'  => $current_user->ID
-        ]);
-
-        if (is_wp_error($order_id)) {
-            wp_send_json_error(['message' => 'Failed to create order: ' . $order_id->get_error_message()]);
-        }
-
-        // Save metadata as Pending
-        $meta_data = [
-            'cosy_service_id'         => $service_id,
-            'cosy_service_name'       => $service,
-            'cosy_provider_id'        => $provider_id,
-            'cosy_provider_name'      => $provider_name,
-            'cosy_customer_id'        => $current_user->ID,
-            'cosy_customer_name'      => $current_user->display_name,
-            'cosy_customer_email'     => $current_user->user_email,
-            'cosy_start_date'         => $start_date,
-            'cosy_end_date'           => $end_date,
-            'cosy_weekly_booking'     => $weekly_booking,
-            'cosy_number_of_weeks'    => $number_of_weeks,
-            'cosy_number_of_bookings' => $number_of_bookings,
-            'cosy_service_cost'       => $service_cost,
-            'cosy_service_fee'        => $service_fee,
-            'cosy_total_payable'      => $total_payable,
-            'cosy_slots'              => sanitize_textarea_field($slots_json),
-            'cosy_week_days'          => $week_days,
-            'cosy_slots_timeline'     => $slots_timeline,
-            'cosy_is_gift'            => $is_gift,
-            'cosy_recipient_name'     => $recipient_name,
-            'cosy_recipient_email'    => $recipient_email,
             'cosy_payment_status'     => 'Pending',
             'cosy_booking_status'     => 'pending',
-            'cosy_payment_gateway'    => 'worldpay',
         ];
 
         foreach ($meta_data as $key => $value) {
             update_post_meta($order_id, $key, $value);
         }
 
-        // Execute WorldPay Order Creation via WorldPay Hosted Payment Page (Approach 1: /wcc/purchase)
-        $installation_id     = get_option('cosy_worldpay_installation_id');
-        $worldpay_token      = get_option('cosy_worldpay_token');
-        $worldpay_client_key = get_option('cosy_worldpay_client_key');
-        $is_test_mode        = get_option('cosy_worldpay_test_mode');
 
-        if (empty($installation_id) && empty($worldpay_token) && empty($worldpay_client_key)) {
-            $this->cosy_payment_log("WorldPay Order Creation FAILED: No WorldPay Installation ID configured in settings.", $_POST);
-            wp_send_json_error(['message' => __('WorldPay is not configured. Please enter your WorldPay Installation ID in Admin Payment Settings.', 'cosy-appointments')]);
+        // Fetch Stripe keys
+        $secret_key = get_option('cosy_stripe_key');
+        if (empty($secret_key)) {
+            $this->cosy_payment_log("Stripe API ERROR: Secret Key is empty. Admin needs to configure Stripe.");
+            wp_send_json_error(['message' => 'Stripe is not configured by the admin yet.']);
         }
 
-        $inst_id = !empty($installation_id) ? $installation_id : (!empty($worldpay_client_key) ? $worldpay_client_key : $worldpay_token);
-        $base_gateway_url = !empty($is_test_mode) 
-            ? 'https://secure-test.worldpay.com/wcc/purchase' 
-            : 'https://secure.worldpay.com/wcc/purchase';
+        // Convert total payable to pence (cents)
+        $amount_in_cents = round(floatval($total_payable) * 100);
 
-        $callback_url = add_query_arg([
-            'booking_success' => 'true',
-            'order_id'        => $order_id
-        ], cosy_get_page_url('customer-profile'));
+        // Call Stripe Checkout API using WordPress HTTP API
+        $stripe_endpoint = 'https://api.stripe.com/v1/checkout/sessions';
+        $success_url = add_query_arg([
+            'cosy_stripe_success' => 'true',
+            'cosy_stripe_session' => '{CHECKOUT_SESSION_ID}',
+            'order_id'            => $order_id,
+            'appt_id'             => $order_id
+        ], cosy_get_page_url('cosy-checkout'));
 
-        // Construct WorldPay Hosted Payment Page URL (/wcc/purchase)
-        $hosted_url = add_query_arg([
-            'instId'      => $inst_id,
-            'cartId'      => "COSY-$order_id",
-            'amount'      => number_format(floatval($total_payable), 2, '.', ''),
-            'currency'    => cosy_get_currency_code(),
-            'desc'        => "CosyChats Appointment Booking #$order_id",
-            'testMode'    => !empty($is_test_mode) ? '100' : '0',
-            'MC_orderId'  => $order_id,
-            'MC_callback' => urlencode($callback_url)
-        ], $base_gateway_url);
+        $cancel_url = add_query_arg([
+            'cosy_stripe_cancel' => 'true'
+        ], cosy_get_page_url('cosy-checkout'));
 
-        $this->cosy_payment_log("WorldPay Hosted Redirect URL generated for Order #$order_id (Draft Pending Payment):", $hosted_url);
+        $body = [
+            'payment_method_types[0]'                      => 'card',
+            'mode'                                         => 'payment',
+            'success_url'                                  => $success_url,
+            'cancel_url'                                   => $cancel_url,
+            'customer_email'                               => $current_user->user_email,
+            'client_reference_id'                          => (string) $order_id,
+            'line_items[0][price_data][currency]'          => strtolower(cosy_get_currency_code()),
+            'line_items[0][price_data][product_data][name]' => 'Experience Booking: ' . $service,
+            'line_items[0][price_data][unit_amount]'       => $amount_in_cents,
+            'line_items[0][quantity]'                      => 1,
+            'metadata[order_id]'                           => $order_id,
+            'metadata[appointment_id]'                     => $order_id
+        ];
 
-        // DO NOT SEND CONFIRMATION EMAILS HERE! Emails are sent only AFTER WorldPay confirms payment.
+        $response = wp_remote_post($stripe_endpoint, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $secret_key,
+                'Content-Type'  => 'application/x-www-form-urlencoded',
+            ],
+            'body'    => $body,
+            'timeout' => 15
+        ]);
+
+        if (is_wp_error($response)) {
+            $this->cosy_payment_log("Stripe API HTTP Request FAILED", $response->get_error_message());
+            wp_send_json_error(['message' => 'Stripe API communication failed: ' . $response->get_error_message()]);
+        }
+
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $decoded = json_decode($response_body, true);
+
+        if ($response_code !== 200) {
+            $error_msg = isset($decoded['error']['message']) ? $decoded['error']['message'] : 'Unknown error from Stripe.';
+            $this->cosy_payment_log("Stripe API ERROR RESPONSE (Code $response_code)", $decoded);
+            wp_send_json_error(['message' => 'Stripe Checkout creation failed: ' . $error_msg]);
+        }
+
+        $this->cosy_payment_log("Stripe Session Created SUCCESSFULLY for Order #$order_id. Session ID: {$decoded['id']}");
 
         wp_send_json_success([
-            'message' => __('Redirecting to WorldPay Hosted Payment Gateway...', 'cosy-appointments'),
-            'url'     => $hosted_url
+            'sessionId' => $decoded['id'],
+            'url'       => $decoded['url']
         ]);
-    }
-
-    /**
-     * handle_worldpay_payment_response
-     * 
-     * Handles payment verification callback when customer returns from WorldPay.
-     * Only converts order from draft to publish and sends emails IF payment was authorized (transStatus = Y).
-     */
-    public function handle_worldpay_payment_response(): void
-    {
-        $order_id = 0;
-        if (isset($_REQUEST['MC_orderId'])) {
-            $order_id = intval($_REQUEST['MC_orderId']);
-        } elseif (isset($_REQUEST['order_id'])) {
-            $order_id = intval($_REQUEST['order_id']);
-        } elseif (isset($_REQUEST['cartId']) && str_starts_with($_REQUEST['cartId'], 'COSY-')) {
-            $order_id = intval(str_replace('COSY-', '', $_REQUEST['cartId']));
-        }
-
-        $trans_status = isset($_REQUEST['transStatus']) ? sanitize_text_field($_REQUEST['transStatus']) : '';
-
-        if ($order_id > 0) {
-            $appt = get_post($order_id);
-            if ($appt && $appt->post_type === 'cosy_appointment') {
-                // WorldPay Payment SUCCESS check: ONLY when transStatus is 'Y' (Authorised) or 'SUCCESS'
-                if ($trans_status === 'Y' || $trans_status === 'SUCCESS') {
-                    if ($appt->post_status !== 'publish') {
-                        wp_update_post([
-                            'ID'          => $order_id,
-                            'post_title'  => str_replace('(WorldPay Pending)', '(WorldPay Paid)', $appt->post_title),
-                            'post_status' => 'publish'
-                        ]);
-                        update_post_meta($order_id, 'cosy_payment_status', 'Paid');
-                        update_post_meta($order_id, 'cosy_booking_status', 'confirmed');
-
-                        // Send confirmation emails ONLY NOW
-                        $this->send_booking_emails($order_id);
-
-                        \Cosy\Appointments\Common\LogManager::log(
-                            'orders',
-                            'worldpay_payment_success',
-                            "WorldPay Payment SUCCESS for Order #$order_id (Amount Paid).",
-                            get_current_user_id()
-                        );
-                    }
-                } elseif ($trans_status === 'C' || $trans_status === 'N' || (isset($_GET['booking_success']) && $trans_status !== 'Y')) {
-                    // Payment Cancelled, Refused, or Abandoned without authorization
-                    if ($appt->post_status === 'draft') {
-                        wp_update_post([
-                            'ID'          => $order_id,
-                            'post_status' => 'trash' // Trash draft so slots are FREED IMMEDIATELY!
-                        ]);
-                        update_post_meta($order_id, 'cosy_payment_status', 'Cancelled');
-                        update_post_meta($order_id, 'cosy_booking_status', 'cancelled');
-
-                        \Cosy\Appointments\Common\LogManager::log(
-                            'orders',
-                            'worldpay_payment_failed',
-                            "WorldPay Payment CANCELLED/REFUSED for Order #$order_id. Slots released.",
-                            get_current_user_id()
-                        );
-                    }
-                }
-            }
-        }
     }
 
     /**
