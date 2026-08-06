@@ -31,14 +31,11 @@ defined('ABSPATH') || exit;
                 <!-- Navigation Sidebar -->
                 <div class="col-md-3 mb-4">
                     <div class="nav flex-column nav-pills me-3 gap-2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                        <!-- Stripe Tab (Commented out for now, using WorldPay) -->
-                        <!--
-                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-stripe-tab" data-bs-toggle="pill" data-bs-target="#v-pills-stripe" type="button" role="tab" aria-controls="v-pills-stripe" aria-selected="false">
+                        <button class="nav-link active d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-stripe-tab" data-bs-toggle="pill" data-bs-target="#v-pills-stripe" type="button" role="tab" aria-controls="v-pills-stripe" aria-selected="true">
                             <i class="fa-brands fa-stripe fs-4 w-20"></i>
                             <span class="fw-bold">Stripe</span>
                         </button>
-                        -->
-                        <button class="nav-link active d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-worldpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-worldpay" type="button" role="tab" aria-controls="v-pills-worldpay" aria-selected="true">
+                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-worldpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-worldpay" type="button" role="tab" aria-controls="v-pills-worldpay" aria-selected="false">
                             <i class="fa-solid fa-globe fs-4 w-20"></i>
                             <span class="fw-bold">WorldPay</span>
                         </button>
@@ -63,8 +60,8 @@ defined('ABSPATH') || exit;
                 <div class="col-md-9">
                     <div class="tab-content bg-light bg-opacity-50 p-4 rounded-4 border border-secondary-subtle" id="v-pills-tabContent" style="min-height: 300px;">
 
-                        <!-- Stripe Settings Tab (Commented out for now) -->
-                        <div class="tab-pane fade" id="v-pills-stripe" role="tabpanel" aria-labelledby="v-pills-stripe-tab" style="display: none !important;">
+                        <!-- Stripe Settings Tab -->
+                        <div class="tab-pane fade show active" id="v-pills-stripe" role="tabpanel" aria-labelledby="v-pills-stripe-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
                                     <i class="fa-brands fa-stripe fs-2 text-primary" style="color: #635bff !important;"></i>
@@ -131,8 +128,8 @@ defined('ABSPATH') || exit;
                             </div>
                         </div>
 
-                        <!-- WorldPay Settings Tab (Active Default) -->
-                        <div class="tab-pane fade show active" id="v-pills-worldpay" role="tabpanel" aria-labelledby="v-pills-worldpay-tab">
+                        <!-- WorldPay Settings Tab -->
+                        <div class="tab-pane fade" id="v-pills-worldpay" role="tabpanel" aria-labelledby="v-pills-worldpay-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
                                     <i class="fa-solid fa-globe fs-2 text-primary" style="color: #0b4a8f !important;"></i>
