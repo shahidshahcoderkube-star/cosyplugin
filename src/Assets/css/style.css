@@ -3075,4 +3075,182 @@ label.error,
 
 .close-modal:hover {
     background: rgba(239, 68, 68, 0.9) !important;
-}
+}
+
+/* ============================================================
+   STANDALONE LEAVE REVIEW FORM STYLES
+   ============================================================ */
+.cosy-leave-review-root {
+    width: 100% !important;
+    max-width: 650px !important;
+    margin: 40px auto !important;
+    padding: 0 15px !important;
+    font-family: 'Poppins', sans-serif !important;
+    box-sizing: border-box !important;
+}
+
+.cosy-leave-review-root .card {
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(164, 67, 144, 0.1) !important;
+    overflow: hidden !important;
+}
+
+.cosy-leave-review-root .card-header {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%) !important;
+    color: #ffffff !important;
+    text-align: center !important;
+    padding: 30px 25px !important;
+    border: none !important;
+}
+
+.cosy-leave-review-root .card-header h3 {
+    color: #ffffff !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 6px 0 !important;
+}
+
+.cosy-leave-review-root .card-header p {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+}
+
+.cosy-leave-review-root .card-body {
+    padding: 35px 30px !important;
+    background: #ffffff !important;
+}
+
+.cosy-leave-review-root .session-info-card {
+    background: #fdf5fc !important;
+    border: 1.5px solid rgba(164, 67, 144, 0.2) !important;
+    border-radius: 14px !important;
+    padding: 16px 20px !important;
+    margin-bottom: 25px !important;
+}
+
+.cosy-leave-review-root .session-info-card .d-flex {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+.cosy-leave-review-root .session-info-card .rounded-circle {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    border-radius: 50% !important;
+    background: #a44390 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 1.2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
+    text-transform: uppercase !important;
+}
+
+.cosy-leave-review-root .session-info-card h6 {
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    color: #1e293b !important;
+    margin: 0 0 4px 0 !important;
+    line-height: 1.2 !important;
+}
+
+.cosy-leave-review-root .session-info-card small {
+    color: #64748b !important;
+    font-size: 0.85rem !important;
+    display: block !important;
+    margin: 0 !important;
+}
+
+.cosy-leave-review-root .rating-scale-container {
+    display: grid !important;
+    grid-template-columns: repeat(10, 1fr) !important;
+    gap: 6px !important;
+    margin-top: 10px !important;
+}
+
+@media (max-width: 576px) {
+    .cosy-leave-review-root .rating-scale-container {
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 8px !important;
+    }
+}
+
+.cosy-leave-review-root .rating-score-btn {
+    width: 100% !important;
+    height: 44px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.cosy-leave-review-root .rating-score-btn:hover {
+    border-color: #a44390 !important;
+    color: #a44390 !important;
+    background: #fdf5fc !important;
+}
+
+.cosy-leave-review-root .rating-score-btn.active {
+    background: #a44390 !important;
+    border-color: #a44390 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.3) !important;
+}
+
+.cosy-leave-review-root textarea.form-control {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
+    font-size: 0.95rem !important;
+    font-family: inherit !important;
+    outline: none !important;
+    min-height: 110px !important;
+    resize: vertical !important;
+    margin-top: 6px !important;
+}
+
+.cosy-leave-review-root textarea.form-control:focus {
+    border-color: #a44390 !important;
+    box-shadow: 0 0 0 3px rgba(164, 67, 144, 0.15) !important;
+}
+
+.cosy-leave-review-root #btnSubmitTokenReview {
+    width: 100% !important;
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%) !important;
+    color: #ffffff !important;
+    border-radius: 50px !important;
+    padding: 14px 25px !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 14px rgba(164, 67, 144, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.cosy-leave-review-root #btnSubmitTokenReview:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(164, 67, 144, 0.4) !important;
+}
+
