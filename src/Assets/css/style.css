@@ -546,9 +546,9 @@ a:focus {
     line-height: 1.4;
 }
 
-.cosy-btn-group {
+/* .cosy-btn-group {
     margin-top: 35px;
-}
+} */
 
 /* Tablet & Mobile Responsiveness */
 @media (max-width: 992px) {
@@ -2982,4 +2982,64 @@ label.error,
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin: 0;
+}
+
+/* ============================================================
+   COSY PROVIDER GRID PAGINATION STYLES (ROUNDED PILL DESIGN)
+   ============================================================ */
+.cosy-pagination-container {
+    margin-top: 2rem !important;
+}
+
+.cosy-pagination-nav .pagination {
+    gap: 6px !important;
+}
+
+.cosy-pagination-nav .cosy-page-link,
+.cosy-pagination-nav .page-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 18px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 50px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.2s ease-in-out !important;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.cosy-pagination-nav .cosy-page-link:hover:not(:disabled):not(.active-page) {
+    background-color: #f8fafc !important;
+    color: #6d2e67 !important;
+    border-color: #cbd5e1 !important;
+    transform: translateY(-1px);
+}
+
+.cosy-pagination-nav .page-item.active .cosy-page-link,
+.cosy-pagination-nav .cosy-page-link.active-page {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 12px rgba(109, 46, 103, 0.3) !important;
+}
+
+/* Explicit styling for Disabled Prev / Next buttons */
+.cosy-pagination-nav .page-item.disabled .cosy-page-link,
+.cosy-pagination-nav .page-item.disabled .page-link,
+.cosy-pagination-nav .cosy-page-link:disabled,
+.cosy-pagination-nav .cosy-page-link[disabled] {
+    color: #94a3b8 !important;
+    /* Visible muted gray text */
+    background-color: #f1f5f9 !important;
+    /* Soft light gray background */
+    border-color: #e2e8f0 !important;
+    opacity: 0.75 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
 }

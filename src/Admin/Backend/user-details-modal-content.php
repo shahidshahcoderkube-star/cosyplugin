@@ -35,7 +35,8 @@ defined('ABSPATH') || exit;
 <?php if ($role === 'provider'):
     $mname   = get_user_meta($user_id, 'prov_mname', true);
     $phone   = get_user_meta($user_id, 'prov_phone', true);
-    $dob     = get_user_meta($user_id, 'dob', true);
+    $dob_raw = get_user_meta($user_id, 'dob', true);
+    $dob     = (!empty($dob_raw) && strtotime($dob_raw)) ? date('d-m-Y', strtotime($dob_raw)) : '';
     $address = get_user_meta($user_id, 'prov_address', true);
     $gender  = get_user_meta($user_id, 'gender', true);
     $description = get_user_meta($user_id, 'description', true);

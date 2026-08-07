@@ -385,10 +385,14 @@ class UsersAdmin
                 $user = get_userdata($user_id);
                 if ($user) {
                     if ($status === 'active') {
-                        if ($old_status === 'deactive') {
+                        $was_ever_activated = (bool) get_user_meta($user_id, 'cosy_was_ever_activated', true);
+                        if ($was_ever_activated) {
+                            // User was previously active, deactivated, and now re-activated
                             $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_reactivated_template($user->display_name);
                         } else {
+                            // First time activation by Admin
                             $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_active_template($user->display_name);
+                            update_user_meta($user_id, 'cosy_was_ever_activated', 1);
                         }
                     } else {
                         $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_deactivated_template($user->display_name);

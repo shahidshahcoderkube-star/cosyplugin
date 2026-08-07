@@ -66,13 +66,22 @@ class Admin
             $media_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM $media_table WHERE status = 'pending'");
         }
 
-        // 3. Pending / Unverified Users Count
-        $users_count = count(get_users([
-            'role'       => 'provider',
-            'meta_key'   => 'cosy_verification_status',
-            'meta_value' => 'pending',
-            'fields'     => 'ID'
-        ]));
+        // 3. Pending / Unverified Users & Providers Badge Count
+        $pending_email_users = get_users([
+            'meta_key'     => 'account_status',
+            'meta_value'   => 'pending',
+            'fields'       => 'ID',
+        ]);
+
+        $pending_approval_providers = get_users([
+            'role'         => 'provider',
+            'meta_key'     => 'cosy_provider_status',
+            'meta_value'   => 'deactive',
+            'meta_compare' => 'LIKE',
+            'fields'       => 'ID',
+        ]);
+
+        $users_count = count(array_unique(array_merge($pending_email_users, $pending_approval_providers)));
 
         // 4. Pending Parent Reviews Count
         $reviews_table = $wpdb->prefix . 'cosy_provider_reviews';
@@ -82,10 +91,12 @@ class Admin
         }
 
         // 5. System Logs Count
-        $logs_table = $wpdb->prefix . 'cosy_logs';
+        $logs_table = $wpdb->prefix . 'cosy_activity_logs';
         $logs_count = 0;
         if ($wpdb->get_var("SHOW TABLES LIKE '$logs_table'") === $logs_table) {
-            $logs_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM $logs_table WHERE action_type LIKE '%error%' OR action_type LIKE '%failed%'");
+            $logs_count = (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM $logs_table WHERE action LIKE '%error%' OR action LIKE '%failed%' OR description LIKE '%error%' OR description LIKE '%failed%'"
+            );
         }
 
         add_menu_page(
