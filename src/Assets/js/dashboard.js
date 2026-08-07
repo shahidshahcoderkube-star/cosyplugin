@@ -518,10 +518,17 @@ jQuery(document).ready(function ($) {
             var orderId = btn.data('id');
             var newStatus = btn.data('status');
 
+            var confirmBtnText = (newStatus === 'completed') ? 'Yes, Accept it!' : (newStatus === 'cancelled' ? 'Yes, cancel it!' : 'Yes, change it!');
+            var confirmColor   = (newStatus === 'cancelled') ? '#ef4444' : '#22c55e'; // Green for Accept, Red for Cancelled
+            var cancelColor    = (newStatus === 'cancelled') ? '#22c55e' : '#ef4444'; // Red for Cancel button
+
             CosyAlert.confirm(
                 'Are you sure?',
                 'Do you want to mark this booking as ' + newStatus + '?',
-                'Yes, change it!'
+                confirmBtnText,
+                'Cancel',
+                confirmColor,
+                cancelColor
             ).then(function () {
                 var row = $('#order-row-' + orderId);
                 var rowBtns = row.find('.action-update-status');

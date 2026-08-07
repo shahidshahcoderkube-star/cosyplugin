@@ -57,17 +57,31 @@ var CosyAlert = (function () {
          * Show a Confirmation dialog (Yes/No)
          * Returns a Promise that resolves if the user clicks "Confirm"
          */
-        confirm: function (title, text, confirmBtnText = 'Yes, do it!', cancelBtnText = 'Cancel') {
+        confirm: function (title, text, confirmBtnText = 'Yes, do it!', cancelBtnText = 'Cancel', confirmButtonColor = '#22c55e', cancelButtonColor = '#ef4444') {
+            let opts = {};
+            if (typeof title === 'object') {
+                opts = title;
+            } else {
+                opts = {
+                    title: title,
+                    html: text,
+                    confirmButtonText: confirmBtnText,
+                    cancelButtonText: cancelBtnText,
+                    confirmButtonColor: confirmButtonColor,
+                    cancelButtonColor: cancelButtonColor
+                };
+            }
+
             return Swal.fire({
                 ...defaultOptions,
-                title: title,
-                html: text,
-                icon: 'warning',
+                title: opts.title,
+                html: opts.html || opts.text,
+                icon: opts.icon || 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ef4444', // Red for destructive actions by default
-                cancelButtonColor: '#22c55e',
-                confirmButtonText: confirmBtnText,
-                cancelButtonText: cancelBtnText
+                confirmButtonColor: opts.confirmButtonColor || '#22c55e',
+                cancelButtonColor: opts.cancelButtonColor || '#ef4444',
+                confirmButtonText: opts.confirmButtonText || opts.confirmText || 'Yes, proceed',
+                cancelButtonText: opts.cancelButtonText || opts.cancelText || 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
                     return Promise.resolve(true);
@@ -78,3 +92,4 @@ var CosyAlert = (function () {
         }
     };
 })();
+
