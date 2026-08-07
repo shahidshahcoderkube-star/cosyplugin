@@ -3043,3 +3043,65 @@ label.error,
     box-shadow: none !important;
     pointer-events: none !important;
 }
+
+/* ============================================================
+   GLOBAL INTRO VIDEO POPUP MODAL STYLES
+   ============================================================ */
+#videoModal {
+    display: none;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(15, 23, 42, 0.95) !important;
+    z-index: 99999999 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+.cosy-video-modal-content-v2 {
+    width: 90% !important;
+    max-width: 850px !important;
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+    max-height: 80vh !important;
+    background: #000000 !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: auto !important;
+}
+
+.cosy-video-modal-content-v2 video,
+.cosy-video-modal-content-v2 iframe {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
+
+.close-modal {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    color: #ffffff !important;
+    font-size: 28px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    z-index: 999999 !important;
+    line-height: 1 !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background 0.2s ease !important;
+}
+
+.close-modal:hover {
+    background: rgba(239, 68, 68, 0.9) !important;
+}

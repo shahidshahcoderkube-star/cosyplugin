@@ -80,6 +80,79 @@ jQuery(document).ready(function ($) {
         },
 
         /**
+         * prompt
+         * Shows a prompt dialog matching the exact cosy-sweet-dialog design with a textarea input.
+         * @param {object} opts - { title, message, placeholder, confirmText, cancelText, type, onConfirm }
+         */
+        prompt: function (opts) {
+            const defaults = {
+                title:       opts.title       || 'Reject Media',
+                message:     opts.message     || 'Please enter a reason:',
+                placeholder: opts.placeholder || 'Type rejection reason here...',
+                confirmText: opts.confirmText || 'Reject & Send Email',
+                cancelText:  opts.cancelText  || 'Cancel',
+                type:        opts.type        || 'danger',
+                onConfirm:   opts.onConfirm   || function () {}
+            };
+
+            const iconMap = {
+                warning: 'fa-solid fa-triangle-exclamation',
+                danger:  'fa-solid fa-trash-can',
+                info:    'fa-solid fa-circle-info',
+                success: 'fa-solid fa-circle-check'
+            };
+            const iconClass  = iconMap[defaults.type] || iconMap.danger;
+
+            const $overlay = $(`
+                <div id="cosy-sweet-overlay">
+                    <div id="cosy-sweet-dialog" style="max-width: 460px;">
+                        <div class="cosy-sweet-icon ${defaults.type}">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <p class="cosy-sweet-title">${defaults.title}</p>
+                        <p class="cosy-sweet-message" style="margin-bottom: 12px;">${defaults.message}</p>
+                        <div style="margin-bottom: 18px;">
+                            <textarea id="cosy-sweet-input" class="cosy-sweet-textarea" placeholder="${defaults.placeholder}" rows="3" style="width: 100%; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; font-size: 14px; outline: none; font-family: inherit; resize: vertical; box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);"></textarea>
+                            <span id="cosy-sweet-error" style="display: none; color: #ef4444; font-size: 12px; margin-top: 5px; text-align: left; font-weight: 600;">Please enter a reason before proceeding.</span>
+                        </div>
+                        <div class="cosy-sweet-actions">
+                            <button class="cosy-sweet-btn cosy-sweet-btn-cancel" id="cosy-sweet-cancel">${defaults.cancelText}</button>
+                            <button class="cosy-sweet-btn cosy-sweet-btn-confirm" id="cosy-sweet-ok">${defaults.confirmText}</button>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            $('body').append($overlay);
+            setTimeout(function () {
+                $overlay.find('#cosy-sweet-input').focus();
+            }, 100);
+
+            // Confirm click
+            $overlay.find('#cosy-sweet-ok').on('click', function () {
+                const val = $overlay.find('#cosy-sweet-input').val().trim();
+                if (!val) {
+                    $overlay.find('#cosy-sweet-error').slideDown(150);
+                    $overlay.find('#cosy-sweet-input').css('border-color', '#ef4444').focus();
+                    return;
+                }
+                $overlay.fadeOut(150, function () { $overlay.remove(); });
+                defaults.onConfirm(val);
+            });
+
+            // Cancel click
+            $overlay.find('#cosy-sweet-cancel').on('click', function () {
+                $overlay.fadeOut(150, function () { $overlay.remove(); });
+            });
+
+            $overlay.on('click', function (e) {
+                if ($(e.target).is('#cosy-sweet-overlay')) {
+                    $overlay.fadeOut(150, function () { $overlay.remove(); });
+                }
+            });
+        },
+
+        /**
          * toast
          * Shows a premium slide-in toast notification.
          * @param {string} message
@@ -223,14 +296,27 @@ jQuery(document).ready(function ($) {
 
         /**
          * handleReject
-         * Fires an AJAX request to reject a provider's media upload.
-         * On success, updates the row to reflect rejection and media deletion.
+         * Prompts admin for rejection reason, then fires AJAX request to reject & delete provider's media.
          */
         handleReject: function () {
             const row    = $(this).closest('tr');
             const $btn   = $(this);
             const userId = $btn.data('id');
 
+            CosyAlert.prompt({
+                title:       'Reject & Delete Media?',
+                message:     'Please enter the reason for rejecting this video (this will be sent to the provider via email):',
+                placeholder: 'Type rejection reason here...',
+                confirmText: 'Reject & Send Email',
+                cancelText:  'Cancel',
+                type:        'danger',
+                onConfirm:   function (reasonText) {
+                    CosyMediaAdmin.executeReject(userId, reasonText, row, $btn);
+                }
+            });
+        },
+
+        executeReject: function (userId, reason, row, $btn) {
             $.ajax({
                 url: ajaxurl,
                 type: 'POST',
@@ -238,6 +324,7 @@ jQuery(document).ready(function ($) {
                 data: {
                     action: 'video_reject',
                     user_id: userId,
+                    reason: reason,
                     nonce: $('#cosy_media_nonce_field').val()
                 },
                 beforeSend: function () {

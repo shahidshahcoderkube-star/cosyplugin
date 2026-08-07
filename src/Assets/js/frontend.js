@@ -237,3 +237,79 @@ jQuery(document).ready(function ($) {
     });
 });
 
+// ============================================================
+// GLOBAL VIDEO MODAL CONTROLLER FOR INTRO BUTTONS
+// ============================================================
+window.openVideo = function (url) {
+    if (!url) return;
+
+    let modal = document.getElementById('videoModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'videoModal';
+        modal.className = 'modal';
+        modal.onclick = function () { window.closeVideo(); };
+        modal.innerHTML = `
+            <div class="cosy-video-modal-content-v2" onclick="event.stopPropagation()">
+                <span class="close-modal" onclick="window.closeVideo()">&times;</span>
+                <iframe id="videoFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen style="display:none; border:none; width:100%; height:100%;"></iframe>
+                <video id="videoPlayer" controls width="100%" height="100%" src="" style="display:none; width:100%; height:100%; object-fit:contain; border-radius:20px; outline:none; background:#000;"></video>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } else if (modal.parentNode !== document.body) {
+        document.body.appendChild(modal);
+    }
+
+    const videoFrame  = document.getElementById('videoFrame');
+    const videoPlayer = document.getElementById('videoPlayer');
+    if (!videoFrame || !videoPlayer) return;
+
+    const isDirectVideo = url.match(/\.(mp4|webm|ogg|mov|3gp)($|\?)/i) || url.includes('/wp-content/uploads/');
+
+    if (isDirectVideo) {
+        videoFrame.style.display = 'none';
+        videoFrame.src = '';
+
+        videoPlayer.src = url;
+        videoPlayer.style.display = 'block';
+        videoPlayer.play().catch(function(e) {
+            console.log("Autoplay was prevented:", e);
+        });
+    } else {
+        videoPlayer.style.display = 'none';
+        videoPlayer.pause();
+        videoPlayer.src = '';
+
+        let embedUrl = url;
+        if (url.includes('youtube.com/watch?v=')) {
+            embedUrl = url.replace('watch?v=', 'embed/');
+        } else if (url.includes('youtu.be/')) {
+            embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
+        } else if (url.includes('vimeo.com/')) {
+            embedUrl = url.replace('vimeo.com/', 'player.vimeo.com/video/');
+        }
+
+        videoFrame.src = embedUrl;
+        videoFrame.style.display = 'block';
+    }
+
+    modal.style.display = 'flex';
+};
+
+window.closeVideo = function () {
+    const modal = document.getElementById('videoModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    const videoFrame  = document.getElementById('videoFrame');
+    const videoPlayer = document.getElementById('videoPlayer');
+    if (videoFrame) {
+        videoFrame.src = '';
+    }
+    if (videoPlayer) {
+        videoPlayer.pause();
+        videoPlayer.src = '';
+    }
+};
+

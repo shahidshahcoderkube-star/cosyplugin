@@ -290,8 +290,16 @@ class Backend_Actions_Handler
                     if ($deleted !== false) {
                         $deleted_count++;
                         
-                        // Log activity
+                        // Send notification email to provider
                         $provider = get_userdata($user_id);
+                        if ($provider && !empty($provider->user_email)) {
+                            $limit_mb = intval(get_option('cosy_max_video_upload_size', 3));
+                            $reason   = sprintf(__('Video did not meet guidelines or quality standards. Maximum size allowed: %d MB, MP4 format.', 'cosy-appointments'), $limit_mb > 0 ? $limit_mb : 3);
+                            $tpl      = \Cosy\Appointments\Common\EmailTemplates::get_video_rejected_template($provider->display_name, $reason);
+                            cosy_send_html_email($provider->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+                        }
+
+                        // Log activity
                         $prov_name = $provider ? $provider->display_name : "ID $user_id";
                         \Cosy\Appointments\Common\LogManager::log(
                             'media_approve',
