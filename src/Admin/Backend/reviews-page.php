@@ -106,9 +106,10 @@ $providers = get_users(['role' => 'provider']);
             <td><strong><?php echo esc_html($rev->customer_name); ?></strong></td>
             <td><?php echo esc_html($provider_name); ?></td>
             <td>
-              <div style="color: #f59e0b; font-weight: 700;">
-                <?php echo str_repeat('★', intval($rev->rating)); ?><?php echo str_repeat('☆', 5 - intval($rev->rating)); ?>
-              </div>
+              <?php $rating_val = max(1, min(10, intval($rev->rating))); ?>
+              <span class="cosy-badge" style="background: #fdf5fc; color: #a44390; border: 1px solid rgba(164, 67, 144, 0.25); padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; display: inline-block; white-space: nowrap !important;">
+                <?php echo $rating_val; ?>/10
+              </span>
             </td>
             <td style="color:#475569; font-size:12px; vertical-align: top; max-width: 420px;">
               <div class="cosy-admin-review-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">

@@ -53,8 +53,8 @@ jQuery(document).ready(function ($) {
                         <p class="cosy-sweet-title">${defaults.title}</p>
                         <p class="cosy-sweet-message">${defaults.message}</p>
                         <div class="cosy-sweet-actions">
-                            <button class="cosy-sweet-btn cosy-sweet-btn-cancel" id="cosy-sweet-cancel">${defaults.cancelText}</button>
                             <button class="cosy-sweet-btn cosy-sweet-btn-confirm${btnClass}" id="cosy-sweet-ok">${defaults.confirmText}</button>
+                            <button class="cosy-sweet-btn cosy-sweet-btn-cancel" id="cosy-sweet-cancel">${defaults.cancelText}</button>
                         </div>
                     </div>
                 </div>
@@ -116,8 +116,8 @@ jQuery(document).ready(function ($) {
                             <span id="cosy-sweet-error" style="display: none; color: #ef4444; font-size: 12px; margin-top: 5px; text-align: left; font-weight: 600;">Please enter a reason before proceeding.</span>
                         </div>
                         <div class="cosy-sweet-actions">
-                            <button class="cosy-sweet-btn cosy-sweet-btn-cancel" id="cosy-sweet-cancel">${defaults.cancelText}</button>
                             <button class="cosy-sweet-btn cosy-sweet-btn-confirm" id="cosy-sweet-ok">${defaults.confirmText}</button>
+                            <button class="cosy-sweet-btn cosy-sweet-btn-cancel" id="cosy-sweet-cancel">${defaults.cancelText}</button>
                         </div>
                     </div>
                 </div>
@@ -795,6 +795,9 @@ jQuery(document).ready(function ($) {
 
         handleApprove: function () {
             const reviewId = $(this).data('id');
+            const $row = $('#review-row-' + reviewId);
+            const $actionCell = $row.find('td').last();
+            
             CosyAlert.confirm({
                 title: 'Approve Review?',
                 message: 'This review will be published on the parent profile page and an email notification will be sent to the provider.',
@@ -802,11 +805,15 @@ jQuery(document).ready(function ($) {
                 cancelText: 'Cancel',
                 type: 'info',
                 onConfirm: function () {
+                    const originalHtml = $actionCell.html();
+                    $actionCell.html('<i class="fas fa-circle-notch fa-spin" style="color: #22c55e; font-size: 18px; margin: 4px;"></i>');
+
                     $.post(ajaxurl, { action: 'cosy_admin_approve_review', review_id: reviewId }, function (res) {
                         if (res.success) {
                             CosyAlert.toast(res.data.message || 'Review approved successfully.', 'success');
                             setTimeout(function () { location.reload(); }, 1000);
                         } else {
+                            $actionCell.html(originalHtml);
                             CosyAlert.toast(res.data.message || 'Error approving review.', 'danger');
                         }
                     });
@@ -816,6 +823,9 @@ jQuery(document).ready(function ($) {
 
         handleReject: function () {
             const reviewId = $(this).data('id');
+            const $row = $('#review-row-' + reviewId);
+            const $actionCell = $row.find('td').last();
+
             CosyAlert.confirm({
                 title: 'Reject Review?',
                 message: 'This review will be marked as rejected.',
@@ -823,11 +833,15 @@ jQuery(document).ready(function ($) {
                 cancelText: 'Cancel',
                 type: 'warning',
                 onConfirm: function () {
+                    const originalHtml = $actionCell.html();
+                    $actionCell.html('<i class="fas fa-circle-notch fa-spin" style="color: #eab308; font-size: 18px; margin: 4px;"></i>');
+
                     $.post(ajaxurl, { action: 'cosy_admin_reject_review', review_id: reviewId }, function (res) {
                         if (res.success) {
                             CosyAlert.toast(res.data.message || 'Review rejected.', 'warning');
                             setTimeout(function () { location.reload(); }, 1000);
                         } else {
+                            $actionCell.html(originalHtml);
                             CosyAlert.toast(res.data.message || 'Error rejecting review.', 'danger');
                         }
                     });
@@ -838,6 +852,8 @@ jQuery(document).ready(function ($) {
         handleDelete: function () {
             const reviewId = $(this).data('id');
             const $row = $('#review-row-' + reviewId);
+            const $actionCell = $row.find('td').last();
+
             CosyAlert.confirm({
                 title: 'Delete Review?',
                 message: 'Are you sure you want to delete this review? An audit log notification will be sent to the provider dashboard.',
@@ -845,11 +861,15 @@ jQuery(document).ready(function ($) {
                 cancelText: 'Cancel',
                 type: 'danger',
                 onConfirm: function () {
+                    const originalHtml = $actionCell.html();
+                    $actionCell.html('<i class="fas fa-circle-notch fa-spin" style="color: #ef4444; font-size: 18px; margin: 4px;"></i>');
+
                     $.post(ajaxurl, { action: 'cosy_admin_delete_review', review_id: reviewId }, function (res) {
                         if (res.success) {
                             $row.fadeOut(300, function () { $(this).remove(); });
                             CosyAlert.toast(res.data.message || 'Review deleted successfully.', 'success');
                         } else {
+                            $actionCell.html(originalHtml);
                             CosyAlert.toast(res.data.message || 'Error deleting review.', 'danger');
                         }
                     });

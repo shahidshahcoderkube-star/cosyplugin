@@ -595,6 +595,98 @@ class EmailTemplates
     }
 
     /**
+     * 16. Customer Follow-up Response Email (to Provider)
+     */
+    public static function get_provider_review_followup_template(string $provider_name, string $customer_name, string $followup_text, string $original_review): array
+    {
+        $subject = sprintf(__('New Follow-up Response from %s on Review Thread', 'cosy-appointments'), $customer_name);
+        $heading = __('Customer Follow-up Response', 'cosy-appointments');
+
+        $html_content = sprintf(
+            '<p style="margin-bottom: 15px;">Hello <strong>%s</strong>,</p>
+            <p style="margin-bottom: 15px;"><strong>%s</strong> has posted a follow-up response in your review thread on CosyChats.</p>
+            <div style="background: #fdf5fc; border: 1px solid rgba(164, 67, 144, 0.2); border-radius: 8px; padding: 15px; margin: 15px 0;">
+                <p style="margin: 0 0 8px 0; font-size: 13px; color: #64748b;"><strong>Original Review Thread:</strong></p>
+                <p style="margin: 0 0 15px 0; font-style: italic; color: #334155;">"%s"</p>
+                <div style="border-top: 1px dashed #cbd5e1; padding-top: 12px;">
+                    <p style="margin: 0 0 6px 0; font-size: 13px; color: #a44390;"><strong>%s\'s Follow-up Response:</strong></p>
+                    <p style="margin: 0; color: #1e293b; font-weight: 500;">"%s"</p>
+                </div>
+            </div>
+            <p style="margin-bottom: 0;">You can log in to your Provider Dashboard or visit your public profile to view and post a final closing response to this review thread.</p>',
+            esc_html($provider_name),
+            esc_html($customer_name),
+            esc_html($original_review),
+            esc_html($customer_name),
+            esc_html($followup_text)
+        );
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
+
+    /**
+     * 17. Provider Final Closing Response Email (to Customer with Full Conversation History)
+     */
+    public static function get_customer_review_closing_template(string $customer_name, string $provider_name, string $review_text, string $l1_text, string $l2_text, string $l3_text): array
+    {
+        $subject = sprintf(__('Review Thread Completed - Final Response from %s', 'cosy-appointments'), $provider_name);
+        $heading = __('Review Thread Completed', 'cosy-appointments');
+
+        $html_content = sprintf(
+            '<p style="margin-bottom: 15px;">Hello <strong>%s</strong>,</p>
+            <p style="margin-bottom: 15px;"><strong>%s</strong> has posted the final closing response to your review thread on CosyChats. Below is the complete conversation transcript:</p>
+            
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <!-- 1. Customer Original Review -->
+                <div style="margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px dashed #cbd5e1;">
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">1. Your Original Review (%s):</p>
+                    <p style="margin: 0; color: #334155; font-style: italic;">"%s"</p>
+                </div>
+
+                <!-- 2. Provider Level 1 Reply -->
+                <div style="margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px dashed #cbd5e1;">
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #a44390; font-weight: 700; text-transform: uppercase;">2. %s\'s Initial Reply:</p>
+                    <p style="margin: 0; color: #1e293b; font-weight: 500;">"%s"</p>
+                </div>
+
+                <!-- 3. Customer Level 2 Follow-up -->
+                <div style="margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px dashed #cbd5e1;">
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">3. Your Follow-up Response:</p>
+                    <p style="margin: 0; color: #334155; font-style: italic;">"%s"</p>
+                </div>
+
+                <!-- 4. Provider Level 3 Final Response -->
+                <div style="background: #fdf5fc; border-left: 4px solid #a44390; padding: 12px 15px; border-radius: 6px;">
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #a44390; font-weight: 700; text-transform: uppercase;">4. %s\'s Final Closing Response:</p>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">"%s"</p>
+                </div>
+            </div>
+
+            <p style="margin-bottom: 0;">Thank you for your feedback and active participation on CosyChats!</p>',
+            esc_html($customer_name),
+            esc_html($provider_name),
+            esc_html($customer_name),
+            esc_html($review_text),
+            esc_html($provider_name),
+            esc_html($l1_text),
+            esc_html($customer_name),
+            esc_html($l2_text),
+            esc_html($provider_name),
+            esc_html($l3_text)
+        );
+
+        return [
+            'subject' => $subject,
+            'heading' => $heading,
+            'content' => $html_content,
+        ];
+    }
+
+    /**
      * 11. Booking Cancellation Email (Customer)
      */
     public static function get_booking_cancelled_customer_template(array $data): array

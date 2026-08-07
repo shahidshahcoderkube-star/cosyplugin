@@ -3171,36 +3171,46 @@ label.error,
     margin: 0 !important;
 }
 
-.cosy-leave-review-root .rating-scale-container {
-    display: grid !important;
-    grid-template-columns: repeat(10, 1fr) !important;
+/* Rating Buttons 1 to 9 (Top Row) */
+.cosy-leave-review-root .rating-top-row {
+    display: flex !important;
     gap: 6px !important;
-    margin-top: 10px !important;
-}
-
-@media (max-width: 576px) {
-    .cosy-leave-review-root .rating-scale-container {
-        grid-template-columns: repeat(5, 1fr) !important;
-        gap: 8px !important;
-    }
-}
-
-.cosy-leave-review-root .rating-score-btn {
     width: 100% !important;
-    height: 44px !important;
+    margin-bottom: 8px !important;
+}
+
+.cosy-leave-review-root .rating-btn-small {
+    flex: 1 1 0px !important;
+    min-width: 0 !important;
+    height: 40px !important;
+    padding: 0 !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #334155 !important;
+    background: #ffffff !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Rating Button 10 (Bottom Row - Full Width Bar) */
+.cosy-leave-review-root .rating-btn-large {
+    width: 100% !important;
+    height: 42px !important;
+    padding: 0 !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
     border-radius: 10px !important;
     border: 1.5px solid #cbd5e1 !important;
+    color: #334155 !important;
     background: #ffffff !important;
-    color: #475569 !important;
-    font-weight: 600 !important;
-    font-size: 0.95rem !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    transition: all 0.2s ease !important;
 }
 
 .cosy-leave-review-root .rating-score-btn:hover {
@@ -3209,11 +3219,39 @@ label.error,
     background: #fdf5fc !important;
 }
 
-.cosy-leave-review-root .rating-score-btn.active {
+.cosy-leave-review-root .rating-score-btn.active,
+.cosy-leave-review-root .rating-score-btn.btn-primary {
     background: #a44390 !important;
     border-color: #a44390 !important;
     color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(164, 67, 144, 0.3) !important;
+}
+
+/* Leave Review Form Alert Box Styling (Red Error / Green Success) */
+.cosy-leave-review-root .alert {
+    padding: 12px 16px !important;
+    border-radius: 10px !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+    line-height: 1.5 !important;
+}
+
+.cosy-leave-review-root .alert-danger {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    border: 1.5px solid #fecaca !important;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.08) !important;
+}
+
+.cosy-leave-review-root .alert-success {
+    background-color: #f0fdf4 !important;
+    color: #16a34a !important;
+    border: 1.5px solid #bbf7d0 !important;
+    box-shadow: 0 2px 6px rgba(34, 197, 94, 0.08) !important;
 }
 
 .cosy-leave-review-root textarea.form-control {
@@ -3253,4 +3291,93 @@ label.error,
     transform: translateY(-2px) !important;
     box-shadow: 0 6px 18px rgba(164, 67, 144, 0.4) !important;
 }
-
+
+/* Provider Reply Form Action Buttons (Green Submit / Red Cancel) */
+.cosy-provider-reply-form button[type="submit"] {
+    background: #22c55e !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.cosy-provider-reply-form button[type="submit"]:hover {
+    background: #16a34a !important;
+    color: #ffffff !important;
+}
+
+.btn-cancel-reply {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn-cancel-reply:hover {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+}
+
+/* Public Provider Profile Review Thread Action Buttons */
+.cosy-btn-reply-toggle,
+.btn-toggle-cust-reply {
+    background: #a44390 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    padding: 6px 14px !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.cosy-btn-reply-toggle:hover,
+.btn-toggle-cust-reply:hover {
+    background: #6d2e67 !important;
+    color: #ffffff !important;
+}
+
+.btn-post-cust-reply,
+.cosy-customer-reply-form button[type="submit"] {
+    background: #22c55e !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    padding: 6px 16px !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-post-cust-reply:hover,
+.cosy-customer-reply-form button[type="submit"]:hover {
+    background: #16a34a !important;
+    color: #ffffff !important;
+}
+
+.btn-cancel-cust-reply {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    padding: 6px 16px !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-cancel-cust-reply:hover {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+}

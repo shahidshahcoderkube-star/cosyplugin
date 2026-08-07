@@ -911,12 +911,32 @@ class Dashboard
                 $customer_user = get_userdata($review->customer_id);
                 if ($customer_user && !empty($customer_user->user_email) && function_exists('cosy_send_html_email')) {
                     $customer_name = !empty($review->customer_name) ? $review->customer_name : $customer_user->display_name;
-                    $tpl = \Cosy\Appointments\Common\EmailTemplates::get_customer_review_reply_template(
-                        $customer_name,
-                        $prov_name,
-                        $reply_text,
-                        $review->review
-                    );
+
+                    if ($target_level === 3) {
+                        // Level 3 Final Closing Response: Include full conversation history transcript
+                        $l1_row = $wpdb->get_row($wpdb->prepare("SELECT reply_text FROM $replies_table WHERE review_id = %d AND reply_level = 1 LIMIT 1", $review_id));
+                        $l2_row = $wpdb->get_row($wpdb->prepare("SELECT reply_text FROM $replies_table WHERE review_id = %d AND reply_level = 2 LIMIT 1", $review_id));
+                        $l1_text = $l1_row ? $l1_row->reply_text : ($review->provider_reply ?: '');
+                        $l2_text = $l2_row ? $l2_row->reply_text : '';
+
+                        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_customer_review_closing_template(
+                            $customer_name,
+                            $prov_name,
+                            $review->review,
+                            $l1_text,
+                            $l2_text,
+                            $reply_text
+                        );
+                    } else {
+                        // Level 1 Initial Response Email
+                        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_customer_review_reply_template(
+                            $customer_name,
+                            $prov_name,
+                            $reply_text,
+                            $review->review
+                        );
+                    }
+
                     cosy_send_html_email($customer_user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
                 }
             }
@@ -1005,6 +1025,20 @@ class Dashboard
                 sprintf(__('Customer #%d posted Level 2 follow-up response for Review #%d.', 'cosy-appointments'), $user_id, $review_id),
                 $user_id
             );
+
+            // Send Email notification to Provider about Customer's follow-up reply
+            $provider_user = get_userdata($review->provider_id);
+            if ($provider_user && !empty($provider_user->user_email) && function_exists('cosy_send_html_email')) {
+                $provider_name = $provider_user->first_name ?: $provider_user->display_name;
+                $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_review_followup_template(
+                    $provider_name,
+                    $cust_name,
+                    $reply_text,
+                    $review->review
+                );
+                cosy_send_html_email($provider_user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+            }
+
             wp_send_json_success(['message' => __('Your response has been added to the review thread!', 'cosy-appointments')]);
         } else {
             wp_send_json_error(['message' => __('Failed to post response.', 'cosy-appointments')]);
@@ -1186,6 +1220,19 @@ class Dashboard
         $provider_user = get_userdata($token_row->provider_id);
         $provider_slug = $provider_user ? $provider_user->user_nicename : '';
         $redirect_url  = !empty($provider_slug) ? site_url("/author/{$provider_slug}/") : site_url('/');
+
+        // Send Email notification to Admin about new pending review
+        $admin_email = get_option('admin_email');
+        if (!empty($admin_email) && function_exists('cosy_send_html_email') && $provider_user) {
+            $prov_name = $provider_user->display_name ?: $provider_user->first_name;
+            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_admin_new_review_template(
+                $prov_name,
+                $customer_name,
+                intval($rating),
+                $review_text
+            );
+            cosy_send_html_email($admin_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+        }
 
         wp_send_json_success([
             'message'      => __('Thank you! Your review has been submitted successfully and is pending admin approval.', 'cosy-appointments'),

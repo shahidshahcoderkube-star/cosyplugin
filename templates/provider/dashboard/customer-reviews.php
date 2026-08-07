@@ -61,17 +61,17 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                 <p class="text-muted small mb-0"><?php printf(esc_html__('Based on %d approved reviews', 'cosy-appointments'), $total_approved); ?></p>
             </div>
             <div class="col-md-8 ps-md-4">
-                <!-- Rating Distribution -->
-                <?php for ($i = 5; $i >= 1; $i--):
-                    $percent = $total_approved > 0 ? round(($rating_counts[$i] / $total_approved) * 100) : 0;
+                <!-- Rating Distribution (10 to 1 Scale, No Stars) -->
+                <?php for ($i = 10; $i >= 1; $i--):
+                    $count   = isset($rating_counts[$i]) ? $rating_counts[$i] : 0;
+                    $percent = $total_approved > 0 ? round(($count / $total_approved) * 100) : 0;
                 ?>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="text-muted small fw-bold" style="width: 25px;"><?php echo esc_html($i); ?></span>
-                        <i class="fas fa-star me-2 small" style="color: #f59e0b;"></i>
-                        <div class="progress flex-grow-1" style="height: 8px; border-radius: 4px; background: #e2e8f0;">
-                            <div class="progress-bar" style="width: <?php echo esc_attr($percent); ?>%; background: #a44390; border-radius: 4px;"></div>
+                    <div class="d-flex align-items-center mb-1">
+                        <span class="text-muted small fw-bold text-end pe-2" style="width: 28px; font-size: 0.8rem; color: #64748b;"><?php echo esc_html($i); ?></span>
+                        <div class="progress flex-grow-1" style="height: 6px; border-radius: 3px; background: #e2e8f0;">
+                            <div class="progress-bar" style="width: <?php echo esc_attr($percent); ?>%; background: #a44390; border-radius: 3px;"></div>
                         </div>
-                        <span class="ms-3 text-muted small fw-bold" style="width: 30px; text-align: right;"><?php echo esc_html($rating_counts[$i]); ?></span>
+                        <span class="ms-2 text-muted small fw-bold" style="width: 24px; text-align: right; font-size: 0.8rem; color: #475569;"><?php echo esc_html($count); ?></span>
                     </div>
                 <?php endfor; ?>
             </div>
@@ -224,14 +224,14 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                                         <div class="mb-2">
                                                             <textarea class="form-control form-control-sm reply-textarea" rows="3" placeholder="<?php echo esc_attr(($has_level2) ? __('Write your final closing response to this parent review thread...', 'cosy-appointments') : __('Write a polite public response to this parent review...', 'cosy-appointments')); ?>" style="border-radius: 10px; font-size: 0.9rem;" required><?php echo esc_textarea(($has_level1 && !$has_level2) ? $level1_text : ''); ?></textarea>
                                                         </div>
-                                                        <div class="d-flex gap-2">
-                                                            <button type="submit" class="btn btn-sm btn-filled px-3" style="background: #a44390; color: #fff; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
-                                                                <?php echo esc_html(($has_level2) ? __('Submit Final Response', 'cosy-appointments') : __('Submit Response', 'cosy-appointments')); ?>
-                                                            </button>
-                                                            <button type="button" class="btn btn-sm btn-light btn-cancel-reply" data-id="<?php echo esc_attr($r['id']); ?>" style="border-radius: 8px; font-size: 0.85rem;">
-                                                                <?php esc_html_e('Cancel', 'cosy-appointments'); ?>
-                                                            </button>
-                                                        </div>
+                                                         <div class="d-flex gap-2">
+                                                             <button type="submit" class="btn btn-sm px-3" style="background: #22c55e; color: #ffffff; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: none; outline: none !important; box-shadow: none !important;">
+                                                                 <?php echo esc_html(($has_level2) ? __('Submit Final Response', 'cosy-appointments') : __('Submit Response', 'cosy-appointments')); ?>
+                                                             </button>
+                                                             <button type="button" class="btn btn-sm btn-cancel-reply px-3" data-id="<?php echo esc_attr($r['id']); ?>" style="background: #ef4444; color: #ffffff; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: none; outline: none !important; box-shadow: none !important;">
+                                                                 <?php esc_html_e('Cancel', 'cosy-appointments'); ?>
+                                                             </button>
+                                                         </div>
                                                     </form>
                                                 </div>
                                             <?php endif; ?>

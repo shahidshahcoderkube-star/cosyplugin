@@ -346,12 +346,12 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
                                                         <textarea class="form-control form-control-sm cust-reply-text" rows="2" placeholder="<?php esc_attr_e('Type your follow-up message here...', 'cosy-appointments'); ?>" style="border-radius: 8px; font-size: 0.85rem;" required></textarea>
                                                     </div>
                                                     <div class="d-flex gap-2 justify-content-end">
-                                                        <button type="button" class="btn btn-sm btn-light btn-cancel-cust-reply" data-review-id="<?php echo esc_attr($rev['id']); ?>" style="border-radius: 8px; font-size: 0.78rem; padding: 2px 10px;">
-                                                            <?php esc_html_e('Cancel', 'cosy-appointments'); ?>
-                                                        </button>
-                                                        <button type="submit" class="btn btn-sm text-white px-3" style="background: #a44390; border-radius: 8px; font-weight: 600; font-size: 0.78rem; padding: 2px 12px;">
-                                                            <?php esc_html_e('Post Follow-up', 'cosy-appointments'); ?>
-                                                        </button>
+                                                         <button type="button" class="btn btn-sm btn-cancel-cust-reply" data-review-id="<?php echo esc_attr($rev['id']); ?>">
+                                                             <?php esc_html_e('Cancel', 'cosy-appointments'); ?>
+                                                         </button>
+                                                         <button type="submit" class="btn btn-sm btn-post-cust-reply" data-review-id="<?php echo esc_attr($rev['id']); ?>">
+                                                             <?php esc_html_e('Post Follow-up', 'cosy-appointments'); ?>
+                                                         </button>
                                                     </div>
                                                 </form>
                                             </div>

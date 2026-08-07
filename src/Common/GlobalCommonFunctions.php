@@ -578,13 +578,16 @@ trait GlobalCommonFunctions
 
         $total_approved = count($approved_reviews);
         $average_rating = 0;
-        $rating_counts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+        $rating_counts = [10 => 0, 9 => 0, 8 => 0, 7 => 0, 6 => 0, 5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
 
         if ($total_approved > 0) {
             $sum_ratings = 0;
             foreach ($approved_reviews as $r) {
-                $sum_ratings += intval($r['rating']);
-                $rating_counts[intval($r['rating'])]++;
+                $score = max(1, min(10, intval($r['rating'])));
+                $sum_ratings += $score;
+                if (isset($rating_counts[$score])) {
+                    $rating_counts[$score]++;
+                }
             }
             $average_rating = round($sum_ratings / $total_approved, 1);
         }

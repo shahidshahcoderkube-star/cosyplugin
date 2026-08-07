@@ -862,36 +862,31 @@
 }
 
 .cosy-sweet-btn-cancel {
-    background: #f1f5f9;
-    color: #475569;
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
 }
 
 .cosy-sweet-btn-cancel:hover {
-    background: #e2e8f0;
-    color: #1e293b;
+    background: #dc2626 !important;
+    color: #ffffff !important;
 }
 
-.cosy-sweet-btn-confirm {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+.cosy-sweet-btn-confirm,
+.cosy-sweet-btn-confirm.info-btn {
+    background: #22c55e !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3) !important;
 }
 
-.cosy-sweet-btn-confirm:hover {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+.cosy-sweet-btn-confirm:hover,
+.cosy-sweet-btn-confirm.info-btn:hover {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4) !important;
     transform: translateY(-1px);
 }
 
-.cosy-sweet-btn-confirm.info-btn {
-    background: linear-gradient(135deg, #a44390, #6d2e67);
-    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.3);
-}
-
-.cosy-sweet-btn-confirm.info-btn:hover {
-    background: linear-gradient(135deg, #8f357b, #5c2557);
-    box-shadow: 0 6px 16px rgba(164, 67, 144, 0.4);
-}
 
 /* Toast notification (top-right) */
 #cosy-sweet-toast-container {
@@ -1286,7 +1281,7 @@
     background-color: #ffffff;
     margin: 8% auto;
     width: 90%;
-    max-width: 550px;
+    max-width: 750px;
     border-radius: 16px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     border: 1px solid #f1f5f9;

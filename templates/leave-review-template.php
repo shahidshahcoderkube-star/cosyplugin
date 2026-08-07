@@ -81,13 +81,18 @@ if ($token_data && empty($error_message)) {
                         <label class="form-label fw-bold text-dark d-block mb-2">
                             <?php esc_html_e('Your Rating (out of 10)', 'cosy-appointments'); ?> <span class="text-danger">*</span>
                         </label>
-                        <div class="rating-scale-container d-flex flex-wrap gap-2 justify-content-between">
-                            <?php for ($num = 1; $num <= 10; $num++): ?>
-                                <button type="button" class="btn btn-outline-secondary rating-score-btn flex-fill" data-score="<?php echo $num; ?>" style="min-width: 42px; border-radius: 8px; font-weight: 600; transition: all 0.2s ease;">
+                        <!-- Top Row: Buttons 1 to 9 -->
+                        <div class="rating-top-row mb-2">
+                            <?php for ($num = 1; $num <= 9; $num++): ?>
+                                <button type="button" class="btn rating-score-btn rating-btn-small" data-score="<?php echo $num; ?>">
                                     <?php echo $num; ?>
                                 </button>
                             <?php endfor; ?>
                         </div>
+                        <!-- Bottom Row: Full-width 10 Button -->
+                        <button type="button" class="btn rating-score-btn rating-btn-large" data-score="10">
+                            10
+                        </button>
                         <input type="hidden" name="rating" id="selectedScore" value="0" required>
                         <small class="text-muted d-block mt-2" id="ratingHelpText" style="font-size: 0.8rem;"><?php esc_html_e('Select a score from 1 (lowest) to 10 (highest)', 'cosy-appointments'); ?></small>
                     </div>
@@ -151,12 +156,12 @@ jQuery(document).ready(function ($) {
         const $btn = $('#btnSubmitTokenReview');
 
         if (score < 1 || score > 10) {
-            $alert.removeClass('d-none alert-success').addClass('alert-danger').html('Please select a rating score between 1 and 10.').slideDown();
+            $alert.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2" style="font-size: 1.05rem;"></i> Please select a rating score between 1 and 10.').slideDown();
             return;
         }
 
         if (reviewText.length < 5) {
-            $alert.removeClass('d-none alert-success').addClass('alert-danger').html('Please write a brief review comment before submitting.').slideDown();
+            $alert.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2" style="font-size: 1.05rem;"></i> Please write a brief review comment before submitting.').slideDown();
             return;
         }
 
@@ -166,23 +171,23 @@ jQuery(document).ready(function ($) {
         const formData = $(this).serialize();
 
         $.ajax({
-            url: window.ajaxUrl || '/wp-admin/admin-ajax.php',
+            url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
             type: 'POST',
             data: formData,
             success: function (res) {
                 if (res.success) {
-                    $alert.removeClass('d-none alert-danger').addClass('alert-success').html(res.data.message || 'Thank you! Your review has been submitted successfully.').slideDown();
+                    $alert.removeClass('d-none alert-danger').addClass('alert-success').html('<i class="fas fa-check-circle me-2" style="font-size: 1.05rem;"></i> ' + (res.data.message || 'Thank you! Your review has been submitted successfully.')).slideDown();
                     $('#cosyTokenReviewForm').find('input, textarea, button').prop('disabled', true);
                     setTimeout(function () {
                         window.location.href = res.data.redirect_url || '/';
                     }, 3000);
                 } else {
-                    $alert.removeClass('d-none alert-success').addClass('alert-danger').html(res.data.message || 'Failed to submit review. Please try again.').slideDown();
+                    $alert.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2" style="font-size: 1.05rem;"></i> ' + (res.data.message || 'Failed to submit review. Please try again.')).slideDown();
                     $btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i> Submit Review');
                 }
             },
             error: function () {
-                $alert.removeClass('d-none alert-success').addClass('alert-danger').html('An unexpected error occurred. Please try again.').slideDown();
+                $alert.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2" style="font-size: 1.05rem;"></i> An unexpected error occurred. Please try again.').slideDown();
                 $btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i> Submit Review');
             }
         });
