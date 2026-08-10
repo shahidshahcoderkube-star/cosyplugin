@@ -277,6 +277,9 @@ class WorldPayPaymentGateway
             'appt_id'                => $order_id
         ], cosy_get_page_url('cosy-checkout'));
 
+        // Enforce https scheme to satisfy WorldPay HPP security policy
+        $success_url = set_url_scheme($success_url, 'https');
+
         // If credentials represent WorldPay Access Account (Entity ID starting with PO or non-numeric)
         if (empty($raw_inst) || !is_numeric($raw_inst)) {
             $endpoint = $test_mode ? 'https://try.access.worldpay.com/payment_pages' : 'https://access.worldpay.com/payment_pages';
