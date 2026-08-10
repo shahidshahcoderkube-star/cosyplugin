@@ -264,7 +264,8 @@ class WorldPayPaymentGateway
         $username  = trim(get_option('cosy_worldpay_token', ''));
         $password  = trim(get_option('cosy_worldpay_password', ''));
         $raw_inst  = trim(get_option('cosy_worldpay_inst_id', ''));
-        $inst_id   = !empty($raw_inst) ? $raw_inst : '1057362';
+        // Classic WCC Gateway expects numeric Installation ID (e.g. 1057362)
+        $inst_id   = (!empty($raw_inst) && is_numeric($raw_inst)) ? $raw_inst : '1057362';
         $test_mode = get_option('cosy_worldpay_test_mode', 1);
         $currency  = strtoupper(cosy_get_currency_code());
 
