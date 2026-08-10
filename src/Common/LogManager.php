@@ -93,6 +93,29 @@ class LogManager
     }
 
     /**
+     * Log a PHP Exception with full file, line, and trace details.
+     */
+    public static function log_exception(string $context, \Throwable $exception, ?int $user_id = null): bool
+    {
+        $file = basename($exception->getFile());
+        $line = $exception->getLine();
+        $msg  = $exception->getMessage();
+        $desc = sprintf("EXCEPTION in %s:L%d | %s", $file, $line, $msg);
+
+        return self::log($context, 'exception_error', $desc, $user_id);
+    }
+
+    /**
+     * Log a Database Error with last_error SQL details.
+     */
+    public static function log_db_error(string $context, string $action_title, string $sql_error, ?int $user_id = null): bool
+    {
+        $desc = sprintf("DATABASE ERROR during '%s': %s", $action_title, !empty($sql_error) ? $sql_error : 'Failed DB constraint/query');
+
+        return self::log($context, 'database_error', $desc, $user_id);
+    }
+
+    /**
      * Render the logging toggle switch HTML.
      */
     public static function render_toggle_switch(string $page_name): string
