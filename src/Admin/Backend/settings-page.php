@@ -96,28 +96,28 @@ defined('ABSPATH') || exit;
                             </div>
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <label for="cosy_worldpay_inst_id" class="form-label fw-bold text-secondary">Installation ID (Merchant ID)</label>
+                                    <label for="cosy_worldpay_inst_id" class="form-label fw-bold text-secondary">Installation ID</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-card"></i></span>
-                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_inst_id" id="cosy_worldpay_inst_id" value="<?php echo esc_attr(get_option('cosy_worldpay_inst_id')); ?>" placeholder="e.g. 1234567">
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_inst_id" id="cosy_worldpay_inst_id" value="<?php echo esc_attr(get_option('cosy_worldpay_inst_id')); ?>" placeholder="e.g. 1057362">
                                     </div>
-                                    <div class="form-text text-muted mt-1">Enter your WorldPay Installation ID from your merchant account.</div>
+                                    <div class="form-text text-muted mt-1">Enter your 7-digit WorldPay Installation ID (e.g. 1057362).</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="cosy_worldpay_token" class="form-label fw-bold text-secondary">Service API Token</label>
+                                    <label for="cosy_worldpay_token" class="form-label fw-bold text-secondary">API User name</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-shield"></i></span>
-                                        <input type="password" class="form-control border-start-0 py-2" name="cosy_worldpay_token" id="cosy_worldpay_token" value="<?php echo esc_attr(get_option('cosy_worldpay_token')); ?>" placeholder="Token">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_token" id="cosy_worldpay_token" value="<?php echo esc_attr(get_option('cosy_worldpay_token')); ?>" placeholder="e.g. rMkF6vE1F9xmmGtu">
                                     </div>
-                                    <div class="form-text text-muted mt-1">Enter your WorldPay API Token.</div>
+                                    <div class="form-text text-muted mt-1">From API Credentials section.</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="cosy_worldpay_client_key" class="form-label fw-bold text-secondary">Client Key</label>
+                                    <label for="cosy_worldpay_password" class="form-label fw-bold text-secondary">API Password</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
-                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_client_key" id="cosy_worldpay_client_key" value="<?php echo esc_attr(get_option('cosy_worldpay_client_key')); ?>" placeholder="Client Key">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
+                                        <input type="password" class="form-control border-start-0 py-2" name="cosy_worldpay_password" id="cosy_worldpay_password" value="<?php echo esc_attr(get_option('cosy_worldpay_password')); ?>" placeholder="API Password">
                                     </div>
-                                    <div class="form-text text-muted mt-1">Enter your WorldPay Client Key.</div>
+                                    <div class="form-text text-muted mt-1">From API Credentials section.</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="cosy_worldpay_charge" class="form-label fw-bold text-secondary">Transaction Charge (%)</label>
@@ -125,7 +125,7 @@ defined('ABSPATH') || exit;
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
                                         <input type="number" step="0.01" class="form-control border-start-0 py-2" name="cosy_worldpay_charge" id="cosy_worldpay_charge" value="<?php echo esc_attr(get_option('cosy_worldpay_charge')); ?>" placeholder="0.00">
                                     </div>
-                                    <div class="form-text text-muted mt-1">Specify additional convenience charges for this gateway.</div>
+                                    <div class="form-text text-muted mt-1">Specify platform fee percentage charged for WorldPay transactions.</div>
                                 </div>
                             </div>
                         </div>

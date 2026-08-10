@@ -142,6 +142,9 @@ class SettingsAdmin
         register_setting('cosy_payment_settings', 'cosy_worldpay_token', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
+        register_setting('cosy_payment_settings', 'cosy_worldpay_password', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
         register_setting('cosy_payment_settings', 'cosy_worldpay_client_key', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);

@@ -336,6 +336,7 @@ class Assets
 
             // Pass necessary PHP variables safely to checkout JS to prevent inline injections
             $current_user = wp_get_current_user();
+            $active_gw    = get_option('cosy_default_payment_gateway', 'worldpay');
             wp_localize_script('cosy-checkout', 'cosyCheckout', [
                 'ajaxUrl'              => admin_url('admin-ajax.php'),
                 'nonce'                => wp_create_nonce('cosy_booking_nonce'),
@@ -343,13 +344,13 @@ class Assets
                 'profileUrl'           => esc_url(cosy_get_page_url('customer-profile')),
                 'customerName'         => $current_user->exists() ? esc_html($current_user->display_name) : '',
                 'customerEmail'        => $current_user->exists() ? esc_html($current_user->user_email) : '',
-                'activeGateway'        => get_option('cosy_default_payment_gateway', 'worldpay'),
+                'activeGateway'        => $active_gw,
                 'worldpayClientKey'    => esc_js(get_option('cosy_worldpay_client_key')),
                 'stripePublishableKey' => esc_js(get_option('cosy_stripe_publishable_key')),
                 'currencySymbol'       => cosy_get_currency_symbol(),
                 'currencyCode'         => cosy_get_currency_code(),
                 'feeType'              => 'percent',
-                'feeValue'             => floatval(get_option('cosy_stripe_charge', '0')),
+                'feeValue'             => floatval(($active_gw === 'worldpay') ? get_option('cosy_worldpay_charge', '0') : get_option('cosy_stripe_charge', '0')),
             ]);
         }
     }
