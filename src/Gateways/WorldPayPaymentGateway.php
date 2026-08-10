@@ -260,14 +260,10 @@ class WorldPayPaymentGateway
             update_post_meta($order_id, $key, $value);
         }
 
-        // Dynamically retrieve WorldPay credentials with user account fallback
-        $opt_user  = trim(get_option('cosy_worldpay_token', ''));
-        $opt_pass  = trim(get_option('cosy_worldpay_password', ''));
-        $raw_inst  = trim(get_option('cosy_worldpay_inst_id', ''));
-
-        $username  = !empty($opt_user) ? $opt_user : '7MkF6vE1f9xmnGtd';
-        $password  = !empty($opt_pass) ? $opt_pass : 'ZDowR6AMkaeaKmE0gAE7ANwXhve9zKFKgworFcOZLGUM2q9vp10PjmiSH7sxeeZJ';
-        $entity_id = !empty($raw_inst) ? $raw_inst : 'PO4097986011';
+        // 100% Dynamic retrieval of WorldPay credentials directly from saved Admin Settings
+        $username  = trim(get_option('cosy_worldpay_token', ''));
+        $password  = trim(get_option('cosy_worldpay_password', ''));
+        $entity_id = trim(get_option('cosy_worldpay_inst_id', ''));
         $test_mode = get_option('cosy_worldpay_test_mode', 1);
         $currency  = strtoupper(cosy_get_currency_code());
 
@@ -336,7 +332,7 @@ class WorldPayPaymentGateway
         }
 
         // Classic WorldPay Hosted Gateway (WCC Purchase URL for numeric Installation IDs)
-        $inst_id  = is_numeric($raw_inst) ? $raw_inst : '1057362';
+        $inst_id  = $entity_id;
         $base_url = $test_mode ? 'https://secure-test.worldpay.com/wcc/purchase' : 'https://secure.worldpay.com/wcc/purchase';
 
         $query_args = [
