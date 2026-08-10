@@ -850,35 +850,22 @@ class Frontend
         }
 
         // Server-side Price Verification (Price Tampering Security Check)
+        // PERFORMANCE OPTIMIZATION: Unified single SQL query with COALESCE fallback
         global $wpdb;
         $table = $wpdb->prefix . 'provider_services';
 
-        $db_price = null;
-        if ($service_id > 0) {
-            $db_price = $wpdb->get_var($wpdb->prepare(
-                "SELECT price FROM $table WHERE provider_id = %d AND service_id = %d AND checkbox_status = 'yes' LIMIT 1",
-                $provider_id,
-                $service_id
-            ));
-        }
+        $db_price = $wpdb->get_var($wpdb->prepare(
+            "SELECT COALESCE(
+                (SELECT price FROM $table WHERE provider_id = %d AND service_id = %d AND checkbox_status = 'yes' LIMIT 1),
+                (SELECT price FROM $table WHERE provider_id = %d AND checkbox_status = 'yes' LIMIT 1),
+                (SELECT price FROM $table WHERE provider_id = %d LIMIT 1)
+            )",
+            $provider_id, $service_id,
+            $provider_id,
+            $provider_id
+        ));
 
-        // Fallback 1: Get provider's active service price if service selection was removed/defaulted
-        if ($db_price === null) {
-            $db_price = $wpdb->get_var($wpdb->prepare(
-                "SELECT price FROM $table WHERE provider_id = %d AND checkbox_status = 'yes' LIMIT 1",
-                $provider_id
-            ));
-        }
-
-        // Fallback 2: Get any price entry for this provider in provider_services
-        if ($db_price === null) {
-            $db_price = $wpdb->get_var($wpdb->prepare(
-                "SELECT price FROM $table WHERE provider_id = %d LIMIT 1",
-                $provider_id
-            ));
-        }
-
-        // Fallback 3: Get user meta hourly rate or calculate from frontend passed serviceCost
+        // Fallback: Get user meta hourly rate or calculate from frontend passed serviceCost
         if ($db_price === null || floatval($db_price) <= 0) {
             $meta_rate = get_user_meta($provider_id, 'cosy_hourly_rate', true);
             if (!empty($meta_rate) && floatval($meta_rate) > 0) {

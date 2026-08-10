@@ -227,6 +227,13 @@ trait GlobalCommonFunctions
      */
     public function get_all_service_providers(array $filters = []): array
     {
+        // 0. PERFORMANCE OPTIMIZATION: Transient Cache Check (< 5ms response for repeat visits)
+        $cache_key   = 'cosy_prov_list_' . md5(json_encode($filters));
+        $cached_data = get_transient($cache_key);
+        if ($cached_data !== false && is_array($cached_data)) {
+            return $cached_data;
+        }
+
         global $wpdb;
 
         // Get service slug from URL or filters
@@ -257,6 +264,12 @@ trait GlobalCommonFunctions
             }
         }
 
+        $price_order_sql = '';
+        if (!empty($filters['price_range'])) {
+            $direction = ($filters['price_range'] === 'low_high') ? 'ASC' : 'DESC';
+            $price_order_sql = " ORDER BY price $direction";
+        }
+
         $include_users = [];
         $provider_prices = []; // Initialize to avoid undefined variable error
         if (!empty($service_slug)) {
@@ -272,11 +285,11 @@ trait GlobalCommonFunctions
             if (!empty($matched_services)) {
                 $service_id = $matched_services[0];
 
-                // Find providers who selected this service and their prices in ONE query
+                // Find providers who selected this service and their prices in ONE SQL query (Sorted at DB level)
                 $table_name = $wpdb->prefix . 'provider_services';
                 $service_results = $wpdb->get_results(
                     $wpdb->prepare(
-                        "SELECT provider_id, price FROM $table_name WHERE service_id = %d AND checkbox_status = 'yes'",
+                        "SELECT provider_id, price FROM $table_name WHERE service_id = %d AND checkbox_status = 'yes'" . $price_order_sql,
                         $service_id
                     ),
                     OBJECT_K // This will index the result by Provider ID.
@@ -292,10 +305,10 @@ trait GlobalCommonFunctions
                 return []; // Service not found
             }
         } else {
-            // No specific service selected. Fetch the minimum price for each provider as a default display price.
+            // No specific service selected. Fetch the minimum price for each provider as a default display price (Sorted at DB level).
             $table_name = $wpdb->prefix . 'provider_services';
             $service_results = $wpdb->get_results(
-                "SELECT provider_id, MIN(price) as price FROM $table_name WHERE checkbox_status = 'yes' GROUP BY provider_id",
+                "SELECT provider_id, MIN(price) as price FROM $table_name WHERE checkbox_status = 'yes' GROUP BY provider_id" . $price_order_sql,
                 OBJECT_K
             );
             if (!empty($service_results)) {
@@ -314,6 +327,13 @@ trait GlobalCommonFunctions
                 'relation' => 'AND',
             ]
         ];
+
+        // Search filtering at SQL Query Level
+        if (!empty($filters['search_name'])) {
+            $search_val = sanitize_text_field($filters['search_name']);
+            $args['search'] = '*' . $search_val . '*';
+            $args['search_columns'] = ['display_name', 'user_login', 'user_nicename', 'user_email'];
+        }
 
         // Provider status must be active (or NOT EXISTS)
         $args['meta_query'][] = [
@@ -348,13 +368,42 @@ trait GlobalCommonFunctions
         }
 
         if (!empty($include_users)) {
-            $args['include'] = array_unique($include_users);
+            $args['include'] = array_values($include_users);
+            if (!empty($filters['price_range'])) {
+                $args['orderby'] = 'include';
+            }
         } elseif (!empty($service_slug)) {
             // Service was specified but no providers found
             return [];
         }
 
         $service_providers = get_users($args);
+
+        if (empty($service_providers)) {
+            return [];
+        }
+
+        // 1. PERFORMANCE OPTIMIZATION: Pre-fetch all user metadata in 1 single database query
+        // This prevents the N+1 query problem by filling WP object cache upfront.
+        $user_ids = wp_list_pluck($service_providers, 'ID');
+        update_meta_cache('user', $user_ids);
+
+        // 2. PERFORMANCE OPTIMIZATION: Batch fetch average ratings for all providers in 1 single SQL query
+        $table_reviews = $wpdb->prefix . 'cosy_provider_reviews';
+        $user_ids_in   = implode(',', array_map('intval', $user_ids));
+        $ratings_map   = [];
+
+        if (!empty($user_ids_in)) {
+            $rating_results = $wpdb->get_results(
+                "SELECT provider_id, AVG(rating) as avg_rating FROM $table_reviews WHERE provider_id IN ($user_ids_in) AND status = 'approved' GROUP BY provider_id",
+                OBJECT_K
+            );
+            if (!empty($rating_results)) {
+                foreach ($rating_results as $pid => $r_obj) {
+                    $ratings_map[$pid] = round(floatval($r_obj->avg_rating), 1);
+                }
+            }
+        }
 
         $data = [];
 
@@ -385,9 +434,8 @@ trait GlobalCommonFunctions
                 continue; // Skip listing provider if no availability is set up
             }
             
-            // Calculate average rating
-            $rating_data = $this->get_provider_reviews($user_id, true);
-            $avg_rating = isset($rating_data['average_rating']) ? floatval($rating_data['average_rating']) : 0.0;
+            // Read pre-cached average rating (0 DB queries executed here)
+            $avg_rating = isset($ratings_map[$user_id]) ? $ratings_map[$user_id] : 0.0;
 
             // Filter by rating
             if (!empty($filters['rating'])) {
@@ -403,7 +451,7 @@ trait GlobalCommonFunctions
                 'email' => $provider->user_email,
                 'name' => $provider->display_name,
                 'role' => implode(', ', $provider->roles),
-                // Custom user meta
+                // Custom user meta (retrieved instantly from in-memory cache)
                 'prov_username' => get_user_meta($user_id, 'prov_username', true),
                 'first_name' => get_user_meta($user_id, 'first_name', true),
                 'middle_name' => get_user_meta($user_id, 'prov_mname', true),
@@ -454,6 +502,9 @@ trait GlobalCommonFunctions
                 }
             });
         }
+
+        // Save query results in Transient Cache for 1 hour
+        set_transient($cache_key, $data, HOUR_IN_SECONDS);
 
         return $data;
     }
@@ -787,5 +838,15 @@ trait GlobalCommonFunctions
         }
 
         return false;
+    }
+
+    /**
+     * Clear all provider directory transient caches.
+     * Triggered automatically whenever a provider updates profile, availability, or reviews.
+     */
+    public function cosy_clear_provider_transients(): void
+    {
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cosy_prov_list_%' OR option_name LIKE '_transient_timeout_cosy_prov_list_%'");
     }
 }

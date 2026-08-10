@@ -164,6 +164,9 @@ class Dashboard
                 cosy_notify_admin_provider_setup_ready($user_id);
             }
 
+            // Flush provider directory transient cache on profile update
+            $this->cosy_clear_provider_transients();
+
             $forms = new FormsData();
             $forms->send_response(true, ['message' => 'Profile updated successfully!', 'data' => $provider_meta]);
         }
@@ -457,6 +460,9 @@ class Dashboard
             $user_id
         );
 
+        // Flush provider directory transient cache on holiday update
+        $this->cosy_clear_provider_transients();
+
         wp_send_json_success([
             'message'      => 'Holiday added successfully!',
             'date'         => $date,
@@ -519,6 +525,9 @@ class Dashboard
             sprintf(__('Provider removed holiday scheduled for %s.', 'cosy-appointments'), $date),
             $user_id
         );
+
+        // Flush provider directory transient cache on holiday deletion
+        $this->cosy_clear_provider_transients();
 
         wp_send_json_success(['message' => 'Holiday removed successfully!', 'date' => $date]);
     }
@@ -601,6 +610,9 @@ class Dashboard
             cosy_notify_admin_provider_setup_ready($user_id);
         }
 
+        // Flush provider directory transient cache on availability update
+        $this->cosy_clear_provider_transients();
+
         wp_send_json_success('Availability for ' . $days_string . ' saved successfully.');
     }
 
@@ -621,6 +633,9 @@ class Dashboard
                 sprintf(__('Provider removed availability working hours for %s.', 'cosy-appointments'), $day),
                 $user_id
             );
+
+            // Flush provider directory transient cache on availability update
+            $this->cosy_clear_provider_transients();
 
             wp_send_json_success('Availability for ' . $day . ' removed successfully.');
         }
@@ -789,7 +804,10 @@ class Dashboard
                 $current_user->ID
             );
 
-            wp_send_json_success(['message' => 'Review approved successfully!']);
+            // Flush provider directory transient cache on review approval
+            $this->cosy_clear_provider_transients();
+
+            wp_send_json_success(['message' => 'Review approved successfully.']);
         } else {
             wp_send_json_error(['message' => 'Failed to approve review.']);
         }
