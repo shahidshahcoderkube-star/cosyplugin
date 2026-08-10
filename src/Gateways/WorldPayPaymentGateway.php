@@ -295,9 +295,6 @@ class WorldPayPaymentGateway
             'value' => [
                 'currency' => $currency,
                 'amount'   => $amount_minor
-            ],
-            'customer' => [
-                'email' => !empty($current_user->user_email) ? $current_user->user_email : 'customer@example.com'
             ]
         ];
 
