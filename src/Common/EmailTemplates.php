@@ -810,4 +810,98 @@ class EmailTemplates
             'content' => $html_content,
         ];
     }
+
+    /**
+     * CENTRALIZED EMAIL DISPATCHER
+     * 
+     * Fetches the specified template, builds HTML layout, applies placeholders,
+     * and dispatches HTML email via cosy_send_html_email in 1 single clean line.
+     *
+     * @param string $template_name Unique template key name (e.g. 'customer_verification', 'customer_booking_confirmation', etc.)
+     * @param string $to_email      Target recipient email address.
+     * @param array  $data          Associative array of template variables/placeholders.
+     * @return bool                 True if email was dispatched, false otherwise.
+     */
+    public static function send(string $template_name, string $to_email, array $data = []): bool
+    {
+        if (empty($to_email) || !function_exists('cosy_send_html_email')) {
+            return false;
+        }
+
+        $template = null;
+
+        switch ($template_name) {
+            case 'customer_verification':
+                $template = self::get_customer_verification_template($data['name'] ?? '', $data['verify_url'] ?? '');
+                break;
+            case 'provider_verification':
+                $template = self::get_provider_verification_template($data['name'] ?? '', $data['verify_url'] ?? '');
+                break;
+            case 'customer_booking_confirmation':
+                $template = self::get_customer_booking_confirmation_template(
+                    $data['customer_name'] ?? '',
+                    $data['provider_name'] ?? '',
+                    $data['booking_date'] ?? '',
+                    $data['start_time'] ?? '',
+                    $data['end_time'] ?? '',
+                    $data['meeting_link'] ?? ''
+                );
+                break;
+            case 'provider_booking_confirmation':
+                $template = self::get_provider_booking_confirmation_template(
+                    $data['provider_name'] ?? '',
+                    $data['customer_name'] ?? '',
+                    $data['booking_date'] ?? '',
+                    $data['start_time'] ?? '',
+                    $data['end_time'] ?? '',
+                    $data['meeting_link'] ?? ''
+                );
+                break;
+            case 'payment_confirmation':
+                $template = self::get_payment_confirmation_template($data);
+                break;
+            case 'gift_voucher_received':
+                $template = self::get_gift_voucher_received_template($data);
+                break;
+            case 'gift_voucher_confirmation':
+                $template = self::get_gift_voucher_confirmation_template($data);
+                break;
+            case 'new_review':
+                $template = self::get_new_review_notification_template(
+                    $data['provider_name'] ?? '',
+                    $data['customer_name'] ?? '',
+                    $data['rating'] ?? '',
+                    $data['review_text'] ?? ''
+                );
+                break;
+            case 'review_request':
+                $template = self::get_review_request_template($data);
+                break;
+            case 'provider_setup_ready':
+                $template = self::get_provider_setup_ready_admin_template($data['provider_name'] ?? '', $data['provider_email'] ?? '', $data['admin_url'] ?? '');
+                break;
+            default:
+                $method = 'get_' . $template_name . '_template';
+                if (method_exists(self::class, $method)) {
+                    $template = self::$method($data);
+                }
+                break;
+        }
+
+        if (empty($template) || !is_array($template) || empty($template['content'])) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'email',
+                'unknown_template',
+                sprintf(__('Failed to dispatch email: Template "%s" not found.', 'cosy-appointments'), $template_name)
+            );
+            return false;
+        }
+
+        return (bool) cosy_send_html_email(
+            $to_email,
+            $template['subject'] ?? '',
+            $template['heading'] ?? '',
+            $template['content'] ?? ''
+        );
+    }
 }

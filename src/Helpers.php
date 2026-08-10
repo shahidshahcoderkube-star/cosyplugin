@@ -68,6 +68,15 @@ if (!function_exists('cosy_send_html_email')) {
      */
     function cosy_send_html_email($to, $subject, $heading, $content_html, $show_signature = true)
     {
+        if (empty($to) || !is_email($to)) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'email',
+                'invalid_recipient',
+                sprintf(__('Attempted to send email to invalid address: %s', 'cosy-appointments'), var_export($to, true))
+            );
+            return false;
+        }
+
         $year = date('Y');
 
         // --- Build Email Signature HTML ---
@@ -171,16 +180,37 @@ if (!function_exists('cosy_send_html_email')) {
         </body>
         </html>";
 
+        // Build proper headers for spam prevention
+        $site_name   = get_bloginfo('name');
+        if (empty($site_name) || strtolower($site_name) === 'cosyplugin' || strtolower($site_name) === 'wordpress') {
+            $site_name = 'CosyChats';
+        }
+        $admin_email = get_option('admin_email');
+
+        $headers = [
+            'Content-Type: text/html; charset=UTF-8',
+            "From: {$site_name} <{$admin_email}>",
+            "Reply-To: {$admin_email}",
+        ];
+
         // Set content type to HTML
         $html_email_filter = function () {
             return 'text/html; charset=UTF-8';
         };
         add_filter('wp_mail_content_type', $html_email_filter);
 
-        $result = wp_mail($to, $subject, $message);
+        $result = wp_mail($to, $subject, $message, $headers);
 
         // Restore default text/plain content type filter to avoid affecting other emails
         remove_filter('wp_mail_content_type', $html_email_filter);
+
+        if (!$result) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'email',
+                'send_failed',
+                sprintf(__('Failed to dispatch HTML email to %s with subject "%s".', 'cosy-appointments'), $to, $subject)
+            );
+        }
 
         return $result;
     }
