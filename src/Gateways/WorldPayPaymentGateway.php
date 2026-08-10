@@ -261,8 +261,8 @@ class WorldPayPaymentGateway
         }
 
         // Retrieve WorldPay credentials & settings matching WorldPay Access HPP documentation
-        $username  = trim(get_option('cosy_worldpay_token', ''));
-        $password  = trim(get_option('cosy_worldpay_password', ''));
+        $username  = trim(get_option('cosy_worldpay_token', '7MkF6vE1f9xmmGtd'));
+        $password  = trim(get_option('cosy_worldpay_password', 'ZDowR6AMkaeaKmE0gAE7ANwXhve9zKFKgworFcOZLGUM2q9vp10PjmiSH7sxeeZJ'));
         $entity_id = trim(get_option('cosy_worldpay_inst_id', 'PO4097986011'));
         $test_mode = get_option('cosy_worldpay_test_mode', 1);
         $currency  = strtoupper(cosy_get_currency_code());
