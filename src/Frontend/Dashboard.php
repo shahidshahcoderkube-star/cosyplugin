@@ -399,12 +399,33 @@ class Dashboard
         }
 
         // Load existing holidays
-        $holidays = get_user_meta($user_id, 'cosy_provider_holidays', true);
-        $holidays = !empty($holidays) ? json_decode($holidays, true) : [];
+        $raw = get_user_meta($user_id, 'cosy_provider_holidays', true);
+        $holidays = [];
+        if (is_array($raw)) {
+            $holidays = $raw;
+        } elseif (is_string($raw) && !empty($raw)) {
+            $raw_clean = stripslashes($raw);
+            $decoded   = json_decode($raw_clean, true);
+            if (!is_array($decoded)) {
+                $decoded = json_decode($raw, true);
+            }
+            if (is_array($decoded)) {
+                $holidays = $decoded;
+            }
+        }
+
+        // Standardize input date to YYYY-MM-DD
+        $date_ts = strtotime($date);
+        if ($date_ts) {
+            $date = date('Y-m-d', $date_ts);
+        }
 
         // Prevent duplicate dates
         foreach ($holidays as $h) {
-            if ($h['date'] === $date) {
+            $h_date = is_array($h) ? ($h['date'] ?? '') : $h;
+            $h_ts = strtotime($h_date);
+            $h_formatted = $h_ts ? date('Y-m-d', $h_ts) : $h_date;
+            if ($h_formatted === $date) {
                 wp_send_json_error(['message' => 'This date is already marked as a holiday.']);
             }
         }
@@ -416,7 +437,11 @@ class Dashboard
         ];
 
         // Sort by date ascending
-        usort($holidays, fn($a, $b) => strcmp($a['date'], $b['date']));
+        usort($holidays, function ($a, $b) {
+            $da = is_array($a) ? ($a['date'] ?? '') : $a;
+            $db = is_array($b) ? ($b['date'] ?? '') : $b;
+            return strcmp($da, $db);
+        });
 
         // Save back to user meta
         update_user_meta($user_id, 'cosy_provider_holidays', wp_json_encode($holidays));
@@ -455,12 +480,34 @@ class Dashboard
             wp_send_json_error(['message' => 'Date is required.']);
         }
 
+        $date_ts = strtotime($date);
+        if ($date_ts) {
+            $date = date('Y-m-d', $date_ts);
+        }
+
         // Load existing holidays
-        $holidays = get_user_meta($user_id, 'cosy_provider_holidays', true);
-        $holidays = !empty($holidays) ? json_decode($holidays, true) : [];
+        $raw = get_user_meta($user_id, 'cosy_provider_holidays', true);
+        $holidays = [];
+        if (is_array($raw)) {
+            $holidays = $raw;
+        } elseif (is_string($raw) && !empty($raw)) {
+            $raw_clean = stripslashes($raw);
+            $decoded   = json_decode($raw_clean, true);
+            if (!is_array($decoded)) {
+                $decoded = json_decode($raw, true);
+            }
+            if (is_array($decoded)) {
+                $holidays = $decoded;
+            }
+        }
 
         // Filter out the holiday with the given date
-        $updated = array_values(array_filter($holidays, fn($h) => $h['date'] !== $date));
+        $updated = array_values(array_filter($holidays, function ($h) use ($date) {
+            $h_date = is_array($h) ? ($h['date'] ?? '') : $h;
+            $h_ts = strtotime($h_date);
+            $h_formatted = $h_ts ? date('Y-m-d', $h_ts) : $h_date;
+            return $h_formatted !== $date;
+        }));
 
         // Save updated list
         update_user_meta($user_id, 'cosy_provider_holidays', wp_json_encode($updated));

@@ -614,6 +614,7 @@ trait GlobalCommonFunctions
         $days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         $availability = [];
         $holiday_dates = [];
+        $holiday_reasons = [];
 
         if (!empty($provider_id)) {
             foreach ($days_of_week as $day) {
@@ -624,19 +625,42 @@ trait GlobalCommonFunctions
 
             // Fetch Holidays
             $raw_holidays = get_user_meta($provider_id, 'cosy_provider_holidays', true);
-            $holidays_arr = (!empty($raw_holidays)) ? json_decode($raw_holidays, true) : [];
+            $holidays_arr = [];
+
+            if (is_array($raw_holidays)) {
+                $holidays_arr = $raw_holidays;
+            } elseif (is_string($raw_holidays) && !empty($raw_holidays)) {
+                $raw_clean = stripslashes($raw_holidays);
+                $decoded   = json_decode($raw_clean, true);
+                if (!is_array($decoded)) {
+                    $decoded = json_decode($raw_holidays, true);
+                }
+                if (is_array($decoded)) {
+                    $holidays_arr = $decoded;
+                }
+            }
+
             if (is_array($holidays_arr)) {
                 foreach ($holidays_arr as $h) {
-                    if (!empty($h['date'])) {
-                        $holiday_dates[] = $h['date'];
+                    $h_date   = is_array($h) ? ($h['date'] ?? '') : $h;
+                    $h_reason = is_array($h) ? ($h['reason'] ?? 'Holiday') : 'Holiday';
+                    if (!empty($h_date)) {
+                        $ts = strtotime($h_date);
+                        $formatted_date = $ts ? date('Y-m-d', $ts) : trim(sanitize_text_field($h_date));
+                        $holiday_dates[] = $formatted_date;
+                        $holiday_reasons[$formatted_date] = sanitize_text_field($h_reason ?: 'Holiday');
                     }
                 }
             }
         }
 
+        // Remove duplicates and ensure clean array values
+        $holiday_dates = array_values(array_unique(array_filter($holiday_dates)));
+
         return [
-            'availability'  => $availability,
-            'holiday_dates' => $holiday_dates,
+            'availability'    => $availability,
+            'holiday_dates'   => $holiday_dates,
+            'holiday_reasons' => $holiday_reasons,
         ];
     }
 

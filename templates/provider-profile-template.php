@@ -2,14 +2,30 @@
 get_header();
 $queried_obj = get_queried_object();
 $author_slug = get_query_var('author_name');
+
+if (empty($author_slug) && !empty($_GET['author_name'])) {
+    $author_slug = sanitize_text_field($_GET['author_name']);
+}
+
 if (empty($author_slug) && $queried_obj instanceof \WP_User) {
     $author_slug = $queried_obj->user_nicename ?: $queried_obj->user_login;
+}
+
+if (empty($author_slug)) {
+    $uri_path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    $path_segments = array_values(array_filter(explode('/', trim($uri_path, '/'))));
+    if (!empty($path_segments)) {
+        $last_segment = end($path_segments);
+        if (!in_array($last_segment, ['service-provider', 'author', 'provider', 'cosyplugin'], true)) {
+            $author_slug = urldecode($last_segment);
+        }
+    }
 }
 
 $common = new class {
     use \Cosy\Appointments\Common\GlobalCommonFunctions;
 };
-$provider_data = $common->get_provider_with_services($author_slug);
+$provider_data = !empty($author_slug) ? $common->get_provider_with_services($author_slug) : [];
 if (empty($provider_data['ID']) && $queried_obj instanceof \WP_User) {
     $provider_data = array_merge($common->get_provider_data($queried_obj->ID), $provider_data);
     $provider_data['ID'] = $queried_obj->ID;
@@ -17,6 +33,7 @@ if (empty($provider_data['ID']) && $queried_obj instanceof \WP_User) {
 
 $current_user = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
+$user_role = ($is_logged_in && !empty($current_user->roles)) ? reset($current_user->roles) : 'guest';
 
 $approved_reviews = [];
 $total_reviews = 0;
@@ -35,10 +52,12 @@ if (!empty($provider_data['ID'])) {
  */
 $availability = [];
 $holiday_dates = [];
+$holiday_reasons = [];
 if (!empty($provider_data['ID'])) {
     $availability_data = $common->get_provider_availability_data($provider_data['ID']);
     $availability      = $availability_data['availability'];
     $holiday_dates     = $availability_data['holiday_dates'];
+    $holiday_reasons   = $availability_data['holiday_reasons'] ?? [];
 }
 
 // Initialize selected service object and parse service parameter from URL
@@ -86,6 +105,7 @@ $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_re
 <script>
     window.providerAvailability = <?php echo wp_json_encode($availability); ?>;
     window.providerHolidays = <?php echo wp_json_encode($holiday_dates); ?>;
+    window.providerHolidayReasons = <?php echo wp_json_encode($holiday_reasons); ?>;
     window.currentUser = {
         isLoggedIn: <?php echo $is_logged_in ? 'true' : 'false'; ?>,
         role: <?php echo wp_json_encode($user_role); ?>,

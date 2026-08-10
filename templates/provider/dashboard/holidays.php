@@ -14,9 +14,18 @@
 
 $user_id  = get_current_user_id();
 $raw      = get_user_meta($user_id, 'cosy_provider_holidays', true);
-$holidays = (!empty($raw)) ? json_decode($raw, true) : [];
-if (!is_array($holidays)) {
-    $holidays = [];
+$holidays = [];
+if (is_array($raw)) {
+    $holidays = $raw;
+} elseif (is_string($raw) && !empty($raw)) {
+    $raw_clean = stripslashes($raw);
+    $decoded   = json_decode($raw_clean, true);
+    if (!is_array($decoded)) {
+        $decoded = json_decode($raw, true);
+    }
+    if (is_array($decoded)) {
+        $holidays = $decoded;
+    }
 }
 ?>
 

@@ -58,12 +58,13 @@ function renderCalendar() {
         const isToday = cellDate.toDateString() === today.toDateString();
         const isSelected = selectedDate && cellDate.toDateString() === selectedDate.toDateString();
 
-        // Format cellDate to YYYY-MM-DD for holiday check
-        const cellYear = cellDate.getFullYear();
-        const cellMonth = String(cellDate.getMonth() + 1).padStart(2, '0');
-        const cellDayStr = String(cellDate.getDate()).padStart(2, '0');
+        // Deterministic YYYY-MM-DD formatting to prevent timezone shift issues
+        const cellYear = year;
+        const cellMonth = String(month + 1).padStart(2, '0');
+        const cellDayStr = String(d).padStart(2, '0');
         const dateString = `${cellYear}-${cellMonth}-${cellDayStr}`;
-        const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateString);
+        const isHoliday = Array.isArray(window.providerHolidays) && window.providerHolidays.includes(dateString);
+        const holidayReason = (window.providerHolidayReasons && window.providerHolidayReasons[dateString]) ? window.providerHolidayReasons[dateString] : 'Holiday';
 
         // Check if provider has configured working hours for this day of the week
         const dayNamesMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -76,7 +77,7 @@ function renderCalendar() {
             }
         }
 
-        // Today, past days, holidays, and non-working days are unavailable / greyed-out
+        // Today, past days, holidays, and non-working days are unavailable
         const isUnavailable = isPast || isToday || isHoliday || isDayOff;
 
         let bg = '#ffffff';
@@ -84,12 +85,28 @@ function renderCalendar() {
         let border = '1.5px solid #a44390';
         let fontWeight = '600';
         let boxShadow = 'none';
+        let textDecoration = 'none';
+        let titleAttr = '';
 
-        if (isUnavailable) {
+        if (isHoliday) {
+            bg = '#f1f5f9';
+            color = '#94a3b8';
+            border = '1px dashed #cbd5e1';
+            boxShadow = 'none';
+            textDecoration = 'line-through';
+            titleAttr = `Unavailable (${holidayReason})`;
+        } else if (isDayOff) {
+            bg = '#f8fafc';
+            color = '#cbd5e1';
+            border = '1px solid transparent';
+            boxShadow = 'none';
+            titleAttr = 'Non-working day';
+        } else if (isPast || isToday) {
             bg = 'transparent';
             color = '#cbd5e1';
             border = '1px solid transparent';
             boxShadow = 'none';
+            titleAttr = isPast ? 'Past Date' : 'Today';
         } else if (isSelected) {
             bg = 'linear-gradient(135deg, #a44390 0%, #6d2e67 100%)';
             color = '#ffffff';
@@ -110,10 +127,11 @@ function renderCalendar() {
                  style="aspect-ratio:1; display:flex; align-items:center; justify-content:center;
                         font-size:0.85rem; font-weight:${fontWeight}; border-radius:12px;
                         background:${bg}; color:${color}; border:${border}; box-shadow:${boxShadow};
+                        text-decoration:${textDecoration};
                         cursor:${isUnavailable ? 'not-allowed' : 'pointer'}; transition:all 0.2s;"
                  ${isUnavailable ? '' : `onmouseover="if(!this.classList.contains('selected-cell')){this.style.background='#a44390';this.style.color='#ffffff';}" onmouseout="if(!this.classList.contains('selected-cell')){this.style.background='${bg}';this.style.color='${color}';}"`}
                  class="${isSelected ? 'selected-cell' : ''}"
-                 title="${isHoliday ? 'Holiday / Unavailable' : (isDayOff ? 'Non-working day' : '')}">
+                 title="${titleAttr}">
                 ${d}
             </div>`;
     }
