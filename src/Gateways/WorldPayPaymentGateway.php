@@ -290,7 +290,7 @@ class WorldPayPaymentGateway
                 'entity' => !empty($entity_id) ? $entity_id : 'PO4097986011'
             ],
             'narrative' => [
-                'line1' => substr('Booking ' . $service, 0, 25)
+                'line1' => substr(preg_replace('/[^a-zA-Z0-9 ]/', '', 'CosyBooking ' . $service), 0, 25)
             ],
             'value' => [
                 'currency' => $currency,
