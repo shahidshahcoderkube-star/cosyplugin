@@ -1044,6 +1044,30 @@
                         <p>To avoid bloating the database, the plugin automatically schedules a daily cron task (<code>cosy_cleanup_activity_logs_cron</code>) that deletes all activity log rows older than <strong>30 days</strong>. You can also manually clear all logs at any time using the <strong>Clear Logs</strong> action button.</p>
                     </div>
                 </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">4</div>
+                    <div class="cdoc-step-body">
+                        <h4>Standardized Exception & DB Error Logging</h4>
+                        <p>The plugin includes centralized failure tracking via <code>LogManager::log_exception()</code> and <code>LogManager::log_db_error()</code>. Any caught PHP exception or failed MySQL query automatically logs the exact file name, line number, and <code>$wpdb->last_error</code> string into the audit log for zero-guesswork debugging.</p>
+                    </div>
+                </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">5</div>
+                    <div class="cdoc-step-body">
+                        <h4>Centralized Admin AJAX Security (CSRF + Nonce + Capability)</h4>
+                        <p>All administrative backend AJAX endpoints are secured via <code>verify_admin_ajax_request()</code> in <code>GlobalCommonFunctions.php</code>. This method auto-detects request token keys (<code>nonce</code> or <code>security</code>), checks current user login status, and validates required WP permissions before executing admin actions.</p>
+                    </div>
+                </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">6</div>
+                    <div class="cdoc-step-body">
+                        <h4>High-Speed Directory Transients Caching</h4>
+                        <p>Provider listings, prices, and ratings are cached using WordPress Transients (<code>get_transient</code> / <code>set_transient</code>) for sub-5ms repeat page load times. Whenever a provider updates profile details, working hours availability, or when a review is moderated, <code>cosy_clear_provider_transients()</code> automatically flushes stale caches.</p>
+                    </div>
+                </div>
             </div>
 
         </div>
