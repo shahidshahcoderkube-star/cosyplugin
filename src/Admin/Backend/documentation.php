@@ -484,6 +484,7 @@
                 <li><a class="cdoc-nav-link" data-tab="stripe"><i class="fab fa-stripe-s"></i> Stripe Setup</a></li>
                 <li><a class="cdoc-nav-link" data-tab="users-management"><i class="fas fa-users-cog"></i> Users Management</a></li>
                 <li><a class="cdoc-nav-link" data-tab="fees-media"><i class="fas fa-sliders-h"></i> Fees & Media Limits</a></li>
+                <li><a class="cdoc-nav-link" data-tab="ai-search"><i class="fas fa-brain"></i> AI Vector Search</a></li>
                 <li><a class="cdoc-nav-link" data-tab="security-logs"><i class="fas fa-shield-alt"></i> Security & Logs</a></li>
             </ul>
         </div>
@@ -646,6 +647,7 @@
                                 ['My Orders',                'customer-order',       '[cosy_customer_order]'],
                                 ['Appointments',             'appointments',         '[cosy_appointments]'],
                                 ['Checkout',                 'cosy-checkout',        '[cosy_checkout]'],
+                                ['Leave a Review',           'cosy-leave-review',    '[cosy_leave_review]'],
                                 ['Orders',                   'orders',               '[cosy_orders]'],
                             ];
                             foreach ($pages as $p): ?>
@@ -1008,7 +1010,64 @@
                 <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">🔒 Security & Media Approval Workflows</h3>
                 <p>• <strong>OTP Deactivation Guard:</strong> Unauthorized deactivation attempts are blocked. When triggered, a secure 6-digit One-Time Password is sent to the site admin's email and deactivation is locked until verified.
                     <br>• <strong>Media Verification:</strong> Provider introductory video uploads are held in pending status until reviewed by the admin. Approved media displays on provider pages, while rejected media is permanently deleted from storage.
-                </p>
+            </div>
+
+            <!-- AI VECTOR SEARCH -->
+            <div id="cdoc-ai-search" class="cdoc-pane">
+                <h2 class="cdoc-section-title">AI-Powered Smart Vector Search & Caching</h2>
+                <p class="cdoc-section-sub">Cosy Appointments features an advanced AI Semantic Search Engine powered by OpenAI's <code>text-embedding-3-small</code> vector embeddings and high-speed MySQL Cosine Similarity matching.</p>
+
+                <div class="cdoc-alert">
+                    <h4>🤖 Semantic Natural Language Search</h4>
+                    <p>Unlike basic keyword search that fails when words don't match exactly, AI Vector Search understands user intent. For example, searching for <em>"someone to help my anxious child with math"</em> will intelligently match providers specializing in <em>"Child Psychology"</em> and <em>"Mathematics Tutoring"</em>.</p>
+                </div>
+
+                <div class="cdoc-grid">
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-brain"></i></div>
+                        <h3>OpenAI Embedding Engine</h3>
+                        <p>Uses <code>text-embedding-3-small</code> model to convert provider profiles into 1,536-dimensional vector arrays stored in <code>wp_provider_embeddings</code>.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-bolt"></i></div>
+                        <h3>Instant Search Cache</h3>
+                        <p>Search queries are hashed (MD5) and cached in <code>wp_cosychats_search_cache</code>. Repeat searches return in <strong>&lt; 10ms with $0.00 API cost</strong>.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-calculator"></i></div>
+                        <h3>Cosine Similarity</h3>
+                        <p>Calculates mathematical vector closeness score (0.00 to 1.00) between customer query and provider bio/services for instant ranking.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-sync"></i></div>
+                        <h3>Auto Profile Indexer</h3>
+                        <p>When a provider updates their profile or services, <code>ProfileIndexer.php</code> automatically re-indexes their vector embedding in the background.</p>
+                    </div>
+                </div>
+
+                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">📌 Architecture & Database Tables</h3>
+                <table class="wp-list-table widefat fixed striped" style="margin-bottom: 25px; border: 1px solid #eedced; border-radius: 8px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: #faf5fb;">
+                            <th style="font-weight: 700; width: 35%; padding: 12px;">Component / Table</th>
+                            <th style="font-weight: 700; padding: 12px;">Function & Implementation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 12px; font-family: monospace;">wp_provider_embeddings</td>
+                            <td style="padding: 12px;">Stores JSON-encoded 1536-dimensional float vector embeddings generated for each registered service provider.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-family: monospace;">wp_cosychats_search_cache</td>
+                            <td style="padding: 12px;">Stores MD5 query hashes, search prompt text, and matching provider IDs. Serves repeated user queries instantly without contacting OpenAI.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-family: monospace;">REST API Endpoints</td>
+                            <td style="padding: 12px;"><code>POST /wp-json/cosy/v1/ai-search</code> — Processes natural language search queries and returns ranked provider objects.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- SECURITY & LOGS -->
