@@ -6,6 +6,8 @@ use Cosy\Appointments\Loader;
 
 class Class_Provider_Verification
 {
+    use \Cosy\Appointments\Common\GlobalCommonFunctions;
+
     public function register(Loader $loader): void
     {
         $loader->add_filter('manage_users_columns', $this, 'add_verify_column');
@@ -115,11 +117,7 @@ class Class_Provider_Verification
 
     public function handle_status_update()
     {
-        check_ajax_referer('cosy_verify_nonce', 'security');
-
-        if (!current_user_can('edit_users')) {
-            wp_send_json_error('Permission denied.');
-        }
+        $this->verify_admin_ajax_request('cosy_verify_nonce', 'edit_users');
 
         $user_id = intval($_POST['user_id'] ?? 0);
         $status  = sanitize_text_field($_POST['status'] ?? '');

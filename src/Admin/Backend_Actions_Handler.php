@@ -34,11 +34,8 @@ class Backend_Actions_Handler
     //--------------- Approve video ---------------//
     public function ajax_approve_video()
     {
-        // Security check
-        check_ajax_referer('cosy_media_nonce', 'nonce');
-        if (!current_user_can('approve_cosy_media')) {
-            wp_send_json_error(['message' => 'Unauthorized access']);
-        }
+        // Standardized Admin Security Check (Login + Nonce + Capability)
+        $this->verify_admin_ajax_request('cosy_media_nonce', 'approve_cosy_media');
 
         $user_id = intval($_POST['user_id']);
         if (!$user_id) {
@@ -82,11 +79,8 @@ class Backend_Actions_Handler
     //--------------- Reject video ---------------//
     public function ajax_reject_video()
     {
-        // Security check
-        check_ajax_referer('cosy_media_nonce', 'nonce');
-        if (!current_user_can('approve_cosy_media')) {
-            wp_send_json_error(['message' => 'Unauthorized access']);
-        }
+        // Standardized Admin Security Check (Login + Nonce + Capability)
+        $this->verify_admin_ajax_request('cosy_media_nonce', 'approve_cosy_media');
 
         $user_id = intval($_POST['user_id']);
         if (!$user_id) {
@@ -144,12 +138,8 @@ class Backend_Actions_Handler
      */
     public function ajax_delete_orders()
     {
-        // Security check
-        check_ajax_referer('cosy_delete_orders_action', 'nonce');
-        
-        if (!current_user_can('manage_cosy_appointments')) {
-            wp_send_json_error(['message' => __('Unauthorized access', 'cosy-appointments')]);
-        }
+        // Standardized Admin Security Check (Login + Nonce + Capability)
+        $this->verify_admin_ajax_request('cosy_delete_orders_action', 'manage_cosy_appointments');
 
         $order_ids = isset($_POST['order_ids']) ? array_map('intval', $_POST['order_ids']) : [];
         if (empty($order_ids)) {
@@ -186,10 +176,8 @@ class Backend_Actions_Handler
      */
     public function ajax_toggle_page_logging()
     {
-        check_ajax_referer('cosy_log_toggle_nonce', 'nonce');
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Unauthorized access', 'cosy-appointments')]);
-        }
+        // Standardized Admin Security Check (Login + Nonce + Capability)
+        $this->verify_admin_ajax_request('cosy_log_toggle_nonce', 'manage_options');
 
         $page = sanitize_key($_POST['page_name'] ?? '');
         $status = intval($_POST['status'] ?? 1);
@@ -219,14 +207,8 @@ class Backend_Actions_Handler
      */
     public function ajax_clear_activity_logs()
     {
-        // Manual nonce verification for graceful JSON response instead of wp_die()
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'cosy_clear_logs_nonce')) {
-            wp_send_json_error(['message' => __('Invalid security token. Please refresh the page and try again.', 'cosy-appointments')]);
-        }
-
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Unauthorized access.', 'cosy-appointments')]);
-        }
+        // Standardized Admin Security Check (Login + Nonce + Capability)
+        $this->verify_admin_ajax_request('cosy_clear_logs_nonce', 'manage_options');
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_activity_logs';
@@ -249,12 +231,8 @@ class Backend_Actions_Handler
      */
     public function ajax_delete_media()
     {
-        // Security check
-        check_ajax_referer('cosy_media_nonce', 'nonce');
-        
-        if (!current_user_can('approve_cosy_media')) {
-            wp_send_json_error(['message' => __('Unauthorized access', 'cosy-appointments')]);
-        }
+        // Standardized Admin Security Check (Login + Nonce + Capability)
+        $this->verify_admin_ajax_request('cosy_media_nonce', 'approve_cosy_media');
 
         $media_ids = isset($_POST['media_ids']) ? array_map('intval', $_POST['media_ids']) : [];
         if (empty($media_ids)) {

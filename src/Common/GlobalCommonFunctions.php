@@ -747,13 +747,11 @@ trait GlobalCommonFunctions
             'token'  => $token,
         ], home_url('/provider-verify'));
 
-        if ($role_type === 'provider') {
-            $tpl = EmailTemplates::get_provider_verification_template($name, $verify_url);
-        } else {
-            $tpl = EmailTemplates::get_customer_verification_template($name, $verify_url);
-        }
-
-        return (bool) cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+        $template_name = ($role_type === 'provider') ? 'provider_verification' : 'customer_verification';
+        return EmailTemplates::send($template_name, $email, [
+            'name'       => $name,
+            'verify_url' => $verify_url,
+        ]);
     }
 
     /**
@@ -848,5 +846,37 @@ trait GlobalCommonFunctions
     {
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cosy_prov_list_%' OR option_name LIKE '_transient_timeout_cosy_prov_list_%'");
+    }
+
+    /**
+     * STANDARDIZED ADMIN AJAX VERIFICATION
+     * 
+     * Enforces logged-in user check, security nonce check, and admin capability permission check.
+     * Returns current user ID on success or sends standardized JSON error on failure.
+     *
+     * @param string $nonce_action Nonce action key.
+     * @param string $capability   Required user capability.
+     * @return int                 Current user ID.
+     */
+    public function verify_admin_ajax_request(string $nonce_action = 'cosy_admin_nonce', string $capability = 'manage_cosy_appointments', string $nonce_param = 'nonce'): int
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Unauthorized access. Please log in.', 'cosy-appointments')]);
+        }
+
+        // Auto-detect parameter name if default 'nonce' key is not present in $_REQUEST
+        if (!isset($_REQUEST[$nonce_param]) && isset($_REQUEST['security'])) {
+            $nonce_param = 'security';
+        }
+
+        if (!check_ajax_referer($nonce_action, $nonce_param, false)) {
+            wp_send_json_error(['message' => __('Invalid security token. Please refresh the page.', 'cosy-appointments')]);
+        }
+
+        if (!current_user_can($capability) && !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'cosy-appointments')]);
+        }
+
+        return get_current_user_id();
     }
 }

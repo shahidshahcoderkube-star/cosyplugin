@@ -6,6 +6,8 @@ use Cosy\Appointments\Loader;
 
 class Class_Reviews_Admin
 {
+    use \Cosy\Appointments\Common\GlobalCommonFunctions;
+
     public function register(Loader $loader): void
     {
         $loader->add_action('wp_ajax_cosy_admin_approve_review', $this, 'handle_approve_review');
@@ -39,9 +41,7 @@ class Class_Reviews_Admin
 
     public function handle_approve_review(): void
     {
-        if (!current_user_can('manage_options') && !current_user_can('manage_cosy_appointments')) {
-            wp_send_json_error(['message' => __('Unauthorized access.', 'cosy-appointments')]);
-        }
+        $this->verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments');
 
         $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
         if (!$review_id) {
@@ -86,9 +86,7 @@ class Class_Reviews_Admin
 
     public function handle_reject_review(): void
     {
-        if (!current_user_can('manage_options') && !current_user_can('manage_cosy_appointments')) {
-            wp_send_json_error(['message' => __('Unauthorized access.', 'cosy-appointments')]);
-        }
+        $this->verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments');
 
         $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
         if (!$review_id) {
@@ -116,9 +114,7 @@ class Class_Reviews_Admin
 
     public function handle_delete_review(): void
     {
-        if (!current_user_can('manage_options') && !current_user_can('manage_cosy_appointments')) {
-            wp_send_json_error(['message' => __('Unauthorized access.', 'cosy-appointments')]);
-        }
+        $this->verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments');
 
         $review_id = isset($_POST['review_id']) ? intval($_POST['review_id']) : 0;
         if (!$review_id) {
