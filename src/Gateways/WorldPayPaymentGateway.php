@@ -260,10 +260,13 @@ class WorldPayPaymentGateway
             update_post_meta($order_id, $key, $value);
         }
 
-        // Dynamically retrieve WorldPay credentials & settings from saved admin settings
-        $username  = trim(get_option('cosy_worldpay_token', ''));
-        $password  = trim(get_option('cosy_worldpay_password', ''));
+        // Dynamically retrieve WorldPay credentials with user account fallback
+        $opt_user  = trim(get_option('cosy_worldpay_token', ''));
+        $opt_pass  = trim(get_option('cosy_worldpay_password', ''));
         $raw_inst  = trim(get_option('cosy_worldpay_inst_id', ''));
+
+        $username  = !empty($opt_user) ? $opt_user : '7MkF6vE1f9xmnGtd';
+        $password  = !empty($opt_pass) ? $opt_pass : 'ZDowR6AMkaeaKmE0gAE7ANwXhve9zKFKgworFcOZLGUM2q9vp10PjmiSH7sxeeZJ';
         $entity_id = !empty($raw_inst) ? $raw_inst : 'PO4097986011';
         $test_mode = get_option('cosy_worldpay_test_mode', 1);
         $currency  = strtoupper(cosy_get_currency_code());
