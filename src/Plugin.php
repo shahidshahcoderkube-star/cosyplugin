@@ -13,8 +13,6 @@ use Cosy\Appointments\Frontend\Dashboard;
 use Cosy\Appointments\Rest\ProviderServices;
 use Cosy\Appointments\Frontend\Class_Header_Menu;
 
-// use Cosy\Appointments\Common\GlobalCommonFunctions;
-
 class Plugin
 {
     protected Loader $loader;

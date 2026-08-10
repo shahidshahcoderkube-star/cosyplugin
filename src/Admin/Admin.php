@@ -14,25 +14,14 @@ class Admin
     use GlobalCommonFunctions;
 
     private $ordersAdmin;
-    // private $mediaApprove;
     private $dashboardAdmin;
     private $usersAdmin;
 
     public function __construct()
     {
         $this->ordersAdmin = new OrdersAdmin();
-        // $this->mediaApprove = new MediaApprove();
         $this->dashboardAdmin = new DashboardAdmin();
         $this->usersAdmin = new UsersAdmin();
-
-        // //------ Register all AJAX handlers dynamically-----//
-        // $actions = [
-        //     'video_approve'   => 'ajax_approve_video',
-        //     'video_reject'   => 'ajax_reject_video',
-        // ];
-
-        // //------ Register AJAX handlers -----//
-        // $this->register_ajax_handlers($actions, $this);
     }
 
     public function register(Loader $loader): void
@@ -282,50 +271,6 @@ class Admin
     {
         ob_start();
         include COSY_APPT_PATH . 'src/Admin/Backend/media-approve.php';
-        echo ob_get_clean(); // echo instead of return
+        echo ob_get_clean();
     }
-
-
-    //--------------- Approve video ---------------//
-    // public function ajax_approve_video()
-    // {
-    //     $user_id = intval($_POST['user_id']);
-    //     if (!$user_id) {
-    //         wp_send_json_error(['message' => 'Invalid user ID']);
-    //     }
-
-    //     // Update status
-    //     update_user_meta($user_id, 'video_status', 'approved');
-
-    //     // Send email to provider
-    //     $user = get_userdata($user_id);
-    //     wp_mail(
-    //         $user->user_email,
-    //         'Your Video is Approved',
-    //         'Hello ' . $user->display_name . ', your video has been approved by admin.'
-    //     );
-
-    //     wp_send_json_success([
-    //         'message' => 'Video approved successfully!',
-    //         'status'  => 'approved'
-    //     ]);
-    // }
-
-    // //--------------- Reject video ---------------//
-    // public function ajax_reject_video()
-    // {
-    //     $user_id = intval($_POST['user_id']);
-    //     if (!$user_id) {
-    //         wp_send_json_error(['message' => 'Invalid user ID']);
-    //     }
-
-    //     // Delete video + update status
-    //     delete_user_meta($user_id, 'introduction_video');
-    //     update_user_meta($user_id, 'video_status', 'rejected');
-
-    //     wp_send_json_success([
-    //         'message' => 'Video rejected and deleted!',
-    //         'status'  => 'rejected'
-    //     ]);
-    // }
 }
