@@ -13,11 +13,11 @@ defined('ABSPATH') || exit;
         <div class="d-flex align-items-center justify-content-between mb-4">
             <div class="d-flex align-items-center">
                 <div class="bg-primary bg-gradient text-white rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px; background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;">
-                    <i class="fa-solid fa-credit-card fs-4"></i>
+                    <i class="fa-solid fa-sliders fs-4"></i>
                 </div>
                 <div>
-                    <h1 class="wp-heading-inline m-0 fs-2 fw-bold text-dark"><?php _e('Payment Settings', 'cosy-appointments'); ?></h1>
-                    <p class="text-muted m-0 mt-1"><?php _e('Configure payment gateways, test modes, and transaction charges.', 'cosy-appointments'); ?></p>
+                    <h1 class="wp-heading-inline m-0 fs-2 fw-bold text-dark"><?php _e('Global Settings', 'cosy-appointments'); ?></h1>
+                    <p class="text-muted m-0 mt-1"><?php _e('Configure payment gateways, AI search engine, page branding images, and email signatures.', 'cosy-appointments'); ?></p>
                 </div>
             </div>
         </div>
@@ -355,31 +355,45 @@ defined('ABSPATH') || exit;
                                     <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-share-nodes me-2" style="color: #a44390;"></i>Social Media Links</h6>
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label for="cosy_sig_linkedin" class="form-label fw-bold text-secondary">LinkedIn URL</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-linkedin"></i></span>
-                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_linkedin" id="cosy_sig_linkedin" value="<?php echo esc_attr(get_option('cosy_sig_linkedin')); ?>" placeholder="https://linkedin.com/company/...">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
                                             <label for="cosy_sig_facebook" class="form-label fw-bold text-secondary">Facebook URL</label>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-facebook"></i></span>
-                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_facebook" id="cosy_sig_facebook" value="<?php echo esc_attr(get_option('cosy_sig_facebook')); ?>" placeholder="https://facebook.com/cosychats">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="cosy_sig_instagram" class="form-label fw-bold text-secondary">Instagram URL</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-instagram"></i></span>
-                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_instagram" id="cosy_sig_instagram" value="<?php echo esc_attr(get_option('cosy_sig_instagram')); ?>" placeholder="https://instagram.com/cosychats">
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_facebook" id="cosy_sig_facebook" value="<?php echo esc_attr(get_option('cosy_sig_facebook')); ?>" placeholder="https://facebook.com/yourpage">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="cosy_sig_twitter" class="form-label fw-bold text-secondary">Twitter / X URL</label>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-x-twitter"></i></span>
-                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_twitter" id="cosy_sig_twitter" value="<?php echo esc_attr(get_option('cosy_sig_twitter')); ?>" placeholder="https://twitter.com/cosychats">
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_twitter" id="cosy_sig_twitter" value="<?php echo esc_attr(get_option('cosy_sig_twitter')); ?>" placeholder="https://x.com/yourhandle">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cosy_sig_instagram" class="form-label fw-bold text-secondary">Instagram URL</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-instagram"></i></span>
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_instagram" id="cosy_sig_instagram" value="<?php echo esc_attr(get_option('cosy_sig_instagram')); ?>" placeholder="https://instagram.com/yourhandle">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cosy_sig_tiktok" class="form-label fw-bold text-secondary">TikTok URL</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-tiktok"></i></span>
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_tiktok" id="cosy_sig_tiktok" value="<?php echo esc_attr(get_option('cosy_sig_tiktok')); ?>" placeholder="https://tiktok.com/@yourhandle">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cosy_sig_youtube" class="form-label fw-bold text-secondary">YouTube URL</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-youtube"></i></span>
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_youtube" id="cosy_sig_youtube" value="<?php echo esc_attr(get_option('cosy_sig_youtube')); ?>" placeholder="https://youtube.com/@yourchannel">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cosy_sig_linkedin" class="form-label fw-bold text-secondary">LinkedIn URL</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-brands fa-linkedin"></i></span>
+                                                <input type="url" class="form-control border-start-0 py-2" name="cosy_sig_linkedin" id="cosy_sig_linkedin" value="<?php echo esc_attr(get_option('cosy_sig_linkedin')); ?>" placeholder="https://linkedin.com/company/...">
                                             </div>
                                         </div>
                                     </div>
@@ -401,6 +415,8 @@ defined('ABSPATH') || exit;
                                         $sig_fb      = get_option('cosy_sig_facebook');
                                         $sig_ig      = get_option('cosy_sig_instagram');
                                         $sig_tw      = get_option('cosy_sig_twitter');
+                                        $sig_tk      = get_option('cosy_sig_tiktok');
+                                        $sig_yt      = get_option('cosy_sig_youtube');
                                         ?>
                                         <div style="background:#ffffff; border:1px solid #f1e4ef; border-radius:12px; padding:20px; max-width:540px; font-family:'Segoe UI',Arial,sans-serif;">
                                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -432,12 +448,38 @@ defined('ABSPATH') || exit;
                                                         <?php if (!empty($sig_address)) : ?>
                                                         <p style="margin:0 0 8px 0; font-size:12px; color:#334155;">📍 <?php echo esc_html($sig_address); ?></p>
                                                         <?php endif; ?>
-                                                        <?php if (!empty($sig_li) || !empty($sig_fb) || !empty($sig_ig) || !empty($sig_tw)) : ?>
-                                                        <p style="margin:0;">
-                                                            <?php if (!empty($sig_li)) : ?><a href="<?php echo esc_url($sig_li); ?>" style="display:inline-block; margin-right:6px; background:#0077b5; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;">LinkedIn</a><?php endif; ?>
-                                                            <?php if (!empty($sig_fb)) : ?><a href="<?php echo esc_url($sig_fb); ?>" style="display:inline-block; margin-right:6px; background:#1877f2; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;">Facebook</a><?php endif; ?>
-                                                            <?php if (!empty($sig_ig)) : ?><a href="<?php echo esc_url($sig_ig); ?>" style="display:inline-block; margin-right:6px; background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;">Instagram</a><?php endif; ?>
-                                                            <?php if (!empty($sig_tw)) : ?><a href="<?php echo esc_url($sig_tw); ?>" style="display:inline-block; margin-right:6px; background:#000000; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;">X / Twitter</a><?php endif; ?>
+                                                        <?php if (!empty($sig_fb) || !empty($sig_tw) || !empty($sig_ig) || !empty($sig_tk) || !empty($sig_yt) || !empty($sig_li)) : ?>
+                                                        <p style="margin:6px 0 0 0; line-height:1; display:flex; align-items:center; gap:8px;">
+                                                            <?php if (!empty($sig_fb)) : ?>
+                                                            <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#3b5998; color:#ffffff; text-decoration:none; font-size:14px;">
+                                                                <i class="fa-brands fa-facebook-f" style="color:#ffffff;"></i>
+                                                            </a>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($sig_tw)) : ?>
+                                                            <a href="<?php echo esc_url($sig_tw); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#000000; color:#ffffff; text-decoration:none; font-size:13px;">
+                                                                <i class="fa-brands fa-x-twitter" style="color:#ffffff;"></i>
+                                                            </a>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($sig_ig)) : ?>
+                                                            <a href="<?php echo esc_url($sig_ig); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); color:#ffffff; text-decoration:none; font-size:14px;">
+                                                                <i class="fa-brands fa-instagram" style="color:#ffffff;"></i>
+                                                            </a>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($sig_tk)) : ?>
+                                                            <a href="<?php echo esc_url($sig_tk); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#000000; color:#ffffff; text-decoration:none; font-size:13px;">
+                                                                <i class="fa-brands fa-tiktok" style="color:#ffffff;"></i>
+                                                            </a>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($sig_yt)) : ?>
+                                                            <a href="<?php echo esc_url($sig_yt); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#ff0000; color:#ffffff; text-decoration:none; font-size:13px;">
+                                                                <i class="fa-brands fa-youtube" style="color:#ffffff;"></i>
+                                                            </a>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($sig_li)) : ?>
+                                                            <a href="<?php echo esc_url($sig_li); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#0077b5; color:#ffffff; text-decoration:none; font-size:13px;">
+                                                                <i class="fa-brands fa-linkedin-in" style="color:#ffffff;"></i>
+                                                            </a>
+                                                            <?php endif; ?>
                                                         </p>
                                                         <?php endif; ?>
                                                     </td>
@@ -672,3 +714,59 @@ defined('ABSPATH') || exit;
         border-radius: 24px !important;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tabButtons = document.querySelectorAll('#v-pills-tab button[data-bs-toggle="pill"]');
+    
+    function activateTab(tabTargetId) {
+        if (!tabTargetId) return;
+        var cleanId = tabTargetId.replace('#', '').replace('v-pills-', '').replace('-tab', '');
+        var targetBtn = document.querySelector('#v-pills-' + cleanId + '-tab');
+        if (targetBtn) {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                var tabObj = bootstrap.Tab.getOrCreateInstance(targetBtn);
+                if (tabObj) tabObj.show();
+            } else {
+                targetBtn.click();
+            }
+        }
+    }
+
+    // 1. Restore active tab from URL hash, URL param, or localStorage
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlTab = urlParams.get('tab');
+    var hashTab = window.location.hash ? window.location.hash.replace('#', '') : '';
+    var savedTab = localStorage.getItem('cosy_active_settings_tab');
+
+    var initialTab = urlTab || hashTab || savedTab;
+    if (initialTab) {
+        activateTab(initialTab);
+    }
+
+    // 2. Track tab clicks and persist selection
+    tabButtons.forEach(function(btn) {
+        btn.addEventListener('shown.bs.tab', function(e) {
+            var targetId = e.target.getAttribute('data-bs-target').replace('#v-pills-', '');
+            localStorage.setItem('cosy_active_settings_tab', targetId);
+            if (history.pushState) {
+                history.pushState(null, null, '#v-pills-' + targetId);
+            } else {
+                window.location.hash = '#v-pills-' + targetId;
+            }
+        });
+    });
+
+    // 3. Keep current active tab when saving settings form
+    var settingsForm = document.querySelector('.cosy-settings-wrap form');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', function() {
+            var activeBtn = document.querySelector('#v-pills-tab button.active');
+            if (activeBtn) {
+                var targetId = activeBtn.getAttribute('data-bs-target').replace('#v-pills-', '');
+                localStorage.setItem('cosy_active_settings_tab', targetId);
+            }
+        });
+    }
+});
+</script>

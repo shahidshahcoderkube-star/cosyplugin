@@ -107,6 +107,8 @@ if (!function_exists('cosy_send_html_email')) {
             $sig_fb      = get_option('cosy_sig_facebook', '');
             $sig_ig      = get_option('cosy_sig_instagram', '');
             $sig_tw      = get_option('cosy_sig_twitter', '');
+            $sig_tk      = get_option('cosy_sig_tiktok', '');
+            $sig_yt      = get_option('cosy_sig_youtube', '');
 
             $logo_col = '';
             if (!empty($sig_logo)) {
@@ -126,10 +128,12 @@ if (!function_exists('cosy_send_html_email')) {
             if (!empty($sig_address)) $contact_rows .= "<p style='margin:0 0 8px 0; font-size:12px; color:#334155;'>&#128205; " . esc_html($sig_address) . "</p>";
 
             $social_badges = '';
-            if (!empty($sig_li))  $social_badges .= "<a href='" . esc_url($sig_li) . "' style='display:inline-block; margin-right:5px; background:#0077b5; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;'>LinkedIn</a>";
-            if (!empty($sig_fb))  $social_badges .= "<a href='" . esc_url($sig_fb) . "' style='display:inline-block; margin-right:5px; background:#1877f2; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;'>Facebook</a>";
-            if (!empty($sig_ig))  $social_badges .= "<a href='" . esc_url($sig_ig) . "' style='display:inline-block; margin-right:5px; background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;'>Instagram</a>";
-            if (!empty($sig_tw))  $social_badges .= "<a href='" . esc_url($sig_tw) . "' style='display:inline-block; margin-right:5px; background:#000000; color:#fff; border-radius:4px; padding:3px 8px; font-size:11px; text-decoration:none; font-weight:600;'>X / Twitter</a>";
+            if (!empty($sig_fb))  $social_badges .= "<a href='" . esc_url($sig_fb) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/facebook-circled--v1.png' width='28' height='28' alt='Facebook' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
+            if (!empty($sig_tw))  $social_badges .= "<a href='" . esc_url($sig_tw) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/twitter-circled--v1.png' width='28' height='28' alt='Twitter' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
+            if (!empty($sig_ig))  $social_badges .= "<a href='" . esc_url($sig_ig) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/instagram-new.png' width='28' height='28' alt='Instagram' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
+            if (!empty($sig_tk))  $social_badges .= "<a href='" . esc_url($sig_tk) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/tiktok.png' width='28' height='28' alt='TikTok' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
+            if (!empty($sig_yt))  $social_badges .= "<a href='" . esc_url($sig_yt) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/youtube-play.png' width='28' height='28' alt='YouTube' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
+            if (!empty($sig_li))  $social_badges .= "<a href='" . esc_url($sig_li) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/linkedin-circled--v1.png' width='28' height='28' alt='LinkedIn' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
 
             $sig_html = "
             <div style='margin: 24px 0 0 0; padding: 18px 20px; background: #fdf6fc; border: 1px solid #f1e4ef; border-radius: 10px;'>

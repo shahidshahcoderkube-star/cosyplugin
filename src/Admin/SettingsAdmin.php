@@ -115,6 +115,12 @@ class SettingsAdmin
         register_setting('cosy_payment_settings', 'cosy_sig_twitter', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_tiktok', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_sig_youtube', [
+            'sanitize_callback' => 'esc_url_raw'
+        ]);
         register_setting('cosy_payment_settings', 'cosy_sig_enabled', [
             'sanitize_callback' => 'absint'
         ]);
