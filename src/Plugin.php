@@ -50,6 +50,9 @@ class Plugin
         // Register Stripe Payment Gateway & Checkout AJAX handler.
         (new \Cosy\Appointments\Gateways\StripePaymentGateway())->register($this->loader);
 
+        // Register WorldPay Payment Gateway & Checkout AJAX handler.
+        (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->register($this->loader);
+
         // Register the Provider Dashboard interface and logic.
         (new Dashboard())->register($this->loader);
 

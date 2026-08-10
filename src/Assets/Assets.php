@@ -343,6 +343,8 @@ class Assets
                 'profileUrl'           => esc_url(cosy_get_page_url('customer-profile')),
                 'customerName'         => $current_user->exists() ? esc_html($current_user->display_name) : '',
                 'customerEmail'        => $current_user->exists() ? esc_html($current_user->user_email) : '',
+                'activeGateway'        => get_option('cosy_default_payment_gateway', 'worldpay'),
+                'worldpayClientKey'    => esc_js(get_option('cosy_worldpay_client_key')),
                 'stripePublishableKey' => esc_js(get_option('cosy_stripe_publishable_key')),
                 'currencySymbol'       => cosy_get_currency_symbol(),
                 'currencyCode'         => cosy_get_currency_code(),

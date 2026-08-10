@@ -709,11 +709,33 @@
                 </div>
             </div>
 
-            <!-- STRIPE SETUP -->
+            <!-- STRIPE & WORLDPAY SETUP -->
             <div id="cdoc-stripe" class="cdoc-pane">
-                <h2 class="cdoc-section-title">Stripe Payment Configuration</h2>
-                <p class="cdoc-section-sub">Follow the steps below to connect your Stripe account and enable payments on the platform.</p>
+                <h2 class="cdoc-section-title">WorldPay & Payment Gateways Configuration</h2>
+                <p class="cdoc-section-sub">Cosy Appointments supports dedicated WorldPay Hosted Gateway (Priority Default) and Stripe Checkout integrations for secure customer payments.</p>
 
+                <div class="cdoc-alert">
+                    <h4>⭐ WorldPay Priority Active Gateway</h4>
+                    <p>In <strong>CC Booking → Settings</strong>, set <strong>Priority Active Payment Gateway</strong> to <strong>WorldPay (Priority Default)</strong> or <strong>Stripe Checkout</strong>. The selected gateway is automatically activated during customer checkout.</p>
+                </div>
+
+                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">🌐 1. WorldPay Setup Steps</h3>
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">1</div>
+                    <div class="cdoc-step-body">
+                        <h4>Installation ID & API Token</h4>
+                        <p>In <strong>CC Booking → Settings → WorldPay</strong>, enter your <strong>Installation ID</strong> (Merchant ID), <strong>Service API Token</strong>, and <strong>Client Key</strong> from your WorldPay merchant account.</p>
+                    </div>
+                </div>
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">2</div>
+                    <div class="cdoc-step-body">
+                        <h4>Sandbox / Test Mode Toggle</h4>
+                        <p>Toggle <strong>Sandbox / Test Mode</strong> to enable WorldPay's test endpoint (<code>select-test.worldpay.com</code>) for test transactions before going live.</p>
+                    </div>
+                </div>
+
+                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">💳 2. Stripe Setup Steps</h3>
                 <div class="cdoc-alert">
                     <h4>Where to Find Your API Keys</h4>
                     <p>Log in to your Stripe account and visit <a href="https://dashboard.stripe.com/apikeys" target="_blank" style="color:#9b4593;font-weight:700;">dashboard.stripe.com/apikeys</a>. You will find both the Publishable Key and Secret Key listed there.</p>

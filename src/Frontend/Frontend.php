@@ -152,6 +152,56 @@ class Frontend
      */
     public function checkout_page(): string
     {
+        // Handle WorldPay Cancelled
+        if (isset($_GET['cosy_worldpay_cancel']) && $_GET['cosy_worldpay_cancel'] === 'true') {
+            (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->cosy_payment_log("WorldPay Checkout CANCELLED by user.");
+            return '<div class="cosy-checkout-root">
+                        <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                            <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
+                            <h2 style="color: #dc3545; margin-bottom: 10px;">WorldPay Payment Cancelled</h2>
+                            <p style="color: #6c757d; margin-bottom: 25px;">Your WorldPay transaction was cancelled. No charges were made.</p>
+                            <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
+                        </div>
+                    </div>';
+        }
+
+        // Handle WorldPay Success Return
+        if (isset($_GET['cosy_worldpay_success']) && $_GET['cosy_worldpay_success'] === 'true' && isset($_GET['order_id'])) {
+            $order_id = intval($_GET['order_id']);
+            $gw = new \Cosy\Appointments\Gateways\WorldPayPaymentGateway();
+            $gw->cosy_payment_log("WorldPay return callback received for Order #$order_id.");
+
+            $appt = get_post($order_id);
+            if ($appt && $appt->post_type === 'cosy_appointment') {
+                if ($appt->post_status === 'draft') {
+                    wp_update_post(['ID' => $order_id, 'post_status' => 'publish']);
+                    update_post_meta($order_id, 'cosy_payment_status', 'Paid');
+                    update_post_meta($order_id, 'cosy_payment_gateway', 'worldpay');
+
+                    // Log activity
+                    \Cosy\Appointments\Common\LogManager::log(
+                        'orders',
+                        'payment_completed_worldpay',
+                        sprintf(__('WorldPay payment completed for Order #%d.', 'cosy-appointments'), $order_id),
+                        $appt->post_author
+                    );
+
+                    // Flush transients
+                    $this->cosy_clear_provider_transients();
+                }
+            }
+
+            // Render Success UI
+            return '<div class="cosy-checkout-root">
+                        <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
+                            <i class="fas fa-check-circle" style="font-size: 4rem; color: #28a745; margin-bottom: 20px;"></i>
+                            <h2 style="color: #28a745; margin-bottom: 10px;">WorldPay Payment Successful!</h2>
+                            <p style="color: #6c757d; margin-bottom: 25px;">Thank you! Your appointment booking order #' . esc_html($order_id) . ' has been confirmed.</p>
+                            <a href="' . cosy_get_page_url('customer-order') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">View My Orders</a>
+                        </div>
+                    </div>';
+        }
+
         // Handle Stripe Cancelled
         if (isset($_GET['cosy_stripe_cancel']) && $_GET['cosy_stripe_cancel'] === 'true') {
             $this->cosy_payment_log("Stripe Checkout CANCELLED by user.");

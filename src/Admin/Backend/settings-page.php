@@ -22,7 +22,26 @@ defined('ABSPATH') || exit;
             </div>
         </div>
 
-        <hr class="border-secondary-subtle my-4">
+        <div class="card border-0 bg-light p-3 rounded-4 mb-4" style="background: #faf5fb !important; border: 1px solid #eedced !important;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 p-2 bg-white text-primary d-flex align-items-center justify-content-center shadow-sm" style="width:42px; height:42px; color:#a44390 !important;">
+                        <i class="fa-solid fa-star fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark m-0"><?php _e('Priority Active Payment Gateway', 'cosy-appointments'); ?></h6>
+                        <small class="text-muted"><?php _e('Select which payment gateway is active and prioritized during customer checkout.', 'cosy-appointments'); ?></small>
+                    </div>
+                </div>
+                <div>
+                    <?php $default_gw = get_option('cosy_default_payment_gateway', 'worldpay'); ?>
+                    <select name="cosy_default_payment_gateway" class="form-select border-0 shadow-sm fw-bold py-2 px-3 rounded-3" style="min-width: 240px; background-color: #ffffff !important;">
+                        <option value="worldpay" <?php selected($default_gw, 'worldpay'); ?>>⭐ WorldPay (Priority Default)</option>
+                        <option value="stripe" <?php selected($default_gw, 'stripe'); ?>>Stripe Checkout</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
         <form method="post" action="options.php">
             <?php settings_fields('cosy_payment_settings'); ?>
@@ -31,13 +50,13 @@ defined('ABSPATH') || exit;
                 <!-- Navigation Sidebar -->
                 <div class="col-md-3 mb-4">
                     <div class="nav flex-column nav-pills me-3 gap-2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                        <button class="nav-link active d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-stripe-tab" data-bs-toggle="pill" data-bs-target="#v-pills-stripe" type="button" role="tab" aria-controls="v-pills-stripe" aria-selected="true">
+                        <button class="nav-link active d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-worldpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-worldpay" type="button" role="tab" aria-controls="v-pills-worldpay" aria-selected="true">
+                            <i class="fa-solid fa-globe fs-4 w-20"></i>
+                            <span class="fw-bold">WorldPay (Priority)</span>
+                        </button>
+                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-stripe-tab" data-bs-toggle="pill" data-bs-target="#v-pills-stripe" type="button" role="tab" aria-controls="v-pills-stripe" aria-selected="false">
                             <i class="fa-brands fa-stripe fs-4 w-20"></i>
                             <span class="fw-bold">Stripe</span>
-                        </button>
-                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-worldpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-worldpay" type="button" role="tab" aria-controls="v-pills-worldpay" aria-selected="false">
-                            <i class="fa-solid fa-globe fs-4 w-20"></i>
-                            <span class="fw-bold">WorldPay</span>
                         </button>
 
                         <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-aisearch-tab" data-bs-toggle="pill" data-bs-target="#v-pills-aisearch" type="button" role="tab" aria-controls="v-pills-aisearch" aria-selected="false">
@@ -60,8 +79,59 @@ defined('ABSPATH') || exit;
                 <div class="col-md-9">
                     <div class="tab-content bg-light bg-opacity-50 p-4 rounded-4 border border-secondary-subtle" id="v-pills-tabContent" style="min-height: 300px;">
 
+                        <!-- WorldPay Settings Tab -->
+                        <div class="tab-pane fade show active" id="v-pills-worldpay" role="tabpanel" aria-labelledby="v-pills-worldpay-tab">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-globe fs-2 text-primary" style="color: #0b4a8f !important;"></i>
+                                    WorldPay Configuration (Priority Gateway)
+                                </h3>
+                                <div class="d-flex align-items-center m-0">
+                                    <label class="cosy-switch">
+                                        <input type="checkbox" name="cosy_worldpay_test_mode" id="cosy_worldpay_test_mode" value="1" <?php checked(1, get_option('cosy_worldpay_test_mode', 1)); ?>>
+                                        <span class="cosy-slider round"></span>
+                                    </label>
+                                    <span class="fw-semibold text-secondary ms-2">Sandbox / Test Mode</span>
+                                </div>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label for="cosy_worldpay_inst_id" class="form-label fw-bold text-secondary">Installation ID (Merchant ID)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-card"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_inst_id" id="cosy_worldpay_inst_id" value="<?php echo esc_attr(get_option('cosy_worldpay_inst_id')); ?>" placeholder="e.g. 1234567">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Enter your WorldPay Installation ID from your merchant account.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cosy_worldpay_token" class="form-label fw-bold text-secondary">Service API Token</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-shield"></i></span>
+                                        <input type="password" class="form-control border-start-0 py-2" name="cosy_worldpay_token" id="cosy_worldpay_token" value="<?php echo esc_attr(get_option('cosy_worldpay_token')); ?>" placeholder="Token">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Enter your WorldPay API Token.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cosy_worldpay_client_key" class="form-label fw-bold text-secondary">Client Key</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_client_key" id="cosy_worldpay_client_key" value="<?php echo esc_attr(get_option('cosy_worldpay_client_key')); ?>" placeholder="Client Key">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Enter your WorldPay Client Key.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cosy_worldpay_charge" class="form-label fw-bold text-secondary">Transaction Charge (%)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
+                                        <input type="number" step="0.01" class="form-control border-start-0 py-2" name="cosy_worldpay_charge" id="cosy_worldpay_charge" value="<?php echo esc_attr(get_option('cosy_worldpay_charge')); ?>" placeholder="0.00">
+                                    </div>
+                                    <div class="form-text text-muted mt-1">Specify additional convenience charges for this gateway.</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Stripe Settings Tab -->
-                        <div class="tab-pane fade show active" id="v-pills-stripe" role="tabpanel" aria-labelledby="v-pills-stripe-tab">
+                        <div class="tab-pane fade" id="v-pills-stripe" role="tabpanel" aria-labelledby="v-pills-stripe-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
                                     <i class="fa-brands fa-stripe fs-2 text-primary" style="color: #635bff !important;"></i>
@@ -124,49 +194,6 @@ defined('ABSPATH') || exit;
                                         </select>
                                     </div>
                                     <div class="form-text text-muted mt-1">Select the payment currency for all transactions.</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- WorldPay Settings Tab -->
-                        <div class="tab-pane fade" id="v-pills-worldpay" role="tabpanel" aria-labelledby="v-pills-worldpay-tab">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-globe fs-2 text-primary" style="color: #0b4a8f !important;"></i>
-                                    WorldPay Configuration
-                                </h3>
-                                <div class="d-flex align-items-center m-0">
-                                    <label class="cosy-switch">
-                                        <input type="checkbox" name="cosy_worldpay_test_mode" id="cosy_worldpay_test_mode" value="1" <?php checked(1, get_option('cosy_worldpay_test_mode')); ?>>
-                                        <span class="cosy-slider round"></span>
-                                    </label>
-                                    <span class="fw-semibold text-secondary ms-2">Sandbox / Test Mode</span>
-                                </div>
-                            </div>
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label for="cosy_worldpay_token" class="form-label fw-bold text-secondary">Service API Token</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-shield"></i></span>
-                                        <input type="password" class="form-control border-start-0 py-2" name="cosy_worldpay_token" id="cosy_worldpay_token" value="<?php echo esc_attr(get_option('cosy_worldpay_token')); ?>" placeholder="Token">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Enter your WorldPay API Token.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_worldpay_client_key" class="form-label fw-bold text-secondary">Client Key</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
-                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_client_key" id="cosy_worldpay_client_key" value="<?php echo esc_attr(get_option('cosy_worldpay_client_key')); ?>" placeholder="Client Key">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Enter your WorldPay Client Key.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_worldpay_charge" class="form-label fw-bold text-secondary">Transaction Charge (%)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
-                                        <input type="number" step="0.01" class="form-control border-start-0 py-2" name="cosy_worldpay_charge" id="cosy_worldpay_charge" value="<?php echo esc_attr(get_option('cosy_worldpay_charge')); ?>" placeholder="0.00">
-                                    </div>
-                                    <div class="form-text text-muted mt-1">Specify additional convenience charges for this gateway.</div>
                                 </div>
                             </div>
                         </div>
