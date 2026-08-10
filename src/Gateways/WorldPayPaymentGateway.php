@@ -264,8 +264,7 @@ class WorldPayPaymentGateway
         $username  = trim(get_option('cosy_worldpay_token', ''));
         $password  = trim(get_option('cosy_worldpay_password', ''));
         $raw_inst  = trim(get_option('cosy_worldpay_inst_id', ''));
-        // Classic WCC Gateway expects numeric Installation ID (e.g. 1057362)
-        $inst_id   = (!empty($raw_inst) && is_numeric($raw_inst)) ? $raw_inst : '1057362';
+        $entity_id = !empty($raw_inst) ? $raw_inst : 'PO4097986011';
         $test_mode = get_option('cosy_worldpay_test_mode', 1);
         $currency  = strtoupper(cosy_get_currency_code());
 
@@ -275,7 +274,57 @@ class WorldPayPaymentGateway
             'appt_id'                => $order_id
         ], cosy_get_page_url('cosy-checkout'));
 
-        // Option 1: Classic WorldPay Hosted Gateway (WCC Purchase URL)
+        // If credentials represent WorldPay Access Account (Entity ID starting with PO or non-numeric)
+        if (empty($raw_inst) || !is_numeric($raw_inst)) {
+            $endpoint = $test_mode ? 'https://try.access.worldpay.com/payment_pages' : 'https://access.worldpay.com/payment_pages';
+            $auth_header = 'Basic ' . base64_encode($username . ':' . $password);
+
+            $amount_minor = (int) round(floatval($total_payable) * 100);
+
+            $payload = [
+                'transactionReference' => 'Cosy_' . $order_id . '_' . time(),
+                'merchant' => [
+                    'entity' => $entity_id
+                ],
+                'narrative' => [
+                    'line1' => substr(preg_replace('/[^a-zA-Z0-9 ]/', '', 'CosyBooking ' . $service), 0, 25)
+                ],
+                'value' => [
+                    'currency' => $currency,
+                    'amount'   => $amount_minor
+                ]
+            ];
+
+            $res = wp_remote_post($endpoint, [
+                'headers' => [
+                    'Authorization' => $auth_header,
+                    'Content-Type'  => 'application/vnd.worldpay.payment_pages-v1.hal+json',
+                    'Accept'        => 'application/vnd.worldpay.payment_pages-v1.hal+json'
+                ],
+                'body'      => json_encode($payload),
+                'timeout'   => 25,
+                'sslverify' => false
+            ]);
+
+            $res_code = wp_remote_retrieve_response_code($res);
+            $res_body = json_decode(wp_remote_retrieve_body($res), true);
+
+            $this->cosy_payment_log("WorldPay Access HPP Response (HTTP $res_code):", $res_body);
+
+            $redirect_url = !empty($res_body['url']) ? $res_body['url'] : (!empty($res_body['_links']['redirect']['href']) ? $res_body['_links']['redirect']['href'] : '');
+
+            if (!is_wp_error($res) && !empty($redirect_url)) {
+                $this->cosy_payment_log("WorldPay Access HPP Session Created SUCCESSFULLY for Order #$order_id", $redirect_url);
+
+                wp_send_json_success([
+                    'orderId' => $order_id,
+                    'url'     => $redirect_url
+                ]);
+            }
+        }
+
+        // Classic WorldPay Hosted Gateway (WCC Purchase URL for numeric Installation IDs)
+        $inst_id  = is_numeric($raw_inst) ? $raw_inst : '1057362';
         $base_url = $test_mode ? 'https://secure-test.worldpay.com/wcc/purchase' : 'https://secure.worldpay.com/wcc/purchase';
 
         $query_args = [
