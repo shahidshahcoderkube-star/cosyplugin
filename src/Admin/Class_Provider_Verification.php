@@ -115,6 +115,18 @@ class Class_Provider_Verification
 <?php
     }
 
+    /**
+     * AJAX Handler: Update Provider Account Verification Status (Active/Deactive).
+     * 
+     * USE CASE:
+     * Triggered when an administrator changes the dropdown status for a provider in WP Admin -> Users.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies security via verify_admin_ajax_request('cosy_verify_nonce', 'edit_users').
+     * 2. Updates 'cosy_provider_status' user meta key to 'active' or 'deactive'.
+     * 3. Sends appropriate activation / reactivation / deactivation email to provider.
+     * 4. Logs status transition activity to LogManager and flushes directory transient cache.
+     */
     public function handle_status_update()
     {
         $this->verify_admin_ajax_request('cosy_verify_nonce', 'edit_users');

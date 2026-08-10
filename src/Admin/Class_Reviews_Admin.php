@@ -39,6 +39,17 @@ class Class_Reviews_Admin
         include COSY_APPT_PATH . 'templates/admin/reviews-admin-template.php';
     }
 
+    /**
+     * AJAX Handler: Approve Customer Review.
+     * 
+     * USE CASE:
+     * Triggered when an administrator clicks "Approve" on a pending review in Admin -> CC Booking -> Reviews.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies admin security via verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments').
+     * 2. Updates review status to 'approved' in wp_cosy_provider_reviews database table.
+     * 3. Dispatches notification email to provider and logs action to LogManager.
+     */
     public function handle_approve_review(): void
     {
         $this->verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments');
@@ -84,6 +95,16 @@ class Class_Reviews_Admin
         }
     }
 
+    /**
+     * AJAX Handler: Reject Customer Review.
+     * 
+     * USE CASE:
+     * Triggered when an administrator clicks "Reject" on a review in Admin -> CC Booking -> Reviews.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies admin security via verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments').
+     * 2. Updates review status to 'rejected' in wp_cosy_provider_reviews table and logs action.
+     */
     public function handle_reject_review(): void
     {
         $this->verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments');
@@ -112,6 +133,17 @@ class Class_Reviews_Admin
         }
     }
 
+    /**
+     * AJAX Handler: Delete Customer Review.
+     * 
+     * USE CASE:
+     * Triggered when an administrator clicks "Delete" on a review in Admin -> CC Booking -> Reviews.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies admin security via verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments').
+     * 2. Deletes review replies and the main review record permanently from MySQL table.
+     * 3. Flushes directory transient cache and logs activity.
+     */
     public function handle_delete_review(): void
     {
         $this->verify_admin_ajax_request('cosy_admin_nonce', 'manage_cosy_appointments');

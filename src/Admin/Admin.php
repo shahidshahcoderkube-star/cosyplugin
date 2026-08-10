@@ -44,7 +44,17 @@ class Admin
     }
 
 
-    //----------- Admin Menus ----------------//
+    /**
+     * Registers all custom plugin admin menu pages and submenus under "CC Booking".
+     * 
+     * USE CASE:
+     * Triggered during the WordPress 'admin_menu' action hook.
+     * 
+     * WHAT IT DOES:
+     * 1. Dynamically calculates pending counters for Orders, Media Approvals, Users, Reviews, and Logs.
+     * 2. Registers main dashboard menu page and submenus (Experiences CPT, Orders, Media, Users, Reviews, Logs).
+     * 3. Formats notification bubble badges next to submenus for instant admin attention.
+     */
     public function admin_add_menus(): void
     {
         global $wpdb;
@@ -191,6 +201,12 @@ class Admin
         include COSY_APPT_PATH . 'src/Admin/Backend/logs.php';
         echo ob_get_clean(); // echo instead of return
     }
+    /**
+     * Log activity whenever an administrator creates or updates an Experience (service CPT).
+     * 
+     * USE CASE:
+     * Triggered on WordPress 'save_post_cosy_service' action hook.
+     */
     public function log_admin_service_save($post_id, $post, $update): void
     {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
@@ -208,6 +224,12 @@ class Admin
         \Cosy\Appointments\Common\LogManager::log('services', $action, $desc);
     }
 
+    /**
+     * Log activity whenever an administrator trashes/deletes an Experience (service CPT).
+     * 
+     * USE CASE:
+     * Triggered on WordPress 'wp_trash_post' action hook.
+     */
     public function log_admin_service_trash($post_id): void
     {
         $post = get_post($post_id);
@@ -220,6 +242,12 @@ class Admin
         }
     }
 
+    /**
+     * Log activity whenever payment/stripe gateway settings options are updated in admin.
+     * 
+     * USE CASE:
+     * Triggered on WordPress 'updated_option' action hook.
+     */
     public function log_admin_settings_update($option, $old_value, $value): void
     {
         $cosy_settings_options = [

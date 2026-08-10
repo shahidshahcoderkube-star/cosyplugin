@@ -58,13 +58,24 @@ if (!function_exists('cosy_render_popup')) {
 
 if (!function_exists('cosy_send_html_email')) {
     /**
-     * Sends a unified HTML email using a premium design layout.
+     * UNIFIED HTML EMAIL DISPATCHER WITH BRAND HEADERS & SPAM PROTECTION
      *
-     * @param string $to            Recipient email address.
-     * @param string $subject       Email subject.
-     * @param string $heading       The header title shown in the gradient banner.
-     * @param string $content_html  The core message body (can contain HTML, paragraphs, lists, tables).
-     * @return bool                 Whether the email was successfully sent.
+     * USE CASE:
+     * Dispatches HTML emails using the official CosyChats responsive email template layout.
+     * Contains pink gradient header banner, styled body container, footer copyright, and brand signature.
+     * 
+     * KEY FEATURES & SAFETY CHECKS:
+     * 1. Recipient Address Validation: Uses is_email() to block invalid or empty recipient addresses.
+     * 2. Spam Protection Headers: Sets explicit "From: CosyChats <admin_email>" and "Reply-To" headers
+     *    to prevent emails from being flagged as SPAM by Gmail, Outlook, or Yahoo.
+     * 3. Delivery Error Logging: Captures wp_mail() return status and logs delivery failures to LogManager.
+     *
+     * @param string $to             Target recipient email address.
+     * @param string $subject        Email subject line.
+     * @param string $heading        Header title text displayed inside the top gradient banner.
+     * @param string $content_html   The core message body HTML (paragraphs, lists, buttons, tables).
+     * @param bool   $show_signature Whether to append the admin brand email signature at the bottom (default: true).
+     * @return bool                  True if the email was successfully accepted by mail server, false otherwise.
      */
     function cosy_send_html_email($to, $subject, $heading, $content_html, $show_signature = true)
     {

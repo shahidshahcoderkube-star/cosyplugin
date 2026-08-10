@@ -31,7 +31,17 @@ class Backend_Actions_Handler
     {
         // No need to add actions here as they are registered in the constructor
     }
-    //--------------- Approve video ---------------//
+    /**
+     * AJAX Handler: Approve Provider Introduction Video.
+     * 
+     * USE CASE:
+     * Triggered when an administrator clicks "Approve Video" in Admin -> CC Booking -> Media.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies login, nonce token ('cosy_media_nonce'), and 'approve_cosy_media' capability via verify_admin_ajax_request().
+     * 2. Updates media approval status to 'approved' in wp_cosy_media_approvals table and user meta.
+     * 3. Dispatches approval notification email to provider and logs action to LogManager.
+     */
     public function ajax_approve_video()
     {
         // Standardized Admin Security Check (Login + Nonce + Capability)
@@ -76,7 +86,17 @@ class Backend_Actions_Handler
         ]);
     }
 
-    //--------------- Reject video ---------------//
+    /**
+     * AJAX Handler: Reject and Delete Provider Introduction Video.
+     * 
+     * USE CASE:
+     * Triggered when an administrator clicks "Reject Video" in Admin -> CC Booking -> Media.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies login, nonce token ('cosy_media_nonce'), and 'approve_cosy_media' capability via verify_admin_ajax_request().
+     * 2. Updates status to 'rejected', deletes physical video file from WP Media library, and resets user meta.
+     * 3. Dispatches rejection email with guidelines to provider and logs action to LogManager.
+     */
     public function ajax_reject_video()
     {
         // Standardized Admin Security Check (Login + Nonce + Capability)
@@ -134,7 +154,15 @@ class Backend_Actions_Handler
     }
 
     /**
-     * AJAX Handler: Bulk delete selected orders
+     * AJAX Handler: Bulk Delete Selected Booking Orders.
+     * 
+     * USE CASE:
+     * Triggered when an administrator selects multiple orders and clicks "Delete Selected" in Admin -> CC Booking -> Orders.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies security via verify_admin_ajax_request('cosy_delete_orders_action', 'manage_cosy_appointments').
+     * 2. Permanently deletes appointment posts and metadata from WordPress database.
+     * 3. Logs bulk deletion summary to LogManager.
      */
     public function ajax_delete_orders()
     {
@@ -172,7 +200,14 @@ class Backend_Actions_Handler
     }
 
     /**
-     * AJAX handler: Toggle logging state for a page.
+     * AJAX Handler: Toggle Logging State for a Page.
+     * 
+     * USE CASE:
+     * Triggered when an administrator toggles the logging switch (Active/Paused) on any admin page.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies security via verify_admin_ajax_request('cosy_log_toggle_nonce', 'manage_options').
+     * 2. Updates option key 'cosy_log_enabled_{page_name}' to '1' or '0'.
      */
     public function ajax_toggle_page_logging()
     {
@@ -203,7 +238,14 @@ class Backend_Actions_Handler
     }
 
     /**
-     * AJAX handler: Clear all activity logs.
+     * AJAX Handler: Clear All Activity Logs.
+     * 
+     * USE CASE:
+     * Triggered when an administrator clicks "Clear All Activity Logs" in Admin -> CC Booking -> Logs.
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies security via verify_admin_ajax_request('cosy_clear_logs_nonce', 'manage_options').
+     * 2. Deletes all rows from wp_cosy_activity_logs database table.
      */
     public function ajax_clear_activity_logs()
     {

@@ -93,7 +93,19 @@ class LogManager
     }
 
     /**
-     * Log a PHP Exception with full file, line, and trace details.
+     * Log a PHP Exception with full file basename, line number, and error message.
+     * 
+     * USE CASE:
+     * Call inside any catch (\Throwable $e) block throughout the plugin.
+     * 
+     * WHAT IT DOES:
+     * Extracts the target script filename, exact line number, and error message from the exception,
+     * formats a clean trace string, and writes a log row to the wp_cosy_activity_logs database table.
+     * 
+     * @param string     $context   Category / feature area name (e.g. 'stripe_checkout', 'reviews', 'orders').
+     * @param \Throwable $exception The caught PHP Exception or Throwable object.
+     * @param int|null   $user_id   Optional User ID associated with the action (defaults to current user).
+     * @return bool                 True if successfully inserted into log table, false otherwise.
      */
     public static function log_exception(string $context, \Throwable $exception, ?int $user_id = null): bool
     {
@@ -106,7 +118,20 @@ class LogManager
     }
 
     /**
-     * Log a Database Error with last_error SQL details.
+     * Log a Database Query Error with $wpdb->last_error details.
+     * 
+     * USE CASE:
+     * Call whenever $wpdb->insert(), $wpdb->update(), or $wpdb->query() returns false or fails.
+     * 
+     * WHAT IT DOES:
+     * Captures the MySQL error string from $wpdb->last_error, pairs it with the action title,
+     * and logs it to the wp_cosy_activity_logs database table for instant admin dashboard visibility.
+     * 
+     * @param string   $context      Category / feature area name (e.g. 'database', 'media', 'reviews').
+     * @param string   $action_title Brief description of the SQL action that failed (e.g. 'Approve Video', 'Insert Order').
+     * @param string   $sql_error    The raw MySQL error string ($wpdb->last_error).
+     * @param int|null $user_id      Optional User ID associated with the action (defaults to current user).
+     * @return bool                  True if successfully inserted into log table, false otherwise.
      */
     public static function log_db_error(string $context, string $action_title, string $sql_error, ?int $user_id = null): bool
     {

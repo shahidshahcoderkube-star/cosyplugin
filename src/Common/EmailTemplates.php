@@ -812,15 +812,33 @@ class EmailTemplates
     }
 
     /**
-     * CENTRALIZED EMAIL DISPATCHER
+     * CENTRALIZED SINGLE-LINE EMAIL DISPATCHER HELPER
      * 
-     * Fetches the specified template, builds HTML layout, applies placeholders,
-     * and dispatches HTML email via cosy_send_html_email in 1 single clean line.
-     *
+     * USE CASE:
+     * Call anywhere across the plugin when sending an HTML email to a customer, provider, or administrator.
+     * Replaces 8-10 lines of repetitive template-fetching and email-sending code with a single clean line.
+     * 
+     * HOW TO USE:
+     * EmailTemplates::send('customer_booking_confirmation', $user_email, [
+     *     'customer_name' => 'John',
+     *     'provider_name' => 'Sarah',
+     *     'booking_date'  => '2026-08-20',
+     *     'start_time'    => '10:00 AM',
+     *     'end_time'      => '11:00 AM',
+     *     'meeting_link'  => 'https://meet.jit.si/...',
+     * ]);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Validates the target email address and checks function existence.
+     * 2. Maps the requested template key to its dedicated builder method.
+     * 3. Fills in all template placeholders and builds the HTML layout.
+     * 4. Dispatches the email with custom brand headers via cosy_send_html_email().
+     * 5. Automatically logs any template resolution or email delivery errors to LogManager.
+     * 
      * @param string $template_name Unique template key name (e.g. 'customer_verification', 'customer_booking_confirmation', etc.)
      * @param string $to_email      Target recipient email address.
      * @param array  $data          Associative array of template variables/placeholders.
-     * @return bool                 True if email was dispatched, false otherwise.
+     * @return bool                 True if email was dispatched successfully, false otherwise.
      */
     public static function send(string $template_name, string $to_email, array $data = []): bool
     {

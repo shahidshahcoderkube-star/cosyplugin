@@ -840,7 +840,14 @@ trait GlobalCommonFunctions
 
     /**
      * Clear all provider directory transient caches.
-     * Triggered automatically whenever a provider updates profile, availability, or reviews.
+     * 
+     * USE CASE:
+     * Triggered automatically whenever a provider updates their profile info,
+     * working hours availability, holiday dates, or when a customer review is approved/deleted.
+     * 
+     * WHY IT IS NEEDED:
+     * Ensures that stale cached directory listings are flushed immediately so frontend visitors
+     * always see the latest active provider profile information.
      */
     public function cosy_clear_provider_transients(): void
     {
@@ -849,30 +856,41 @@ trait GlobalCommonFunctions
     }
 
     /**
-     * STANDARDIZED ADMIN AJAX VERIFICATION
+     * STANDARDIZED ADMIN AJAX VERIFICATION HELPER
      * 
-     * Enforces logged-in user check, security nonce check, and admin capability permission check.
-     * Returns current user ID on success or sends standardized JSON error on failure.
-     *
-     * @param string $nonce_action Nonce action key.
-     * @param string $capability   Required user capability.
-     * @return int                 Current user ID.
+     * USE CASE:
+     * Call this single function at the beginning of any backend admin AJAX handler
+     * (e.g. approving videos, updating user status, deleting orders, clearing activity logs).
+     * 
+     * WHAT IT DOES:
+     * 1. Verifies that the user is currently logged into WordPress.
+     * 2. Auto-detects and validates the security Nonce token ('nonce' or 'security' POST key).
+     * 3. Verifies that the user possesses the required administrative capability permission.
+     * 4. Sends a standardized JSON error response if any check fails, or returns the User ID.
+     * 
+     * @param string $nonce_action Nonce action name (default: 'cosy_admin_nonce').
+     * @param string $capability   Required WP capability (default: 'manage_cosy_appointments').
+     * @param string $nonce_param  Expected POST query parameter key (default: 'nonce').
+     * @return int                 Validated current user ID.
      */
     public function verify_admin_ajax_request(string $nonce_action = 'cosy_admin_nonce', string $capability = 'manage_cosy_appointments', string $nonce_param = 'nonce'): int
     {
+        // 1. Verify user authentication status
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Unauthorized access. Please log in.', 'cosy-appointments')]);
         }
 
-        // Auto-detect parameter name if default 'nonce' key is not present in $_REQUEST
+        // 2. Auto-detect parameter key if 'nonce' is not explicitly set in $_REQUEST
         if (!isset($_REQUEST[$nonce_param]) && isset($_REQUEST['security'])) {
             $nonce_param = 'security';
         }
 
+        // 3. Verify security CSRF Nonce token
         if (!check_ajax_referer($nonce_action, $nonce_param, false)) {
             wp_send_json_error(['message' => __('Invalid security token. Please refresh the page.', 'cosy-appointments')]);
         }
 
+        // 4. Verify user administrative capabilities
         if (!current_user_can($capability) && !current_user_can('manage_options')) {
             wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'cosy-appointments')]);
         }
