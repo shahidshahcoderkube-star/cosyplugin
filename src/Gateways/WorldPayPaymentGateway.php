@@ -301,12 +301,6 @@ class WorldPayPaymentGateway
                     'failureURL' => $success_url,
                     'cancelURL'  => $success_url,
                     'errorURL'   => $success_url
-                ],
-                'billingAddress' => [
-                    'address1'    => '10 Downing Street',
-                    'postalCode'  => 'SW1A 2AA',
-                    'city'        => 'London',
-                    'countryCode' => 'GB'
                 ]
             ];
 
