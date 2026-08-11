@@ -17,27 +17,7 @@ defined('ABSPATH') || exit;
                 </div>
                 <div>
                     <h1 class="wp-heading-inline m-0 fs-2 fw-bold text-dark"><?php _e('Global Settings', 'cosy-appointments'); ?></h1>
-                    <p class="text-muted m-0 mt-1"><?php _e('Configure payment gateways, AI search engine, page branding images, and email signatures.', 'cosy-appointments'); ?></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="card border-0 bg-light p-3 rounded-4 mb-4" style="background: #faf5fb !important; border: 1px solid #eedced !important;">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-3 p-2 bg-white text-primary d-flex align-items-center justify-content-center shadow-sm" style="width:42px; height:42px; color:#a44390 !important;">
-                        <i class="fa-solid fa-star fs-5"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold text-dark m-0"><?php _e('Priority Active Payment Gateway', 'cosy-appointments'); ?></h6>
-                        <small class="text-muted"><?php _e('Select which payment gateway is active and prioritized during customer checkout.', 'cosy-appointments'); ?></small>
-                    </div>
-                </div>
-                <div>
-                    <?php $default_gw = get_option('cosy_default_payment_gateway', 'worldpay'); ?>
-                    <select name="cosy_default_payment_gateway" class="form-select border-0 shadow-sm fw-bold py-2 px-3 rounded-3" style="min-width: 240px; background-color: #ffffff !important;">
-                        <option value="worldpay" <?php selected($default_gw, 'worldpay'); ?>>⭐ WorldPay (Priority Default)</option>
-                    </select>
+                    <p class="text-muted m-0 mt-1"><?php _e('Configure WorldPay payment gateway, AI search engine, page branding images, and email signatures.', 'cosy-appointments'); ?></p>
                 </div>
             </div>
         </div>
