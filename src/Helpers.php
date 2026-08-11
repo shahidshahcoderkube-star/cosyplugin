@@ -240,7 +240,7 @@ if (!function_exists('cosy_get_currency_symbol')) {
      */
     function cosy_get_currency_symbol()
     {
-        $currency = get_option('cosy_stripe_currency', get_option('cosy_payment_currency', 'GBP'));
+        $currency = get_option('cosy_payment_currency', 'GBP');
 
         switch (strtoupper($currency)) {
             case 'USD':
@@ -268,7 +268,7 @@ if (!function_exists('cosy_get_currency_code')) {
      */
     function cosy_get_currency_code()
     {
-        $code = strtoupper((string) get_option('cosy_stripe_currency', get_option('cosy_payment_currency', 'GBP')));
+        $code = strtoupper((string) get_option('cosy_payment_currency', 'GBP'));
         return !empty($code) ? $code : 'GBP';
     }
 }

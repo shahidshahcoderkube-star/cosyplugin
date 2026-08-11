@@ -47,9 +47,6 @@ class Plugin
         // Register Frontend elements like shortcodes, checkout, and forms.
         (new Frontend())->register($this->loader);
 
-        // Register Stripe Payment Gateway & Checkout AJAX handler.
-        (new \Cosy\Appointments\Gateways\StripePaymentGateway())->register($this->loader);
-
         // Register WorldPay Payment Gateway & Checkout AJAX handler.
         (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->register($this->loader);
         (new \Cosy\Appointments\Gateways\WorldPayWebhookHandler())->register($this->loader);
