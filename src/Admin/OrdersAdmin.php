@@ -141,6 +141,19 @@ class OrdersAdmin
               if (empty($booking_status)) {
                 $booking_status = 'pending';
               }
+
+              // Fetch WorldPay transaction details for Admin
+              global $wpdb;
+              $wp_table = $wpdb->prefix . 'cosy_worldpay_payments';
+              $wp_row   = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wp_table WHERE order_id = %d", $appt_id));
+
+              $txn_ref      = get_post_meta($appt_id, 'cosy_transaction_ref', true) ?: ($wp_row->transaction_ref_id ?? 'N/A');
+              $payment_id   = get_post_meta($appt_id, 'cosy_worldpay_payment_id', true) ?: ($wp_row->payment_id ?? 'N/A');
+              $card_brand   = get_post_meta($appt_id, 'cosy_worldpay_card_brand', true) ?: ($wp_row->card_brand ?? '');
+              $card_last4   = get_post_meta($appt_id, 'cosy_worldpay_card_last4', true) ?: ($wp_row->card_last4 ?? '');
+              $auth_code    = get_post_meta($appt_id, 'cosy_worldpay_auth_code', true) ?: ($wp_row->auth_code ?? '');
+              $last_event   = get_post_meta($appt_id, 'cosy_worldpay_last_event', true) ?: ($wp_row->last_event ?? '');
+              $payment_date = $wp_row->payment_date ?? get_the_date('Y-m-d H:i:s', $appt_id);
             ?>
               <tr>
                 <th scope="row" class="check-column"><input type="checkbox" class="cosy-order-checkbox" value="<?php echo $appt_id; ?>"></th>
@@ -168,7 +181,14 @@ class OrdersAdmin
                     data-total="<?php echo esc_attr($total_payable); ?>"
                     data-status="<?php echo esc_attr($booking_status); ?>"
                     data-week-days="<?php echo esc_attr($week_days); ?>"
-                    data-slots-timeline="<?php echo esc_attr($slots_timeline); ?>">
+                    data-slots-timeline="<?php echo esc_attr($slots_timeline); ?>"
+                    data-txn-ref="<?php echo esc_attr($txn_ref); ?>"
+                    data-payment-id="<?php echo esc_attr($payment_id); ?>"
+                    data-card-brand="<?php echo esc_attr($card_brand); ?>"
+                    data-card-last4="<?php echo esc_attr($card_last4); ?>"
+                    data-auth-code="<?php echo esc_attr($auth_code); ?>"
+                    data-last-event="<?php echo esc_attr($last_event); ?>"
+                    data-payment-date="<?php echo esc_attr($payment_date); ?>">
                     View Details
                   </button>
                 </td>
@@ -250,6 +270,36 @@ class OrdersAdmin
               </tr>
             </table>
             <p style="font-size: 11px; color: #64748b; margin-top: 8px; margin-bottom: 0; font-style: italic;">*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
+          </div>
+
+          <div class="cosy-admin-card info-card full" style="margin-top: 12px; border-left: 4px solid #a44390;">
+            <h3><span class="dashicons dashicons-shield"></span> WorldPay Payment Details</h3>
+            <table class="cosy-admin-table-details">
+              <tr>
+                <td>Payment Gateway:</td>
+                <td style="text-align: right; font-weight: 600;">WorldPay HPP</td>
+              </tr>
+              <tr>
+                <td>Transaction Ref ID:</td>
+                <td style="text-align: right; font-family: monospace; font-weight: 700; color: #a44390;" id="modalAdminTxnRef">N/A</td>
+              </tr>
+              <tr>
+                <td>WorldPay Payment ID:</td>
+                <td style="text-align: right; font-family: monospace;" id="modalAdminPaymentId">N/A</td>
+              </tr>
+              <tr>
+                <td>Card Used:</td>
+                <td style="text-align: right; font-weight: 600;" id="modalAdminCardInfo">N/A</td>
+              </tr>
+              <tr>
+                <td>Auth Code / Event:</td>
+                <td style="text-align: right; font-weight: 600;" id="modalAdminAuthEvent">N/A</td>
+              </tr>
+              <tr>
+                <td>Payment Date & Time:</td>
+                <td style="text-align: right; font-weight: 600;" id="modalAdminPaymentDate">N/A</td>
+              </tr>
+            </table>
           </div>
 
           <div style="margin-top: 16px; padding: 10px; border-radius: 4px; text-align: center; border: 1px solid transparent;" id="modalAdminStatusBg">

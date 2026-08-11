@@ -495,6 +495,16 @@ class EmailTemplates
                 <tr style='background-color: #fdf2fb;'><td style='padding: 12px 10px; font-weight: 700; color: #a44390;'>Total Paid</td><td style='padding: 12px 10px; font-weight: 700; text-align: right; color: #a44390;'>{$currency}" . esc_html($data['total_payable']) . "</td></tr>
             </table>
             <p style='font-size: 11px; color: #64748b; margin-top: 6px; font-style: italic;'>*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
+
+            <h3 style='color: #6d2e67; border-bottom: 2px solid #f1e4ef; padding-bottom: 8px; margin-top: 25px;'>💳 WorldPay Payment Gateway Details (Admin Only):</h3>
+            <table style='width: 100%; border-collapse: collapse; margin: 15px 0; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600; width: 40%;'>Payment Gateway:</td><td style='padding: 10px 12px;'>" . esc_html($data['gateway'] ?? 'WorldPay HPP') . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>Transaction Ref ID:</td><td style='padding: 10px 12px; font-family: monospace; font-weight: bold; color: #a44390;'>" . esc_html($data['transaction_ref_id'] ?? 'N/A') . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>WorldPay Payment ID:</td><td style='padding: 10px 12px; font-family: monospace;'>" . esc_html($data['payment_id'] ?? 'N/A') . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>Card Used:</td><td style='padding: 10px 12px;'>" . esc_html(strtoupper($data['card_brand'] ?? 'Visa')) . (!empty($data['card_last4']) ? " **** " . esc_html($data['card_last4']) : "") . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>Auth Code / Status:</td><td style='padding: 10px 12px;'>" . esc_html($data['auth_code'] ?? 'N/A') . (!empty($data['last_event']) ? " (" . esc_html($data['last_event']) . ")" : "") . "</td></tr>
+                <tr><td style='padding: 10px 12px; font-weight: 600;'>Payment Date &amp; Time:</td><td style='padding: 10px 12px;'>" . esc_html($data['payment_date'] ?? date('Y-m-d H:i:s')) . "</td></tr>
+            </table>
         ";
 
         return [

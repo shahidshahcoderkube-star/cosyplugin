@@ -705,31 +705,50 @@ class Frontend
         $provider_user = get_userdata($provider_id);
         $provider_email = $provider_user ? $provider_user->user_email : '';
 
-        $currency_symbol = cosy_get_currency_symbol();
+        // Fetch WorldPay Payment Details for Admin Notification
+        global $wpdb;
+        $wp_table = $wpdb->prefix . 'cosy_worldpay_payments';
+        $wp_row   = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wp_table WHERE order_id = %d", $order_id));
+
+        $transaction_ref_id = get_post_meta($order_id, 'cosy_transaction_ref', true) ?: ($wp_row->transaction_ref_id ?? 'N/A');
+        $payment_id         = get_post_meta($order_id, 'cosy_worldpay_payment_id', true) ?: ($wp_row->payment_id ?? 'N/A');
+        $card_brand         = get_post_meta($order_id, 'cosy_worldpay_card_brand', true) ?: ($wp_row->card_brand ?? '');
+        $card_last4         = get_post_meta($order_id, 'cosy_worldpay_card_last4', true) ?: ($wp_row->card_last4 ?? '');
+        $auth_code          = get_post_meta($order_id, 'cosy_worldpay_auth_code', true) ?: ($wp_row->auth_code ?? '');
+        $last_event         = get_post_meta($order_id, 'cosy_worldpay_last_event', true) ?: ($wp_row->last_event ?? '');
+        $payment_date       = $wp_row->payment_date ?? current_time('mysql');
 
         $booking_data = [
-            'order_id'       => $order_id,
-            'customer_name'  => $current_user->display_name,
-            'customer_email' => $current_user->user_email,
-            'sender_name'    => $current_user->display_name,
-            'sender_email'   => $current_user->user_email,
-            'provider_name'  => $provider_name,
-            'provider_email' => $provider_email,
-            'service_title'  => $service,
-            'start_date'     => $start_date,
-            'end_date'       => $end_date,
-            'weekly_type'    => $weekly_booking,
-            'num_weeks'      => $number_of_weeks,
-            'week_days'      => $week_days,
-            'num_bookings'   => $number_of_bookings,
-            'slots_timeline' => $slots_timeline,
-            'service_cost'   => $service_cost,
-            'service_fee'    => $service_fee,
-            'total_payable'  => $total_payable,
-            'currency_symbol'=> $currency_symbol,
-            'is_gift'        => !empty($is_gift),
-            'recipient_name' => $recipient_name ?? '',
-            'recipient_email'=> $recipient_email ?? '',
+            'order_id'           => $order_id,
+            'customer_name'      => $current_user->display_name,
+            'customer_email'     => $current_user->user_email,
+            'sender_name'        => $current_user->display_name,
+            'sender_email'       => $current_user->user_email,
+            'provider_name'      => $provider_name,
+            'provider_email'     => $provider_email,
+            'service_title'      => $service,
+            'start_date'         => $start_date,
+            'end_date'           => $end_date,
+            'weekly_type'        => $weekly_booking,
+            'num_weeks'          => $number_of_weeks,
+            'week_days'          => $week_days,
+            'num_bookings'       => $number_of_bookings,
+            'slots_timeline'     => $slots_timeline,
+            'service_cost'       => $service_cost,
+            'service_fee'        => $service_fee,
+            'total_payable'      => $total_payable,
+            'currency_symbol'    => $currency_symbol,
+            'is_gift'            => !empty($is_gift),
+            'recipient_name'     => $recipient_name ?? '',
+            'recipient_email'    => $recipient_email ?? '',
+            'gateway'            => 'WorldPay HPP',
+            'transaction_ref_id' => $transaction_ref_id,
+            'payment_id'         => $payment_id,
+            'card_brand'         => $card_brand,
+            'card_last4'         => $card_last4,
+            'auth_code'          => $auth_code,
+            'last_event'         => $last_event,
+            'payment_date'       => $payment_date,
         ];
 
         // 1. Send Customer Email

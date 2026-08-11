@@ -596,6 +596,13 @@ jQuery(document).ready(function ($) {
             const status  = $(this).data('status');
             const weekDays = $(this).data('week-days');
             const slotsTimeline = $(this).data('slots-timeline');
+            const txnRef    = $(this).data('txn-ref') || 'N/A';
+            const paymentId = $(this).data('payment-id') || 'N/A';
+            const cardBrand = $(this).data('card-brand') || '';
+            const cardLast4 = $(this).data('card-last4') || '';
+            const authCode  = $(this).data('auth-code') || '';
+            const lastEvent = $(this).data('last-event') || '';
+            const paymentDate = $(this).data('payment-date') || 'N/A';
 
             // Populate modal text fields
             $('#modalAdminOrderTitle').text('Order Details - #' + id);
@@ -619,6 +626,13 @@ jQuery(document).ready(function ($) {
             $('#modalAdminCost').text(currencySymbol + cost);
             $('#modalAdminFee').text(currencySymbol + fee);
             $('#modalAdminTotal').text(currencySymbol + total);
+
+            // Populate WorldPay Payment details for Admin
+            $('#modalAdminTxnRef').text(txnRef);
+            $('#modalAdminPaymentId').text(paymentId);
+            $('#modalAdminCardInfo').text(cardBrand ? (cardBrand.toUpperCase() + (cardLast4 ? ' ending in ' + cardLast4 : '')) : 'N/A');
+            $('#modalAdminAuthEvent').text((authCode || 'N/A') + (lastEvent ? ' (' + lastEvent + ')' : ''));
+            $('#modalAdminPaymentDate').text(paymentDate);
 
             // Apply colour-coded status badge consistent with WordPress admin styles
             CosyOrdersAdmin.applyStatusStyle(status);
