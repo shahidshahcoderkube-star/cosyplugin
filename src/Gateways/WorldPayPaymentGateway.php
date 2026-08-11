@@ -273,8 +273,15 @@ class WorldPayPaymentGateway
             'appt_id'                => $order_id
         ], cosy_get_page_url('cosy-checkout'));
 
+        $cancel_url = add_query_arg([
+            'cosy_worldpay_cancel' => 'true',
+            'order_id'              => $order_id,
+            'appt_id'               => $order_id
+        ], cosy_get_page_url('cosy-checkout'));
+
         // Enforce https scheme to satisfy WorldPay HPP security policy
         $success_url = set_url_scheme($success_url, 'https');
+        $cancel_url  = set_url_scheme($cancel_url, 'https');
 
         // If credentials represent WorldPay Access Account (Entity ID starting with PO or non-numeric)
         if (empty($raw_inst) || !is_numeric($raw_inst)) {
@@ -297,9 +304,9 @@ class WorldPayPaymentGateway
                 ],
                 'resultURLs' => [
                     'successURL' => $success_url,
-                    'failureURL' => $success_url,
-                    'cancelURL'  => $success_url,
-                    'errorURL'   => $success_url
+                    'failureURL' => $cancel_url,
+                    'cancelURL'  => $cancel_url,
+                    'errorURL'   => $cancel_url
                 ]
             ];
 
@@ -345,7 +352,8 @@ class WorldPayPaymentGateway
             'name'       => $current_user->display_name,
             'email'      => $current_user->user_email,
             'MC_orderId' => $order_id,
-            'MC_callback'=> $success_url
+            'MC_callback'=> $success_url,
+            'MC_cancel'  => $cancel_url
         ];
 
         $redirect_url = add_query_arg($query_args, $base_url);

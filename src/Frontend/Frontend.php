@@ -154,7 +154,26 @@ class Frontend
     {
         // Handle WorldPay Cancelled
         if (isset($_GET['cosy_worldpay_cancel']) && $_GET['cosy_worldpay_cancel'] === 'true') {
-            (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->cosy_payment_log("WorldPay Checkout CANCELLED by user.");
+            $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : (isset($_GET['appt_id']) ? intval($_GET['appt_id']) : 0);
+            (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->cosy_payment_log("WorldPay Checkout CANCELLED by user for Order #$order_id.");
+
+            if ($order_id > 0) {
+                $appt = get_post($order_id);
+                if ($appt && $appt->post_type === 'cosy_appointment') {
+                    update_post_meta($order_id, 'cosy_booking_status', 'cancelled');
+                    update_post_meta($order_id, 'cosy_payment_status', 'Cancelled');
+                    if ($appt->post_status === 'draft') {
+                        wp_update_post(['ID' => $order_id, 'post_status' => 'trash']);
+                    }
+                    \Cosy\Appointments\Common\LogManager::log(
+                        'orders',
+                        'payment_cancelled_worldpay',
+                        sprintf(__('WorldPay payment cancelled by user for Order #%d.', 'cosy-appointments'), $order_id),
+                        $appt->post_author
+                    );
+                }
+            }
+
             return '<div class="cosy-checkout-root">
                         <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
                             <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
@@ -176,6 +195,7 @@ class Frontend
                 if ($appt->post_status === 'draft') {
                     wp_update_post(['ID' => $order_id, 'post_status' => 'publish']);
                     update_post_meta($order_id, 'cosy_payment_status', 'Paid');
+                    update_post_meta($order_id, 'cosy_booking_status', 'pending');
                     update_post_meta($order_id, 'cosy_payment_gateway', 'worldpay');
 
                     // Log activity
@@ -204,7 +224,26 @@ class Frontend
 
         // Handle Stripe Cancelled
         if (isset($_GET['cosy_stripe_cancel']) && $_GET['cosy_stripe_cancel'] === 'true') {
-            $this->cosy_payment_log("Stripe Checkout CANCELLED by user.");
+            $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : (isset($_GET['appt_id']) ? intval($_GET['appt_id']) : 0);
+            $this->cosy_payment_log("Stripe Checkout CANCELLED by user for Order #$order_id.");
+
+            if ($order_id > 0) {
+                $appt = get_post($order_id);
+                if ($appt && $appt->post_type === 'cosy_appointment') {
+                    update_post_meta($order_id, 'cosy_booking_status', 'cancelled');
+                    update_post_meta($order_id, 'cosy_payment_status', 'Cancelled');
+                    if ($appt->post_status === 'draft') {
+                        wp_update_post(['ID' => $order_id, 'post_status' => 'trash']);
+                    }
+                    \Cosy\Appointments\Common\LogManager::log(
+                        'orders',
+                        'payment_cancelled_stripe',
+                        sprintf(__('Stripe payment cancelled by user for Order #%d.', 'cosy-appointments'), $order_id),
+                        $appt->post_author
+                    );
+                }
+            }
+
             return '<div class="cosy-checkout-root">
                         <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
                             <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>

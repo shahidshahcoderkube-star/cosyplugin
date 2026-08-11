@@ -277,7 +277,9 @@ class StripePaymentGateway
         ], cosy_get_page_url('cosy-checkout'));
 
         $cancel_url = add_query_arg([
-            'cosy_stripe_cancel' => 'true'
+            'cosy_stripe_cancel' => 'true',
+            'order_id'           => $order_id,
+            'appt_id'            => $order_id
         ], cosy_get_page_url('cosy-checkout'));
 
         $body = [
