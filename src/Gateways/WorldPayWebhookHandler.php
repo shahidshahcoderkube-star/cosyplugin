@@ -137,6 +137,9 @@ class WorldPayWebhookHandler
                 LogManager::log('orders', 'payment_completed_worldpay_webhook', sprintf(__('Worldpay Webhook confirmed payment [%s] for Order #%d.', 'cosy-appointments'), $event_name, $order_id), $appt->post_author);
                 \Cosy\Appointments\Common\Database::sync_booking_record($order_id);
                 \Cosy\Appointments\Common\Database::record_worldpay_payment_entry($order_id, 'Paid', ['raw_response' => $data]);
+
+                // Trigger booking confirmation emails (Customer, Provider & Admin)
+                (new \Cosy\Appointments\Frontend\Frontend())->send_booking_emails($order_id);
                 break;
 
             case 'refused':

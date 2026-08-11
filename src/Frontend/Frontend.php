@@ -218,6 +218,9 @@ class Frontend
                 }
                 \Cosy\Appointments\Common\Database::sync_booking_record($order_id);
                 \Cosy\Appointments\Common\Database::record_worldpay_payment_entry($order_id, 'Paid');
+
+                // Trigger booking confirmation emails (Customer, Provider & Admin)
+                $this->send_booking_emails($order_id);
             }
 
             // Render Success UI
