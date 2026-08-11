@@ -261,53 +261,59 @@ class OrdersAdmin
             <p><strong>Selected Slots:</strong> <span id="modalAdminSlotsTimeline"></span></p>
           </div>
 
-          <div class="cosy-admin-card info-card full" style="margin-top: 12px;">
-            <h3><span class="dashicons dashicons-cart"></span> Financial Statement</h3>
-            <table class="cosy-admin-table-details">
-              <tr>
-                <td>Provider Share (Cost):</td>
-                <td style="text-align: right; font-weight: 600;" id="modalAdminCost"></td>
-              </tr>
-              <tr>
-                <td>Service Fee*:</td>
-                <td style="text-align: right; font-weight: 600;" id="modalAdminFee"></td>
-              </tr>
-              <tr style="font-weight: bold; border-top: 1px solid #dcdcde;">
-                <td style="padding-top: 10px; color:#1d2327;">Total Paid:</td>
-                <td style="text-align: right; padding-top: 10px; color: #2271b1; font-size: 1.1em;" id="modalAdminTotal"></td>
-              </tr>
-            </table>
-            <p style="font-size: 11px; color: #64748b; margin-top: 8px; margin-bottom: 0; font-style: italic;">*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
-          </div>
+          <div class="cosy-admin-grid" style="margin-top: 12px; margin-bottom: 0;">
+            <div class="cosy-admin-col">
+              <div class="cosy-admin-card info-card" style="height: 100%; box-sizing: border-box;">
+                <h3><span class="dashicons dashicons-cart"></span> Financial Statement</h3>
+                <table class="cosy-admin-table-details">
+                  <tr>
+                    <td>Provider Share (Cost):</td>
+                    <td style="text-align: right; font-weight: 600;" id="modalAdminCost"></td>
+                  </tr>
+                  <tr>
+                    <td>Service Fee*:</td>
+                    <td style="text-align: right; font-weight: 600;" id="modalAdminFee"></td>
+                  </tr>
+                  <tr style="font-weight: bold; border-top: 1px solid #dcdcde;">
+                    <td style="padding-top: 10px; color:#1d2327;">Total Paid:</td>
+                    <td style="text-align: right; padding-top: 10px; color: #2271b1; font-size: 1.1em;" id="modalAdminTotal"></td>
+                  </tr>
+                </table>
+                <p style="font-size: 11px; color: #64748b; margin-top: 14px; margin-bottom: 0; font-style: italic;">*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
+              </div>
+            </div>
 
-          <div class="cosy-admin-card info-card full" style="margin-top: 12px; border-left: 4px solid #a44390;">
-            <h3><span class="dashicons dashicons-shield"></span> WorldPay Payment Details</h3>
-            <table class="cosy-admin-table-details">
-              <tr>
-                <td>Payment Gateway:</td>
-                <td style="text-align: right; font-weight: 600;">WorldPay HPP</td>
-              </tr>
-              <tr>
-                <td>Transaction Ref ID:</td>
-                <td style="text-align: right; font-family: monospace; font-weight: 700; color: #a44390;" id="modalAdminTxnRef">N/A</td>
-              </tr>
-              <tr>
-                <td>WorldPay Payment ID:</td>
-                <td style="text-align: right; font-family: monospace;" id="modalAdminPaymentId">N/A</td>
-              </tr>
-              <tr>
-                <td>Card Used:</td>
-                <td style="text-align: right; font-weight: 600;" id="modalAdminCardInfo">N/A</td>
-              </tr>
-              <tr>
-                <td>Auth Code / Event:</td>
-                <td style="text-align: right; font-weight: 600;" id="modalAdminAuthEvent">N/A</td>
-              </tr>
-              <tr>
-                <td>Payment Date & Time:</td>
-                <td style="text-align: right; font-weight: 600;" id="modalAdminPaymentDate">N/A</td>
-              </tr>
-            </table>
+            <div class="cosy-admin-col">
+              <div class="cosy-admin-card info-card" style="height: 100%; box-sizing: border-box; border-left: 4px solid #a44390;">
+                <h3><span class="dashicons dashicons-shield"></span> WorldPay Payment Details</h3>
+                <table class="cosy-admin-table-details">
+                  <tr>
+                    <td>Payment Gateway:</td>
+                    <td style="text-align: right; font-weight: 600;">WorldPay HPP</td>
+                  </tr>
+                  <tr>
+                    <td>Transaction Ref ID:</td>
+                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #a44390;" id="modalAdminTxnRef">N/A</td>
+                  </tr>
+                  <tr>
+                    <td>WorldPay Payment ID:</td>
+                    <td style="text-align: right; font-family: monospace;" id="modalAdminPaymentId">N/A</td>
+                  </tr>
+                  <tr>
+                    <td>Card Used:</td>
+                    <td style="text-align: right; font-weight: 600;" id="modalAdminCardInfo">N/A</td>
+                  </tr>
+                  <tr>
+                    <td>Auth Code / Event:</td>
+                    <td style="text-align: right; font-weight: 600;" id="modalAdminAuthEvent">N/A</td>
+                  </tr>
+                  <tr>
+                    <td>Payment Date &amp; Time:</td>
+                    <td style="text-align: right; font-weight: 600;" id="modalAdminPaymentDate">N/A</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
           </div>
 
           <div style="margin-top: 16px; padding: 10px; border-radius: 4px; text-align: center; border: 1px solid transparent;" id="modalAdminStatusBg">
