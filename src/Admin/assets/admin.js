@@ -584,6 +584,7 @@ jQuery(document).ready(function ($) {
             const customer = $(this).data('customer');
             const email   = $(this).data('customer-email');
             const provider = $(this).data('provider');
+            const providerEmail = $(this).data('provider-email');
             const service  = $(this).data('service');
             const start   = $(this).data('start');
             const end     = $(this).data('end');
@@ -609,6 +610,7 @@ jQuery(document).ready(function ($) {
             $('#modalAdminCustomerName').text(customer);
             $('#modalAdminCustomerEmail').text(email || 'N/A');
             $('#modalAdminProviderName').text(provider);
+            $('#modalAdminProviderEmail').text(providerEmail || 'N/A');
             $('#modalAdminServiceName').text(service);
             $('#modalAdminSchedule').text(weekly);
 

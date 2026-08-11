@@ -142,6 +142,10 @@ class OrdersAdmin
                 $booking_status = 'pending';
               }
 
+              $provider_id     = get_post_meta($appt_id, 'cosy_provider_id', true);
+              $provider_user   = get_userdata($provider_id);
+              $provider_email  = $provider_user ? $provider_user->user_email : (get_post_meta($appt_id, 'cosy_provider_email', true) ?: 'N/A');
+
               // Fetch WorldPay transaction details for Admin
               global $wpdb;
               $wp_table = $wpdb->prefix . 'cosy_worldpay_payments';
@@ -178,6 +182,7 @@ class OrdersAdmin
                     data-customer="<?php echo esc_attr($customer_name); ?>"
                     data-customer-email="<?php echo esc_attr($customer_email); ?>"
                     data-provider="<?php echo esc_attr($provider_name); ?>"
+                    data-provider-email="<?php echo esc_attr($provider_email); ?>"
                     data-service="<?php echo esc_attr($service_name); ?>"
                     data-start="<?php echo esc_attr($start_date); ?>"
                     data-end="<?php echo esc_attr($end_date); ?>"
@@ -247,6 +252,7 @@ class OrdersAdmin
               <div class="cosy-admin-card info-card">
                 <h3><span class="dashicons dashicons-businessman"></span> Provider Info</h3>
                 <p><strong>Name:</strong> <span id="modalAdminProviderName"></span></p>
+                <p><strong>Email:</strong> <span id="modalAdminProviderEmail"></span></p>
               </div>
             </div>
           </div>
