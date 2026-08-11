@@ -227,6 +227,7 @@ class WorldPayPaymentGateway
             sprintf(__('Customer initiated checkout for service %s via WorldPay.', 'cosy-appointments'), $service),
             $current_user->ID
         );
+        $tx_ref = 'Cosy_' . $order_id . '_' . time();
 
         // Save metadata
         $meta_data = [
@@ -254,11 +255,16 @@ class WorldPayPaymentGateway
             'cosy_payment_gateway'    => 'worldpay',
             'cosy_payment_status'     => 'Pending',
             'cosy_booking_status'     => 'pending',
+            'cosy_transaction_ref'    => $tx_ref,
         ];
 
         foreach ($meta_data as $key => $value) {
             update_post_meta($order_id, $key, $value);
         }
+
+        // Sync record into custom database table (wp_cosy_bookings)
+        \Cosy\Appointments\Common\Database::sync_booking_record($order_id);
+        \Cosy\Appointments\Common\Database::record_worldpay_payment_entry($order_id, 'Pending');
 
         // 100% Dynamic retrieval of WorldPay credentials directly from saved Admin Settings
         $username  = trim(get_option('cosy_worldpay_token', ''));
@@ -267,102 +273,71 @@ class WorldPayPaymentGateway
         $test_mode = get_option('cosy_worldpay_test_mode', 1);
         $currency  = strtoupper(cosy_get_currency_code());
 
-        $success_url = add_query_arg([
-            'cosy_worldpay_success' => 'true',
-            'order_id'               => $order_id,
-            'appt_id'                => $order_id
-        ], cosy_get_page_url('cosy-checkout'));
+        $base_checkout_url = cosy_get_page_url('cosy-checkout');
 
-        $cancel_url = add_query_arg([
-            'cosy_worldpay_cancel' => 'true',
-            'order_id'              => $order_id,
-            'appt_id'               => $order_id
-        ], cosy_get_page_url('cosy-checkout'));
+        $success_url = set_url_scheme(add_query_arg(['cosy_worldpay_success' => 'true', 'paymentStatus' => 'SUCCESS', 'order_id' => $order_id, 'appt_id' => $order_id], $base_checkout_url), 'https');
+        $pending_url = set_url_scheme(add_query_arg(['cosy_worldpay_pending' => 'true', 'paymentStatus' => 'PENDING', 'order_id' => $order_id, 'appt_id' => $order_id], $base_checkout_url), 'https');
+        $failure_url = set_url_scheme(add_query_arg(['cosy_worldpay_failure' => 'true', 'paymentStatus' => 'FAILED', 'order_id' => $order_id, 'appt_id' => $order_id], $base_checkout_url), 'https');
+        $error_url   = set_url_scheme(add_query_arg(['cosy_worldpay_error'   => 'true', 'paymentStatus' => 'ERROR', 'order_id' => $order_id, 'appt_id' => $order_id], $base_checkout_url), 'https');
+        $cancel_url  = set_url_scheme(add_query_arg(['cosy_worldpay_cancel'  => 'true', 'paymentStatus' => 'CANCELLED', 'order_id' => $order_id, 'appt_id' => $order_id], $base_checkout_url), 'https');
+        $expiry_url  = set_url_scheme(add_query_arg(['cosy_worldpay_expiry'  => 'true', 'paymentStatus' => 'EXPIRED', 'order_id' => $order_id, 'appt_id' => $order_id], $base_checkout_url), 'https');
 
-        // Enforce https scheme to satisfy WorldPay HPP security policy
-        $success_url = set_url_scheme($success_url, 'https');
-        $cancel_url  = set_url_scheme($cancel_url, 'https');
+        $endpoint = $test_mode ? 'https://try.access.worldpay.com/payment_pages' : 'https://access.worldpay.com/payment_pages';
+        $auth_header = 'Basic ' . base64_encode($username . ':' . $password);
 
-        // If credentials represent WorldPay Access Account (Entity ID starting with PO or non-numeric)
-        if (empty($raw_inst) || !is_numeric($raw_inst)) {
-            $endpoint = $test_mode ? 'https://try.access.worldpay.com/payment_pages' : 'https://access.worldpay.com/payment_pages';
-            $auth_header = 'Basic ' . base64_encode($username . ':' . $password);
+        $amount_minor = (int) round(floatval($total_payable) * 100);
 
-            $amount_minor = (int) round(floatval($total_payable) * 100);
-
-            $payload = [
-                'transactionReference' => 'Cosy_' . $order_id . '_' . time(),
-                'merchant' => [
-                    'entity' => $entity_id
-                ],
-                'narrative' => [
-                    'line1' => substr(preg_replace('/[^a-zA-Z0-9 ]/', '', 'CosyBooking ' . $service), 0, 25)
-                ],
-                'value' => [
-                    'currency' => $currency,
-                    'amount'   => $amount_minor
-                ],
-                'resultURLs' => [
-                    'successURL' => $success_url,
-                    'failureURL' => $cancel_url,
-                    'cancelURL'  => $cancel_url,
-                    'errorURL'   => $cancel_url
-                ]
-            ];
-
-            $res = wp_remote_post($endpoint, [
-                'headers' => [
-                    'Authorization' => $auth_header,
-                    'Content-Type'  => 'application/vnd.worldpay.payment_pages-v1.hal+json',
-                    'Accept'        => 'application/vnd.worldpay.payment_pages-v1.hal+json'
-                ],
-                'body'      => json_encode($payload),
-                'timeout'   => 25,
-                'sslverify' => false
-            ]);
-
-            $res_code = wp_remote_retrieve_response_code($res);
-            $res_body = json_decode(wp_remote_retrieve_body($res), true);
-
-            $this->cosy_payment_log("WorldPay Access HPP Response (HTTP $res_code):", $res_body);
-
-            $redirect_url = !empty($res_body['url']) ? $res_body['url'] : (!empty($res_body['_links']['redirect']['href']) ? $res_body['_links']['redirect']['href'] : '');
-
-            if (!is_wp_error($res) && !empty($redirect_url)) {
-                $this->cosy_payment_log("WorldPay Access HPP Session Created SUCCESSFULLY for Order #$order_id", $redirect_url);
-
-                wp_send_json_success([
-                    'orderId' => $order_id,
-                    'url'     => $redirect_url
-                ]);
-            }
-        }
-
-        // Classic WorldPay Hosted Gateway (WCC Purchase URL for numeric Installation IDs)
-        $inst_id  = $entity_id;
-        $base_url = $test_mode ? 'https://secure-test.worldpay.com/wcc/purchase' : 'https://secure.worldpay.com/wcc/purchase';
-
-        $query_args = [
-            'instId'     => $inst_id,
-            'cartId'     => (string) $order_id,
-            'amount'     => number_format(floatval($total_payable), 2, '.', ''),
-            'currency'   => $currency,
-            'desc'       => 'Experience Booking: ' . $service,
-            'testMode'   => $test_mode ? '100' : '0',
-            'name'       => $current_user->display_name,
-            'email'      => $current_user->user_email,
-            'MC_orderId' => $order_id,
-            'MC_callback'=> $success_url,
-            'MC_cancel'  => $cancel_url
+        $payload = [
+            'transactionReference' => $tx_ref,
+            'merchant' => [
+                'entity' => $entity_id
+            ],
+            'narrative' => [
+                'line1' => substr(preg_replace('/[^a-zA-Z0-9 ]/', '', 'CosyBooking ' . $service), 0, 25)
+            ],
+            'value' => [
+                'currency' => $currency,
+                'amount'   => $amount_minor
+            ],
+            'resultURLs' => [
+                'successURL' => $success_url,
+                'pendingURL' => $pending_url,
+                'failureURL' => $failure_url,
+                'errorURL'   => $error_url,
+                'cancelURL'  => $cancel_url,
+                'expiryURL'  => $expiry_url
+            ]
         ];
 
-        $redirect_url = add_query_arg($query_args, $base_url);
-
-        $this->cosy_payment_log("WorldPay Classic Gateway Session Generated SUCCESSFULLY for Order #$order_id (instId: $inst_id)", $redirect_url);
-
-        wp_send_json_success([
-            'orderId' => $order_id,
-            'url'     => $redirect_url
+        $res = wp_remote_post($endpoint, [
+            'headers' => [
+                'Authorization' => $auth_header,
+                'Content-Type'  => 'application/vnd.worldpay.payment_pages-v1.hal+json',
+                'Accept'        => 'application/vnd.worldpay.payment_pages-v1.hal+json'
+            ],
+            'body'      => json_encode($payload),
+            'timeout'   => 25,
+            'sslverify' => false
         ]);
+
+        $res_code = wp_remote_retrieve_response_code($res);
+        $res_body = json_decode(wp_remote_retrieve_body($res), true);
+
+        $this->cosy_payment_log("WorldPay Access HPP Response (HTTP $res_code):", $res_body);
+
+        $redirect_url = !empty($res_body['url']) ? $res_body['url'] : (!empty($res_body['_links']['redirect']['href']) ? $res_body['_links']['redirect']['href'] : '');
+
+        if (!is_wp_error($res) && !empty($redirect_url)) {
+            $this->cosy_payment_log("WorldPay Access HPP Session Created SUCCESSFULLY for Order #$order_id", $redirect_url);
+
+            wp_send_json_success([
+                'orderId' => $order_id,
+                'url'     => $redirect_url
+            ]);
+        } else {
+            $err_msg = isset($res_body['description']) ? $res_body['description'] : (is_wp_error($res) ? $res->get_error_message() : __('WorldPay API connection error', 'cosy-appointments'));
+            $this->cosy_payment_log("WorldPay Access HPP Session FAILED for Order #$order_id: $err_msg");
+            wp_send_json_error(['message' => $err_msg]);
+        }
     }
 }

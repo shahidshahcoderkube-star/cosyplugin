@@ -52,6 +52,7 @@ class Plugin
 
         // Register WorldPay Payment Gateway & Checkout AJAX handler.
         (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->register($this->loader);
+        (new \Cosy\Appointments\Gateways\WorldPayWebhookHandler())->register($this->loader);
 
         // Register the Provider Dashboard interface and logic.
         (new Dashboard())->register($this->loader);

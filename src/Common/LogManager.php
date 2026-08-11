@@ -89,6 +89,11 @@ class LogManager
             ]
         );
 
+        // If WP_DEBUG is enabled, also write entry to wp-content/debug.log
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log(sprintf('[CosyLog] [%s] [%s]: %s', $page, $action, $description));
+        }
+
         return $inserted !== false;
     }
 

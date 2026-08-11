@@ -152,10 +152,13 @@ class Frontend
      */
     public function checkout_page(): string
     {
-        // Handle WorldPay Cancelled
-        if (isset($_GET['cosy_worldpay_cancel']) && $_GET['cosy_worldpay_cancel'] === 'true') {
+        // Handle WorldPay Return (Cancelled / Failed / Expired / Error)
+        $status_param = isset($_GET['paymentStatus']) ? strtoupper(sanitize_text_field($_GET['paymentStatus'])) : '';
+        $is_cancelled = (isset($_GET['cosy_worldpay_cancel']) && $_GET['cosy_worldpay_cancel'] === 'true') || in_array($status_param, ['CANCELLED', 'FAILED', 'EXPIRED', 'ERROR']);
+
+        if ($is_cancelled) {
             $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : (isset($_GET['appt_id']) ? intval($_GET['appt_id']) : 0);
-            (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->cosy_payment_log("WorldPay Checkout CANCELLED by user for Order #$order_id.");
+            (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->cosy_payment_log("WorldPay Checkout CANCELLED/FAILED ($status_param) for Order #$order_id.");
 
             if ($order_id > 0) {
                 $appt = get_post($order_id);
@@ -168,17 +171,22 @@ class Frontend
                     \Cosy\Appointments\Common\LogManager::log(
                         'orders',
                         'payment_cancelled_worldpay',
-                        sprintf(__('WorldPay payment cancelled by user for Order #%d.', 'cosy-appointments'), $order_id),
+                        sprintf(__('WorldPay payment [%s] for Order #%d.', 'cosy-appointments'), $status_param ?: 'CANCELLED', $order_id),
                         $appt->post_author
                     );
+                    \Cosy\Appointments\Common\Database::sync_booking_record($order_id);
+                    \Cosy\Appointments\Common\Database::record_worldpay_payment_entry($order_id, $status_param ?: 'Cancelled');
                 }
             }
+
+            $title = $status_param ? "WorldPay Payment $status_param" : "WorldPay Payment Cancelled";
+            $message = ($status_param === 'FAILED') ? "Your transaction failed to complete. No charges were made." : "Your WorldPay transaction was cancelled. No charges were made.";
 
             return '<div class="cosy-checkout-root">
                         <div class="cosy-checkout-container" style="text-align:center; padding: 50px 20px;">
                             <i class="fas fa-times-circle" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;"></i>
-                            <h2 style="color: #dc3545; margin-bottom: 10px;">WorldPay Payment Cancelled</h2>
-                            <p style="color: #6c757d; margin-bottom: 25px;">Your WorldPay transaction was cancelled. No charges were made.</p>
+                            <h2 style="color: #dc3545; margin-bottom: 10px;">' . esc_html($title) . '</h2>
+                            <p style="color: #6c757d; margin-bottom: 25px;">' . esc_html($message) . '</p>
                             <a href="' . site_url('/') . '" class="cosy-btn-book-now btn" style="text-decoration:none; color: white !important;">Return to Home</a>
                         </div>
                     </div>';
@@ -209,6 +217,8 @@ class Frontend
                     // Flush transients
                     $this->cosy_clear_provider_transients();
                 }
+                \Cosy\Appointments\Common\Database::sync_booking_record($order_id);
+                \Cosy\Appointments\Common\Database::record_worldpay_payment_entry($order_id, 'Paid');
             }
 
             // Render Success UI
