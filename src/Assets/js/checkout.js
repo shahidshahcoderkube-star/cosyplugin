@@ -471,7 +471,7 @@ jQuery(document).ready(function ($) {
             // Dynamic gateway label
             ?>
             <button id="cosyPayNowBtn" class="btn w-100 py-3 fw-bold text-white shadow-sm" style="background: #a44390; border-radius: 14px; font-size: 1.1rem;">
-                ${(window.cosyCheckout && window.cosyCheckout.activeGateway === 'stripe') ? 'Pay Now via Stripe' : 'Pay Now via WorldPay'} <i class="fas fa-lock ms-2"></i>
+                Pay Now via WorldPay <i class="fas fa-lock ms-2"></i>
             </button>
         `;
     }
@@ -952,7 +952,7 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    // Handle Pay Now button click (Supports both WorldPay Priority and Stripe)
+    // Handle Pay Now button click (WorldPay Gateway)
     $(document).on('click', '#cosyPayNowBtn', function (e) {
         e.preventDefault();
 
@@ -968,10 +968,9 @@ jQuery(document).ready(function ($) {
         }
 
         const booking = JSON.parse(pendingBookingData);
-        const activeGw = (window.cosyCheckout && window.cosyCheckout.activeGateway) || 'worldpay';
-        const ajaxAction = (activeGw === 'stripe') ? 'cosy_create_stripe_session' : 'cosy_create_worldpay_session';
-        const gwName = (activeGw === 'stripe') ? 'Stripe' : 'WorldPay';
-        const defaultBtnText = (activeGw === 'stripe') ? 'Pay Now via Stripe <i class="fas fa-lock ms-2"></i>' : 'Pay Now via WorldPay <i class="fas fa-lock ms-2"></i>';
+        const ajaxAction = 'cosy_create_worldpay_session';
+        const gwName = 'WorldPay';
+        const defaultBtnText = 'Pay Now via WorldPay <i class="fas fa-lock ms-2"></i>';
 
         $btn.prop('disabled', true).html(`<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Connecting to ${gwName}...`);
 

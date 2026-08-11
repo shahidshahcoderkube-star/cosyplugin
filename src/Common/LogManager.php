@@ -107,7 +107,7 @@ class LogManager
      * Extracts the target script filename, exact line number, and error message from the exception,
      * formats a clean trace string, and writes a log row to the wp_cosy_activity_logs database table.
      * 
-     * @param string     $context   Category / feature area name (e.g. 'stripe_checkout', 'reviews', 'orders').
+     * @param string     $context   Category / feature area name (e.g. 'worldpay_checkout', 'reviews', 'orders').
      * @param \Throwable $exception The caught PHP Exception or Throwable object.
      * @param int|null   $user_id   Optional User ID associated with the action (defaults to current user).
      * @return bool                 True if successfully inserted into log table, false otherwise.

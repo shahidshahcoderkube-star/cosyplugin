@@ -78,7 +78,7 @@ class AppointmentCPT
 
     /**
      * Adds the "Payment Token & Key" submenu page.
-     * Used to configure Stripe API keys and other payment credentials.
+     * Used to configure WorldPay credentials and payment settings.
      */
     public function register_payment_token_and_key(): void
     {

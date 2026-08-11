@@ -113,7 +113,7 @@ class SettingsAdmin
             'sanitize_callback' => 'absint'
         ]);
 
-        // Active Gateway Selection (worldpay vs stripe)
+        // Active Gateway Selection
         register_setting('cosy_payment_settings', 'cosy_default_payment_gateway', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);

@@ -232,7 +232,7 @@ class Admin
     }
 
     /**
-     * Log activity whenever payment/stripe gateway settings options are updated in admin.
+     * Log activity whenever payment gateway settings options are updated in admin.
      * 
      * USE CASE:
      * Triggered on WordPress 'updated_option' action hook.
@@ -240,20 +240,22 @@ class Admin
     public function log_admin_settings_update($option, $old_value, $value): void
     {
         $cosy_settings_options = [
-            'cosy_stripe_test_mode',
-            'cosy_stripe_key',
-            'cosy_stripe_publishable_key',
+            'cosy_worldpay_test_mode',
+            'cosy_worldpay_inst_id',
+            'cosy_worldpay_token',
+            'cosy_worldpay_password',
+            'cosy_worldpay_client_key',
+            'cosy_worldpay_charge',
             'cosy_charge_type',
             'cosy_provider_percentage',
             'cosy_fixed_charge',
-            'cosy_stripe_enabled',
             'cosy_worldpay_enabled'
         ];
         if (in_array($option, $cosy_settings_options)) {
-            // Avoid logging exact secret/publishable key values
+            // Avoid logging exact secret/token values
             $logged_val = $value;
-            if (in_array($option, ['cosy_stripe_key', 'cosy_stripe_publishable_key']) && !empty($value)) {
-                $logged_val = substr($value, 0, 7) . '...';
+            if (in_array($option, ['cosy_worldpay_token', 'cosy_worldpay_password']) && !empty($value)) {
+                $logged_val = '***HIDDEN***';
             }
             if ($old_value !== $value) {
                 \Cosy\Appointments\Common\LogManager::log(

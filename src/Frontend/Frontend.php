@@ -146,8 +146,7 @@ class Frontend
 
 
     /**
-     * Renders the secure Stripe checkout page.
-     * This page handles both the checkout view and the Stripe Success/Cancel return logic.
+     * Renders the secure WorldPay checkout page.
      * Used by shortcode: [cosy_checkout]
      */
     public function checkout_page(): string
@@ -605,7 +604,7 @@ class Frontend
 
         if ($query->have_posts()) {
             foreach ($query->posts as $appt) {
-                // If draft (pending stripe), ignore if created more than 30 minutes ago
+                // If draft (pending payment), ignore if created more than 30 minutes ago
                 if ($appt->post_status === 'draft') {
                     $created = strtotime($appt->post_date);
                     if ($created && (time() - $created > 1800)) {
@@ -658,7 +657,11 @@ class Frontend
 
     public function cosy_payment_log(string $message, $data = null): void
     {
-        (new \Cosy\Appointments\Gateways\StripePaymentGateway())->cosy_payment_log($message, $data);
+        $desc = $message;
+        if ($data !== null) {
+            $desc .= ' | Data: ' . (is_array($data) || is_object($data) ? json_encode($data) : (string) $data);
+        }
+        \Cosy\Appointments\Common\LogManager::log('payments', 'worldpay_log', $desc);
     }
 
     /**

@@ -316,20 +316,11 @@ class Assets
         }
 
         if (is_page('cosy-checkout') || (function_exists('cosy_get_page_id') && is_page(cosy_get_page_id('cosy-checkout')))) {
-            // Register Stripe JS Library
-            wp_register_script(
-                'stripe-js',
-                'https://js.stripe.com/v3/',
-                [],
-                null,
-                false // load in header so it is available before other scripts
-            );
-
             // 22. Checkout JS Controller (Handles dynamic rendering and payment processing on checkout)
             wp_enqueue_script(
                 'cosy-checkout',
                 COSY_APPT_URL . 'src/Assets/js/checkout.js',
-                ['jquery', 'sweetalert2', 'stripe-js'],
+                ['jquery', 'sweetalert2'],
                 time(),
                 true
             );

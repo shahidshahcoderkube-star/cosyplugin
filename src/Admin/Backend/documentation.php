@@ -481,7 +481,7 @@
                 <li><a class="cdoc-nav-link" data-tab="pages"><i class="fas fa-file-alt"></i> Pages & Shortcodes</a></li>
                 <li><a class="cdoc-nav-link" data-tab="workflow"><i class="fas fa-sitemap"></i> How It Works</a></li>
                 <li><a class="cdoc-nav-link" data-tab="bookings-explained"><i class="fas fa-book-open"></i> Bookings Explained</a></li>
-                <li><a class="cdoc-nav-link" data-tab="stripe"><i class="fab fa-stripe-s"></i> Stripe Setup</a></li>
+                <li><a class="cdoc-nav-link" data-tab="worldpay"><i class="fas fa-credit-card"></i> WorldPay Setup</a></li>
                 <li><a class="cdoc-nav-link" data-tab="users-management"><i class="fas fa-users-cog"></i> Users Management</a></li>
                 <li><a class="cdoc-nav-link" data-tab="fees-media"><i class="fas fa-sliders-h"></i> Fees & Media Limits</a></li>
                 <li><a class="cdoc-nav-link" data-tab="ai-search"><i class="fas fa-brain"></i> AI Vector Search</a></li>
@@ -509,8 +509,8 @@
                     </div>
                     <div class="cdoc-card">
                         <div class="cdoc-card-icon"><i class="fas fa-credit-card"></i></div>
-                        <h3>Stripe Payment Integration</h3>
-                        <p>Customers complete payments through a secure Stripe checkout. Both Live and Sandbox (test) modes are supported for safe configuration.</p>
+                        <h3>WorldPay Payment Integration</h3>
+                        <p>Customers complete payments through a secure WorldPay hosted checkout. Both Live and Sandbox (test) modes are supported for safe configuration.</p>
                     </div>
                     <div class="cdoc-card">
                         <div class="cdoc-card-icon"><i class="fas fa-calendar-check"></i></div>
@@ -606,7 +606,7 @@
                         <h3>Settings Panel</h3>
                         <p>Administrators can configure payment gateway credentials, currency, and test/live mode settings from the dedicated Settings page in the admin panel.</p>
                         <div style="margin-top:10px">
-                            <span class="cdoc-tag">Stripe Keys</span>
+                            <span class="cdoc-tag">WorldPay Keys</span>
                             <span class="cdoc-tag">Currency</span>
                             <span class="cdoc-tag">Live / Sandbox</span>
                         </div>
@@ -696,8 +696,8 @@
                 <div class="cdoc-step">
                     <div class="cdoc-step-num">4</div>
                     <div class="cdoc-step-body">
-                        <h4>Payment via Stripe Checkout</h4>
-                        <p>The customer is redirected to the <code>/cosy-checkout</code> page where they complete a secure payment through Stripe. Once payment is confirmed, the appointment is published and both parties receive a confirmation email.</p>
+                        <h4>Payment via WorldPay Checkout</h4>
+                        <p>The customer is redirected to the <code>/cosy-checkout</code> page where they complete a secure payment through WorldPay. Once payment is confirmed, the appointment is published and both parties receive a confirmation email.</p>
                     </div>
                 </div>
                 <div class="cdoc-step">
@@ -709,64 +709,29 @@
                 </div>
             </div>
 
-            <!-- STRIPE & WORLDPAY SETUP -->
-            <div id="cdoc-stripe" class="cdoc-pane">
-                <h2 class="cdoc-section-title">WorldPay & Payment Gateways Configuration</h2>
-                <p class="cdoc-section-sub">Cosy Appointments supports dedicated WorldPay Hosted Gateway (Priority Default) and Stripe Checkout integrations for secure customer payments.</p>
+            <!-- WORLDPAY SETUP -->
+            <div id="cdoc-worldpay" class="cdoc-pane">
+                <h2 class="cdoc-section-title">WorldPay Payment Gateway Configuration</h2>
+                <p class="cdoc-section-sub">Cosy Appointments supports dedicated WorldPay Access API HPP Hosted Gateway for secure customer payments.</p>
 
                 <div class="cdoc-alert">
-                    <h4>⭐ WorldPay Priority Active Gateway</h4>
-                    <p>In <strong>CC Booking → Settings</strong>, set <strong>Priority Active Payment Gateway</strong> to <strong>WorldPay (Priority Default)</strong> or <strong>Stripe Checkout</strong>. The selected gateway is automatically activated during customer checkout.</p>
+                    <h4>⭐ WorldPay Active Gateway</h4>
+                    <p>In <strong>CC Booking → Settings</strong>, configure your WorldPay merchant credentials. WorldPay Access HPP is automatically activated during customer checkout.</p>
                 </div>
 
-                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">🌐 1. WorldPay Setup Steps</h3>
+                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">🌐 WorldPay Setup Steps</h3>
                 <div class="cdoc-step">
                     <div class="cdoc-step-num">1</div>
                     <div class="cdoc-step-body">
-                        <h4>Installation ID & API Token</h4>
-                        <p>In <strong>CC Booking → Settings → WorldPay</strong>, enter your <strong>Installation ID</strong> (Merchant ID), <strong>Service API Token</strong>, and <strong>Client Key</strong> from your WorldPay merchant account.</p>
+                        <h4>Entity ID & API Credentials</h4>
+                        <p>In <strong>CC Booking → Settings → WorldPay</strong>, enter your <strong>Entity ID</strong> (e.g. <code>PO4097986011</code>), <strong>Service API Username</strong>, and <strong>Password</strong> from your WorldPay Access merchant account.</p>
                     </div>
                 </div>
                 <div class="cdoc-step">
                     <div class="cdoc-step-num">2</div>
                     <div class="cdoc-step-body">
                         <h4>Sandbox / Test Mode Toggle</h4>
-                        <p>Toggle <strong>Sandbox / Test Mode</strong> to enable WorldPay's test endpoint (<code>select-test.worldpay.com</code>) for test transactions before going live.</p>
-                    </div>
-                </div>
-
-                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">💳 2. Stripe Setup Steps</h3>
-                <div class="cdoc-alert">
-                    <h4>Where to Find Your API Keys</h4>
-                    <p>Log in to your Stripe account and visit <a href="https://dashboard.stripe.com/apikeys" target="_blank" style="color:#9b4593;font-weight:700;">dashboard.stripe.com/apikeys</a>. You will find both the Publishable Key and Secret Key listed there.</p>
-                </div>
-
-                <div class="cdoc-step">
-                    <div class="cdoc-step-num">1</div>
-                    <div class="cdoc-step-body">
-                        <h4>Open the Settings Page</h4>
-                        <p>In the WordPress admin panel, navigate to <strong>CC Booking → Settings</strong> and select the Stripe tab.</p>
-                    </div>
-                </div>
-                <div class="cdoc-step">
-                    <div class="cdoc-step-num">2</div>
-                    <div class="cdoc-step-body">
-                        <h4>Enter Your API Keys</h4>
-                        <p>Paste your <strong>Publishable Key</strong> (beginning with <code>pk_live_</code> or <code>pk_test_</code>) and your <strong>Secret Key</strong> (beginning with <code>sk_live_</code> or <code>sk_test_</code>) into the respective fields.</p>
-                    </div>
-                </div>
-                <div class="cdoc-step">
-                    <div class="cdoc-step-num">3</div>
-                    <div class="cdoc-step-body">
-                        <h4>Set the Currency</h4>
-                        <p>Specify the currency code to be used for transactions — for example, <code>USD</code>, <code>GBP</code>, <code>EUR</code>, or <code>INR</code>. This will be displayed on the checkout page.</p>
-                    </div>
-                </div>
-                <div class="cdoc-step">
-                    <div class="cdoc-step-num">4</div>
-                    <div class="cdoc-step-body">
-                        <h4>Save Settings & Test</h4>
-                        <p>Save your configuration. Before going live, use Stripe's test mode with a test card to verify that payments are processed correctly. Switch to Live mode only when you are ready to accept real transactions.</p>
+                        <p>Toggle <strong>Sandbox / Test Mode</strong> to enable WorldPay's test endpoint (<code>try.access.worldpay.com</code>) for test transactions before going live.</p>
                     </div>
                 </div>
             </div>
@@ -778,14 +743,14 @@
 
                 <div class="cdoc-alert">
                     <h4>🔒 Server-Side Price Verification Active</h4>
-                    <p>All checkout transactions undergo strict server-side price verification. The booking engine cross-references frontend-provided totals with official database records and currently configured fee values before initiating Stripe sessions to prevent frontend price tampering.</p>
+                    <p>All checkout transactions undergo strict server-side price verification. The booking engine cross-references frontend-provided totals with official database records and currently configured fee values before initiating payment sessions to prevent frontend price tampering.</p>
                 </div>
 
                 <div class="cdoc-step">
                     <div class="cdoc-step-num"><i class="fas fa-calculator"></i></div>
                     <div class="cdoc-step-body">
                         <h4>Service Fee (Transaction Charge)</h4>
-                        <p>The service fee is configured as a percentage via the <strong>Transaction Charge (%)</strong> field in <strong>CC Booking → Settings → Stripe</strong>.
+                        <p>The service fee is configured as a percentage via the <strong>Transaction Charge (%)</strong> field in <strong>CC Booking → Settings → WorldPay</strong>.
                             <br>• This percentage is applied to the base service cost to calculate the service fee.
                             <br>• For example, setting it to <code>10.00</code> will add a 10% fee to each booking.
                         </p>
@@ -973,7 +938,7 @@
                 <div style="background: #faf5fb; border: 1px solid #eedced; border-radius: 12px; padding: 20px; font-family: 'Plus Jakarta Sans', sans-serif; margin-bottom: 25px;">
                     <div style="display: flex; flex-direction: column; gap: 12px;">
                         <div><strong style="color: #a44390;">Step 1: Booking Initiation</strong> — Customer selects a service, calendar date, time slot, and enters checkout. An unpaid draft appointment is created.</div>
-                        <div><strong style="color: #a44390;">Step 2: Payment Confirmation</strong> — Stripe processes payment. The draft booking shifts to published, updating payment state to Paid.</div>
+                        <div><strong style="color: #a44390;">Step 2: Payment Confirmation</strong> — WorldPay processes payment. The draft booking shifts to published, updating payment state to Paid.</div>
                         <div><strong style="color: #a44390;">Step 3: Multi-Recipient Notifications</strong> — Customer receives booking confirmation receipt. The provider and site administrator receive transaction alerts.</div>
                         <div><strong style="color: #a44390;">Step 4: Provider Dashboard Action</strong> — Provider confirms/completes/cancels the appointment. The customer receives status emails and activity is logged.</div>
                     </div>
