@@ -93,9 +93,14 @@ if (!function_exists('cosy_send_html_email')) {
         // --- Build Email Signature HTML ---
         $sig_html = '';
         if (get_option('cosy_sig_enabled', 1)) {
-            $sig_logo    = get_option('cosy_sig_logo_url', '');
-            if (empty($sig_logo) || strpos($sig_logo, 'localhost') !== false) {
-                $sig_logo = 'https://cosychats.com/wp-content/uploads/2024/10/logo.png';
+            $sig_logo = get_option('cosy_sig_logo_url', '');
+            if (empty($sig_logo)) {
+                $custom_logo_id = get_theme_mod('custom_logo');
+                if ($custom_logo_id) {
+                    $sig_logo = wp_get_attachment_image_url($custom_logo_id, 'full');
+                } else {
+                    $sig_logo = get_site_icon_url();
+                }
             }
             $sig_name    = get_option('cosy_sig_name', 'The CosyChats Team');
             $sig_title   = get_option('cosy_sig_title', 'Customer Support');
@@ -200,13 +205,29 @@ if (!function_exists('cosy_send_html_email')) {
         if (empty($site_name) || strtolower($site_name) === 'cosyplugin' || strtolower($site_name) === 'wordpress') {
             $site_name = 'CosyChats';
         }
-        $admin_email = get_option('admin_email');
+        // Configure Gmail SMTP settings
+        $smtp_user = 'shahidtest1995@gmail.com';
+        $smtp_pass = 'mlljoimbeblraugh';
 
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
-            "From: {$site_name} <{$admin_email}>",
-            "Reply-To: {$admin_email}",
+            "From: {$site_name} <{$smtp_user}>",
+            "Reply-To: {$smtp_user}",
         ];
+
+        // Configure PHPMailer to use Gmail SMTP
+        $smtp_handler = function ($phpmailer) use ($smtp_user, $smtp_pass, $site_name) {
+            $phpmailer->isSMTP();
+            $phpmailer->Host       = 'smtp.gmail.com';
+            $phpmailer->SMTPAuth   = true;
+            $phpmailer->Port       = 587;
+            $phpmailer->SMTPSecure = 'tls';
+            $phpmailer->Username   = $smtp_user;
+            $phpmailer->Password   = $smtp_pass;
+            $phpmailer->From       = $smtp_user;
+            $phpmailer->FromName   = $site_name;
+        };
+        add_action('phpmailer_init', $smtp_handler);
 
         // Set content type to HTML
         $html_email_filter = function () {
@@ -216,7 +237,7 @@ if (!function_exists('cosy_send_html_email')) {
 
         $result = wp_mail($to, $subject, $message, $headers);
 
-        // Restore default text/plain content type filter to avoid affecting other emails
+        remove_action('phpmailer_init', $smtp_handler);
         remove_filter('wp_mail_content_type', $html_email_filter);
 
         if (!$result) {
