@@ -672,14 +672,14 @@ class Dashboard
             wp_send_json_error(['message' => 'Invalid Service Provider.']);
         }
  
-        if ($rating < 1 || $rating > 5) {
-            wp_send_json_error(['message' => 'Please select a star rating (1 to 5).']);
+        if ($rating < 1 || $rating > 10) {
+            wp_send_json_error(['message' => 'Please select a rating (1 to 10).']);
         }
- 
+
         if (empty($review_text)) {
             wp_send_json_error(['message' => 'Please write a review comment.']);
         }
- 
+
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
         $replies_table = $wpdb->prefix . 'cosy_review_replies';
@@ -717,7 +717,7 @@ class Dashboard
             \Cosy\Appointments\Common\LogManager::log(
                 'reviews',
                 'SUBMIT_REVIEW',
-                sprintf(__('Customer "%s" submitted a new review (%d stars) for Provider #%d.', 'cosy-appointments'), $current_user->display_name, $rating, $provider_id),
+                sprintf(__('Customer "%s" submitted a new review (Rating: %d/10) for Provider #%d.', 'cosy-appointments'), $current_user->display_name, $rating, $provider_id),
                 $current_user->ID
             );
 

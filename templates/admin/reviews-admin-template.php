@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 
 <div class="wrap cosy-orders cosy-users-admin">
   <h1 class="wp-heading-inline"><?php esc_html_e('Reviews', 'cosy-appointments'); ?></h1>
+  <?php wp_nonce_field('cosy_admin_nonce', 'cosy_admin_nonce'); ?>
   <hr class="wp-header-end">
 
   <div class="admin-succes" style="margin-top: 15px;"></div>

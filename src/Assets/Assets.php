@@ -117,6 +117,7 @@ class Assets
         wp_localize_script('cosy-admin-script', 'cosyAdmin', [
             'currencySymbol' => cosy_get_currency_symbol(),
             'currencyCode'   => cosy_get_currency_code(),
+            'nonce'          => wp_create_nonce('cosy_admin_nonce'),
         ]);
     }
 

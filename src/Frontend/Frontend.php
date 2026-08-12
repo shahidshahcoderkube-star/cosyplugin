@@ -509,7 +509,7 @@ class Frontend
                 cosy_send_html_email($customer_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
             }
             if (!empty($admin_email)) {
-                $admin_subject = sprintf(__('[ADMIN ALERT] Order #%s Cancelled by Provider (%s)', 'cosy-appointments'), $order_id, $provider_name ?: 'Provider');
+                $admin_subject = sprintf(__('Order #%s Cancelled by Provider (%s)', 'cosy-appointments'), $order_id, $provider_name ?: 'Provider');
                 cosy_send_html_email($admin_email, $admin_subject, $tpl['heading'], $tpl['content']);
             }
         } else {

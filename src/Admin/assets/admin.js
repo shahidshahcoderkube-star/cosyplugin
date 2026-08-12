@@ -824,7 +824,8 @@ jQuery(document).ready(function ($) {
                     const originalHtml = $actionCell.html();
                     $actionCell.html('<i class="fas fa-circle-notch fa-spin" style="color: #22c55e; font-size: 18px; margin: 4px;"></i>');
 
-                    $.post(ajaxurl, { action: 'cosy_admin_approve_review', review_id: reviewId }, function (res) {
+                    const adminNonce = (typeof cosyAdmin !== 'undefined' && cosyAdmin.nonce) ? cosyAdmin.nonce : '';
+                    $.post(ajaxurl, { action: 'cosy_admin_approve_review', review_id: reviewId, nonce: adminNonce }, function (res) {
                         if (res.success) {
                             CosyAlert.toast(res.data.message || 'Review approved successfully.', 'success');
                             setTimeout(function () { location.reload(); }, 1000);
@@ -852,7 +853,8 @@ jQuery(document).ready(function ($) {
                     const originalHtml = $actionCell.html();
                     $actionCell.html('<i class="fas fa-circle-notch fa-spin" style="color: #eab308; font-size: 18px; margin: 4px;"></i>');
 
-                    $.post(ajaxurl, { action: 'cosy_admin_reject_review', review_id: reviewId }, function (res) {
+                    const adminNonce = (typeof cosyAdmin !== 'undefined' && cosyAdmin.nonce) ? cosyAdmin.nonce : '';
+                    $.post(ajaxurl, { action: 'cosy_admin_reject_review', review_id: reviewId, nonce: adminNonce }, function (res) {
                         if (res.success) {
                             CosyAlert.toast(res.data.message || 'Review rejected.', 'warning');
                             setTimeout(function () { location.reload(); }, 1000);
@@ -880,7 +882,8 @@ jQuery(document).ready(function ($) {
                     const originalHtml = $actionCell.html();
                     $actionCell.html('<i class="fas fa-circle-notch fa-spin" style="color: #ef4444; font-size: 18px; margin: 4px;"></i>');
 
-                    $.post(ajaxurl, { action: 'cosy_admin_delete_review', review_id: reviewId }, function (res) {
+                    const adminNonce = (typeof cosyAdmin !== 'undefined' && cosyAdmin.nonce) ? cosyAdmin.nonce : '';
+                    $.post(ajaxurl, { action: 'cosy_admin_delete_review', review_id: reviewId, nonce: adminNonce }, function (res) {
                         if (res.success) {
                             $row.fadeOut(300, function () { $(this).remove(); });
                             CosyAlert.toast(res.data.message || 'Review deleted successfully.', 'success');
@@ -908,8 +911,9 @@ jQuery(document).ready(function ($) {
                 type: 'danger',
                 onConfirm: function () {
                     let completed = 0;
+                    const adminNonce = (typeof cosyAdmin !== 'undefined' && cosyAdmin.nonce) ? cosyAdmin.nonce : '';
                     selectedIds.forEach(function (id) {
-                        $.post(ajaxurl, { action: 'cosy_admin_delete_review', review_id: id }, function (res) {
+                        $.post(ajaxurl, { action: 'cosy_admin_delete_review', review_id: id, nonce: adminNonce }, function (res) {
                             completed++;
                             if (res.success) {
                                 $('#review-row-' + id).fadeOut(300, function () { $(this).remove(); });
