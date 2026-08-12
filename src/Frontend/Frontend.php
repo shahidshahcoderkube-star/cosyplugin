@@ -744,7 +744,7 @@ class Frontend
             'num_weeks'          => $number_of_weeks,
             'week_days'          => $week_days,
             'num_bookings'       => $number_of_bookings,
-            'slots_timeline'     => $slots_timeline,
+            'slots_timeline'     => cosy_clean_slots_timeline($slots_timeline),
             'service_cost'       => $service_cost,
             'service_fee'        => $service_fee,
             'total_payable'      => $total_payable,

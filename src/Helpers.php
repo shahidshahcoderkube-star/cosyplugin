@@ -265,6 +265,45 @@ if (!function_exists('cosy_send_html_email')) {
     }
 }
 
+if (!function_exists('cosy_clean_slots_timeline')) {
+    /**
+     * Cleans slots timeline string to remove date headers (e.g., "13 Aug 2026: 10:40 AM" -> "10:40 AM").
+     *
+     * @param string $slots_timeline
+     * @return string
+     */
+    function cosy_clean_slots_timeline($slots_timeline)
+    {
+        if (empty($slots_timeline)) {
+            return '';
+        }
+
+        $parts = explode('|', $slots_timeline);
+        $cleaned_times = [];
+
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if (empty($part)) {
+                continue;
+            }
+
+            // Strip date header if present before a colon (e.g., "13 Aug 2026: 10:40 AM" or "13-08-2026: 10:40 AM")
+            if (preg_match('/^(?:[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}|[0-9]{2}-[0-9]{2}-[0-9]{4}|[A-Za-z]+|\w+[\s\w()]*):\s*(.+)$/i', $part, $matches)) {
+                $part = trim($matches[1]);
+            }
+
+            $times = array_map('trim', explode(',', $part));
+            foreach ($times as $t) {
+                if (!empty($t) && !in_array($t, $cleaned_times)) {
+                    $cleaned_times[] = $t;
+                }
+            }
+        }
+
+        return !empty($cleaned_times) ? implode(', ', $cleaned_times) : $slots_timeline;
+    }
+}
+
 if (!function_exists('cosy_get_currency_symbol')) {
     /**
      * Gets the currency symbol based on the saved 'cosy_payment_currency' option.

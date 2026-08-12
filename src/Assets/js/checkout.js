@@ -357,9 +357,9 @@ jQuery(document).ready(function ($) {
         }
         if (!computedWeekDays) computedWeekDays = 'Friday';
 
-        // Compute selected slots timeline
-        let computedSelectedSlots = booking.slotsTimeline || '';
-        if (!computedSelectedSlots && booking.slots && typeof booking.slots === 'object') {
+        // Compute selected slots timeline (showing ONLY slot times, without date prefix)
+        let computedSelectedSlots = '';
+        if (booking.slots && typeof booking.slots === 'object') {
             const allTimes = [];
             Object.values(booking.slots).forEach(timesArr => {
                 if (Array.isArray(timesArr)) {
@@ -370,6 +370,10 @@ jQuery(document).ready(function ($) {
                 }
             });
             computedSelectedSlots = allTimes.join(', ');
+        }
+        if (!computedSelectedSlots && booking.slotsTimeline) {
+            // Strip any legacy date prefix (e.g., "13 Aug 2026: 10:40 AM, 10:50 AM" -> "10:40 AM, 10:50 AM")
+            computedSelectedSlots = booking.slotsTimeline.replace(/^(?:[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}|[0-9]{2}-[0-9]{2}-[0-9]{4}):\s*/, '');
         }
         if (!computedSelectedSlots) computedSelectedSlots = '09:00 AM';
 
@@ -875,27 +879,20 @@ jQuery(document).ready(function ($) {
         });
         const computedWeekDays = computedWeekDaysArr.join(', ');
 
-        // Compute Selected Slots Timeline
+        // Compute Selected Slots Timeline (showing ONLY slot times, without date prefix)
         let computedTimelineArr = [];
         Object.keys(selectedSlotsByDay).forEach(dKey => {
             const timesArr = selectedSlotsByDay[dKey];
             if (Array.isArray(timesArr) && timesArr.length > 0) {
-                let dObj;
-                if (/^\d{2}-\d{2}-\d{4}$/.test(dKey)) {
-                    const parts = dKey.split('-');
-                    dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-                } else {
-                    dObj = new Date(dKey);
-                }
-                let dateHeader = dKey;
-                if (dObj && !isNaN(dObj.getTime())) {
-                    dateHeader = dObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                }
-                const normalizedTimes = timesArr.map(normalizeTimeStr).join(', ');
-                computedTimelineArr.push(`${dateHeader}: ${normalizedTimes}`);
+                timesArr.forEach(t => {
+                    const normT = normalizeTimeStr(t);
+                    if (!computedTimelineArr.includes(normT)) {
+                        computedTimelineArr.push(normT);
+                    }
+                });
             }
         });
-        const computedSlotsTimeline = computedTimelineArr.join(' | ');
+        const computedSlotsTimeline = computedTimelineArr.join(', ');
 
         const bookingPayload = {
             serviceId: activeServiceId,

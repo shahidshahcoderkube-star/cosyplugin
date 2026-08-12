@@ -118,8 +118,9 @@ class WorldPayPaymentGateway
                 $week_days = implode(', ', $parsed_days);
             }
             if (empty($slots_timeline) && !empty($timeline_parts)) {
-                $slots_timeline = implode(' | ', $timeline_parts);
+                $slots_timeline = implode(', ', $timeline_parts);
             }
+            $slots_timeline = cosy_clean_slots_timeline($slots_timeline);
         }
 
         if (empty($provider_id)) {
