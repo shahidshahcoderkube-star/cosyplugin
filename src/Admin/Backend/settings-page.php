@@ -385,7 +385,7 @@ defined('ABSPATH') || exit;
                                                         <?php if (!empty($sig_fb) || !empty($sig_tw) || !empty($sig_ig) || !empty($sig_tk) || !empty($sig_yt) || !empty($sig_li)) : ?>
                                                         <p style="margin:6px 0 0 0; line-height:1; display:flex; align-items:center; gap:8px;">
                                                             <?php if (!empty($sig_fb)) : ?>
-                                                            <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://img.icons8.com/color/48/facebook-new.png" width="26" height="26" alt="Facebook" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
+                                                            <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/facebook.png" width="26" height="26" alt="Facebook" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_tw)) : ?>
                                                             <a href="<?php echo esc_url($sig_tw); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/X.png" width="26" height="26" alt="X" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
