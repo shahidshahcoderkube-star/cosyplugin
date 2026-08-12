@@ -7,7 +7,7 @@ $provider_id = isset($_GET['provider_id']) ? intval($_GET['provider_id']) : (iss
 $availability = [];
 $holiday_dates = [];
 $holiday_reasons = [];
-$provider_profile_url = '';
+$provider_name = 'Verified Parent';
 
 if ($provider_id > 0) {
     if (!isset($common) || !method_exists($common, 'get_provider_availability_data')) {
@@ -20,6 +20,114 @@ if ($provider_id > 0) {
     $holiday_dates        = $avail_data['holiday_dates'];
     $holiday_reasons      = $avail_data['holiday_reasons'] ?? [];
     $provider_profile_url = get_author_posts_url($provider_id);
+
+    $provider_user = get_userdata($provider_id);
+    if ($provider_user && !empty($provider_user->display_name)) {
+        $provider_name = $provider_user->display_name;
+    }
+}
+
+$start_date_param = isset($_GET['start_date']) ? sanitize_text_field($_GET['start_date']) : '';
+$step = isset($_GET['step']) ? sanitize_text_field($_GET['step']) : 'schedule';
+
+// Pre-render Call Schedule HTML server-side for Instant Load (0ms delay)
+$pre_rendered_schedule_html = '';
+if ($step === 'schedule' || !empty($start_date_param)) {
+    $base_date = null;
+    if (!empty($start_date_param)) {
+        if (preg_match('/^(\d{2})-(\d{2})-(\d{4})$/', $start_date_param, $m)) {
+            $base_date = strtotime("{$m[3]}-{$m[2]}-{$m[1]}");
+        } else {
+            $base_date = strtotime($start_date_param);
+        }
+    }
+    if (!$base_date) {
+        $base_date = time();
+    }
+
+    $formatted_start_date = date('F j, Y', $base_date);
+    $slots_rows_html = '';
+    $day_offset = 0;
+
+    while ($day_offset < 7) {
+        $next_time = strtotime("+$day_offset day", $base_date);
+        $day_name = date('l', $next_time);
+        $date_iso = date('Y-m-d', $next_time);
+        $date_str = date('D M d Y', $next_time);
+        $formatted_day_date = date('M j', $next_time);
+        $day_offset++;
+
+        $is_holiday = in_array($date_iso, $holiday_dates);
+        $is_day_off = false;
+        if (!empty($availability) && is_array($availability)) {
+            $day_config = $availability[$day_name] ?? null;
+            if (!$day_config || (empty($day_config['start_time']) && empty($day_config['end_time']))) {
+                $is_day_off = true;
+            }
+        }
+
+        if ($is_day_off) {
+            continue;
+        }
+
+        $safe_id_key = preg_replace('/[^a-zA-Z0-9]/', '-', $date_str);
+
+        if ($is_holiday) {
+            $slots_rows_html .= '
+                <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-light opacity-75 shadow-sm" style="border-color: #f1f5f9 !important;">
+                    <div class="text-start">
+                        <h6 class="fw-bold mb-1 text-muted" style="font-size: 0.95rem;">' . esc_html($day_name . ' (' . $formatted_day_date . ')') . '</h6>
+                        <p class="small text-danger mb-0">🚫 Holiday / Unavailable</p>
+                    </div>
+                    <button type="button" disabled class="btn btn-sm px-3 py-2 fw-semibold text-muted bg-white border" style="border-radius: 12px; font-size: 0.82rem; cursor: not-allowed;">
+                        Unavailable
+                    </button>
+                </div>';
+        } else {
+            $slots_rows_html .= '
+                <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-white shadow-sm" style="border-color: #f1f5f9 !important;">
+                    <div class="text-start">
+                        <h6 class="fw-bold mb-1" style="color: #1e293b; font-size: 0.95rem;">' . esc_html($day_name . ' (' . $formatted_day_date . ')') . '</h6>
+                        <p class="small text-muted mb-0" id="duration-' . esc_attr($safe_id_key) . '">0 minutes Call Duration</p>
+                    </div>
+                    <button type="button" id="btn-time-' . esc_attr($safe_id_key) . '" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm btn-open-time-modal" data-date="' . esc_attr($date_str) . '" style="background: #a44390; border-radius: 12px; font-size: 0.82rem;">
+                        Select Time
+                    </button>
+                </div>';
+        }
+    }
+
+    $pre_rendered_schedule_html = '
+        <div class="cosy-checkout-header d-flex align-items-center justify-content-between mb-4">
+            <button id="cosyCheckoutBackBtn" class="cosy-checkout-back-btn btn border-0 fw-bold px-0 py-2 d-inline-flex align-items-center gap-2" style="background: transparent !important; color: #a44390; box-shadow: none; border-radius: 0; font-size: 0.95rem; line-height: 1;">
+                <i class="fas fa-arrow-left" style="color: #a44390 !important; font-size: 0.95rem;"></i> <span>Back to Profile</span>
+            </button>
+            <h2 class="cosy-checkout-title h4 fw-bold mb-0 d-inline-flex align-items-center gap-2" style="color: #a44390; font-size: 1.25rem;">
+                <i class="fas fa-calendar-check" style="color: #a44390;"></i> <span>Call Schedule</span>
+            </h2>
+        </div>
+
+        <!-- Header Card -->
+        <div class="cosy-card-rounded card border-0 shadow-sm mb-4 p-4" style="border-radius: 20px; background: #ffffff;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-3 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="cosy-icon-box" style="width: 42px; height: 42px; background: #fdf5fc; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #a44390;">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0" style="color: #1e293b;">' . esc_html($provider_name) . '</h6>
+                        <small class="text-muted">Start Date: <span class="fw-bold text-dark">' . esc_html($formatted_start_date) . '</span></small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-4">
+                <p class="small text-muted fw-bold text-uppercase mb-3" style="letter-spacing: 0.5px;">Choose Your Time Slots:</p>
+                <div id="callScheduleSlotsContainer">
+                    ' . $slots_rows_html . '
+                </div>
+            </div>
+        </div>';
 }
 ?>
 <script>
@@ -31,7 +139,7 @@ if ($provider_id > 0) {
 
 <div class="cosy-checkout-root" style="padding-top: 50px; padding-bottom: 50px;">
     <div class="cosy-checkout-container" id="cosyCheckoutContainer">
-        <!-- Rendered dynamically by checkout.js -->
+        <?php echo $pre_rendered_schedule_html; ?>
     </div>
 </div>
 

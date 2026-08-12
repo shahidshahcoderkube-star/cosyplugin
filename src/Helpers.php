@@ -102,6 +102,7 @@ if (!function_exists('cosy_send_html_email')) {
                     $sig_logo = get_site_icon_url();
                 }
             }
+
             $sig_name    = get_option('cosy_sig_name', 'The CosyChats Team');
             $sig_title   = get_option('cosy_sig_title', 'Customer Support');
             $sig_phone   = get_option('cosy_sig_phone', '');
@@ -118,27 +119,27 @@ if (!function_exists('cosy_send_html_email')) {
             $logo_col = '';
             if (!empty($sig_logo)) {
                 $logo_col = "
-                    <td style='width:110px; vertical-align:middle; padding-right:16px;'>
-                        <img src='" . esc_url($sig_logo) . "' alt='Logo' style='max-width:100px; height:auto; display:block;'>
+                    <td style=\"width:110px; vertical-align:middle; padding-right:16px;\">
+                        <img src=\"" . esc_url($sig_logo) . "\" alt=\"Logo\" width=\"100\" style=\"max-width:100px; height:auto; display:block; border:0;\">
                     </td>
-                    <td style='width:2px; vertical-align:middle; padding:0 16px 0 0;'>
-                        <div style='width:2px; height:90px; background:linear-gradient(180deg,#a44390,#6d2e67);'></div>
+                    <td style=\"width:2px; vertical-align:middle; padding:0 16px 0 0;\">
+                        <div style=\"width:2px; height:90px; background:linear-gradient(180deg,#a44390,#6d2e67);\"></div>
                     </td>";
             }
 
             $contact_rows = '';
-            if (!empty($sig_phone))   $contact_rows .= "<p style='margin:0 0 4px 0; font-size:12px; color:#334155;'>&#128222; " . esc_html($sig_phone) . "</p>";
-            if (!empty($sig_email))   $contact_rows .= "<p style='margin:0 0 4px 0; font-size:12px; color:#334155;'>&#9993; <a href='mailto:" . esc_attr($sig_email) . "' style='color:#a44390; text-decoration:none;'>" . esc_html($sig_email) . "</a></p>";
-            if (!empty($sig_website)) $contact_rows .= "<p style='margin:0 0 4px 0; font-size:12px; color:#334155;'>&#127760; <a href='" . esc_url($sig_website) . "' style='color:#a44390; text-decoration:none;'>" . esc_html($sig_website) . "</a></p>";
-            if (!empty($sig_address)) $contact_rows .= "<p style='margin:0 0 8px 0; font-size:12px; color:#334155;'>&#128205; " . esc_html($sig_address) . "</p>";
+            if (!empty($sig_phone))   $contact_rows .= "<p style=\"margin:0 0 4px 0; font-size:12px; color:#334155;\">&#128222; " . esc_html($sig_phone) . "</p>";
+            if (!empty($sig_email))   $contact_rows .= "<p style=\"margin:0 0 4px 0; font-size:12px; color:#334155;\">&#9993; <a href=\"mailto:" . esc_attr($sig_email) . "\" style=\"color:#a44390; text-decoration:none;\">" . esc_html($sig_email) . "</a></p>";
+            if (!empty($sig_website)) $contact_rows .= "<p style=\"margin:0 0 4px 0; font-size:12px; color:#334155;\">&#127760; <a href=\"" . esc_url($sig_website) . "\" style=\"color:#a44390; text-decoration:none;\">" . esc_html($sig_website) . "</a></p>";
+            if (!empty($sig_address)) $contact_rows .= "<p style=\"margin:0 0 8px 0; font-size:12px; color:#334155;\">&#128205; " . esc_html($sig_address) . "</p>";
 
             $social_badges = '';
-            if (!empty($sig_fb))  $social_badges .= "<a href='" . esc_url($sig_fb) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/facebook-circled--v1.png' width='28' height='28' alt='Facebook' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
-            if (!empty($sig_tw))  $social_badges .= "<a href='" . esc_url($sig_tw) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/twitter-circled--v1.png' width='28' height='28' alt='Twitter' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
-            if (!empty($sig_ig))  $social_badges .= "<a href='" . esc_url($sig_ig) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/instagram-new.png' width='28' height='28' alt='Instagram' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
-            if (!empty($sig_tk))  $social_badges .= "<a href='" . esc_url($sig_tk) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/tiktok.png' width='28' height='28' alt='TikTok' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
-            if (!empty($sig_yt))  $social_badges .= "<a href='" . esc_url($sig_yt) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/youtube-play.png' width='28' height='28' alt='YouTube' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
-            if (!empty($sig_li))  $social_badges .= "<a href='" . esc_url($sig_li) . "' target='_blank' style='display:inline-block; margin-right:8px; text-decoration:none;'><img src='https://img.icons8.com/color/48/linkedin-circled--v1.png' width='28' height='28' alt='LinkedIn' style='display:inline-block; vertical-align:middle; width:28px; height:28px; border:0;'></a>";
+            if (!empty($sig_fb))  $social_badges .= "<a href=\"" . esc_url($sig_fb) . "\" target=\"_blank\" style=\"display:inline-block; margin-right:8px; text-decoration:none;\"><img src=\"https://img.icons8.com/color/48/facebook-new.png\" width=\"26\" height=\"26\" alt=\"Facebook\" style=\"display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;\"></a>";
+            if (!empty($sig_tw))  $social_badges .= "<a href=\"" . esc_url($sig_tw) . "\" target=\"_blank\" style=\"display:inline-block; margin-right:8px; text-decoration:none;\"><img src=\"https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/X.png\" width=\"26\" height=\"26\" alt=\"X\" style=\"display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;\"></a>";
+            if (!empty($sig_ig))  $social_badges .= "<a href=\"" . esc_url($sig_ig) . "\" target=\"_blank\" style=\"display:inline-block; margin-right:8px; text-decoration:none;\"><img src=\"https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/instagram.png\" width=\"26\" height=\"26\" alt=\"Instagram\" style=\"display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;\"></a>";
+            if (!empty($sig_tk))  $social_badges .= "<a href=\"" . esc_url($sig_tk) . "\" target=\"_blank\" style=\"display:inline-block; margin-right:8px; text-decoration:none;\"><img src=\"https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/tiktok.png\" width=\"26\" height=\"26\" alt=\"TikTok\" style=\"display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;\"></a>";
+            if (!empty($sig_yt))  $social_badges .= "<a href=\"" . esc_url($sig_yt) . "\" target=\"_blank\" style=\"display:inline-block; margin-right:8px; text-decoration:none;\"><img src=\"https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/youtube.png\" width=\"26\" height=\"26\" alt=\"YouTube\" style=\"display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;\"></a>";
+            if (!empty($sig_li))  $social_badges .= "<a href=\"" . esc_url($sig_li) . "\" target=\"_blank\" style=\"display:inline-block; margin-right:8px; text-decoration:none;\"><img src=\"https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/Linkedin.png\" width=\"26\" height=\"26\" alt=\"LinkedIn\" style=\"display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;\"></a>";
 
             $sig_html = "
             <div style='margin: 24px 0 0 0; padding: 18px 20px; background: #fdf6fc; border: 1px solid #f1e4ef; border-radius: 10px;'>
@@ -226,8 +227,24 @@ if (!function_exists('cosy_send_html_email')) {
             $phpmailer->Password   = $smtp_pass;
             $phpmailer->From       = $smtp_user;
             $phpmailer->FromName   = $site_name;
+            $phpmailer->Sender     = $smtp_user;
         };
-        add_action('phpmailer_init', $smtp_handler);
+        add_action('phpmailer_init', $smtp_handler, 999999);
+
+        // Filter WP Mail SMTP internal options if WP Mail SMTP plugin has an expired Google OAuth connection
+        $wp_smtp_filter = function ($value, $group, $key) use ($smtp_user, $smtp_pass, $site_name) {
+            if ($group === 'mail' && $key === 'mailer') return 'smtp';
+            if ($group === 'smtp' && $key === 'host') return 'smtp.gmail.com';
+            if ($group === 'smtp' && $key === 'port') return 587;
+            if ($group === 'smtp' && $key === 'encryption') return 'tls';
+            if ($group === 'smtp' && $key === 'auth') return true;
+            if ($group === 'smtp' && $key === 'user') return $smtp_user;
+            if ($group === 'smtp' && $key === 'pass') return $smtp_pass;
+            if ($group === 'mail' && $key === 'from_email') return $smtp_user;
+            if ($group === 'mail' && $key === 'from_name') return $site_name;
+            return $value;
+        };
+        add_filter('wp_mail_smtp_options_get', $wp_smtp_filter, 999999, 3);
 
         // Set content type to HTML
         $html_email_filter = function () {
@@ -237,7 +254,8 @@ if (!function_exists('cosy_send_html_email')) {
 
         $result = wp_mail($to, $subject, $message, $headers);
 
-        remove_action('phpmailer_init', $smtp_handler);
+        remove_action('phpmailer_init', $smtp_handler, 999999);
+        remove_filter('wp_mail_smtp_options_get', $wp_smtp_filter, 999999);
         remove_filter('wp_mail_content_type', $html_email_filter);
 
         if (!$result) {
@@ -288,7 +306,7 @@ if (!function_exists('cosy_clean_slots_timeline')) {
             }
 
             // Strip date header if present before a colon (e.g., "13 Aug 2026: 10:40 AM" or "13-08-2026: 10:40 AM")
-            if (preg_match('/^(?:[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}|[0-9]{2}-[0-9]{2}-[0-9]{4}|[A-Za-z]+|\w+[\s\w()]*):\s*(.+)$/i', $part, $matches)) {
+            if (preg_match('/^(?:[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}|[0-9]{2}-[0-9]{2}-[0-9]{4}|[A-Za-z]{3,}[\s\w()]*):\s*(.+)$/i', $part, $matches)) {
                 $part = trim($matches[1]);
             }
 

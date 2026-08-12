@@ -385,34 +385,22 @@ defined('ABSPATH') || exit;
                                                         <?php if (!empty($sig_fb) || !empty($sig_tw) || !empty($sig_ig) || !empty($sig_tk) || !empty($sig_yt) || !empty($sig_li)) : ?>
                                                         <p style="margin:6px 0 0 0; line-height:1; display:flex; align-items:center; gap:8px;">
                                                             <?php if (!empty($sig_fb)) : ?>
-                                                            <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#3b5998; color:#ffffff; text-decoration:none; font-size:14px;">
-                                                                <i class="fa-brands fa-facebook-f" style="color:#ffffff;"></i>
-                                                            </a>
+                                                            <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://img.icons8.com/color/48/facebook-new.png" width="26" height="26" alt="Facebook" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_tw)) : ?>
-                                                            <a href="<?php echo esc_url($sig_tw); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#000000; color:#ffffff; text-decoration:none; font-size:13px;">
-                                                                <i class="fa-brands fa-x-twitter" style="color:#ffffff;"></i>
-                                                            </a>
+                                                            <a href="<?php echo esc_url($sig_tw); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/X.png" width="26" height="26" alt="X" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_ig)) : ?>
-                                                            <a href="<?php echo esc_url($sig_ig); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); color:#ffffff; text-decoration:none; font-size:14px;">
-                                                                <i class="fa-brands fa-instagram" style="color:#ffffff;"></i>
-                                                            </a>
+                                                            <a href="<?php echo esc_url($sig_ig); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/instagram.png" width="26" height="26" alt="Instagram" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_tk)) : ?>
-                                                            <a href="<?php echo esc_url($sig_tk); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#000000; color:#ffffff; text-decoration:none; font-size:13px;">
-                                                                <i class="fa-brands fa-tiktok" style="color:#ffffff;"></i>
-                                                            </a>
+                                                            <a href="<?php echo esc_url($sig_tk); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/tiktok.png" width="26" height="26" alt="TikTok" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_yt)) : ?>
-                                                            <a href="<?php echo esc_url($sig_yt); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#ff0000; color:#ffffff; text-decoration:none; font-size:13px;">
-                                                                <i class="fa-brands fa-youtube" style="color:#ffffff;"></i>
-                                                            </a>
+                                                            <a href="<?php echo esc_url($sig_yt); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/youtube.png" width="26" height="26" alt="YouTube" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_li)) : ?>
-                                                            <a href="<?php echo esc_url($sig_li); ?>" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#0077b5; color:#ffffff; text-decoration:none; font-size:13px;">
-                                                                <i class="fa-brands fa-linkedin-in" style="color:#ffffff;"></i>
-                                                            </a>
+                                                            <a href="<?php echo esc_url($sig_li); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/Linkedin.png" width="26" height="26" alt="LinkedIn" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
                                                             <?php endif; ?>
                                                         </p>
                                                         <?php endif; ?>

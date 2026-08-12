@@ -469,6 +469,22 @@ class EmailTemplates
             ? "<tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Gift Recipient</td><td style='padding: 10px 0; color: #a44390; font-weight: 600;'>" . esc_html($data['recipient_name']) . " (" . esc_html($data['recipient_email']) . ")</td></tr>"
             : "";
 
+        $card_brand_str   = !empty($data['card_brand']) ? strtoupper($data['card_brand']) : '';
+        $card_last4_str   = !empty($data['card_last4']) ? '**** ' . $data['card_last4'] : '';
+        $card_display_str = trim($card_brand_str . ' ' . $card_last4_str);
+        $card_display_str = !empty($card_display_str) ? esc_html($card_display_str) : 'N/A';
+
+        $auth_code_str  = !empty($data['auth_code']) ? $data['auth_code'] : '';
+        $last_event_str = !empty($data['last_event']) ? strtoupper($data['last_event']) : '';
+        $auth_parts = [];
+        if (!empty($auth_code_str)) {
+            $auth_parts[] = $auth_code_str;
+        }
+        if (!empty($last_event_str)) {
+            $auth_parts[] = "({$last_event_str})";
+        }
+        $auth_display_str = !empty($auth_parts) ? esc_html(implode(' ', $auth_parts)) : 'N/A';
+
         $html_content = "
             <p>Hello Administrator,</p>
             <p>A new payment transaction has been processed and authorized successfully.</p>
@@ -501,8 +517,8 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600; width: 40%;'>Payment Gateway:</td><td style='padding: 10px 12px;'>" . esc_html($data['gateway'] ?? 'WorldPay HPP') . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>Transaction Ref ID:</td><td style='padding: 10px 12px; font-family: monospace; font-weight: bold; color: #a44390;'>" . esc_html($data['transaction_ref_id'] ?? 'N/A') . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>WorldPay Payment ID:</td><td style='padding: 10px 12px; font-family: monospace;'>" . esc_html($data['payment_id'] ?? 'N/A') . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>Card Used:</td><td style='padding: 10px 12px;'>" . esc_html(strtoupper($data['card_brand'] ?? 'Visa')) . (!empty($data['card_last4']) ? " **** " . esc_html($data['card_last4']) : "") . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>Auth Code / Status:</td><td style='padding: 10px 12px;'>" . esc_html($data['auth_code'] ?? 'N/A') . (!empty($data['last_event']) ? " (" . esc_html($data['last_event']) . ")" : "") . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>Card Used:</td><td style='padding: 10px 12px;'>" . $card_display_str . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 12px; font-weight: 600;'>Auth Code / Status:</td><td style='padding: 10px 12px;'>" . $auth_display_str . "</td></tr>
                 <tr><td style='padding: 10px 12px; font-weight: 600;'>Payment Date &amp; Time:</td><td style='padding: 10px 12px;'>" . esc_html($data['payment_date'] ?? date('Y-m-d H:i:s')) . "</td></tr>
             </table>
         ";
