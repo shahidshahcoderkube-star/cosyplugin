@@ -83,6 +83,24 @@ class ProfileIndexer
 
         $profile_text = implode(". ", $text_parts);
 
+        // Expand numbers in profile text (e.g. "eight" -> "8") to enrich embedding semantic vector
+        $map = [
+            'zero' => '0', 'one' => '1', 'two' => '2', 'three' => '3', 'four' => '4',
+            'five' => '5', 'six' => '6', 'seven' => '7', 'eight' => '8', 'nine' => '9', 'ten' => '10'
+        ];
+        $extra_terms = [];
+        foreach ($map as $word => $digit) {
+            if (preg_match("/\b" . preg_quote($word, '/') . "\b/i", $profile_text)) {
+                $extra_terms[] = "$digit $word";
+            }
+            if (preg_match("/\b" . preg_quote($digit, '/') . "\b/i", $profile_text)) {
+                $extra_terms[] = "$digit $word";
+            }
+        }
+        if (!empty($extra_terms)) {
+            $profile_text .= ". Keywords: " . implode(" ", array_unique($extra_terms));
+        }
+
         // Fetch vector embedding
         $vector = AIService::get_embedding($profile_text);
         if (empty($vector)) {

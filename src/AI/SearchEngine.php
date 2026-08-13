@@ -43,8 +43,11 @@ class SearchEngine
             }
         }
 
+        // Expand numbers in search query (e.g., "8 children" -> "8 children eight children")
+        $expanded_query = self::expand_query_numbers($query_text);
+
         // 2. Fetch Query Vector Embedding
-        $query_vector = AIService::get_embedding($query_text);
+        $query_vector = AIService::get_embedding($expanded_query);
         if (empty($query_vector)) {
             return [];
         }
@@ -60,9 +63,14 @@ class SearchEngine
             return [];
         }
 
-        // 4. Calculate Cosine Similarity Scores
-        $raw_matches = [];
-        $max_score   = 0.0;
+        // Pre-fetch provider text details for exact keyword boosting
+        $provider_details = self::get_provider_text_lookup(array_column($all_vectors, 'provider_id'));
+        $search_keywords  = self::get_search_keywords($query_text, $expanded_query);
+
+        // 4. Calculate Cosine Similarity Scores + Keyword Boosting
+        $raw_matches       = [];
+        $max_score         = 0.0;
+        $has_keyword_match = false;
 
         foreach ($all_vectors as $row) {
             $provider_id = (int)$row->provider_id;
@@ -71,18 +79,40 @@ class SearchEngine
                 continue;
             }
 
-            $score = self::cosine_similarity($query_vector, $vector);
-            if ($score > $max_score) {
-                $max_score = $score;
+            $base_score = self::cosine_similarity($query_vector, $vector);
+            $boost      = 0.0;
+
+            // Check exact keyword matches against provider details
+            $p_text = isset($provider_details[$provider_id]) ? strtolower($provider_details[$provider_id]) : '';
+            if (!empty($p_text) && !empty($search_keywords)) {
+                foreach ($search_keywords as $word) {
+                    if (strlen($word) >= 2 && strpos($p_text, $word) !== false) {
+                        $boost += 0.25;
+                        $has_keyword_match = true;
+                    }
+                }
+            }
+
+            $final_score = min(1.0, $base_score + $boost);
+
+            if ($final_score > $max_score) {
+                $max_score = $final_score;
             }
             $raw_matches[] = [
                 'provider_id' => $provider_id,
-                'score'       => $score,
+                'score'       => $final_score,
             ];
         }
 
-        // Relative Relevance Threshold: Only return profiles within close range of top match score
-        $threshold = max(0.60, $max_score - 0.045);
+        // Out-of-Context Safety Filter:
+        // If maximum score across all profiles is below absolute floor (0.38) AND no exact keywords matched,
+        // classify as out-of-context (e.g. "buy a car") and return 0 results instead of random profiles.
+        if ($max_score < 0.38 && !$has_keyword_match) {
+            return [];
+        }
+
+        // Dynamic Relevance Threshold: Cutoff floor of 0.38 or 75% of max score
+        $threshold = max(0.38, $max_score * 0.75);
         $matches   = [];
         foreach ($raw_matches as $item) {
             if ($item['score'] >= $threshold) {
@@ -254,4 +284,97 @@ class SearchEngine
 
         return $cards;
     }
+
+    /**
+     * Expand search query text to include both digits and word representations.
+     * E.g., "8 children" -> "8 children eight children".
+     */
+    private static function expand_query_numbers(string $query): string
+    {
+        $map = [
+            '0'  => 'zero',
+            '1'  => 'one',
+            '2'  => 'two',
+            '3'  => 'three',
+            '4'  => 'four',
+            '5'  => 'five',
+            '6'  => 'six',
+            '7'  => 'seven',
+            '8'  => 'eight',
+            '9'  => 'nine',
+            '10' => 'ten',
+            '18' => 'eighteen',
+        ];
+
+        $expanded_parts = [$query];
+        foreach ($map as $digit => $word) {
+            if (preg_match("/\b" . preg_quote($digit, '/') . "\b/i", $query)) {
+                $expanded_parts[] = preg_replace("/\b" . preg_quote($digit, '/') . "\b/i", $word, $query);
+            }
+            if (preg_match("/\b" . preg_quote($word, '/') . "\b/i", $query)) {
+                $expanded_parts[] = preg_replace("/\b" . preg_quote($word, '/') . "\b/i", $digit, $query);
+            }
+        }
+
+        return implode(' ', array_unique($expanded_parts));
+    }
+
+    /**
+     * Extract meaningful search keywords from original and expanded query strings.
+     */
+    private static function get_search_keywords(string $query, string $expanded_query): array
+    {
+        $all_text  = strtolower($query . ' ' . $expanded_query);
+        $words     = preg_split('/[\s,;.!?-]+/', $all_text, -1, PREG_SPLIT_NO_EMPTY);
+        $stopwords = ['and', 'the', 'for', 'with', 'you', 'our', 'are', 'was', 'were', 'who', 'this', 'that', 'have', 'has'];
+        $keywords  = [];
+
+        foreach ($words as $w) {
+            if (strlen($w) >= 2 && !in_array($w, $stopwords, true)) {
+                $keywords[] = $w;
+            }
+        }
+
+        return array_unique($keywords);
+    }
+
+    /**
+     * Build lookup array of combined provider text (Name, Services, Bio) for keyword boost matching.
+     */
+    private static function get_provider_text_lookup(array $provider_ids): array
+    {
+        if (empty($provider_ids)) {
+            return [];
+        }
+
+        global $wpdb;
+        $services_table = $wpdb->prefix . 'provider_services';
+        $lookup = [];
+
+        foreach ($provider_ids as $id) {
+            $user = get_userdata($id);
+            if (!$user) {
+                continue;
+            }
+
+            $fname = get_user_meta($id, 'first_name', true) ?: $user->display_name;
+            $lname = get_user_meta($id, 'last_name', true) ?: '';
+            $bio   = get_user_meta($id, 'description', true) ?: '';
+
+            $services = [];
+            if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
+                $rows = $wpdb->get_results($wpdb->prepare("SELECT service FROM $services_table WHERE provider_id = %d", $id));
+                foreach ($rows as $r) {
+                    if (!empty($r->service)) {
+                        $services[] = $r->service;
+                    }
+                }
+            }
+
+            $lookup[$id] = trim("$fname $lname " . implode(' ', $services) . " $bio");
+        }
+
+        return $lookup;
+    }
 }
+
