@@ -131,6 +131,22 @@ if ($step === 'schedule' || !empty($start_date_param)) {
 }
 ?>
 <?php
+/**
+ * INJECTS PROVIDER AVAILABILITY & HOLIDAY DATA TO FRONTEND JS
+ * 
+ * USE CASE:
+ * Safely passes provider availability schedule, holiday dates, holiday reasons, and profile URL 
+ * from PHP to JavaScript without embedding raw <script> tags inside template HTML body.
+ * 
+ * HOW TO USE:
+ * Triggered automatically when rendering checkout-template.php. 
+ * Data is consumed by checkout.js and calendar.js via window.providerAvailability and window.providerHolidays.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Encodes PHP arrays ($availability, $holiday_dates, $holiday_reasons, $provider_profile_url) into JSON strings.
+ * 2. Attaches inline script to 'cosy-checkout' script handle using WordPress wp_add_inline_script() with 'before' position.
+ * 3. Populates global window objects before checkout.js script executes in client browser.
+ */
 wp_add_inline_script('cosy-checkout', sprintf(
     'window.providerAvailability = %s; window.providerHolidays = %s; window.providerHolidayReasons = %s; window.providerProfileUrl = %s;',
     wp_json_encode($availability),
