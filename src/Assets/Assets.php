@@ -128,6 +128,32 @@ class Assets
             'currencyCode'   => cosy_get_currency_code(),
             'nonce'          => wp_create_nonce('cosy_admin_nonce'),
         ]);
+
+        // Enqueue dedicated Dashboard Admin CSS & JS ONLY on the main booking dashboard page
+        if ($hook === 'toplevel_page_cosy-booking-dashboard') {
+            wp_enqueue_style(
+                'cosy-dashboard-admin-style',
+                COSY_APPT_URL . 'src/Admin/assets/dashboard-admin.css',
+                [],
+                COSY_APPT_VER
+            );
+
+            wp_enqueue_script(
+                'cosy-chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js',
+                [],
+                '4.4.1',
+                true
+            );
+
+            wp_enqueue_script(
+                'cosy-dashboard-admin-script',
+                COSY_APPT_URL . 'src/Admin/assets/dashboard-admin.js',
+                ['cosy-chartjs'],
+                COSY_APPT_VER,
+                true
+            );
+        }
     }
 
     /**
