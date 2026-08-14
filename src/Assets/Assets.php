@@ -154,24 +154,6 @@ class Assets
                 true
             );
         }
-
-        // Enqueue dedicated Settings Admin CSS & JS ONLY on the settings page
-        if ($hook === 'cc-booking_page_cosy-settings') {
-            wp_enqueue_style(
-                'cosy-settings-admin-style',
-                COSY_APPT_URL . 'src/Admin/assets/settings-admin.css',
-                [],
-                COSY_APPT_VER
-            );
-
-            wp_enqueue_script(
-                'cosy-settings-admin-script',
-                COSY_APPT_URL . 'src/Admin/assets/settings-admin.js',
-                ['jquery'],
-                COSY_APPT_VER,
-                true
-            );
-        }
     }
 
     /**

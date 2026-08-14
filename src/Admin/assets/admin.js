@@ -931,11 +931,126 @@ jQuery(document).ready(function ($) {
     };
 
     // =========================================================================
+    // MODULE: CosySettingsAdmin
+    // Handles media uploader, AI re-indexing, and tab persistence for Global Settings page.
+    // =========================================================================
+    const CosySettingsAdmin = {
+        init: function () {
+            this.bindEvents();
+            this.restoreTabState();
+        },
+
+        bindEvents: function () {
+            // Media Image Selector Handler
+            $(document).on('click', '.cosy-media-select-btn', function (e) {
+                e.preventDefault();
+                const btn = $(this);
+                const targetInput = $(btn.data('target'));
+                const previewDiv = $(btn.data('preview'));
+
+                if (typeof wp === 'undefined' || !wp.media) {
+                    return;
+                }
+
+                const mediaFrame = wp.media({
+                    title: 'Select or Upload Page Image',
+                    button: { text: 'Use This Image' },
+                    multiple: false
+                });
+
+                mediaFrame.on('select', function () {
+                    const attachment = mediaFrame.state().get('selection').first().toJSON();
+                    targetInput.val(attachment.url);
+                    if (previewDiv.length) {
+                        previewDiv.removeClass('d-none').find('img').attr('src', attachment.url);
+                    }
+                });
+
+                mediaFrame.open();
+            });
+
+            // AI Re-index All Profiles Handler
+            $(document).on('click', '#cosy-reindex-ai-btn', function () {
+                const btn = $(this);
+                const status = $('#cosy-reindex-status');
+
+                btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Indexing...');
+                if (status.length) {
+                    status.attr('class', 'mt-2 small text-info').text('Connecting to AI API and generating profile vectors...');
+                }
+
+                $.post(ajaxurl, { action: 'cosy_ai_reindex' }, function (res) {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i> Re-index All Profiles');
+                    if (res.success) {
+                        if (status.length) {
+                            status.attr('class', 'mt-2 small text-success').text('✅ ' + res.data.message);
+                        }
+                        CosyAlert.toast(res.data.message || 'AI Profiles re-indexed successfully.', 'success');
+                    } else {
+                        if (status.length) {
+                            status.attr('class', 'mt-2 small text-danger').text('❌ Error: ' + (res.data ? res.data.message : 'Indexing failed.'));
+                        }
+                        CosyAlert.toast(res.data ? res.data.message : 'AI Indexing failed.', 'danger');
+                    }
+                }).fail(function () {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i> Re-index All Profiles');
+                    if (status.length) {
+                        status.attr('class', 'mt-2 small text-danger').text('❌ Request failed. Please check network/API key.');
+                    }
+                    CosyAlert.toast('Request failed. Please check network/API key.', 'danger');
+                });
+            });
+
+            // Track tab clicks and persist selection
+            $(document).on('shown.bs.tab', '#v-pills-tab button[data-bs-toggle="pill"]', function (e) {
+                const targetId = $(e.target).attr('data-bs-target').replace('#v-pills-', '');
+                localStorage.setItem('cosy_active_settings_tab', targetId);
+                if (history.pushState) {
+                    history.pushState(null, null, '#v-pills-' + targetId);
+                } else {
+                    window.location.hash = '#v-pills-' + targetId;
+                }
+            });
+
+            // Save active tab on form submit
+            $(document).on('submit', '.cosy-settings-wrap form', function () {
+                const activeBtn = $('#v-pills-tab button.active');
+                if (activeBtn.length) {
+                    const targetId = activeBtn.attr('data-bs-target').replace('#v-pills-', '');
+                    localStorage.setItem('cosy_active_settings_tab', targetId);
+                }
+            });
+        },
+
+        restoreTabState: function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlTab = urlParams.get('tab');
+            const hashTab = window.location.hash ? window.location.hash.replace('#', '') : '';
+            const savedTab = localStorage.getItem('cosy_active_settings_tab');
+
+            const initialTab = urlTab || hashTab || savedTab;
+            if (!initialTab) return;
+
+            const cleanId = initialTab.replace('#', '').replace('v-pills-', '').replace('-tab', '');
+            const targetBtn = document.querySelector('#v-pills-' + cleanId + '-tab');
+            if (targetBtn) {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                    const tabObj = bootstrap.Tab.getOrCreateInstance(targetBtn);
+                    if (tabObj) tabObj.show();
+                } else {
+                    targetBtn.click();
+                }
+            }
+        }
+    };
+
+    // =========================================================================
     // BOOT: Initialize all admin modules
     // =========================================================================
     CosyMediaAdmin.init();
     CosyOrdersAdmin.init();
     CosyLogsAdmin.init();
     CosyReviewsAdmin.init();
+    CosySettingsAdmin.init();
 
 });
