@@ -98,35 +98,57 @@ if ($selected_service_obj) {
 $selected_service_slug = !empty($url_service) ? $url_service : strtolower(str_replace(' ', '-', $selected_service_title));
 ?>
 
-<!-- 
-    Global JavaScript Object: Exposes provider availability data to the frontend.
-    Allows interactive components (like booking calendars) to access slots in real-time.
--->
-<script>
-    window.providerAvailability = <?php echo wp_json_encode($availability); ?>;
-    window.providerHolidays = <?php echo wp_json_encode($holiday_dates); ?>;
-    window.providerHolidayReasons = <?php echo wp_json_encode($holiday_reasons); ?>;
-    window.currentUser = {
-        isLoggedIn: <?php echo $is_logged_in ? 'true' : 'false'; ?>,
-        role: <?php echo wp_json_encode($user_role); ?>,
-        name: <?php echo wp_json_encode($current_user->display_name); ?>,
-        id: <?php echo wp_json_encode($current_user->ID); ?>
-    };
-    window.providerId = <?php echo wp_json_encode($provider_data['ID'] ?? 0); ?>;
-    window.providerName = <?php echo wp_json_encode($provider_data['first_name'] ?? ''); ?>;
-    window.cosyDefaultService = {
-        id: <?php echo wp_json_encode($selected_service_id); ?>,
-        title: <?php echo wp_json_encode($selected_service_title); ?>,
-        slug: <?php echo wp_json_encode($selected_service_slug); ?>,
-        price: <?php echo wp_json_encode($selected_service_price); ?>,
-        duration: 10
-    };
-    window.ajaxUrl = <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>;
-    window.checkoutUrl = <?php echo wp_json_encode(cosy_get_page_url('cosy-checkout')); ?>;
-    window.nonce = <?php echo wp_json_encode(wp_create_nonce('cosy_calendar_nonce')); ?>;
-    window.serviceFeeType = 'percent';
-    window.serviceFeeValue = <?php echo wp_json_encode(floatval(get_option('cosy_worldpay_charge', '0'))); ?>;
-</script>
+<?php
+/**
+ * INJECTS PROVIDER PROFILE & CALENDAR DATA TO FRONTEND JS
+ * 
+ * USE CASE:
+ * Safely passes provider availability schedule, holiday dates, selected service, user session details, 
+ * and AJAX nonces from PHP to JavaScript without embedding raw <script> tags inside template HTML body.
+ * 
+ * HOW TO USE:
+ * Triggered automatically when rendering provider-profile-template.php. 
+ * Data is consumed by calendar.js and frontend.js to render interactive booking calendar and slot modals.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Constructs global window configuration objects (providerAvailability, providerHolidays, currentUser, cosyDefaultService).
+ * 2. Attaches inline script to 'cosy-calendar' script handle using WordPress wp_add_inline_script() with 'before' position.
+ * 3. Populates global window objects before calendar.js script executes in client browser.
+ */
+$profile_js_data = sprintf(
+    'window.providerAvailability = %s; ' .
+    'window.providerHolidays = %s; ' .
+    'window.providerHolidayReasons = %s; ' .
+    'window.currentUser = {isLoggedIn: %s, role: %s, name: %s, id: %s}; ' .
+    'window.providerId = %s; ' .
+    'window.providerName = %s; ' .
+    'window.cosyDefaultService = {id: %s, title: %s, slug: %s, price: %s, duration: 10}; ' .
+    'window.ajaxUrl = %s; ' .
+    'window.checkoutUrl = %s; ' .
+    'window.nonce = %s; ' .
+    'window.serviceFeeType = "percent"; ' .
+    'window.serviceFeeValue = %s;',
+    wp_json_encode($availability),
+    wp_json_encode($holiday_dates),
+    wp_json_encode($holiday_reasons),
+    $is_logged_in ? 'true' : 'false',
+    wp_json_encode($user_role),
+    wp_json_encode($current_user->display_name),
+    wp_json_encode($current_user->ID),
+    wp_json_encode($provider_data['ID'] ?? 0),
+    wp_json_encode($provider_data['first_name'] ?? ''),
+    wp_json_encode($selected_service_id),
+    wp_json_encode($selected_service_title),
+    wp_json_encode($selected_service_slug),
+    wp_json_encode($selected_service_price),
+    wp_json_encode(admin_url('admin-ajax.php')),
+    wp_json_encode(cosy_get_page_url('cosy-checkout')),
+    wp_json_encode(wp_create_nonce('cosy_calendar_nonce')),
+    wp_json_encode(floatval(get_option('cosy_worldpay_charge', '0')))
+);
+
+wp_add_inline_script('cosy-calendar', $profile_js_data, 'before');
+?>
 
 <main id="primary" class="site-main cosy-main-page-content">
 <div class="container py-5">
