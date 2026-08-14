@@ -31,14 +31,16 @@ class WorldPayPaymentGateway
     }
 
     /**
-     * Logs raw WorldPay transaction activities into wp_cosy_activity_logs.
+     * Logs raw WorldPay transaction activities into wp_cosy_activity_logs & debug.log.
      */
     public function cosy_payment_log(string $message, $data = null): void
     {
         $desc = $message;
         if ($data !== null) {
-            $desc .= ' | Data: ' . (is_array($data) || is_object($data) ? json_encode($data) : (string) $data);
+            $formatted_data = (is_array($data) || is_object($data)) ? json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : (string) $data;
+            $desc .= " | Data:\n" . $formatted_data;
         }
+        error_log('[CosyLog] [payments] [worldpay_log]: ' . $desc);
         LogManager::log('payments', 'worldpay_log', $desc);
     }
 

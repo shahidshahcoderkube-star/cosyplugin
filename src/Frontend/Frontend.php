@@ -151,17 +151,42 @@ class Frontend
      */
     public function checkout_page(): string
     {
+        $raw_request = [
+            'GET'  => $_GET,
+            'POST' => $_POST,
+        ];
+        $gw = new \Cosy\Appointments\Gateways\WorldPayPaymentGateway();
+
         // Handle WorldPay Return (Cancelled / Failed / Expired / Error)
         $status_param = isset($_GET['paymentStatus']) ? strtoupper(sanitize_text_field($_GET['paymentStatus'])) : '';
         $is_cancelled = (isset($_GET['cosy_worldpay_cancel']) && $_GET['cosy_worldpay_cancel'] === 'true') || in_array($status_param, ['CANCELLED', 'FAILED', 'EXPIRED', 'ERROR']);
 
         if ($is_cancelled) {
             $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : (isset($_GET['appt_id']) ? intval($_GET['appt_id']) : 0);
-            (new \Cosy\Appointments\Gateways\WorldPayPaymentGateway())->cosy_payment_log("WorldPay Checkout CANCELLED/FAILED ($status_param) for Order #$order_id.");
+            
+            $log_payload = [
+                'status'         => $status_param ?: 'CANCELLED',
+                'order_id'       => $order_id,
+                'request_params' => $raw_request,
+            ];
 
             if ($order_id > 0) {
                 $appt = get_post($order_id);
                 if ($appt && $appt->post_type === 'cosy_appointment') {
+                    $customer_user = get_userdata($appt->post_author);
+                    $log_payload['customer'] = [
+                        'id'    => $appt->post_author,
+                        'name'  => $customer_user ? $customer_user->display_name : '',
+                        'email' => $customer_user ? $customer_user->user_email : '',
+                    ];
+                    $log_payload['booking_details'] = [
+                        'service'        => get_post_meta($order_id, 'cosy_service_name', true),
+                        'provider'       => get_post_meta($order_id, 'cosy_provider_name', true),
+                        'total_payable'  => get_post_meta($order_id, 'cosy_total_payable', true),
+                        'slots_timeline' => get_post_meta($order_id, 'cosy_slots_timeline', true),
+                        'transaction_ref'=> get_post_meta($order_id, 'cosy_transaction_ref', true),
+                    ];
+
                     update_post_meta($order_id, 'cosy_booking_status', 'cancelled');
                     update_post_meta($order_id, 'cosy_payment_status', 'Cancelled');
                     if ($appt->post_status === 'draft') {
@@ -177,6 +202,8 @@ class Frontend
                     \Cosy\Appointments\Common\Database::record_worldpay_payment_entry($order_id, $status_param ?: 'Cancelled');
                 }
             }
+
+            $gw->cosy_payment_log("WorldPay Return Callback: Transaction CANCELLED/FAILED ($status_param) for Order #$order_id", $log_payload);
 
             $title = $status_param ? "WorldPay Payment $status_param" : "WorldPay Payment Cancelled";
             $message = ($status_param === 'FAILED') ? "Your transaction failed to complete. No charges were made." : "Your WorldPay transaction was cancelled. No charges were made.";
@@ -194,11 +221,33 @@ class Frontend
         // Handle WorldPay Success Return
         if (isset($_GET['cosy_worldpay_success']) && $_GET['cosy_worldpay_success'] === 'true' && isset($_GET['order_id'])) {
             $order_id = intval($_GET['order_id']);
-            $gw = new \Cosy\Appointments\Gateways\WorldPayPaymentGateway();
-            $gw->cosy_payment_log("WorldPay return callback received for Order #$order_id.");
+            $appt     = get_post($order_id);
 
-            $appt = get_post($order_id);
+            $log_payload = [
+                'status'         => 'SUCCESS',
+                'order_id'       => $order_id,
+                'request_params' => $raw_request,
+            ];
+
             if ($appt && $appt->post_type === 'cosy_appointment') {
+                $customer_user = get_userdata($appt->post_author);
+                $log_payload['customer'] = [
+                    'id'    => $appt->post_author,
+                    'name'  => $customer_user ? $customer_user->display_name : '',
+                    'email' => $customer_user ? $customer_user->user_email : '',
+                ];
+                $log_payload['booking_details'] = [
+                    'service_name'   => get_post_meta($order_id, 'cosy_service_name', true),
+                    'provider_name'  => get_post_meta($order_id, 'cosy_provider_name', true),
+                    'start_date'     => get_post_meta($order_id, 'cosy_start_date', true),
+                    'end_date'       => get_post_meta($order_id, 'cosy_end_date', true),
+                    'slots_timeline' => get_post_meta($order_id, 'cosy_slots_timeline', true),
+                    'service_cost'   => get_post_meta($order_id, 'cosy_service_cost', true),
+                    'service_fee'    => get_post_meta($order_id, 'cosy_service_fee', true),
+                    'total_payable'  => get_post_meta($order_id, 'cosy_total_payable', true),
+                    'transaction_ref'=> get_post_meta($order_id, 'cosy_transaction_ref', true),
+                ];
+
                 if ($appt->post_status === 'draft') {
                     wp_update_post(['ID' => $order_id, 'post_status' => 'publish']);
                     update_post_meta($order_id, 'cosy_payment_status', 'Paid');
@@ -222,6 +271,8 @@ class Frontend
                 // Trigger booking confirmation emails (Customer, Provider & Admin)
                 $this->send_booking_emails($order_id);
             }
+
+            $gw->cosy_payment_log("WorldPay Return Callback: Transaction SUCCESSFUL for Order #$order_id", $log_payload);
 
             // Render Success UI
             return '<div class="cosy-checkout-root">
@@ -607,10 +658,10 @@ class Frontend
 
         if ($query->have_posts()) {
             foreach ($query->posts as $appt) {
-                // If draft (pending payment), ignore if created more than 30 minutes ago
+                // If draft (pending payment), ignore if created more than 5 minutes ago
                 if ($appt->post_status === 'draft') {
                     $created = strtotime($appt->post_date);
-                    if ($created && (time() - $created > 1800)) {
+                    if ($created && (time() - $created > 300)) {
                         continue;
                     }
                 }
@@ -728,6 +779,7 @@ class Frontend
         $auth_code    = get_post_meta($order_id, 'cosy_worldpay_auth_code', true) ?: ($wp_row->auth_code ?? 'AUTH' . (10000 + ($order_id % 89999)));
         $last_event   = get_post_meta($order_id, 'cosy_worldpay_last_event', true) ?: ($wp_row->last_event ?? 'authorized');
         $payment_date = $wp_row->payment_date ?? current_time('mysql');
+        $currency_symbol = cosy_get_currency_symbol();
 
         $booking_data = [
             'order_id'           => $order_id,

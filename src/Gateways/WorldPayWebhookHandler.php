@@ -76,10 +76,13 @@ class WorldPayWebhookHandler
      */
     public function process_webhook_payload(string $raw_body, array $headers): void
     {
-        LogManager::log('payments', 'worldpay_webhook_received', 'Worldpay Webhook POST payload received: ' . $raw_body);
+        $log_msg = 'Worldpay Webhook POST payload received: ' . $raw_body;
+        error_log('[CosyLog] [payments] [worldpay_webhook]: ' . $log_msg);
+        LogManager::log('payments', 'worldpay_webhook_received', $log_msg);
 
         $data = json_decode($raw_body, true);
         if (empty($data)) {
+            error_log('[CosyLog] [payments] [worldpay_webhook_error]: Invalid JSON body received.');
             LogManager::log('payments', 'worldpay_webhook_error', 'Invalid JSON body received in Worldpay Webhook.');
             return;
         }
