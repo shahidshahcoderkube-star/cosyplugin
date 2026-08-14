@@ -28,7 +28,6 @@ class Class_Provider_Verification
     {
         $loader->add_filter('manage_users_columns', $this, 'add_verify_column');
         $loader->add_filter('manage_users_custom_column', $this, 'populate_verify_column', 10, 3);
-        $loader->add_action('admin_footer', $this, 'add_verify_script');
 
         // AJAX handler for updating status
         $loader->add_action('wp_ajax_cosy_update_provider_status', $this, 'handle_status_update');
@@ -89,61 +88,6 @@ class Class_Provider_Verification
         $html .= '<span class="cosy-verify-spinner spinner" style="float: none; margin: 0 0 0 5px;"></span>';
 
         return $html;
-    }
-
-    public function add_verify_script()
-    {
-        $screen = get_current_screen();
-        if (!$screen || $screen->id !== 'users') {
-            return;
-        }
-
-        $nonce = wp_create_nonce('cosy_verify_nonce');
-?>
-        <script>
-            jQuery(document).ready(function($) {
-                $('.cosy-verify-dropdown').on('change', function() {
-                    var select = $(this);
-                    var userId = select.data('user-id');
-                    var status = select.val();
-                    var spinner = select.next('.spinner');
-
-                    select.prop('disabled', true);
-                    spinner.addClass('is-active');
-
-                    $.post(ajaxurl, {
-                        action: 'cosy_update_provider_status',
-                        security: <?php echo wp_json_encode($nonce); ?>,
-                        user_id: userId,
-                        status: status
-                    }, function(response) {
-                        select.prop('disabled', false);
-                        spinner.removeClass('is-active');
-
-                        if (response.success) {
-                            var originalColor = select.css('border-color');
-                            select.css('border-color', '#46b450');
-                            setTimeout(function() {
-                                select.css('border-color', originalColor);
-                            }, 1500);
-
-                            if (typeof CosyAlert !== 'undefined') {
-                                var alertType = (status === 'active') ? 'success' : 'warning';
-                                var msg = response.data || (status === 'active' ? 'Provider status set to Active.' : 'Provider status set to Deactive.');
-                                CosyAlert.toast(msg, alertType);
-                            }
-                        } else {
-                            if (typeof CosyAlert !== 'undefined') {
-                                CosyAlert.toast(response.data || 'Failed to update status.', 'danger');
-                            } else {
-                                alert(response.data || 'Failed to update status.');
-                            }
-                        }
-                    });
-                });
-            });
-        </script>
-<?php
     }
 
     /**

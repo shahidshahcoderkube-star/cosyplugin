@@ -1078,6 +1078,59 @@ jQuery(document).ready(function ($) {
     };
 
     // =========================================================================
+    // MODULE: CosyProviderVerificationAdmin
+    // Handles provider verification dropdown changes in WP Admin -> Users table.
+    // =========================================================================
+    const CosyProviderVerificationAdmin = {
+        init: function () {
+            this.bindEvents();
+        },
+
+        bindEvents: function () {
+            $(document).on('change', '.cosy-verify-dropdown', function () {
+                const select = $(this);
+                const userId = select.data('user-id');
+                const status = select.val();
+                const spinner = select.next('.spinner');
+
+                select.prop('disabled', true);
+                spinner.addClass('is-active');
+
+                const adminNonce = (typeof cosyAdmin !== 'undefined' && cosyAdmin.nonce) ? cosyAdmin.nonce : '';
+
+                $.post(ajaxurl, {
+                    action: 'cosy_update_provider_status',
+                    security: adminNonce,
+                    nonce: adminNonce,
+                    user_id: userId,
+                    status: status
+                }, function (response) {
+                    select.prop('disabled', false);
+                    spinner.removeClass('is-active');
+
+                    if (response.success) {
+                        const originalColor = select.css('border-color');
+                        select.css('border-color', '#46b450');
+                        setTimeout(function () {
+                            select.css('border-color', originalColor);
+                        }, 1500);
+
+                        const alertType = (status === 'active') ? 'success' : 'warning';
+                        const msg = response.data || (status === 'active' ? 'Provider status set to Active.' : 'Provider status set to Deactive.');
+                        CosyAlert.toast(msg, alertType);
+                    } else {
+                        CosyAlert.toast(response.data || 'Failed to update status.', 'danger');
+                    }
+                }).fail(function () {
+                    select.prop('disabled', false);
+                    spinner.removeClass('is-active');
+                    CosyAlert.toast('Failed to update status.', 'danger');
+                });
+            });
+        }
+    };
+
+    // =========================================================================
     // BOOT: Initialize all admin modules
     // =========================================================================
     CosyMediaAdmin.init();
@@ -1086,5 +1139,6 @@ jQuery(document).ready(function ($) {
     CosyReviewsAdmin.init();
     CosySettingsAdmin.init();
     CosyDocAdmin.init();
+    CosyProviderVerificationAdmin.init();
 
 });
