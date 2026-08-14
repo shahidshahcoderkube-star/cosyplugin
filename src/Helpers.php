@@ -5,14 +5,24 @@ if (!defined('ABSPATH')) {
 
 if (!function_exists('cosy_render_popup')) {
     /**
-     * Renders a standardized Bootstrap 5 modal/popup.
-     * Keeps HTML DRY and easy to maintain.
+     * RENDERS STANDARDIZED BOOTSTRAP 5 MODAL POPUP
      *
-     * @param string $id            The HTML ID of the modal (e.g., 'addHolidayModal').
-     * @param string $title_html    The title (can include HTML like icons).
-     * @param string $body_html     The internal content of the modal body.
-     * @param array  $options       Optional configs (max_width, z_index).
-     * @return string               The complete HTML string for the modal.
+     * USE CASE:
+     * Used anywhere in frontend or backend to generate clean Bootstrap 5 modal HTML.
+     *
+     * HOW TO USE:
+     * echo cosy_render_popup('myModal', 'Modal Title', '<p>Modal Body Content</p>');
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Extracts modal width, z-index, and header/footer CSS options.
+     * 2. Wraps title, body, and footer HTML in Bootstrap 5 modal containers.
+     * 3. Returns complete output-buffered HTML string.
+     *
+     * @param string $id            HTML ID of the modal (e.g. 'addHolidayModal').
+     * @param string $title_html    Title HTML or text.
+     * @param string $body_html     Internal body HTML content.
+     * @param array  $options       Optional styling configurations.
+     * @return string               Complete HTML string for modal.
      */
     function cosy_render_popup($id, $title_html, $body_html, $options = [])
     {
@@ -58,24 +68,27 @@ if (!function_exists('cosy_render_popup')) {
 
 if (!function_exists('cosy_send_html_email')) {
     /**
-     * UNIFIED HTML EMAIL DISPATCHER WITH BRAND HEADERS & SPAM PROTECTION
+     * UNIFIED HTML EMAIL DISPATCHER WITH BRAND HEADERS
      *
      * USE CASE:
-     * Dispatches HTML emails using the official CosyChats responsive email template layout.
-     * Contains pink gradient header banner, styled body container, footer copyright, and brand signature.
-     * 
-     * KEY FEATURES & SAFETY CHECKS:
-     * 1. Recipient Address Validation: Uses is_email() to block invalid or empty recipient addresses.
-     * 2. Spam Protection Headers: Sets explicit "From: CosyChats <admin_email>" and "Reply-To" headers
-     *    to prevent emails from being flagged as SPAM by Gmail, Outlook, or Yahoo.
-     * 3. Delivery Error Logging: Captures wp_mail() return status and logs delivery failures to LogManager.
+     * Dispatches styled HTML emails to customers, providers, or administrators.
+     *
+     * HOW TO USE:
+     * cosy_send_html_email($to_email, $subject, $heading_title, $body_content_html);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Validates recipient address using is_email().
+     * 2. Builds brand HTML signature block based on admin settings.
+     * 3. Wraps body content in responsive gradient HTML container.
+     * 4. Sets content-type HTML and From headers.
+     * 5. Dispatches email via wp_mail() and logs delivery status.
      *
      * @param string $to             Target recipient email address.
      * @param string $subject        Email subject line.
-     * @param string $heading        Header title text displayed inside the top gradient banner.
-     * @param string $content_html   The core message body HTML (paragraphs, lists, buttons, tables).
-     * @param bool   $show_signature Whether to append the admin brand email signature at the bottom (default: true).
-     * @return bool                  True if the email was successfully accepted by mail server, false otherwise.
+     * @param string $heading        Header title displayed in top banner.
+     * @param string $content_html   Core message body HTML.
+     * @param bool   $show_signature Whether to append brand email signature.
+     * @return bool                  True if accepted by mail server, false otherwise.
      */
     function cosy_send_html_email($to, $subject, $heading, $content_html, $show_signature = true)
     {

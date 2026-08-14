@@ -11,9 +11,22 @@ class Frontend
     use GlobalCommonFunctions;
 
     /**
-     * Initializes all frontend hooks and shortcodes.
-     * This function is called when the plugin starts. It registers shortcodes, 
-     * template redirects (for page security), and AJAX endpoints.
+     * REGISTERS FRONTEND ACTIONS, FILTERS & AJAX HANDLERS
+     * 
+     * USE CASE:
+     * Called during plugin initialization sequence to register all frontend actions, filters, shortcodes, and AJAX hooks.
+     * 
+     * HOW TO USE:
+     * (new Frontend())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches shortcode registration, footer popup renderer, and template access restriction hooks.
+     * 2. Attaches admin redirect and custom login redirect filters.
+     * 3. Instantiates FormsData handler.
+     * 4. Attaches template_include filter for provider profile dashboard rendering.
+     * 5. Registers AJAX handlers for booking status updates, slot queries, and provider filtering.
+     * 
+     * @param Loader $loader Plugin loader instance.
      */
     public function register(Loader $loader): void
     {
@@ -38,11 +51,18 @@ class Frontend
         ], $this);
     }
 
-
     /**
-     * Registers all the shortcodes used by the plugin.
-     * Shortcodes allow admins to place functionality (like forms or dashboards) 
-     * on any WordPress page by typing text like [cosy_appointments].
+     * REGISTERS ALL PLUGIN SHORTCODES
+     * 
+     * USE CASE:
+     * Registers shortcodes so site administrators can embed plugin pages (checkout, dashboards, login).
+     * 
+     * HOW TO USE:
+     * Automatically executed during plugin shortcodes initialization.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Maps shortcode tag names (e.g. [cosy_checkout]) to corresponding class renderer methods.
+     * 2. Adds shortcode definitions to global WordPress shortcode registry via add_shortcode().
      */
     public function register_shortcode(): void
     {
@@ -58,12 +78,20 @@ class Frontend
         add_shortcode('cosy_leave_review', [$this, 'leave_review_page']);
     }
 
-
     /**
-     * This function renders the popup for choosing member type
-     * The register button link is created in the admin menu settings as link in to the menu.
+     * RENDERS MEMBER TYPE SELECTION POPUP
+     * 
+     * USE CASE:
+     * Renders registration modal allowing users to choose between Customer or Provider registration.
+     * 
+     * HOW TO USE:
+     * $frontend->render_register_popup();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Buffers HTML output.
+     * 2. Includes popup-template.php file.
+     * 3. Prints buffered modal HTML to output stream.
      */
-
     public function render_register_popup(): void
     {
         ob_start();
@@ -71,10 +99,20 @@ class Frontend
         echo ob_get_clean();
     }
 
-
     /**
-     * Renders the main appointment booking calendar.
-     * Used by shortcode: [cosy_appointments]
+     * RENDERS MAIN APPOINTMENTS CALENDAR
+     * 
+     * USE CASE:
+     * Used by shortcode [cosy_appointments] to display interactive booking calendar.
+     * 
+     * HOW TO USE:
+     * Add shortcode [cosy_appointments] on any WordPress page.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Output-buffers appointments-template.php.
+     * 2. Returns complete HTML calendar string for page display.
+     * 
+     * @return string HTML content string.
      */
     public function appointments_shortcode(): string
     {

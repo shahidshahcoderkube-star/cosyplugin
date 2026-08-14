@@ -9,7 +9,20 @@ if (!defined('ABSPATH')) {
 class LogManager
 {
     /**
-     * Get the option key for a page's logging state.
+     * GETS OPTION KEY FOR LOGGING STATE
+     * 
+     * USE CASE:
+     * Generates admin option key name to check if logging is enabled for a given feature area.
+     * 
+     * HOW TO USE:
+     * $key = LogManager::get_toggle_key('payments');
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Sanitizes incoming feature/page key string via sanitize_key().
+     * 2. Prepends prefix 'cosy_log_enabled_' and returns option key name.
+     * 
+     * @param string $page Feature area or page name.
+     * @return string       Sanitized option key name.
      */
     public static function get_toggle_key(string $page): string
     {
@@ -17,7 +30,20 @@ class LogManager
     }
 
     /**
-     * Check if logging is enabled for a specific page.
+     * CHECKS IF LOGGING IS ENABLED FOR FEATURE
+     * 
+     * USE CASE:
+     * Verified before recording log rows to database to honour admin toggle settings.
+     * 
+     * HOW TO USE:
+     * if (LogManager::is_logging_enabled('payments')) { ... }
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Queries WordPress option key for target page state.
+     * 2. Returns true if option value is '1' (default), false otherwise.
+     * 
+     * @param string $page Target feature/page key name.
+     * @return bool        True if enabled, false otherwise.
      */
     public static function is_logging_enabled(string $page): bool
     {
@@ -25,7 +51,26 @@ class LogManager
     }
 
     /**
-     * Log an activity.
+     * PERSISTS SYSTEM ACTIVITY LOG ENTRY
+     * 
+     * USE CASE:
+     * Centralized logger method to record actions, checkout events, and errors into database and debug.log.
+     * 
+     * HOW TO USE:
+     * LogManager::log('payments', 'worldpay_log', 'Order #123 created');
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Verifies if logging is enabled for target page/feature.
+     * 2. Checks existence of database table 'wp_cosy_activity_logs'.
+     * 3. Resolves user ID, display name, user role, and client IP address.
+     * 4. Inserts structured row into database table.
+     * 5. Writes formatted log entry to debug.log if WP_DEBUG is active.
+     * 
+     * @param string   $page        Feature section name.
+     * @param string   $action      Action identifier key.
+     * @param string   $description Detailed log message description.
+     * @param int|null $user_id     Optional explicit user ID.
+     * @return bool                 True if inserted successfully, false otherwise.
      */
     public static function log(string $page, string $action, string $description, ?int $user_id = null): bool
     {

@@ -22,7 +22,19 @@ class WorldPayPaymentGateway
     use GlobalCommonFunctions;
 
     /**
-     * Registers WorldPay AJAX hooks into the plugin loader.
+     * REGISTERS WORLDPAY AJAX HOOKS
+     * 
+     * USE CASE:
+     * Called during plugin initialization to register AJAX endpoints for WorldPay session creation.
+     * 
+     * HOW TO USE:
+     * (new WorldPayPaymentGateway())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'wp_ajax_cosy_create_worldpay_session' for logged-in users.
+     * 2. Attaches 'wp_ajax_nopriv_cosy_create_worldpay_session' for non-logged-in users.
+     * 
+     * @param Loader $loader Plugin hook loader instance.
      */
     public function register(Loader $loader): void
     {
@@ -31,7 +43,20 @@ class WorldPayPaymentGateway
     }
 
     /**
-     * Logs raw WorldPay transaction activities into wp_cosy_activity_logs & debug.log via LogManager.
+     * LOGS WORLDPAY TRANSACTION ACTIVITIES
+     * 
+     * USE CASE:
+     * Called whenever a WorldPay payment event, API request, return callback, or error occurs.
+     * 
+     * HOW TO USE:
+     * $this->cosy_payment_log("Session created for Order #123", $response_data);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Formats incoming message and raw payload array into pretty JSON.
+     * 2. Passes formatted log string to LogManager::log() to persist in database and debug.log.
+     * 
+     * @param string     $message Descriptive event message.
+     * @param mixed|null $data    Optional payload or response object.
      */
     public function cosy_payment_log(string $message, $data = null): void
     {
@@ -44,8 +69,21 @@ class WorldPayPaymentGateway
     }
 
     /**
-     * Backend AJAX handler to generate a WorldPay Checkout session/payload.
-     * Inserts a pending cosy_appointment post first, then constructs WorldPay Hosted Gateway URL or API token.
+     * HANDLES WORLDPAY CHECKOUT SESSION CREATION
+     * 
+     * USE CASE:
+     * Triggered via AJAX when a customer clicks 'Proceed to Payment' on the checkout screen.
+     * 
+     * HOW TO USE:
+     * Automatically called by WordPress AJAX hook 'cosy_create_worldpay_session'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Verifies security nonce and checks customer authorization.
+     * 2. Validates booking details (service, provider, dates, slots, price calculation).
+     * 3. Creates a draft 'cosy_appointment' post in WordPress database.
+     * 4. Queries saved WorldPay API credentials from Admin Settings.
+     * 5. Sends HTTP POST request to WorldPay Access API to generate HPP redirect URL.
+     * 6. Returns JSON response containing checkout redirect URL to frontend.
      */
     public function handle_create_worldpay_session(): void
     {

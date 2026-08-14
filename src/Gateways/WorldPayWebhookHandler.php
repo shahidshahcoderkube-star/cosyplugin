@@ -18,7 +18,19 @@ if (!defined('ABSPATH')) {
 class WorldPayWebhookHandler
 {
     /**
-     * Registers Webhook hooks into the plugin loader.
+     * REGISTERS WEBHOOK HOOKS
+     * 
+     * USE CASE:
+     * Called during plugin loader registration to attach Webhook listener hooks.
+     * 
+     * HOW TO USE:
+     * (new WorldPayWebhookHandler())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'listen_for_worldpay_webhook' to WordPress 'init' hook for GET query param triggers.
+     * 2. Attaches 'register_rest_webhook_route' to 'rest_api_init' hook for REST API POST triggers.
+     * 
+     * @param Loader $loader Plugin loader instance.
      */
     public function register(Loader $loader): void
     {
@@ -27,8 +39,18 @@ class WorldPayWebhookHandler
     }
 
     /**
-     * Registers a dedicated REST API route for Worldpay Webhooks:
-     * Endpoint: /wp-json/cosy-appointments/v1/worldpay-webhook
+     * REGISTERS REST API WEBHOOK ROUTE
+     * 
+     * USE CASE:
+     * Registers endpoint /wp-json/cosy-appointments/v1/worldpay-webhook for external server notifications.
+     * 
+     * HOW TO USE:
+     * Automatically registered via WordPress 'rest_api_init' hook.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Calls register_rest_route() with endpoint name.
+     * 2. Sets HTTP POST callback method to handle_rest_webhook.
+     * 3. Sets permission_callback to '__return_true' to receive public webhook POST calls.
      */
     public function register_rest_webhook_route(): void
     {
@@ -40,7 +62,21 @@ class WorldPayWebhookHandler
     }
 
     /**
-     * Handles REST API POST webhook requests.
+     * HANDLES REST API POST WEBHOOK REQUESTS
+     * 
+     * USE CASE:
+     * Triggered when Worldpay Access servers send an asynchronous REST HTTP POST notification.
+     * 
+     * HOW TO USE:
+     * Executed automatically by WordPress REST API controller on endpoint hit.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Extracts raw POST body and request headers from \WP_REST_Request.
+     * 2. Passes payload to process_webhook_payload() for validation and DB status sync.
+     * 3. Returns HTTP 200 JSON success response to WorldPay server.
+     * 
+     * @param \WP_REST_Request $request Incoming REST request object.
+     * @return \WP_REST_Response         HTTP REST response object.
      */
     public function handle_rest_webhook(\WP_REST_Request $request): \WP_REST_Response
     {
@@ -53,8 +89,19 @@ class WorldPayWebhookHandler
     }
 
     /**
-     * Listens for query parameter webhook requests:
-     * URL: https://yourdomain.com/?worldpay_webhook=1
+     * LISTENS FOR QUERY PARAMETER WEBHOOK REQUESTS
+     * 
+     * USE CASE:
+     * Serves as legacy/fallback listener for URL: https://site.com/?worldpay_webhook=1
+     * 
+     * HOW TO USE:
+     * Executed automatically during WordPress 'init' hook.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Checks if $_GET['worldpay_webhook'] === '1'.
+     * 2. Reads raw php://input stream and headers.
+     * 3. Calls process_webhook_payload() to update order state.
+     * 4. Outputs HTTP 200 JSON success and exits execution.
      */
     public function listen_for_worldpay_webhook(): void
     {
@@ -72,7 +119,24 @@ class WorldPayWebhookHandler
     }
 
     /**
-     * Core payload processor for Worldpay events.
+     * CORE PAYLOAD PROCESSOR FOR WORLDPAY EVENTS
+     * 
+     * USE CASE:
+     * Processes raw JSON webhook payload from Worldpay Access servers to update appointment status.
+     * 
+     * HOW TO USE:
+     * $this->process_webhook_payload($raw_body_string, $headers_array);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Logs raw payload via LogManager.
+     * 2. Parses JSON payload and extracts transactionReference and eventName.
+     * 3. Extracts target Order ID from transaction reference string.
+     * 4. Queries target 'cosy_appointment' post from WordPress database.
+     * 5. Updates post_status, cosy_payment_status, and cosy_booking_status based on event (authorized, refused, cancelled).
+     * 6. Syncs booking record and sends confirmation emails if payment is authorized.
+     * 
+     * @param string $raw_body Raw JSON HTTP request body string.
+     * @param array  $headers  HTTP request headers array.
      */
     public function process_webhook_payload(string $raw_body, array $headers): void
     {

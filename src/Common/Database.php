@@ -9,7 +9,17 @@ if (!defined('ABSPATH')) {
 class Database
 {
     /**
-     * Check if database needs an upgrade and run migrations.
+     * CHECKS AND RUNS DATABASE TABLE MIGRATIONS
+     * 
+     * USE CASE:
+     * Triggered on plugin activation or admin load to verify and create custom plugin database tables.
+     * 
+     * HOW TO USE:
+     * (new Database())->run_db_migrations();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Calls individual table creation routines for services, bookings, worldpay payments, media, reviews, and logs.
+     * 2. Updates 'cosy_db_version' WordPress option to current plugin version.
      */
     public function run_db_migrations(): void
     {
@@ -25,7 +35,18 @@ class Database
     }
 
     /**
-     * Create the provider services table.
+     * CREATES PROVIDER SERVICES TABLE
+     * 
+     * USE CASE:
+     * Creates custom DB table wp_provider_services to store provider-specific services and pricing.
+     * 
+     * HOW TO USE:
+     * $database->create_services_table();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Prepares table name prefix + 'provider_services'.
+     * 2. Checks if table exists in MySQL database via SHOW TABLES query.
+     * 3. Executes CREATE TABLE schema via dbDelta() if table is missing.
      */
     public function create_services_table(): void
     {
