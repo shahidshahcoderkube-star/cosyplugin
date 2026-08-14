@@ -1,0 +1,90 @@
+===============================================================================
+COSY APPOINTMENTS PLUGIN - COMPLETE SPEED & PERFORMANCE OPTIMIZATION PLAN
+===============================================================================
+
+-------------------------------------------------------------------------------
+1. ASSETS MINIFICATION (JS & CSS File Size Reduction)
+-------------------------------------------------------------------------------
+* Why it's needed: Currently all JavaScript and CSS files are uncompressed.
+* Speed Boost: Generating .min.js and .min.css versions reduces asset payload sizes by 40% to 60%.
+* Implementation:
+  - Create minified production bundles for validation.js, frontend.js, calendar.js, checkout.js, style.css.
+  - Enqueue .min files in production mode when SCRIPT_DEBUG is false.
+
+-------------------------------------------------------------------------------
+2. AUTOMATIC WEBP IMAGE CONVERSION
+-------------------------------------------------------------------------------
+* Why it's needed: Provider profile pictures uploaded in JPG/PNG format can be 2MB-5MB.
+* Speed Boost: Converts images to WebP format upon upload, dropping file size to 80KB-150KB (up to 90% reduction).
+* Implementation:
+  - Integrate wp_get_image_editor() in provider profile upload logic.
+  - Compress image quality to 80% and save as .webp.
+  - Delete temporary raw heavy uploaded file.
+
+-------------------------------------------------------------------------------
+3. DATABASE INDEXING (Fast SQL Queries)
+-------------------------------------------------------------------------------
+* Why it's needed: As appointment bookings, reviews, and provider data scale, unindexed queries slow down disk I/O.
+* Speed Boost: Adding SQL Indexes allows database queries to return results in microseconds.
+* Implementation:
+  - Add SQL indexes on provider_id, customer_id, status, created_at across plugin custom DB tables.
+
+-------------------------------------------------------------------------------
+4. SCRIPT DEFERRING (Fast First Contentful Paint - FCP)
+-------------------------------------------------------------------------------
+* Why it's needed: Browsers block rendering while loading script tags in the HTML header.
+* Speed Boost: Prevents parser-blocking and renders initial HTML layout instantly.
+* Implementation:
+  - Attach 'defer' and 'async' attributes to non-critical enqueued frontend scripts.
+
+-------------------------------------------------------------------------------
+5. TRANSIENTS & OBJECT CACHING (Redis / Memcached Support)
+-------------------------------------------------------------------------------
+* Why it's needed: Querying user meta repeatedly for every provider on every page load generates unnecessary DB load.
+* Speed Boost: Caches query data in RAM (Transients / Object Cache) for 0 SQL queries on directory reload.
+* Implementation:
+  - Wrap get_all_service_providers() results in set_transient('cosy_providers_list', $data, 3600).
+  - Add auto-invalidation hook when providers update profile, services, or availability.
+
+-------------------------------------------------------------------------------
+6. LAZY LOADING FOR PROVIDER IMAGES (loading="lazy")
+-------------------------------------------------------------------------------
+* Why it's needed: Loading 20+ avatars immediately blocks network bandwidth.
+* Speed Boost: Only loads images visible in the viewport.
+* Implementation:
+  - Add loading="lazy" decoding="async" attributes to profile avatar <img> tags in service-provider-grid-template.php.
+
+-------------------------------------------------------------------------------
+7. PAGINATION & BATCH LOADING (Lightweight DOM Nodes)
+-------------------------------------------------------------------------------
+* Why it's needed: Rendering 100+ provider cards in one HTML response degrades browser DOM rendering performance.
+* Speed Boost: Keeps initial DOM lightweight and responsive.
+* Implementation:
+  - Limit provider directory rendering to 9 or 12 cards per batch.
+  - Use AJAX pagination / Load More.
+
+-------------------------------------------------------------------------------
+8. SKELETON SCREEN LOADING ANIMATION
+-------------------------------------------------------------------------------
+* Why it's needed: Blank screens or small spinners during AJAX filtering hurt User Experience.
+* UX Boost: Displays animated shimmer skeleton placeholder cards while AJAX filters load.
+* Implementation:
+  - Add CSS .cosy-skeleton-card layout in service-provider-template.php and trigger via frontend.js.
+
+-------------------------------------------------------------------------------
+9. SEARCH INPUT DEBOUNCING (300ms Delay)
+-------------------------------------------------------------------------------
+* Why it's needed: Typing in the search field fires an AJAX request on every single keypress.
+* Speed Boost: Prevents server AJAX flooding.
+* Implementation:
+  - Add 300ms debounce timer on #filter_search_name input before triggering AJAX filter request.
+
+-------------------------------------------------------------------------------
+10. CLIENT-SIDE SESSION STORAGE CACHING (Instant Filter Results)
+-------------------------------------------------------------------------------
+* Why it's needed: Toggling back and forth between filters makes duplicate server requests.
+* Speed Boost: Returns 0ms instant results for previously selected filters.
+* Implementation:
+  - Cache AJAX filter responses in browser sessionStorage for fast instant switching.
+
+===============================================================================
