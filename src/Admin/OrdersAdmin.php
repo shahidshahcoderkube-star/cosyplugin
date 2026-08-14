@@ -6,7 +6,22 @@ use WP_Query;
 
 class OrdersAdmin
 {
-  public function render_booking_orders(): void
+    /**
+     * RENDERS ADMIN APPOINTMENT ORDERS LIST & MODAL
+     * 
+     * USE CASE:
+     * Callback renderer for the 'Orders' admin menu page.
+     * 
+     * HOW TO USE:
+     * (new OrdersAdmin())->render_booking_orders();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Evaluates URL filter parameters (status_filter, provider_filter).
+     * 2. Queries 'cosy_appointment' CPT posts matching filter criteria via WP_Query.
+     * 3. Fetches provider user lists to render filter dropdowns.
+     * 4. Renders responsive Bootstrap 5 data table and view/edit order detail modals.
+     */
+    public function render_booking_orders(): void
   {
 
 

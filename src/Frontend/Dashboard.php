@@ -20,8 +20,17 @@ class Dashboard
     use GlobalCommonFunctions;
 
     /**
-     * Constructor: Initializes the class and registers AJAX handlers.
-     * These handlers allow the frontend (JavaScript) to talk to the backend (PHP).
+     * CONSTRUCTS PROVIDER DASHBOARD CONTROLLER & AJAX ENDPOINTS
+     * 
+     * USE CASE:
+     * Instantiated during plugin initialization to register AJAX handlers for provider profile updates, availability, video uploads, and reviews.
+     * 
+     * HOW TO USE:
+     * (new Dashboard());
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Defines actions array mapping AJAX hooks to class methods.
+     * 2. Registers all AJAX handlers via register_ajax_handlers() helper.
      */
     public function __construct()
     {
@@ -50,8 +59,18 @@ class Dashboard
     }
 
     /**
-     * Initializes hooks for the Provider Dashboard.
-     * This function is triggered by the plugin loader.
+     * REGISTERS DASHBOARD SHORTCODE HOOK
+     * 
+     * USE CASE:
+     * Called during plugin loader initialization to register provider dashboard shortcode.
+     * 
+     * HOW TO USE:
+     * (new Dashboard())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'register_dashboard_shortcode' callback to WordPress 'init' hook.
+     * 
+     * @param Loader $loader Plugin loader instance.
      */
     public function register(Loader $loader): void
     {

@@ -13,10 +13,22 @@ if (!defined('ABSPATH')) {
 class ProfileIndexer
 {
     /**
-     * Index a single provider by User ID.
-     *
-     * @param int $user_id
-     * @return bool True on success, false on failure.
+     * INDEXES SINGLE PROVIDER PROFILE FOR AI VECTOR SEARCH
+     * 
+     * USE CASE:
+     * Called whenever a provider updates profile info, bio, or offered services to generate updated embeddings.
+     * 
+     * HOW TO USE:
+     * ProfileIndexer::index_provider($user_id);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Fetches user details (name, bio, gender, age, services).
+     * 2. Formats bio and service tags into a rich searchable text string.
+     * 3. Generates vector embedding array via AIService::get_embedding().
+     * 4. Upserts embedding JSON string into wp_cosychats_embeddings database table.
+     * 
+     * @param int $user_id Provider WP User ID.
+     * @return bool        True if successfully indexed, false otherwise.
      */
     public static function index_provider(int $user_id): bool
     {

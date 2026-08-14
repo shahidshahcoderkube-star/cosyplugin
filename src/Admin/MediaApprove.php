@@ -4,6 +4,19 @@ namespace Cosy\Appointments\Admin;
 
 class MediaApprove
 {
+    /**
+     * RENDERS ADMIN MEDIA APPROVAL PAGE
+     * 
+     * USE CASE:
+     * Callback renderer for 'Media Approve' admin submenu page.
+     * 
+     * HOW TO USE:
+     * (new MediaApprove())->render_media_approve();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Renders HTML table interface displaying provider uploaded videos requiring admin verification.
+     * 2. Renders Approve and Reject action buttons for AJAX submission.
+     */
     public function render_media_approve(): void
     {
 ?>

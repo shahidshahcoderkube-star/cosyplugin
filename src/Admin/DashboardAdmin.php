@@ -4,6 +4,21 @@ namespace Cosy\Appointments\Admin;
 
 class DashboardAdmin
 {
+    /**
+     * RENDERS ADMIN ANALYTICS DASHBOARD & METRICS
+     * 
+     * USE CASE:
+     * Callback renderer for the main 'CC Booking' admin dashboard landing page.
+     * 
+     * HOW TO USE:
+     * (new DashboardAdmin())->render_booking_dashboard();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Queries booking statistics (confirmed, pending, cancelled, total revenue).
+     * 2. Queries provider and customer registration totals via WP_User_Query.
+     * 3. Calculates monthly revenue trend metrics.
+     * 4. Renders responsive dashboard layout with analytics charts and recent appointment lists.
+     */
     public function render_booking_dashboard(): void
     {
         global $wpdb;

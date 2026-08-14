@@ -13,10 +13,21 @@ if (!defined('ABSPATH')) {
 class AIService
 {
     /**
-     * Fetch vector embedding for a given input text string.
-     *
-     * @param string $text
-     * @return array Array of float values (vector embedding) or empty array on failure.
+     * GENERATES AI VECTOR EMBEDDINGS
+     * 
+     * USE CASE:
+     * Generates floating-point vector embeddings for search queries and provider profile indexing.
+     * 
+     * HOW TO USE:
+     * $vector = AIService::get_embedding("child therapy specialist");
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Reads AI provider choice ('gemini' vs 'openai') and API key from Admin settings.
+     * 2. Sends HTTP POST request to Gemini text-embedding endpoint or OpenAI text-embedding-3-small endpoint.
+     * 3. Parses response JSON and returns array of float embedding coordinates.
+     * 
+     * @param string $text Text to embed into vector format.
+     * @return array       Float array of vector embedding values.
      */
     public static function get_embedding(string $text): array
     {

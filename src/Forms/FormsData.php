@@ -10,8 +10,19 @@ class FormsData
     use GlobalCommonFunctions;
 
     /**
-     * Constructor: Initializes the form handler.
-     * Hooks up AJAX actions for login, registration, and password recovery.
+     * CONSTRUCTS FORMS DATA CONTROLLER & AJAX ENDPOINTS
+     * 
+     * USE CASE:
+     * Instantiated during plugin load sequence to hook user registration, authentication, and profile form handlers.
+     * 
+     * HOW TO USE:
+     * new FormsData();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Maps AJAX hooks for customer/provider registration, login, forgot password, and profile updates.
+     * 2. Registers AJAX handlers via register_ajax_handlers() helper.
+     * 3. Attaches handle_provider_verification callback to WordPress 'init' hook.
+     * 4. Attaches restrict_unverified_login callback to WordPress 'wp_authenticate_user' filter.
      */
     public function __construct()
     {
@@ -34,7 +45,22 @@ class FormsData
     }
 
     /**
-     * Blocks login attempts for users whose email address is not verified.
+     * RESTRICTS UNVERIFIED USER LOGIN ATTEMPTS
+     * 
+     * USE CASE:
+     * Intercepts WordPress user authentication pipeline to block unverified email accounts.
+     * 
+     * HOW TO USE:
+     * Triggered automatically by WordPress filter 'wp_authenticate_user'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Checks if incoming user object is a WP_Error.
+     * 2. Queries 'account_status' user meta.
+     * 3. Returns WP_Error object if status is 'pending', blocking user login.
+     * 
+     * @param WP_User|\WP_Error $user     User object or error.
+     * @param string            $password Login password input.
+     * @return WP_User|\WP_Error          User object if allowed, error if restricted.
      */
     public function restrict_unverified_login($user, $password)
     {

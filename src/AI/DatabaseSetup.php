@@ -13,7 +13,17 @@ if (!defined('ABSPATH')) {
 class DatabaseSetup
 {
     /**
-     * Create or update AI database tables.
+     * CREATES AI EMBEDDINGS & SEARCH CACHE TABLES
+     * 
+     * USE CASE:
+     * Triggered on plugin activation or database migration to ensure AI vector database tables exist.
+     * 
+     * HOW TO USE:
+     * DatabaseSetup::create_tables();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Prepares table names wp_provider_embeddings and wp_cosychats_search_cache.
+     * 2. Executes dbDelta() to create embeddings and search query cache tables.
      */
     public static function create_tables(): void
     {

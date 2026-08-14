@@ -4,6 +4,20 @@ namespace Cosy\Appointments\Frontend;
 
 class Class_Header_Menu
 {
+    /**
+     * REGISTERS NAVIGATION MENU HOOKS
+     * 
+     * USE CASE:
+     * Called during plugin initialization sequence to hook header navigation dropdown items.
+     * 
+     * HOW TO USE:
+     * (new Class_Header_Menu())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'add_services_dropdown' callback to WordPress filter 'wp_nav_menu_items'.
+     * 
+     * @param Loader $loader Plugin loader instance.
+     */
     public function register($loader): void
     {
         // Filter to add menu items to the primary navigation
@@ -11,7 +25,23 @@ class Class_Header_Menu
     }
 
     /**
-     * Add the dynamic services dropdown to the navigation menu
+     * ADDS DYNAMIC SERVICES & ACCOUNT BUTTONS TO NAVIGATION MENU
+     * 
+     * USE CASE:
+     * Triggered when WordPress outputs primary theme navigation menu.
+     * 
+     * HOW TO USE:
+     * Automatically invoked by WordPress 'wp_nav_menu_items' filter.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Queries published 'cosy_service' CPT items.
+     * 2. Checks current user login status and roles (customer/provider/admin).
+     * 3. Renders login, register popup trigger, dashboard links, or logout dropdown menu items.
+     * 4. Returns appended menu items HTML string.
+     * 
+     * @param string $items Raw HTML menu items string.
+     * @param object $args  Nav menu arguments object.
+     * @return string       Modified HTML menu items string.
      */
     public function add_services_dropdown(string $items, $args): string
     {

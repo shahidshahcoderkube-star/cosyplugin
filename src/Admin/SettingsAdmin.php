@@ -4,6 +4,22 @@ namespace Cosy\Appointments\Admin;
 
 class SettingsAdmin
 {
+    /**
+     * REGISTERS SETTINGS HOOKS
+     * 
+     * USE CASE:
+     * Called during plugin initialization to register admin settings menu and options.
+     * 
+     * HOW TO USE:
+     * (new SettingsAdmin())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches add_settings_page to 'admin_menu' hook.
+     * 2. Attaches register_settings to 'admin_init' hook.
+     * 3. Attaches enqueue_settings_assets to 'admin_enqueue_scripts' hook.
+     * 
+     * @param Loader $loader Plugin loader instance.
+     */
     public function register($loader): void
     {
         $loader->add_action('admin_menu', $this, 'add_settings_page');
@@ -11,6 +27,21 @@ class SettingsAdmin
         $loader->add_action('admin_enqueue_scripts', $this, 'enqueue_settings_assets');
     }
 
+    /**
+     * ENQUEUES SETTINGS MEDIA ASSETS
+     * 
+     * USE CASE:
+     * Enqueues WordPress WP Media Uploader scripts on the plugin settings screen.
+     * 
+     * HOW TO USE:
+     * Triggered automatically during 'admin_enqueue_scripts'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Checks if current admin page hook contains 'cosy-settings'.
+     * 2. Calls wp_enqueue_media() if matching settings screen.
+     * 
+     * @param string $hook Admin page hook string.
+     */
     public function enqueue_settings_assets($hook): void
     {
         if (strpos($hook, 'cosy-settings') !== false) {
@@ -18,6 +49,19 @@ class SettingsAdmin
         }
     }
 
+    /**
+     * ADDS SETTINGS & DOCUMENTATION SUBMENU PAGES
+     * 
+     * USE CASE:
+     * Adds Settings and Documentation pages under 'CC Booking' menu.
+     * 
+     * HOW TO USE:
+     * Triggered automatically during 'admin_menu'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Calls add_submenu_page() for 'cosy-settings' with capability 'manage_options'.
+     * 2. Calls add_submenu_page() for 'cosy-documentation' with capability 'manage_cosy_appointments'.
+     */
     public function add_settings_page(): void
     {
         add_submenu_page(
@@ -39,6 +83,18 @@ class SettingsAdmin
         );
     }
 
+    /**
+     * RENDERS DOCUMENTATION PAGE
+     * 
+     * USE CASE:
+     * Callback renderer for plugin documentation page.
+     * 
+     * HOW TO USE:
+     * Triggered when visiting 'cosy-documentation' admin page.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Buffers output and includes documentation.php template.
+     */
     public function render_documentation(): void
     {
         ob_start();

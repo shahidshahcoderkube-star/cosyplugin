@@ -8,6 +8,22 @@ class Class_Provider_Verification
 {
     use \Cosy\Appointments\Common\GlobalCommonFunctions;
 
+    /**
+     * REGISTERS PROVIDER VERIFICATION HOOKS & AJAX ENDPOINTS
+     * 
+     * USE CASE:
+     * Called during plugin load sequence to hook user list table verification columns and status toggle handlers.
+     * 
+     * HOW TO USE:
+     * (new Class_Provider_Verification())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches custom column hooks 'manage_users_columns' and 'manage_users_custom_column'.
+     * 2. Attaches admin footer JS renderer for AJAX status toggling.
+     * 3. Attaches 'wp_ajax_cosy_update_provider_status' to handle_status_update callback.
+     * 
+     * @param Loader $loader Plugin loader instance.
+     */
     public function register(Loader $loader): void
     {
         $loader->add_filter('manage_users_columns', $this, 'add_verify_column');
@@ -18,6 +34,21 @@ class Class_Provider_Verification
         $loader->add_action('wp_ajax_cosy_update_provider_status', $this, 'handle_status_update');
     }
 
+    /**
+     * ADDS VERIFY COLUMN TO WP USER TABLE
+     * 
+     * USE CASE:
+     * Adds 'Verify' column header to WP Admin -> Users list table.
+     * 
+     * HOW TO USE:
+     * Triggered automatically by WordPress filter 'manage_users_columns'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Appends 'cosy_verify' key to columns array.
+     * 
+     * @param array $columns WP User table columns array.
+     * @return array        Modified columns array.
+     */
     public function add_verify_column($columns)
     {
         $columns['cosy_verify'] = 'Verify';

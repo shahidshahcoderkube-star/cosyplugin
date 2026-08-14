@@ -13,11 +13,24 @@ if (!defined('ABSPATH')) {
 class SearchEngine
 {
     /**
-     * Perform AI Semantic Search for a user query.
-     *
-     * @param string $query_text Search input query string
-     * @param int $limit Maximum number of provider profiles to return (default 6)
-     * @return array List of provider profile details
+     * PERFORMS AI SEMANTIC VECTOR SEARCH
+     * 
+     * USE CASE:
+     * Executes natural language semantic search over provider profiles using vector embeddings and cosine similarity.
+     * 
+     * HOW TO USE:
+     * $results = SearchEngine::search("looking for a child counselor in London", 6);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Checks local MySQL search cache for query hash matches.
+     * 2. Generates vector embedding vector from OpenAI/Gemini via AIService.
+     * 3. Calculates cosine similarity across indexed provider profile embeddings.
+     * 4. Ranks profiles using hybrid scoring algorithm (relevance + rating + price).
+     * 5. Returns array of formatted provider cards.
+     * 
+     * @param string $query_text Natural language search query.
+     * @param int    $limit      Maximum provider cards to return.
+     * @return array             Array of provider profile cards.
      */
     public static function search(string $query_text, int $limit = 6): array
     {

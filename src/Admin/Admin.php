@@ -17,6 +17,18 @@ class Admin
     private $dashboardAdmin;
     private $usersAdmin;
 
+    /**
+     * CONSTRUCTS ADMIN CONTROLLER & SUB-MODULES
+     * 
+     * USE CASE:
+     * Instantiated during plugin load sequence to setup admin menu controllers.
+     * 
+     * HOW TO USE:
+     * $admin = new Admin();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Instantiates OrdersAdmin, DashboardAdmin, and UsersAdmin controller instances.
+     */
     public function __construct()
     {
         $this->ordersAdmin = new OrdersAdmin();
@@ -24,6 +36,22 @@ class Admin
         $this->usersAdmin = new UsersAdmin();
     }
 
+    /**
+     * REGISTERS ADMIN MENU HOOKS & AUDIT LOGGERS
+     * 
+     * USE CASE:
+     * Registers admin menu pages and post/option modification audit hooks into WordPress.
+     * 
+     * HOW TO USE:
+     * (new Admin())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches admin_add_menus to 'admin_menu' hook.
+     * 2. Attaches CPT save/trash loggers to 'save_post_cosy_service' and 'wp_trash_post'.
+     * 3. Attaches settings update logger to 'updated_option'.
+     * 
+     * @param Loader $loader Plugin loader instance.
+     */
     public function register(Loader $loader): void
     {
         $loader->add_action('admin_menu', $this, 'admin_add_menus');
@@ -32,17 +60,20 @@ class Admin
         $loader->add_action('updated_option', $this, 'log_admin_settings_update', 10, 3);
     }
 
-
     /**
-     * Registers all custom plugin admin menu pages and submenus under "CC Booking".
+     * REGISTERS ADMIN DASHBOARD MENU & SUBMENUS
      * 
      * USE CASE:
-     * Triggered during the WordPress 'admin_menu' action hook.
+     * Registers main "CC Booking" WP Admin menu and notification bubble badges for pending items.
      * 
-     * WHAT IT DOES:
-     * 1. Dynamically calculates pending counters for Orders, Media Approvals, Users, Reviews, and Logs.
-     * 2. Registers main dashboard menu page and submenus (Experiences CPT, Orders, Media, Users, Reviews, Logs).
-     * 3. Formats notification bubble badges next to submenus for instant admin attention.
+     * HOW TO USE:
+     * Triggered automatically during WordPress 'admin_menu' hook.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Dynamically queries counts for pending orders, unapproved videos, pending provider verifications, and unreplied reviews.
+     * 2. Registers main menu page via add_menu_page().
+     * 3. Registers submenus for Dashboard, Experiences CPT, Orders, Media Approve, Users, Reviews, and Logs.
+     * 4. Formats notification bubble HTML badges next to menu titles.
      */
     public function admin_add_menus(): void
     {

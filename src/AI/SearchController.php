@@ -14,6 +14,20 @@ if (!defined('ABSPATH')) {
  */
 class SearchController
 {
+    /**
+     * CONSTRUCTS AI SEARCH CONTROLLER & REGISTERS HOOKS
+     * 
+     * USE CASE:
+     * Instantiated during plugin initialization to register AJAX search and auto-indexing hooks.
+     * 
+     * HOW TO USE:
+     * new SearchController();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'cosy_ai_search' AJAX endpoints for logged-in and guest users.
+     * 2. Attaches 'cosy_ai_reindex' AJAX endpoint for admin bulk re-indexing.
+     * 3. Attaches profile update and user meta hooks to auto-update vector embeddings in real time.
+     */
     public function __construct()
     {
         // Public & Logged-in User AI Search AJAX
@@ -33,7 +47,19 @@ class SearchController
     }
 
     /**
-     * AJAX Handler for AI Search Query.
+     * HANDLES AI SEARCH AJAX REQUESTS
+     * 
+     * USE CASE:
+     * Triggered via AJAX when a site visitor enters a natural language query in the AI search field.
+     * 
+     * HOW TO USE:
+     * Automatically invoked by WordPress AJAX endpoint 'cosy_ai_search'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Sanitizes incoming search query parameter string.
+     * 2. Calls SearchEngine::search($query) to compute semantic matches.
+     * 3. Logs search event to LogManager.
+     * 4. Returns JSON response containing array of matching provider profile cards.
      */
     public function handle_ai_search(): void
     {

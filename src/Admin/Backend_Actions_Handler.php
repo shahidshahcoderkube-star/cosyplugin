@@ -10,7 +10,19 @@ class Backend_Actions_Handler
 {
     use GlobalCommonFunctions;
 
-    //--------------- Constructor ----------------//
+    /**
+     * CONSTRUCTS BACKEND ACTIONS HANDLER & REGISTERS AJAX ENDPOINTS
+     * 
+     * USE CASE:
+     * Instantiated during plugin load sequence to hook admin backend AJAX actions.
+     * 
+     * HOW TO USE:
+     * new Backend_Actions_Handler();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Defines actions mapping array for video approval, rejection, media deletion, order deletion, and log toggling.
+     * 2. Registers actions via register_ajax_handlers() helper.
+     */
     public function __construct()
     {
         //------ Register all AJAX handlers dynamically-----//
@@ -27,9 +39,23 @@ class Backend_Actions_Handler
         $this->register_ajax_handlers($actions, $this);
     }
 
+    /**
+     * REGISTERS LOADER HOOKS
+     * 
+     * USE CASE:
+     * Provides compatibility method for Loader registration pipeline.
+     * 
+     * HOW TO USE:
+     * (new Backend_Actions_Handler())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Handlers are auto-registered in constructor.
+     * 
+     * @param Loader $loader Plugin loader instance.
+     */
     public function register(Loader $loader): void
     {
-        // No need to add actions here as they are registered in the constructor
+        // Handlers registered in constructor
     }
     /**
      * AJAX Handler: Approve Provider Introduction Video.

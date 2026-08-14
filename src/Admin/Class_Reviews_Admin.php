@@ -8,6 +8,22 @@ class Class_Reviews_Admin
 {
     use \Cosy\Appointments\Common\GlobalCommonFunctions;
 
+    /**
+     * REGISTERS REVIEWS MODERATION HOOKS & AJAX ENDPOINTS
+     * 
+     * USE CASE:
+     * Called during plugin initialization to register AJAX handlers for review approval, rejection, and deletion.
+     * 
+     * HOW TO USE:
+     * (new Class_Reviews_Admin())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'wp_ajax_cosy_admin_approve_review' to handle_approve_review callback.
+     * 2. Attaches 'wp_ajax_cosy_admin_reject_review' to handle_reject_review callback.
+     * 3. Attaches 'wp_ajax_cosy_admin_delete_review' to handle_delete_review callback.
+     * 
+     * @param Loader $loader Plugin loader instance.
+     */
     public function register(Loader $loader): void
     {
         $loader->add_action('wp_ajax_cosy_admin_approve_review', $this, 'handle_approve_review');
@@ -15,6 +31,21 @@ class Class_Reviews_Admin
         $loader->add_action('wp_ajax_cosy_admin_delete_review', $this, 'handle_delete_review');
     }
 
+    /**
+     * RENDERS ADMIN REVIEWS MODERATION TABLE
+     * 
+     * USE CASE:
+     * Callback renderer for 'Reviews' admin page.
+     * 
+     * HOW TO USE:
+     * Triggered when admin visits 'Reviews' submenu under 'CC Booking'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Extracts status and provider filter URL parameters.
+     * 2. Queries review records from wp_cosy_provider_reviews database table.
+     * 3. Fetches provider user lists for dropdown filter.
+     * 4. Includes reviews-admin-template.php layout file.
+     */
     public function render_reviews_page(): void
     {
         $status_filter   = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';

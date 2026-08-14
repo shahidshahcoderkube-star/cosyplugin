@@ -24,7 +24,20 @@ class UsersAdmin
     use GlobalCommonFunctions;
 
     /**
-     * Register hooks with the plugin loader.
+     * REGISTERS USER MANAGEMENT HOOKS & AJAX ENDPOINTS
+     * 
+     * USE CASE:
+     * Called during plugin load sequence to hook admin user management actions and AJAX handlers.
+     * 
+     * HOW TO USE:
+     * (new UsersAdmin())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches AJAX action handlers for user status updates, resending verification emails, fetching user details, and bulk deletion.
+     * 2. Hooks script enqueue callback for admin user management scripts.
+     * 3. Attaches cache invalidation callbacks to 'save_post_cosy_appointment' and 'before_delete_post'.
+     * 
+     * @param Loader $loader Plugin loader instance.
      */
     public function register(Loader $loader): void
     {
