@@ -658,10 +658,10 @@ class Frontend
 
         if ($query->have_posts()) {
             foreach ($query->posts as $appt) {
-                // If draft (pending payment), ignore if created more than 5 minutes ago
+                // If draft (pending payment), ignore if created more than 3 minutes ago
                 if ($appt->post_status === 'draft') {
                     $created = strtotime($appt->post_date);
-                    if ($created && (time() - $created > 300)) {
+                    if ($created && (time() - $created > 180)) {
                         continue;
                     }
                 }
