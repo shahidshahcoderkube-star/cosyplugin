@@ -1219,18 +1219,6 @@ var CosyApp = (function ($) {
      * WHAT IT DOES INTERNALLY: Listens to #cosyCustomerProfileForm and #cosyCustomerPasswordForm submit events.
      */
     function initCustomerProfile(container = document) {
-        // Helper to generate dynamic alert alerts matching the theme
-        function cosyAlert(type, message) {
-            var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            var bg = type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-            var color = type === 'success' ? '#22c55e' : '#ef4444';
-
-            return '<div class="alert d-flex align-items-center border-0 p-3 mb-3" style="background: ' + bg + '; border-radius: 12px; color: ' + color + '; font-weight: 500; font-size: 0.9rem;" role="alert">' +
-                '<i class="fas ' + icon + ' me-2" style="font-size: 1.1rem;"></i>' +
-                '<div>' + message + '</div>' +
-                '</div>';
-        }
-
         $('#cosyCustomerProfileForm').on('submit', function (e) {
             e.preventDefault();
             var $form = $(this);
