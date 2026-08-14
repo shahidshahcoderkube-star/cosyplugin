@@ -1225,6 +1225,74 @@ var CosyApp = (function ($) {
         });
     }
 
+    function initTokenReview() {
+        $(document).on('click', '.rating-score-btn', function (e) {
+            e.preventDefault();
+            $('.rating-score-btn').removeClass('active btn-primary text-white').addClass('btn-outline-secondary').css({
+                'background': '',
+                'border-color': '',
+                'color': ''
+            });
+
+            $(this).removeClass('btn-outline-secondary').addClass('active').css({
+                'background': '#a44390',
+                'border-color': '#a44390',
+                'color': '#ffffff'
+            });
+
+            const score = $(this).data('score');
+            $('#selectedScore').val(score);
+            $('#ratingHelpText').html('<span class="fw-bold" style="color: #a44390;">Selected Rating: ' + score + ' / 10</span>');
+        });
+
+        $('#cosyTokenReviewForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const score = parseInt($('#selectedScore').val()) || 0;
+            const reviewText = $.trim($('#reviewCommentText').val());
+            const $alert = $('#reviewResponseAlert');
+            const $btn = $('#btnSubmitTokenReview');
+
+            if (score < 1 || score > 10) {
+                $alert.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2" style="font-size: 1.05rem;"></i> Please select a rating score between 1 and 10.').slideDown();
+                return;
+            }
+
+            if (reviewText.length < 5) {
+                $alert.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2" style="font-size: 1.05rem;"></i> Please write a brief review comment before submitting.').slideDown();
+                return;
+            }
+
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Submitting...');
+            $alert.addClass('d-none');
+
+            const formData = $(this).serialize();
+            const ajaxUrl = (typeof cosy_ajax !== 'undefined' && cosy_ajax.ajax_url) ? cosy_ajax.ajax_url : (typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php');
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                data: formData,
+                success: function (res) {
+                    if (res.success) {
+                        $alert.removeClass('d-none alert-danger').addClass('alert-success').html('<i class="fas fa-check-circle me-2" style="font-size: 1.05rem;"></i> ' + (res.data.message || 'Thank you! Your review has been submitted successfully.')).slideDown();
+                        $('#cosyTokenReviewForm').find('input, textarea, button').prop('disabled', true);
+                        setTimeout(function () {
+                            window.location.href = res.data.redirect_url || '/';
+                        }, 3000);
+                    } else {
+                        $alert.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2" style="font-size: 1.05rem;"></i> ' + (res.data.message || 'Failed to submit review. Please try again.')).slideDown();
+                        $btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i> Submit Review');
+                    }
+                },
+                error: function () {
+                    $alert.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2" style="font-size: 1.05rem;"></i> An unexpected error occurred. Please try again.').slideDown();
+                    $btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i> Submit Review');
+                }
+            });
+        });
+    }
+
     //-------- PUBLIC INITIALISATION --------//
     return {
         init() {
@@ -1232,6 +1300,7 @@ var CosyApp = (function ($) {
             try { initAuthForms(); } catch (e) { console.error("AuthForms Error:", e); }
             try { initProfileUpdate(); } catch (e) { console.error("ProfileUpdate Error:", e); }
             try { initCustomerProfile(); } catch (e) { console.error("CustomerProfile Error:", e); }
+            try { initTokenReview(); } catch (e) { console.error("TokenReview Error:", e); }
             try { initVideoUpload(); } catch (e) { console.error("VideoUpload Error:", e); }
             try { initTabs(); } catch (e) { console.error("Tabs Error:", e); }
             try { serviceSelection(); } catch (e) { console.error("ServiceSelection Error:", e); }
