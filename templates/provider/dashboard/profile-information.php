@@ -1,28 +1,16 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
 
-// Reuse the GlobalCommonFunctions trait to retrieve all user details in a single query
+// Retrieve centralized provider data using GlobalCommonFunctions
 $common = new class {
     use \Cosy\Appointments\Common\GlobalCommonFunctions;
 };
 $provider_data = $common->get_provider_data($user_id);
-
-// Map variables from centralized data array with fallback defaults
-$prov_username = $provider_data['prov_username'] ?? '';
-$prov_fname    = $provider_data['first_name'] ?? '';
-$prov_mname    = $provider_data['prov_mname'] ?? '';
-$prov_sname    = $provider_data['last_name'] ?? '';
-$prov_email    = $provider_data['prov_email'] ?? '';
-$prov_phone    = $provider_data['prov_phone'] ?? '';
-$prov_address  = $provider_data['prov_address'] ?? '';
-$dob           = $provider_data['dob'] ?? '';
-$postal_code   = $provider_data['postal_code'] ?? '';
-$bio           = $provider_data['description'] ?? '';
-$gender        = $provider_data['gender'] ?? '';
-$profile_image = $provider_data['profile_image'] ?? '';
-$age_group     = $provider_data['age_group'] ?? '';
 ?>
 
 <div class="card cosy-profile-card mb-4">
@@ -41,8 +29,8 @@ $age_group     = $provider_data['age_group'] ?? '';
                     <div class="mb-5 d-flex justify-content-center">
                         <div class="position-relative" style="width: 140px; height: 140px;">
                             <div class="circle mx-auto" style="width: 140px; height: 140px; border-radius: 50%; overflow: hidden;">
-                                <?php if ($profile_image): ?>
-                                    <img class="profile-pic" src="<?php echo esc_url($profile_image); ?>" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
+                                <?php if (!empty($provider_data['profile_image'])): ?>
+                                    <img class="profile-pic" src="<?php echo esc_url($provider_data['profile_image']); ?>" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
                                 <?php else: ?>
                                     <img class="profile-pic" src="https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
                                 <?php endif; ?>
@@ -55,21 +43,20 @@ $age_group     = $provider_data['age_group'] ?? '';
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Username', 'cosy-appointments'); ?></label>
-                        <input type="text" name="prov_username" class="form-control" value="<?php echo esc_attr($prov_username); ?>" required>
+                        <input type="text" name="prov_username" class="form-control" value="<?php echo esc_attr($provider_data['prov_username'] ?? ''); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('First Name', 'cosy-appointments'); ?></label>
-                        <input type="text" name="prov_fname" class="form-control" value="<?php echo esc_attr($prov_fname); ?>" required>
+                        <input type="text" name="prov_fname" class="form-control" value="<?php echo esc_attr($provider_data['first_name'] ?? ''); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Middle Name', 'cosy-appointments'); ?></label>
-                        <input type="text" name="prov_mname" class="form-control" value="<?php echo esc_attr($prov_mname); ?>">
+                        <input type="text" name="prov_mname" class="form-control" value="<?php echo esc_attr($provider_data['prov_mname'] ?? ''); ?>">
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Surname', 'cosy-appointments'); ?></label>
-                        <input type="text" name="prov_sname" class="form-control" value="<?php echo esc_attr($prov_sname); ?>">
+                        <input type="text" name="prov_sname" class="form-control" value="<?php echo esc_attr($provider_data['last_name'] ?? ''); ?>">
                     </div>
-
 
                 </div>
 
@@ -77,51 +64,51 @@ $age_group     = $provider_data['age_group'] ?? '';
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Email', 'cosy-appointments'); ?></label>
-                        <input type="email" name="prov_email" class="form-control" value="<?php echo esc_attr($prov_email); ?>" required>
+                        <input type="email" name="prov_email" class="form-control" value="<?php echo esc_attr($provider_data['prov_email'] ?? ''); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Phone', 'cosy-appointments'); ?></label>
-                        <input type="text" name="prov_phone" class="form-control" value="<?php echo esc_attr($prov_phone); ?>" required>
+                        <input type="text" name="prov_phone" class="form-control" value="<?php echo esc_attr($provider_data['prov_phone'] ?? ''); ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Date of Birth', 'cosy-appointments'); ?></label>
-                        <input type="date" name="dob" class="form-control" value="<?php echo esc_attr($dob); ?>" required>
+                        <input type="date" name="dob" class="form-control" value="<?php echo esc_attr($provider_data['dob'] ?? ''); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Gender', 'cosy-appointments'); ?></label>
                         <select name="gender" class="form-select" required>
                             <option value="">--<?php esc_html_e('Select', 'cosy-appointments'); ?>--</option>
-                            <option value="male" <?php selected($gender, 'male'); ?>><?php esc_html_e('Male', 'cosy-appointments'); ?></option>
-                            <option value="female" <?php selected($gender, 'female'); ?>><?php esc_html_e('Female', 'cosy-appointments'); ?></option>
+                            <option value="male" <?php selected($provider_data['gender'] ?? '', 'male'); ?>><?php esc_html_e('Male', 'cosy-appointments'); ?></option>
+                            <option value="female" <?php selected($provider_data['gender'] ?? '', 'female'); ?>><?php esc_html_e('Female', 'cosy-appointments'); ?></option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Age Group', 'cosy-appointments'); ?></label>
                         <select name="age_group" class="form-select" required>
                             <option value="">--<?php esc_html_e('Select', 'cosy-appointments'); ?>--</option>
-                            <option value="Teenager" <?php selected($age_group, 'Teenager'); ?>><?php esc_html_e('Teenager', 'cosy-appointments'); ?></option>
-                            <option value="Young Adult" <?php selected($age_group, 'Young Adult'); ?>><?php esc_html_e('Young Adult', 'cosy-appointments'); ?></option>
-                            <option value="Middle Aged" <?php selected($age_group, 'Middle Aged'); ?>><?php esc_html_e('Middle Aged', 'cosy-appointments'); ?></option>
-                            <option value="Senior" <?php selected($age_group, 'Senior'); ?>><?php esc_html_e('Senior', 'cosy-appointments'); ?></option>
-                            <option value="Golden Senior" <?php selected($age_group, 'Golden Senior'); ?>><?php esc_html_e('Golden Senior', 'cosy-appointments'); ?></option>
+                            <option value="Teenager" <?php selected($provider_data['age_group'] ?? '', 'Teenager'); ?>><?php esc_html_e('Teenager', 'cosy-appointments'); ?></option>
+                            <option value="Young Adult" <?php selected($provider_data['age_group'] ?? '', 'Young Adult'); ?>><?php esc_html_e('Young Adult', 'cosy-appointments'); ?></option>
+                            <option value="Middle Aged" <?php selected($provider_data['age_group'] ?? '', 'Middle Aged'); ?>><?php esc_html_e('Middle Aged', 'cosy-appointments'); ?></option>
+                            <option value="Senior" <?php selected($provider_data['age_group'] ?? '', 'Senior'); ?>><?php esc_html_e('Senior', 'cosy-appointments'); ?></option>
+                            <option value="Golden Senior" <?php selected($provider_data['age_group'] ?? '', 'Golden Senior'); ?>><?php esc_html_e('Golden Senior', 'cosy-appointments'); ?></option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><?php esc_html_e('Postal Code', 'cosy-appointments'); ?></label>
-                        <input type="text" name="postal_code" class="form-control" value="<?php echo esc_attr($postal_code); ?>" required>
+                        <input type="text" name="postal_code" class="form-control" value="<?php echo esc_attr($provider_data['postal_code'] ?? ''); ?>" required>
                     </div>
 
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label"><?php esc_html_e('Address', 'cosy-appointments'); ?></label>
-                <textarea name="prov_address" class="form-control" required><?php echo esc_textarea($prov_address); ?></textarea>
+                <textarea name="prov_address" class="form-control" required><?php echo esc_textarea($provider_data['prov_address'] ?? ''); ?></textarea>
             </div>
             <!-- Full Width Fields -->
             <div class="mb-3">
                 <label class="form-label"><?php esc_html_e('Bio', 'cosy-appointments'); ?></label>
-                <textarea name="bio" class="form-control" rows="3" required><?php echo esc_textarea($bio); ?></textarea>
+                <textarea name="bio" class="form-control" rows="3" required><?php echo esc_textarea($provider_data['description'] ?? ''); ?></textarea>
             </div>
 
             <div class="text-center mt-3">
