@@ -191,6 +191,20 @@ var CosyApp = (function ($) {
      */
     function initProfileUpdate(container = document) {
 
+        $(document).on('click', '.upload-button', function () {
+            $('.file-upload').trigger('click');
+        });
+
+        $(document).on('change', '.file-upload', function () {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('.profile-pic').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
         let $form = $(container).find(".cosy-form-update");
         if (!$form.length || $form.data("bound")) return;
         $form.data("bound", true);

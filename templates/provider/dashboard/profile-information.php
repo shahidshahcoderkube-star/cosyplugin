@@ -130,23 +130,3 @@ $age_group     = $provider_data['age_group'] ?? '';
         </form>
     </div>
 </div>
-
-<script>
-    jQuery(document).ready(function($) {
-        // Trigger file input when camera icon is clicked
-        $('.upload-button').on('click', function() {
-            $('.file-upload').click();
-        });
-
-        // Preview image after selection
-        $('.file-upload').on('change', function() {
-            if (this.files && this.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    $('.profile-pic').attr('src', e.target.result);
-                }
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-    });
-</script>
