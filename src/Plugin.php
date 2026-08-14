@@ -18,9 +18,20 @@ class Plugin
     protected Loader $loader;
 
     /**
-     * Constructor
-     * This runs when the plugin is initialized. It registers all the 
-     * necessary components like Admin area, Frontend logic, Custom Post Types, and API routes.
+     * INITIALIZES MAIN PLUGIN CONTROLLER & CORE MODULES
+     * 
+     * USE CASE:
+     * Instantiated on plugin boot sequence to construct and wire all plugin components together.
+     * 
+     * HOW TO USE:
+     * $plugin = new Plugin();
+     * $plugin->run();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Creates Loader instance to queue all WordPress actions and filters cleanly.
+     * 2. Registers Admin menus, settings, users, and provider verification handlers.
+     * 3. Registers Frontend shortcodes, dashboards, payment gateways, and webhooks.
+     * 4. Registers Custom Post Types, REST API routes, AI vector search, DB migrations, and cron tasks.
      */
     public function __construct()
     {
@@ -82,8 +93,16 @@ class Plugin
     }
 
     /**
-     * Executes all the registered WordPress hooks (actions and filters)
-     * through the Loader class.
+     * EXECUTES ALL QUEUED PLUGIN HOOKS
+     * 
+     * USE CASE:
+     * Called after plugin setup to attach all queued actions and filters to WordPress execution pipeline.
+     * 
+     * HOW TO USE:
+     * $plugin->run();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Delegates to $this->loader->run() to execute all queued add_action and add_filter calls.
      */
     public function run(): void
     {

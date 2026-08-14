@@ -7,7 +7,19 @@ use Cosy\Appointments\Loader;
 class AppointmentCPT
 {
     /**
-     * Hooks into WordPress to register the Custom Post Type (CPT) and its admin menus.
+     * REGISTERS APPOINTMENT CPT HOOKS
+     * 
+     * USE CASE:
+     * Called during plugin initialization to register Custom Post Type and custom admin menus.
+     * 
+     * HOW TO USE:
+     * (new AppointmentCPT())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'register_post_type' to WordPress 'init' hook.
+     * 2. Attaches admin menu registration callbacks to WordPress 'admin_menu' hook.
+     * 
+     * @param Loader $loader Plugin loader instance.
      */
     public function register(Loader $loader): void
     {
@@ -25,8 +37,17 @@ class AppointmentCPT
     }
 
     /**
-     * Registers the "Appointments" Custom Post Type.
-     * This creates a new section in the WP Admin menu where all bookings are stored.
+     * REGISTERS COSY APPOINTMENT CUSTOM POST TYPE
+     * 
+     * USE CASE:
+     * Registers 'cosy_appointment' CPT to store appointment orders in WordPress.
+     * 
+     * HOW TO USE:
+     * Triggered automatically on WordPress 'init' hook.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Sets labels, icon, custom capabilities, and supports title/editor/custom-fields.
+     * 2. Registers post type with register_post_type().
      */
     public function register_post_type(): void
     {
@@ -46,7 +67,16 @@ class AppointmentCPT
     }
 
     /**
-     * Adds the "Orders" submenu page under the Appointments menu in WP Admin.
+     * REGISTERS ORDERS SUBMENU
+     * 
+     * USE CASE:
+     * Adds 'Orders' page under Appointments menu in WP Admin.
+     * 
+     * HOW TO USE:
+     * Triggered automatically during 'admin_menu'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Calls add_submenu_page() with parent slug 'edit.php?post_type=cosy_appointment'.
      */
     public function register_admin_menu(): void
     {
@@ -61,8 +91,16 @@ class AppointmentCPT
     }
 
     /**
-     * Adds the "Video Approve" submenu page under the Appointments menu.
-     * Used by admins to review and approve provider introductory videos.
+     * REGISTERS VIDEO APPROVE SUBMENU
+     * 
+     * USE CASE:
+     * Adds 'Video Approve' page under Appointments menu for video review.
+     * 
+     * HOW TO USE:
+     * Triggered automatically during 'admin_menu'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Calls add_submenu_page() with capability 'approve_cosy_media'.
      */
     public function register_video_menu(): void
     {
@@ -77,8 +115,16 @@ class AppointmentCPT
     }
 
     /**
-     * Adds the "Payment Token & Key" submenu page.
-     * Used to configure WorldPay credentials and payment settings.
+     * REGISTERS PAYMENT TOKEN SUBMENU
+     * 
+     * USE CASE:
+     * Adds 'Payment Token & Key' page under Appointments menu for gateway settings.
+     * 
+     * HOW TO USE:
+     * Triggered automatically during 'admin_menu'.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Calls add_submenu_page() with capability 'manage_cosy_appointments'.
      */
     public function register_payment_token_and_key(): void
     {
@@ -93,16 +139,33 @@ class AppointmentCPT
     }
 
     /**
-     * Renders the HTML layout for the Orders management page in the backend.
+     * RENDERS ORDERS PAGE
+     * 
+     * USE CASE:
+     * Callback renderer for Orders admin submenu page.
+     * 
+     * HOW TO USE:
+     * Triggered when admin visits 'cosy-appointment-orders' page.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Outputs HTML header wrapper.
      */
     public function render_orders_page(): void
     {
         echo '<div class="wrap"><h1>Orders</h1><p>Here you can manage appointment orders.</p></div>';
     }
 
-
     /**
-     * Renders the HTML layout for the Video Approval page in the backend.
+     * RENDERS VIDEO APPROVAL PAGE
+     * 
+     * USE CASE:
+     * Callback renderer for Video Approval admin submenu page.
+     * 
+     * HOW TO USE:
+     * Triggered when admin visits 'cosy-video-approve' page.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Outputs HTML header wrapper.
      */
     public function render_video_approve_page(): void
     {
@@ -110,7 +173,16 @@ class AppointmentCPT
     }
 
     /**
-     * Renders the HTML layout for the Settings (Payment Keys) page.
+     * RENDERS PAYMENT KEYS PAGE
+     * 
+     * USE CASE:
+     * Callback renderer for Payment Token & Key admin submenu page.
+     * 
+     * HOW TO USE:
+     * Triggered when admin visits 'cosy-payment-token-key' page.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Outputs HTML header wrapper.
      */
     public function render_payment_token_and_key_page(): void
     {

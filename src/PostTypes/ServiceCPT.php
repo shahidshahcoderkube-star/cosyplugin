@@ -7,7 +7,18 @@ namespace Cosy\Appointments\PostTypes;
 class ServiceCPT
 {
     /**
-     * Hooks into WordPress to register the Custom Post Type (CPT) for services.
+     * REGISTERS SERVICE CPT HOOKS
+     * 
+     * USE CASE:
+     * Called during plugin load sequence to hook service Custom Post Type registration.
+     * 
+     * HOW TO USE:
+     * (new ServiceCPT())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'register_service_cpt' to WordPress 'init' hook.
+     * 
+     * @param Loader $loader Plugin loader instance.
      */
     public function register($loader): void
     {
@@ -15,8 +26,18 @@ class ServiceCPT
     }
 
     /**
-     * Registers the "Services" Custom Post Type.
-     * This allows admins to add, edit, and manage different services offered by providers.
+     * REGISTERS COSY SERVICE CUSTOM POST TYPE
+     * 
+     * USE CASE:
+     * Registers 'cosy_service' CPT to manage offered appointment services.
+     * 
+     * HOW TO USE:
+     * Triggered automatically on WordPress 'init' hook.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Defines labels array for 'cosy_service' post type.
+     * 2. Sets CPT configuration arguments (public, supports title/editor/thumbnail, REST API support).
+     * 3. Calls register_post_type('cosy_service', $args).
      */
     public function register_service_cpt(): void
     {

@@ -7,15 +7,40 @@ use Cosy\Appointments\Rest\ProviderServices;
 
 class Routes
 {
+    /**
+     * REGISTERS REST ROUTE HOOKS
+     * 
+     * USE CASE:
+     * Hooks custom plugin REST API routes into WordPress during rest_api_init.
+     * 
+     * HOW TO USE:
+     * (new Routes())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches 'register_routes' callback to WordPress 'rest_api_init' action hook via Loader instance.
+     * 
+     * @param Loader $loader Plugin loader instance.
+     */
     public function register(Loader $loader): void
     {
         $loader->add_action('rest_api_init', $this, 'register_routes');
     }
 
     /**
-     * Registers custom REST API endpoints for the plugin.
-     * These endpoints allow the frontend JavaScript to communicate with the server
-     * (e.g., getting, saving, or deleting services) securely.
+     * REGISTERS PLUGIN REST ENDPOINTS
+     * 
+     * USE CASE:
+     * Exposes secure endpoints under /wp-json/cosy/v1 for provider service management.
+     * 
+     * HOW TO USE:
+     * Automatically triggered on rest_api_init.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Registers GET /cosy/v1/provider-services/get to query provider services.
+     * 2. Registers POST /cosy/v1/provider-services/update to save/update services.
+     * 3. Registers POST /cosy/v1/provider-services/delete to delete services.
+     * 4. Registers GET /cosy/v1/provider-services/get-one to fetch single service.
+     * 5. Attaches permission_callback to check_provider_permission() for authorization.
      */
     public function register_routes(): void
     {
@@ -77,7 +102,21 @@ class Routes
     }
 
     /**
-     * Centralized permission check
+     * VERIFIES PROVIDER REST PERMISSIONS
+     * 
+     * USE CASE:
+     * Validates that an incoming REST API request originates from an authenticated provider user.
+     * 
+     * HOW TO USE:
+     * Internal callback for REST endpoint permission_callback parameters.
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Checks if user is logged in.
+     * 2. Verifies current user possesses 'provider' role.
+     * 3. Validates X-WP-Nonce header for REST security.
+     * 
+     * @param \WP_REST_Request $request Incoming REST request object.
+     * @return bool                     True if authorized, false otherwise.
      */
     private function check_provider_permission($request): bool
     {

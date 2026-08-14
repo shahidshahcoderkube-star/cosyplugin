@@ -9,8 +9,21 @@ class ProviderServices
 {
 
     /**
-     * Retrieves all services that the currently logged-in provider has added to their profile.
-     * This is used to populate the "My Services" list in the Provider Dashboard.
+     * RETRIEVES ALL PROVIDER SERVICES
+     * 
+     * USE CASE:
+     * Triggered via REST GET endpoint to fetch all services offered by the logged-in provider.
+     * 
+     * HOW TO USE:
+     * Endpoint: GET /wp-json/cosy/v1/provider-services/get
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Resolves current logged-in user ID and verifies 'provider' role.
+     * 2. Queries database table wp_provider_services for matching provider_id.
+     * 3. Returns array of service records or error response via rest_ensure_response().
+     * 
+     * @param WP_REST_Request $request Incoming REST request.
+     * @return mixed                   REST JSON response array.
      */
     public static function get_service(WP_REST_Request $request)
     {
@@ -46,9 +59,23 @@ class ProviderServices
     }
 
     /**
-     * Saves a new service or updates an existing one for the logged-in provider.
-     * It checks if the service already exists in the custom database table, 
-     * and either inserts a new row or updates the existing one with new price/duration details.
+     * SAVES OR UPDATES PROVIDER SERVICE
+     * 
+     * USE CASE:
+     * Triggered via REST POST endpoint when a provider creates or modifies a service item.
+     * 
+     * HOW TO USE:
+     * Endpoint: POST /wp-json/cosy/v1/provider-services/update
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Validates provider role and extracts input parameters (service_id, title, duration, price).
+     * 2. Checks if service record exists in wp_provider_services table.
+     * 3. Inserts new row if missing, or updates existing row if record exists.
+     * 4. Logs activity and triggers admin notification email if setup is ready.
+     * 5. Returns saved service record JSON response.
+     * 
+     * @param WP_REST_Request $request Incoming REST request object.
+     * @return mixed                   REST JSON response object.
      */
     public static function save_service(WP_REST_Request $request)
     {
@@ -207,12 +234,25 @@ class ProviderServices
         ]);
     }
 
-
     /**
-     * Deletes a specific service from the provider's profile.
-     * Removes the service from the custom database table.
+     * DELETES SPECIFIC PROVIDER SERVICE
+     * 
+     * USE CASE:
+     * Triggered via REST POST endpoint when a provider removes a service from their offerings.
+     * 
+     * HOW TO USE:
+     * Endpoint: POST /wp-json/cosy/v1/provider-services/delete
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Verifies provider authorization and validates service_id.
+     * 2. Deletes row from wp_provider_services table matching service_id and provider_id.
+     * 3. Fires 'cosy_provider_services_updated' action hook and logs deletion event.
+     * 4. Returns JSON success/error response.
+     * 
+     * @param WP_REST_Request $request Incoming REST request object.
+     * @return mixed                   REST JSON response object.
      */
-    public static function  delete_service(WP_REST_Request $request)
+    public static function delete_service(WP_REST_Request $request)
     {
         global $wpdb;
         $table = $wpdb->prefix . 'provider_services';
@@ -268,8 +308,21 @@ class ProviderServices
     }
 
     /**
-     * Retrieves the details of a single specific service for the logged-in provider.
-     * Used when a provider clicks "Edit" on a service to load its current details into the form.
+     * RETRIEVES SINGLE PROVIDER SERVICE DETAILS
+     * 
+     * USE CASE:
+     * Triggered via REST GET endpoint when a provider edits a single service.
+     * 
+     * HOW TO USE:
+     * Endpoint: GET /wp-json/cosy/v1/provider-services/get-one?service_id=12
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Validates provider user role and service_id parameter.
+     * 2. Queries row from wp_provider_services table matching service_id and provider_id.
+     * 3. Returns single service record JSON array.
+     * 
+     * @param WP_REST_Request $request Incoming REST request object.
+     * @return mixed                   REST JSON response array.
      */
     public static function get_service_by_id(WP_REST_Request $request)
     {

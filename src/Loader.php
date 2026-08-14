@@ -8,8 +8,22 @@ class Loader
     protected array $filters = [];
 
     /**
-     * Registers a WordPress action hook.
-     * Stores the hook details in an array to be executed later when run() is called.
+     * REGISTERS WORDPRESS ACTION HOOK
+     * 
+     * USE CASE:
+     * Used by plugin controllers to queue WordPress action hooks for registration.
+     * 
+     * HOW TO USE:
+     * $loader->add_action('init', $this, 'my_callback_method');
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Stores hook name, target component instance, callback method, priority, and accepted args in $this->actions array.
+     * 
+     * @param string $hook          WordPress action hook name.
+     * @param object $component     Target object instance.
+     * @param string $callback      Callback method name.
+     * @param int    $priority      Execution priority integer (default: 10).
+     * @param int    $accepted_args Number of accepted arguments (default: 1).
      */
     public function add_action(string $hook, $component, string $callback, int $priority = 10, int $accepted_args = 1): void
     {
@@ -17,8 +31,22 @@ class Loader
     }
 
     /**
-     * Registers a WordPress filter hook.
-     * Stores the filter details in an array to be executed later when run() is called.
+     * REGISTERS WORDPRESS FILTER HOOK
+     * 
+     * USE CASE:
+     * Used by plugin controllers to queue WordPress filter hooks for registration.
+     * 
+     * HOW TO USE:
+     * $loader->add_filter('template_include', $this, 'my_filter_method');
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Stores filter details in $this->filters array.
+     * 
+     * @param string $hook          WordPress filter hook name.
+     * @param object $component     Target object instance.
+     * @param string $callback      Callback method name.
+     * @param int    $priority      Execution priority integer (default: 10).
+     * @param int    $accepted_args Number of accepted arguments (default: 1).
      */
     public function add_filter(string $hook, $component, string $callback, int $priority = 10, int $accepted_args = 1): void
     {
@@ -26,8 +54,17 @@ class Loader
     }
 
     /**
-     * Executes all the registered actions and filters.
-     * This loops through the stored arrays and actually hooks them into WordPress.
+     * EXECUTES ALL REGISTERED HOOKS
+     * 
+     * USE CASE:
+     * Called at the end of plugin initialization to attach all queued hooks to WordPress core.
+     * 
+     * HOW TO USE:
+     * $loader->run();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Iterates over $this->actions array and calls WordPress add_action().
+     * 2. Iterates over $this->filters array and calls WordPress add_filter().
      */
     public function run(): void
     {
