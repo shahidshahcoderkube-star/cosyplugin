@@ -1045,6 +1045,39 @@ jQuery(document).ready(function ($) {
     };
 
     // =========================================================================
+    // MODULE: CosyDocAdmin
+    // Handles tab switching and snippet copying on Documentation view.
+    // =========================================================================
+    const CosyDocAdmin = {
+        init: function () {
+            this.bindEvents();
+        },
+
+        bindEvents: function () {
+            $(document).on('click', '.cdoc-nav-link', function (e) {
+                e.preventDefault();
+                $('.cdoc-nav-link').removeClass('active');
+                $('.cdoc-pane').removeClass('active');
+                $(this).addClass('active');
+                const targetId = $(this).attr('data-tab');
+                $('#cdoc-' + targetId).addClass('active');
+            });
+
+            window.cdocCopy = function (text) {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(function () {
+                        const $toast = $('#cdocToast');
+                        $toast.fadeIn(150);
+                        setTimeout(function () {
+                            $toast.fadeOut(200);
+                        }, 2200);
+                    });
+                }
+            };
+        }
+    };
+
+    // =========================================================================
     // BOOT: Initialize all admin modules
     // =========================================================================
     CosyMediaAdmin.init();
@@ -1052,5 +1085,6 @@ jQuery(document).ready(function ($) {
     CosyLogsAdmin.init();
     CosyReviewsAdmin.init();
     CosySettingsAdmin.init();
+    CosyDocAdmin.init();
 
 });
