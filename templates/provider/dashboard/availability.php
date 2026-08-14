@@ -96,16 +96,29 @@ if (!isset($availability)) {
             </div>
         </div>
 
-        <script>
-            /**
-             * window.savedAvailability
-             * 
-             * This global object holds the provider's schedule for all days.
-             * It's used to auto-fill the form and update the 'Weekly Preview' in real-time.
-             */
-            window.savedAvailability = <?php echo wp_json_encode($availability); ?> || {};
-            if (Array.isArray(window.savedAvailability)) window.savedAvailability = {}; // Ensure it's always an object
-        </script>
+        <?php
+        /**
+         * INJECTS SAVED PROVIDER WORKING HOURS AVAILABILITY TO DASHBOARD JS
+         * 
+         * USE CASE:
+         * Safely passes provider's saved availability schedule object from PHP to JavaScript 
+         * without embedding raw <script> tags inside template HTML body.
+         * 
+         * HOW TO USE:
+         * Triggered automatically when rendering availability.php in Provider Dashboard. 
+         * Data is consumed by validation.js (initAvailability) to populate schedule inputs and weekly preview badges.
+         * 
+         * WHAT IT DOES INTERNALLY:
+         * 1. Encodes PHP $availability array into JSON format.
+         * 2. Attaches inline script to 'cosy-validation' script handle using WordPress wp_add_inline_script() with 'before' position.
+         * 3. Populates window.savedAvailability before validation.js script executes in browser.
+         */
+        $avail_js = sprintf(
+            'window.savedAvailability = %s || {}; if (Array.isArray(window.savedAvailability)) window.savedAvailability = {};',
+            wp_json_encode($availability)
+        );
+        wp_add_inline_script('cosy-validation', $avail_js, 'before');
+        ?>
 
         <!-- Calendar Preview -->
         <div class="preview-container mt-2">
