@@ -1,17 +1,21 @@
 <?php
-
 /**
- * Template: Provider Dashboard - Non Working Days (Holidays)
- *
- * Displays the provider's holiday/non-working-day list.
- * - Loads saved holidays dynamically from user meta (cosy_provider_holidays).
- * - Allows adding new holidays via AJAX (no page reload).
- * - Allows deleting holidays via AJAX with SweetAlert2 confirmation.
- *
- * Storage: wp_usermeta key = 'cosy_provider_holidays' (JSON array)
- * Each entry: { "date": "YYYY-MM-DD", "reason": "string" }
+ * PROVIDER DASHBOARD HOLIDAYS TEMPLATE
+ * 
+ * USE CASE:
+ * Displays the provider's holiday / non-working-days list in Provider Dashboard.
+ * 
+ * HOW TO USE:
+ * Loaded dynamically via AJAX when provider selects the "Holidays" tab.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Reads saved holidays array from usermeta ('cosy_provider_holidays').
+ * 2. Renders dynamic list of registered holidays with delete actions.
+ * 3. Interactions handled by dashboard.js (CosyHolidays).
  */
-
+if (!defined('ABSPATH')) {
+    exit;
+}
 $user_id  = get_current_user_id();
 $raw      = get_user_meta($user_id, 'cosy_provider_holidays', true);
 $holidays = [];

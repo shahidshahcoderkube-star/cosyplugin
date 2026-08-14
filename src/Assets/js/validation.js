@@ -1,14 +1,26 @@
 /**
- * CosyApp JavaScript Module
+ * COSY APP FRONTEND FORM VALIDATION & DASHBOARD CONTROLLER
  * 
- * This file handles all frontend logic for the Cosy Appointments plugin.
- * It includes form validation, AJAX submissions, real-time UI updates,
- * and SweetAlert2 notifications.
+ * USE CASE:
+ * Primary JavaScript module encapsulating all form validations, AJAX handlers, dynamic dashboard tabs, and alerts.
+ * 
+ * HOW TO USE:
+ * Executed on page load via CosyApp.init().
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Binds jQuery validation rules to login/registration, profile, availability, and services forms.
+ * 2. Manages dynamic AJAX tab rendering for Provider Dashboard.
  */
 var CosyApp = (function ($) {
 
+    /**
+     * DYNAMIC ALERT BUILDER
+     * 
+     * USE CASE: Generates consistent alert HTML banners for AJAX success/error messages.
+     * HOW TO USE: cosyAlert('success', 'Changes saved successfully');
+     * WHAT IT DOES INTERNALLY: Constructs styled HTML alert box with font-awesome status icons.
+     */
     function cosyAlert(type, message) {
-        // If message is an object, try to get .message property or stringify it
         if (typeof message === "object" && message !== null) {
             message = message.message || JSON.stringify(message);
         }
@@ -26,10 +38,11 @@ var CosyApp = (function ($) {
     }
 
     /**
-     * syncProfileCompleteness
+     * SYNC PROFILE COMPLETENESS
      * 
-     * Dynamically updates the "Profile Incomplete" alert banner on the dashboard.
-     * Triggered after successful profile update, services change, or availability save.
+     * USE CASE: Updates dashboard top profile completion warning banner in real-time.
+     * HOW TO USE: Triggered after saving profile, availability, or services updates.
+     * WHAT IT DOES INTERNALLY: Sends cosy_check_profile_completeness AJAX request and updates HTML container.
      */
     function syncProfileCompleteness() {
         const nonce = $("#cosy_dashboard_nonce_field").val();
@@ -53,8 +66,13 @@ var CosyApp = (function ($) {
         });
     }
 
-
-    //--------------- MANUAL SUBMIT FALLBACK ---------------//
+    /**
+     * HANDLE MANUAL SUBMIT FALLBACK
+     * 
+     * USE CASE: Fallback AJAX submission handler for unvalidated forms.
+     * HOW TO USE: handleManualSubmit(formElement, 'cosy_action', $button);
+     * WHAT IT DOES INTERNALLY: Serializes form data and submits POST request to admin-ajax.php.
+     */
     function handleManualSubmit(formEl, action, $btn) {
         let $form = $(formEl);
         $.ajax({
@@ -83,12 +101,12 @@ var CosyApp = (function ($) {
         });
     }
 
-
     /**
-     * initAuthForms
+     * INIT AUTH FORMS
      * 
-     * Handles validation and AJAX submission for Login and Registration forms.
-     * It uses JQuery Validate to check fields before sending data to the server.
+     * USE CASE: Manages Login and Customer/Provider Registration forms validation and AJAX submission.
+     * HOW TO USE: Called on page load via CosyApp.init().
+     * WHAT IT DOES INTERNALLY: Applies jQuery Validate rules and submits data via AJAX to WP backend.
      */
     function initAuthForms(container = document) {
 
@@ -316,23 +334,23 @@ var CosyApp = (function ($) {
 
         // Preview on file select 
         $(document).on("change.cosyVideo", ".video-upload", function () {
-
             const file = this.files[0];
-            if (!file || !file.type.startsWith("video/")) {
-                CosyAlert.warning('Invalid File', 'Please upload a valid video file.');
+            if (!file) return;
+
+            if (!file.type.startsWith("video/")) {
+                CosyAlert.warning('Invalid File', 'Please select a valid video file.');
                 this.value = "";
                 return;
             }
 
-            // Enforce dynamic limit from settings
-            const limitMb = (window.cosy_ajax && window.cosy_ajax.max_video_upload_size) ? parseInt(window.cosy_ajax.max_video_upload_size) : 3;
+            const limitMb = (typeof cosy_ajax !== 'undefined' && cosy_ajax.max_video_size) ? cosy_ajax.max_video_size : 20;
             const maxSizeBytes = limitMb * 1024 * 1024;
+
             if (file.size > maxSizeBytes) {
                 CosyAlert.warning('File Too Large', `Video size must not exceed ${limitMb} MB. Please compress your video and try again.`);
                 this.value = "";
                 return;
             }
-
 
             const url = URL.createObjectURL(file);
             const $form = $(this).closest("form");
@@ -344,7 +362,7 @@ var CosyApp = (function ($) {
             $form.find(".video-dropzone").hide();
         });
 
-        //------------- Submit form with video --------------//
+        // Submit form with video
         $(document).on("submit.cosyVideo", ".video-upload-form", function (e) {
             e.preventDefault();
 
@@ -383,11 +401,11 @@ var CosyApp = (function ($) {
             });
         });
 
-        // Delete
+        // Delete Video
         $(document).on("click.cosyVideo", ".remove-video", function () {
             const $btn = $(this);
-            const userId = $btn.data("id");  // data-id holds the WordPress user_id
-            const $container = $btn.closest('[id^="existing-video-"]'); // matches existing-video-{userId} in template
+            const userId = $btn.data("id");
+            const $container = $btn.closest('[id^="existing-video-"]');
 
             CosyAlert.confirm(
                 'Are you sure?',
@@ -397,8 +415,8 @@ var CosyApp = (function ($) {
                     url: cosy_ajax.ajax_url,
                     type: "POST",
                     data: {
-                        action: "delete_video",   // Matches PHP registered action in Class_Provider_Dashboard.php
-                        user_id: userId,           // PHP ajax_delete_video() expects 'user_id'
+                        action: "delete_video",
+                        user_id: userId,
                         nonce: $("#cosy_dashboard_nonce_field").val()
                     },
                     beforeSend() {
@@ -408,7 +426,6 @@ var CosyApp = (function ($) {
                         if (res.success) {
                             $container.fadeOut(300, function () { $(this).remove(); });
                             CosyAlert.success('Deleted!', 'Video has been deleted.').then(() => {
-                                // Reload page so the upload form reappears
                                 location.reload();
                             });
                         } else {
@@ -419,17 +436,17 @@ var CosyApp = (function ($) {
                         $btn.prop("disabled", false).html('<i class="fas fa-trash"></i>');
                     }
                 });
-            }).catch(() => { /* Cancelled */ });
+            }).catch(() => { });
         });
     }
 
 
     /**
-     * initTabs
+     * INIT TABS
      * 
-     * Handles dynamic loading of Dashboard tabs via AJAX.
-     * When a user clicks a tab (Profile, Services, etc.), the content is fetched from the server
-     * and injected into the page without a full reload.
+     * USE CASE: Handles dynamic AJAX loading of Provider Dashboard tabs (Profile, Services, Availability).
+     * HOW TO USE: Triggered when user switches tabs on Provider Dashboard.
+     * WHAT IT DOES INTERNALLY: Sends load_dashboard_tab AJAX call and injects response HTML into tab target pane.
      */
     function initTabs() {
 
@@ -480,7 +497,13 @@ var CosyApp = (function ($) {
     }
 
 
-    // -------- Helper: Build Service Row -------- //
+    /**
+     * BUILD SERVICE ROW
+     * 
+     * USE CASE: Constructs dynamic HTML table row element for a provider service item.
+     * HOW TO USE: Called internally by serviceSelection() and serviceCheckbox().
+     * WHAT IT DOES INTERNALLY: Generates <tr> template string with price input and action buttons.
+     */
     function buildServiceRow(item, serviceId, slug, serviceTitle) {
         return `
         <tr id="row-${serviceId}">
@@ -502,10 +525,11 @@ var CosyApp = (function ($) {
 
 
     /**
-     * serviceSelection
+     * SERVICE SELECTION
      * 
-     * Fetches the provider's saved services from the database on page load.
-     * It populates the 'Services' table with descriptions, durations, and prices.
+     * USE CASE: Fetches provider's active services via REST API and populates the Services table.
+     * HOW TO USE: Triggered on Services tab initial load.
+     * WHAT IT DOES INTERNALLY: Queries COSY_API.providerServices.get and updates table rows.
      */
     function serviceSelection() {
         if ($("#servicesTable").length) {
@@ -543,7 +567,13 @@ var CosyApp = (function ($) {
     }
 
 
-    // -------- FORM VALIDATION -------- //
+    /**
+     * FORM VALIDATION
+     * 
+     * USE CASE: Configures jQuery Validate rules for services price inputs.
+     * HOW TO USE: Called internally on Services tab load.
+     * WHAT IT DOES INTERNALLY: Binds jQuery validate rules ensuring price is greater than 0.
+     */
     function formValidation() {
         $(document).ready(function () {
             $("#servicesForm").validate({
@@ -850,6 +880,13 @@ var CosyApp = (function ($) {
             updateLiveTimeBadges();
         });
 
+        /**
+         * NORMALIZE PM TIME
+         * 
+         * USE CASE: Adjusts time values to PM when end or break times are logically after start times.
+         * HOW TO USE: normalizePmTime('05:00', '09:00'); // Converts 05:00 to 17:00 PM
+         * WHAT IT DOES INTERNALLY: Converts 12-hour ambiguous inputs to 24-hour PM formats relative to start time.
+         */
         function normalizePmTime(timeStr, refStr) {
             if (!timeStr) return timeStr;
             const parts = timeStr.split(':');
@@ -869,6 +906,13 @@ var CosyApp = (function ($) {
             return String(h).padStart(2, '0') + ':' + m;
         }
 
+        /**
+         * UPDATE LIVE TIME BADGES
+         * 
+         * USE CASE: Updates live 12-hour AM/PM badges beneath availability input fields.
+         * HOW TO USE: Triggered on input change events across time pickers.
+         * WHAT IT DOES INTERNALLY: Formats time strings and toggles preview badge visibility.
+         */
         function updateLiveTimeBadges() {
             const format12 = (val, refVal) => {
                 if (!val) return '';
@@ -1053,6 +1097,13 @@ var CosyApp = (function ($) {
             }
         });
 
+        /**
+         * EXECUTE DELETE DAY
+         * 
+         * USE CASE: Deletes a specific day's working hours availability schedule from database.
+         * HOW TO USE: Called after user confirms availability badge deletion.
+         * WHAT IT DOES INTERNALLY: Posts delete_provider_availability_day AJAX call and removes badge element.
+         */
         function executeDeleteDay(dayName, $badge) {
             $.ajax({
                 url: cosy_ajax.ajax_url,
@@ -1160,8 +1211,26 @@ var CosyApp = (function ($) {
         });
     }
 
+    /**
+     * INIT CUSTOMER PROFILE
+     * 
+     * USE CASE: Handles AJAX profile updates and password changes on Customer My Profile page.
+     * HOW TO USE: Triggered automatically on page load via CosyApp.init().
+     * WHAT IT DOES INTERNALLY: Listens to #cosyCustomerProfileForm and #cosyCustomerPasswordForm submit events.
+     */
+    function initCustomerProfile(container = document) {
+        // Helper to generate dynamic alert alerts matching the theme
+        function cosyAlert(type, message) {
+            var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            var bg = type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            var color = type === 'success' ? '#22c55e' : '#ef4444';
 
-    function initCustomerProfile() {
+            return '<div class="alert d-flex align-items-center border-0 p-3 mb-3" style="background: ' + bg + '; border-radius: 12px; color: ' + color + '; font-weight: 500; font-size: 0.9rem;" role="alert">' +
+                '<i class="fas ' + icon + ' me-2" style="font-size: 1.1rem;"></i>' +
+                '<div>' + message + '</div>' +
+                '</div>';
+        }
+
         $('#cosyCustomerProfileForm').on('submit', function (e) {
             e.preventDefault();
             var $form = $(this);
@@ -1239,6 +1308,13 @@ var CosyApp = (function ($) {
         });
     }
 
+    /**
+     * INIT TOKEN REVIEW
+     * 
+     * USE CASE: Handles 1 to 10 score button selection and AJAX form submission for token-based customer reviews.
+     * HOW TO USE: Triggered on Leave Review page when submitting feedback.
+     * WHAT IT DOES INTERNALLY: Validates score range (1-10) and comment length, then posts to cosy_submit_token_review.
+     */
     function initTokenReview() {
         $(document).on('click', '.rating-score-btn', function (e) {
             e.preventDefault();

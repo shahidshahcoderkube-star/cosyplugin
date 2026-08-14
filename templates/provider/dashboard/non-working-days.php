@@ -1,3 +1,23 @@
+<?php
+/**
+ * PROVIDER DASHBOARD NON-WORKING DAYS TEMPLATE
+ * 
+ * USE CASE:
+ * Renders the non-working days / holiday dates manager in the Provider Dashboard.
+ * 
+ * HOW TO USE:
+ * Loaded dynamically via AJAX when provider selects the "Non-Working Days" tab.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Renders date picker input and optional reason text field.
+ * 2. Displays list of marked holiday dates with delete actions.
+ * 3. Interactions handled by validation.js (initNonWorkingDays).
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+?>
+
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
         <h3><?php esc_html_e('Non-Working Days', 'cosy-appointments'); ?></h3>

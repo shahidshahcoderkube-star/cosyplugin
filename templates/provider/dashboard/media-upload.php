@@ -1,3 +1,23 @@
+<?php
+/**
+ * PROVIDER DASHBOARD INTRODUCTION VIDEO UPLOAD TEMPLATE
+ * 
+ * USE CASE:
+ * Renders the introduction video dropzone upload and status viewer in Provider Dashboard.
+ * 
+ * HOW TO USE:
+ * Loaded dynamically via AJAX when provider selects the "Introduction Video" tab.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Checks provider video approval status ('pending', 'approved', 'rejected').
+ * 2. Displays upload form dropzone or video preview.
+ * 3. Interactions handled by validation.js (initVideoUpload).
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+?>
+
 <div class="card cosy-video-card mb-4">
     <div class="card-body p-0">
         <h3><i class="fas fa-video" style="color: #a44390;"></i> <?php esc_html_e('Introduction Video', 'cosy-appointments'); ?></h3>

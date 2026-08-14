@@ -1,3 +1,23 @@
+<?php
+/**
+ * PROVIDER DASHBOARD SERVICES TEMPLATE
+ * 
+ * USE CASE:
+ * Renders the services selection list and custom pricing table in Provider Dashboard.
+ * 
+ * HOW TO USE:
+ * Loaded dynamically via AJAX when provider selects the "Services" tab.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Fetches available system services via get_all_services().
+ * 2. Renders checkbox choices and price editing table.
+ * 3. Interactions handled by validation.js (serviceSelection, updateServices).
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+?>
+
 <div class="card cosy-services-card mb-4">
     <div class="card-body p-0">
         <div class="d-flex align-items-center gap-3 mb-2">
