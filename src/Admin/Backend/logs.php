@@ -3,6 +3,21 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * ADMIN ACTIVITY LOGS VIEW TEMPLATE
+ * 
+ * USE CASE:
+ * Renders the Admin -> CC Booking -> Logs management screen.
+ * 
+ * HOW TO USE:
+ * Included by Admin controller when rendering the 'cosy-logs' admin page.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Queries KPI statistics (total logs, today's logs, provider vs customer logs).
+ * 2. Applies role, page, and search text filters.
+ * 3. Renders paginated data table of system activity logs with enable/disable toggles.
+ */
+
 global $wpdb;
 $table_name = $wpdb->prefix . 'cosy_activity_logs';
 

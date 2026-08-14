@@ -9,8 +9,20 @@ if (!defined('ABSPATH')) {
 class Activator
 {
     /**
-     * Core Activation Hook Logic.
-     * Sets up roles, default pages, database tables, scheduled events, and rewrites.
+     * EXECUTES ACTIVATION ROUTINES
+     * 
+     * USE CASE:
+     * Triggered when plugin is activated in WP Admin.
+     * 
+     * HOW TO USE:
+     * (new Activator())->activate();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Registers 'customer' and 'provider' user roles.
+     * 2. Auto-creates required frontend booking pages.
+     * 3. Executes custom database migrations (services, media, reviews, logs, AI vector embeddings).
+     * 4. Schedules daily activity log cleanup cron job.
+     * 5. Flushes WordPress rewrite rules.
      */
     public function activate(): void
     {
@@ -40,8 +52,17 @@ class Activator
     }
 
     /**
-     * Core Deactivation Hook Logic.
-     * Cleans up transient flags, scheduled crons, and rewrite rules.
+     * EXECUTES DEACTIVATION ROUTINES
+     * 
+     * USE CASE:
+     * Triggered when plugin is deactivated in WP Admin.
+     * 
+     * HOW TO USE:
+     * (new Activator())->deactivate();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Flushes WordPress rewrite rules.
+     * 2. Clears scheduled activity log cleanup cron job.
      */
     public function deactivate(): void
     {
@@ -50,7 +71,17 @@ class Activator
     }
 
     /**
-     * Creates custom user roles for the plugin.
+     * REGISTERS CUSTOM USER ROLES
+     * 
+     * USE CASE:
+     * Creates 'customer' and 'provider' roles with dedicated capabilities during activation.
+     * 
+     * HOW TO USE:
+     * $activator->register_role();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Checks if 'customer' role exists; creates it with read capabilities if missing.
+     * 2. Checks if 'provider' role exists; creates it with upload and edit capabilities if missing.
      */
     public function register_role(): void
     {

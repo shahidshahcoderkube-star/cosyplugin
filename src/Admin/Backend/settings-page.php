@@ -1,9 +1,16 @@
 <?php
 /**
- * Settings Page Template View
+ * GLOBAL SETTINGS PAGE TEMPLATE VIEW
  *
- * Renders the HTML and CSS for the plugin's settings tab.
- * Included by SettingsAdmin::render_settings()
+ * USE CASE:
+ * Renders the Admin -> CC Booking -> Settings interface.
+ * 
+ * HOW TO USE:
+ * Included by SettingsAdmin::render_settings().
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Renders tabbed interface for WorldPay credentials, AI search settings, page assignments, and email signatures.
+ * 2. Outputs WordPress settings fields and submit buttons via settings_fields().
  */
 
 defined('ABSPATH') || exit;

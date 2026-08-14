@@ -9,7 +9,18 @@ if (!defined('ABSPATH')) {
 class Cron
 {
     /**
-     * Daily Cron Job to clean up activity logs older than 30 days.
+     * EXECUTES DAILY ACTIVITY LOGS CLEANUP
+     * 
+     * USE CASE:
+     * Triggered daily by WordPress cron event 'cosy_cleanup_activity_logs_cron' to prune old logs.
+     * 
+     * HOW TO USE:
+     * (new Cron())->do_cleanup_activity_logs();
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Prepares DELETE SQL query for rows older than 30 days in wp_cosy_activity_logs table.
+     * 2. Executes query via $wpdb->query().
+     * 3. Logs count of pruned rows to LogManager if any logs were deleted.
      */
     public function do_cleanup_activity_logs(): void
     {

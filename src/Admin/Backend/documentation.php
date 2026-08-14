@@ -1,4 +1,21 @@
-<?php if (!defined('ABSPATH')) exit; ?>
+<?php
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * ADMIN DOCUMENTATION PAGE TEMPLATE VIEW
+ * 
+ * USE CASE:
+ * Renders the Admin -> CC Booking -> Documentation user guide screen.
+ * 
+ * HOW TO USE:
+ * Included by SettingsAdmin::render_documentation().
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Renders complete HTML/CSS guide covering shortcodes, payment configuration, webhooks, and provider setup.
+ */
+?>
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');

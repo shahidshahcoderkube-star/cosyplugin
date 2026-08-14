@@ -63,14 +63,41 @@ register_activation_hook(__FILE__, 'cosy_plugin_activate');
 //-------Register deactivation hook--------//
 register_deactivation_hook(__FILE__, 'cosy_plugin_deactivate');
 
-//-------Register roles & database tables on activation--------//
+/**
+ * HANDLES PLUGIN ACTIVATION
+ * 
+ * USE CASE:
+ * Executed when administrator activates Cosy Appointments plugin in WP Admin.
+ * 
+ * HOW TO USE:
+ * Triggered automatically by WordPress register_activation_hook().
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Instantiates Activator class.
+ * 2. Creates custom user roles ('customer' and 'provider').
+ * 3. Triggers database table migration scripts via Database::run_db_migrations().
+ * 4. Schedules cleanup cron job and flushes rewrite rules.
+ */
 function cosy_plugin_activate()
 {
     $activator = new \Cosy\Appointments\Common\Activator();
     $activator->activate();
 }
 
-//-------Clean up rewrite rules on deactivation--------//
+/**
+ * HANDLES PLUGIN DEACTIVATION
+ * 
+ * USE CASE:
+ * Executed when administrator deactivates Cosy Appointments plugin in WP Admin.
+ * 
+ * HOW TO USE:
+ * Triggered automatically by WordPress register_deactivation_hook().
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Instantiates Activator class.
+ * 2. Un-schedules cleanup cron jobs via Cron::deactivate().
+ * 3. Flushes WordPress rewrite rules to remove custom permalink endpoints.
+ */
 function cosy_plugin_deactivate()
 {
     $activator = new \Cosy\Appointments\Common\Activator();
@@ -78,10 +105,18 @@ function cosy_plugin_deactivate()
 }
 
 /**
- * cosy_appt_start
+ * BOOTSTRAPS COSY APPOINTMENTS PLUGIN
  * 
- * This is the entry point of the plugin.
- * It initializes the main Plugin class and triggers the run() method.
+ * USE CASE:
+ * Main plugin execution entry point triggered on script load.
+ * 
+ * HOW TO USE:
+ * cosy_appt_start();
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Instantiates main Plugin class.
+ * 2. Instantiates DeactivationHandler.
+ * 3. Calls $plugin->run() to attach all hooks to WordPress core.
  */
 function cosy_appt_start()
 {

@@ -13,11 +13,20 @@ use Cosy\Appointments\Loader;
 class Assets
 {
     /**
-     * register
+     * REGISTERS ASSET ENQUEUE HOOKS
      * 
-     * Sets up the hooks to load assets.
-     * admin_enqueue_scripts -> Loads files in the WP Dashboard.
-     * wp_enqueue_scripts    -> Loads files on the public website.
+     * USE CASE:
+     * Called during plugin initialization sequence to hook CSS and JS asset loading.
+     * 
+     * HOW TO USE:
+     * (new Assets())->register($loader);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Attaches admin_assets callback to 'admin_enqueue_scripts' hook.
+     * 2. Attaches frontend_assets callback to 'wp_enqueue_scripts' hook.
+     * 3. Attaches add_defer_attribute filter to 'script_loader_tag' hook.
+     * 
+     * @param Loader $loader Plugin loader instance.
      */
     public function register(Loader $loader): void
     {

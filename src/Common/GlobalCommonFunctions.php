@@ -12,12 +12,20 @@ trait GlobalCommonFunctions
 {
 
     /**
-     * register_ajax_handlers
+     * REGISTERS AJAX HANDLERS DYNAMICALLY
      * 
-     * This utility function automatically registers WordPress AJAX actions.
-     * It connects a JavaScript 'action' string to a specific PHP method in a class.
-     * wp_ajax_          -> For logged-in users.
-     * wp_ajax_nopriv_   -> For guest/non-logged-in users.
+     * USE CASE:
+     * Used across controllers to register arrays of AJAX hooks for logged-in and guest users without duplicate code.
+     * 
+     * HOW TO USE:
+     * $this->register_ajax_handlers(['action_name' => 'method_name'], $this);
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Iterates over $actions array mapping.
+     * 2. Calls add_action() for 'wp_ajax_$action' and 'wp_ajax_nopriv_$action'.
+     * 
+     * @param array  $actions  Associative array of action_name => method_name.
+     * @param object $instance Controller class instance.
      */
     protected function register_ajax_handlers(array $actions, $instance)
     {
@@ -28,15 +36,24 @@ trait GlobalCommonFunctions
     }
 
     /**
-     * verify_ajax_request
-     *
-     * Combines nonce verification, role authorization, and login check into one call.
-     * Use this at the start of any AJAX handler to avoid repeating the same 3 checks.
-     *
-     * @param string $nonce_action  The nonce action name (e.g., 'cosy_dashboard_nonce').
-     * @param string $nonce_field   The POST field containing the nonce (default: 'nonce').
-     * @param string $required_role The role required to proceed (default: 'provider').
-     * @return int                  The current user ID (guaranteed to be valid).
+     * VERIFIES AJAX SECURITY, NONCE & USER ROLE
+     * 
+     * USE CASE:
+     * Called at the start of AJAX handlers to enforce nonce security, login check, and role authorization in one clean step.
+     * 
+     * HOW TO USE:
+     * $user_id = $this->verify_ajax_request('cosy_nonce', 'nonce', 'provider');
+     * 
+     * WHAT IT DOES INTERNALLY:
+     * 1. Validates nonce token via check_ajax_referer().
+     * 2. Checks current user capabilities and required role.
+     * 3. Sends JSON error if unauthorized or non-logged-in.
+     * 4. Returns validated WP User ID.
+     * 
+     * @param string $nonce_action  Nonce action name.
+     * @param string $nonce_field   POST field name containing nonce (default: 'nonce').
+     * @param string $required_role Required user role (default: 'provider').
+     * @return int                  Validated user ID.
      */
     protected function verify_ajax_request(string $nonce_action, string $nonce_field = 'nonce', string $required_role = 'provider'): int
     {
