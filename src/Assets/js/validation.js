@@ -1147,12 +1147,91 @@ var CosyApp = (function ($) {
     }
 
 
+    function initCustomerProfile() {
+        $('#cosyCustomerProfileForm').on('submit', function (e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $btn = $form.find("button[type='submit']");
+            var $msg = $form.find(".profile-msg");
+
+            var formData = {
+                action: 'cosy_customer_profile_update',
+                cosy_profile_nonce: $('#cosy_profile_nonce_field').val(),
+                first_name: $form.find("input[name='first_name']").val(),
+                last_name: $form.find("input[name='last_name']").val(),
+                email: $form.find("input[name='email']").val()
+            };
+
+            $.ajax({
+                url: (typeof cosy_ajax !== 'undefined' ? cosy_ajax.ajax_url : ajaxurl),
+                type: 'POST',
+                data: formData,
+                beforeSend: function () {
+                    $btn.prop('disabled', true).text('Saving...');
+                    $msg.html('');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $msg.html(cosyAlert('success', response.data));
+                    } else {
+                        $msg.html(cosyAlert('danger', response.data));
+                    }
+                },
+                error: function () {
+                    $msg.html(cosyAlert('danger', 'An unexpected error occurred. Please try again.'));
+                },
+                complete: function () {
+                    $btn.prop('disabled', false).text('Save Changes');
+                }
+            });
+        });
+
+        $('#cosyCustomerPasswordForm').on('submit', function (e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $btn = $form.find("button[type='submit']");
+            var $msg = $form.find(".password-msg");
+
+            var formData = {
+                action: 'cosy_customer_password_update',
+                cosy_password_nonce: $('#cosy_password_nonce_field').val(),
+                new_password: $form.find("input[name='new_password']").val(),
+                confirm_password: $form.find("input[name='confirm_password']").val()
+            };
+
+            $.ajax({
+                url: (typeof cosy_ajax !== 'undefined' ? cosy_ajax.ajax_url : ajaxurl),
+                type: 'POST',
+                data: formData,
+                beforeSend: function () {
+                    $btn.prop('disabled', true).text('Updating...');
+                    $msg.html('');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $msg.html(cosyAlert('success', response.data));
+                        $form[0].reset();
+                    } else {
+                        $msg.html(cosyAlert('danger', response.data));
+                    }
+                },
+                error: function () {
+                    $msg.html(cosyAlert('danger', 'An unexpected error occurred. Please try again.'));
+                },
+                complete: function () {
+                    $btn.prop('disabled', false).text('Update Password');
+                }
+            });
+        });
+    }
+
     //-------- PUBLIC INITIALISATION --------//
     return {
         init() {
             console.log("CosyApp: Initializing...");
             try { initAuthForms(); } catch (e) { console.error("AuthForms Error:", e); }
             try { initProfileUpdate(); } catch (e) { console.error("ProfileUpdate Error:", e); }
+            try { initCustomerProfile(); } catch (e) { console.error("CustomerProfile Error:", e); }
             try { initVideoUpload(); } catch (e) { console.error("VideoUpload Error:", e); }
             try { initTabs(); } catch (e) { console.error("Tabs Error:", e); }
             try { serviceSelection(); } catch (e) { console.error("ServiceSelection Error:", e); }
