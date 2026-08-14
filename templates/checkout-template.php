@@ -130,12 +130,15 @@ if ($step === 'schedule' || !empty($start_date_param)) {
         </div>';
 }
 ?>
-<script>
-    window.providerAvailability = <?php echo wp_json_encode($availability); ?>;
-    window.providerHolidays = <?php echo wp_json_encode($holiday_dates); ?>;
-    window.providerHolidayReasons = <?php echo wp_json_encode($holiday_reasons); ?>;
-    window.providerProfileUrl = <?php echo wp_json_encode($provider_profile_url); ?>;
-</script>
+<?php
+wp_add_inline_script('cosy-checkout', sprintf(
+    'window.providerAvailability = %s; window.providerHolidays = %s; window.providerHolidayReasons = %s; window.providerProfileUrl = %s;',
+    wp_json_encode($availability),
+    wp_json_encode($holiday_dates),
+    wp_json_encode($holiday_reasons),
+    wp_json_encode($provider_profile_url)
+), 'before');
+?>
 
 <div class="cosy-checkout-root" style="padding-top: 50px; padding-bottom: 50px;">
     <div class="cosy-checkout-container" id="cosyCheckoutContainer">
