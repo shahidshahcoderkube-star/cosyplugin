@@ -508,38 +508,6 @@ wp_add_inline_script('cosy-calendar', $profile_js_data, 'before');
 </div>
 </main>
 
-<!-- // ===== Custom Premium Calendar ===== -->
-<?php
-$default_service = null;
-if (!empty($provider_data['services'])) {
-    $first_srv = reset($provider_data['services']);
-    $default_service = [
-        'id'       => intval($first_srv['ID']),
-        'title'    => $first_srv['title'],
-        'price'    => floatval($first_srv['price']),
-        'duration' => intval($first_srv['time'] ?? 10)
-    ];
-}
-
-wp_enqueue_script(
-    'provider-profile-js',
-    COSY_APPT_URL . 'src/Assets/js/calendar.js',
-    ['jquery', 'bootstrap-bundle', 'sweetalert2'],
-    COSY_APPT_VER,
-    true
-);
-wp_localize_script('provider-profile-js', 'cosyCalendar', [
-    'currencySymbol' => cosy_get_currency_symbol(),
-    'defaultService' => $default_service
-]);
-?>
-<script>
-    window.cosyDefaultService = <?php echo json_encode($default_service); ?>;
-    window.providerId = <?php echo intval($provider_data['ID'] ?? 0); ?>;
-    window.providerName = <?php echo json_encode($provider_data['first_name'] ?? ($provider_data['display_name'] ?? 'Provider')); ?>;
-    window.checkoutUrl = <?php echo json_encode(cosy_get_page_url('cosy-checkout')); ?>;
-</script>
-
 <!-- Time Slot Selection Modal -->
 <div class="modal fade" id="timeSlotModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">

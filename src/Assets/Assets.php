@@ -378,6 +378,20 @@ class Assets
                 'feeValue'             => floatval(get_option('cosy_worldpay_charge', '0')),
             ]);
         }
+
+        // 23. Provider Profile Booking Calendar Script (Handles interactive calendar date clicks and slot modals)
+        if (is_author() || is_page('service-provider') || (function_exists('cosy_get_page_id') && is_page(cosy_get_page_id('service-provider')))) {
+            wp_enqueue_script(
+                'cosy-calendar',
+                COSY_APPT_URL . 'src/Assets/js/calendar.js',
+                ['jquery', 'bootstrap-bundle', 'sweetalert2'],
+                COSY_APPT_VER,
+                true
+            );
+            wp_localize_script('cosy-calendar', 'cosyCalendar', [
+                'currencySymbol' => cosy_get_currency_symbol(),
+            ]);
+        }
     }
 
     /**
