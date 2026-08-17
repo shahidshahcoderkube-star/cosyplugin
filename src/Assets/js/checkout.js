@@ -1,6 +1,16 @@
 /**
- * checkout.js
- * Handles dynamic rendering for Call Schedule step and final Payment Summary.
+ * COSY CHECKOUT & CALL SCHEDULE CONTROLLER MODULE
+ * 
+ * USE CASE:
+ * Manages dynamic rendering and interactive step transitions for Call Schedule selection and final Payment Summary.
+ * 
+ * HOW TO USE:
+ * Executed on cosy-checkout page load. Reads URL parameters (?step=schedule&start_date=...) and localStorage.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Checks current active checkout step ('schedule' vs 'summary').
+ * 2. Renders interactive weekly call duration picker or final WooCommerce checkout summary.
+ * 3. Handles hold countdown timers, slot validation, and AJAX order placement.
  */
 jQuery(document).ready(function ($) {
     'use strict';
@@ -28,6 +38,14 @@ jQuery(document).ready(function ($) {
     const providerNameParam = localStorage.getItem('cosy_selected_provider_name') || 'Verified Parent';
 
     const rawServiceName = urlParams.get('service_name') || urlParams.get('service_category') || urlParams.get('service') || localStorage.getItem('cosy_selected_service_name') || 'Parent Conversation';
+    
+    /**
+     * FORMAT SERVICE NAME NICE
+     * 
+     * USE CASE: Cleans up raw service category slug strings for public display.
+     * HOW TO USE: formatServiceNameNice('parent-conversation');
+     * WHAT IT DOES INTERNALLY: Replaces hyphens/underscores with spaces and capitalizes first letter of words.
+     */
     function formatServiceNameNice(str) {
         if (!str) return 'Parent Conversation';
         let clean = str.replace(/[-_]+/g, ' ').trim();
@@ -43,6 +61,13 @@ jQuery(document).ready(function ($) {
     let selectedSlotsByDay = {};
     let currentModalDateStr = '';
 
+    /**
+     * NORMALIZE TIME STR
+     * 
+     * USE CASE: Standardizes time format strings to "hh:mm AM/PM" for slot comparison.
+     * HOW TO USE: normalizeTimeStr('09:00'); // Returns "09:00 AM"
+     * WHAT IT DOES INTERNALLY: Converts 24-hour military time to 12-hour AM/PM format.
+     */
     function normalizeTimeStr(tStr) {
         if (!tStr) return '';
         tStr = String(tStr).trim().toUpperCase();

@@ -1,3 +1,17 @@
+/**
+ * COSY APPOINTMENTS FRONTEND UI CONTROLLER
+ * 
+ * USE CASE:
+ * Manages public-facing provider directory filters, registration popup, video modal, and customer reviews.
+ * 
+ * HOW TO USE:
+ * Executed automatically on frontend page load across service-provider directory and profile templates.
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Syncs category dropdown with URL path slug.
+ * 2. Fires AJAX filter queries for provider directory with smooth opacity transitions.
+ * 3. Controls direct video modal player (`window.openVideo` / `window.closeVideo`).
+ */
 jQuery(document).ready(function ($) {
 
     // Sync category filter dropdown with URL path slug on page load
@@ -26,7 +40,13 @@ jQuery(document).ready(function ($) {
         $('#cosy-slot-input').val($(this).data('slot'));
     });
 
-    // ---------------- Profile Image Upload ----------------
+    /**
+     * READ URL IMAGE PREVIEW
+     * 
+     * USE CASE: Previews local file selection for profile avatar uploads.
+     * HOW TO USE: Triggered on change event of .file-upload input.
+     * WHAT IT DOES INTERNALLY: Reads selected File object using FileReader and sets .profile-pic src.
+     */
     var readURL = function (input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -65,20 +85,33 @@ jQuery(document).ready(function ($) {
 
     // ---------------- AJAX Provider Filtering & Pagination ----------------
     let filterTimeout;
-    $('#cosyProvidersFilterForm input, #cosyProvidersFilterForm select').on('change keyup', function (e) {
-        if ($(this).attr('id') === 'filter_paged') return;
 
-        // Reset page to 1 whenever any filter input/select is modified
+    // Prevent form submission on enter press
+    $('#cosyProvidersFilterForm').on('submit', function (e) {
+        e.preventDefault();
+    });
+
+    // Select dropdown filters trigger AJAX query immediately on change
+    $('#cosyProvidersFilterForm select').on('change', function () {
+        $('#filter_paged').val('1');
+        triggerFilter(false);
+    });
+
+    // Search input (#filter_search_name) triggers AJAX query with 300ms debounce
+    $('#filter_search_name').on('input keyup', function (e) {
         $('#filter_paged').val('1');
 
-        if (e.type === 'keyup' && e.key !== 'Enter') {
+        if (e.key === 'Enter') {
+            e.preventDefault();
             clearTimeout(filterTimeout);
-            filterTimeout = setTimeout(function () {
-                triggerFilter(false);
-            }, 500);
+            triggerFilter(false);
             return;
         }
-        triggerFilter(false);
+
+        clearTimeout(filterTimeout);
+        filterTimeout = setTimeout(function () {
+            triggerFilter(false);
+        }, 300);
     });
 
     $(document).on('click', '.cosy-page-link', function (e) {
@@ -90,6 +123,13 @@ jQuery(document).ready(function ($) {
         triggerFilter(true);
     });
 
+    /**
+     * TRIGGER PROVIDER FILTER AJAX
+     * 
+     * USE CASE: Executes AJAX search/filter query for provider directory.
+     * HOW TO USE: Triggered on filter input change, keyup, or pagination button click.
+     * WHAT IT DOES INTERNALLY: Serializes form data, posts to cosy_ajax.ajax_url, and updates grid HTML.
+     */
     function triggerFilter(scrollToTop = false) {
         $('#cosyProvidersGridWrap').css('opacity', '0.5');
         $.ajax({
@@ -237,9 +277,13 @@ jQuery(document).ready(function ($) {
     });
 });
 
-// ============================================================
-// GLOBAL DIRECT VIDEO MODAL CONTROLLER FOR PROVIDER INTRO VIDEOS
-// ============================================================
+/**
+ * OPEN PROVIDER VIDEO POPUP
+ * 
+ * USE CASE: Plays provider introduction video in a direct modal popup.
+ * HOW TO USE: Called via window.openVideo('video-url.mp4').
+ * WHAT IT DOES INTERNALLY: Appends video modal to body, sets video src, and initiates playback.
+ */
 window.openVideo = function (url) {
     if (!url) return;
 
@@ -272,6 +316,13 @@ window.openVideo = function (url) {
     modal.style.display = 'flex';
 };
 
+/**
+ * CLOSE PROVIDER VIDEO POPUP
+ * 
+ * USE CASE: Closes video modal popup and stops video audio/video playback.
+ * HOW TO USE: Called via window.closeVideo().
+ * WHAT IT DOES INTERNALLY: Pauses video player element and resets src to empty string.
+ */
 window.closeVideo = function () {
     const modal = document.getElementById('videoModal');
     if (modal) {

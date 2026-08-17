@@ -1,8 +1,16 @@
 /**
- * CosyAlert
+ * COSY ALERT NOTIFICATION CONTROLLER
  * 
- * A centralized utility for handling SweetAlert2 notifications across the Cosy Appointments plugin.
- * Implements DRY (Don't Repeat Yourself) principle by reducing boilerplate code.
+ * USE CASE:
+ * Centralized SweetAlert2 wrapper for success, error, warning, and confirmation dialogs across frontend.
+ * 
+ * HOW TO USE:
+ * CosyAlert.success('Success', 'Profile saved');
+ * CosyAlert.confirm({ title: 'Delete?', text: 'Are you sure?' }).then(...);
+ * 
+ * WHAT IT DOES INTERNALLY:
+ * 1. Pre-configures SweetAlert2 brand colors and animation parameters.
+ * 2. Wraps Swal.fire calls into clean JavaScript Promises.
  */
 var CosyAlert = (function () {
     
@@ -16,7 +24,11 @@ var CosyAlert = (function () {
 
     return {
         /**
-         * Show a Success alert
+         * SHOW SUCCESS ALERT
+         * 
+         * USE CASE: Displays quick non-blocking green success toast or popup.
+         * HOW TO USE: CosyAlert.success('Saved!', 'Details updated successfully');
+         * WHAT IT DOES INTERNALLY: Triggers Swal.fire with icon='success' and auto-dismiss timer.
          */
         success: function (title, text, timer = 1500) {
             return Swal.fire({
@@ -30,7 +42,11 @@ var CosyAlert = (function () {
         },
 
         /**
-         * Show an Error alert
+         * SHOW ERROR ALERT
+         * 
+         * USE CASE: Displays red error alert dialog for failed AJAX calls or validation issues.
+         * HOW TO USE: CosyAlert.error('Failed', 'Could not save changes');
+         * WHAT IT DOES INTERNALLY: Triggers Swal.fire with icon='error' and confirm button.
          */
         error: function (title, text) {
             return Swal.fire({
@@ -42,7 +58,11 @@ var CosyAlert = (function () {
         },
 
         /**
-         * Show a Warning alert
+         * SHOW WARNING ALERT
+         * 
+         * USE CASE: Displays yellow warning alert for incomplete forms or caution notices.
+         * HOW TO USE: CosyAlert.warning('Notice', 'Please complete required fields');
+         * WHAT IT DOES INTERNALLY: Triggers Swal.fire with icon='warning'.
          */
         warning: function (title, text) {
             return Swal.fire({
@@ -54,8 +74,11 @@ var CosyAlert = (function () {
         },
 
         /**
-         * Show a Confirmation dialog (Yes/No)
-         * Returns a Promise that resolves if the user clicks "Confirm"
+         * SHOW CONFIRMATION DIALOG (YES / NO)
+         * 
+         * USE CASE: Asks user to confirm destructive actions like deleting items or cancelling orders.
+         * HOW TO USE: CosyAlert.confirm('Delete Item?', 'This action cannot be undone').then(...);
+         * WHAT IT DOES INTERNALLY: Triggers Swal.fire with cancel button and returns a resolving Promise on confirmation.
          */
         confirm: function (title, text, confirmBtnText = 'Yes, do it!', cancelBtnText = 'Cancel', confirmButtonColor = '#22c55e', cancelButtonColor = '#ef4444') {
             let opts = {};

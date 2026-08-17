@@ -4,6 +4,13 @@ let selectedTimeSlotsByDay = {};
 let selectedService = null;
 let currentModalDate = '';
 
+/**
+ * SELECT SERVICE ITEM
+ * 
+ * USE CASE: Handles click event on service option rows on the provider profile page.
+ * HOW TO USE: Triggered via onclick="selectServiceItem(this, id, title, price, duration)".
+ * WHAT IT DOES INTERNALLY: Updates active UI highlight and sets global selectedService object.
+ */
 function selectServiceItem(el, id, title, price, duration) {
     // Reset all services
     const allRows = document.querySelectorAll('.service-item-row');
@@ -32,6 +39,16 @@ function selectServiceItem(el, id, title, price, duration) {
     }
 }
 
+/**
+ * RENDER CALENDAR
+ * 
+ * USE CASE: Generates interactive monthly date grid for the current month.
+ * HOW TO USE: Called on page load and when navigating month pagination controls.
+ * WHAT IT DOES INTERNALLY: 
+ * 1. Checks provider availability and holiday dates array.
+ * 2. Renders disabled styles for past dates, holidays, and non-working days.
+ * 3. Highlights active selected date cell.
+ */
 function renderCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -137,6 +154,15 @@ function renderCalendar() {
     }
 }
 
+/**
+ * SELECT DAY
+ * 
+ * USE CASE: Handles user click on a calendar date cell.
+ * HOW TO USE: Triggered via onclick="selectDay(this, d)".
+ * WHAT IT DOES INTERNALLY: 
+ * 1. Stores selected start_date in localStorage.
+ * 2. Immediately redirects user to checkout page with start_date & provider_id parameters.
+ */
 function selectDay(el, day) {
     if (!selectedService) {
         if (window.cosyDefaultService) {
@@ -218,6 +244,13 @@ function selectDay(el, day) {
 }
 
 
+/**
+ * CHANGE MONTH
+ * 
+ * USE CASE: Navigates calendar view backward or forward by 1 month.
+ * HOW TO USE: Triggered via prev/next arrow buttons on calendar header.
+ * WHAT IT DOES INTERNALLY: Increments or decrements currentDate month index and calls renderCalendar().
+ */
 function changeMonth(dir) {
     currentDate.setMonth(currentDate.getMonth() + dir);
     renderCalendar();
@@ -225,7 +258,16 @@ function changeMonth(dir) {
 
 document.addEventListener('DOMContentLoaded', renderCalendar);
 
-// ===== Modal Booking Logic =====
+/**
+ * OPEN TIME SLOT MODAL
+ * 
+ * USE CASE: Opens slot picker modal for a specific calendar date and fetches available/booked time slots.
+ * HOW TO USE: Triggered when user clicks a date cell on calendar.
+ * WHAT IT DOES INTERNALLY:
+ * 1. Shows Bootstrap timeSlotModal with spinner.
+ * 2. Fires AJAX request cosy_get_booked_slots to retrieve existing bookings.
+ * 3. Generates slot buttons based on provider working hours and break times.
+ */
 function openTimeSlotModal(dateStr) {
     currentModalDate = dateStr;
     const modal = new bootstrap.Modal(document.getElementById('timeSlotModal'));
@@ -360,8 +402,13 @@ function openTimeSlotModal(dateStr) {
     });
 }
 
-
-
+/**
+ * TOGGLE TIME SLOT
+ * 
+ * USE CASE: Selects or deselects an available time slot inside the slot picker modal.
+ * HOW TO USE: Triggered via onclick on individual time slot blocks.
+ * WHAT IT DOES INTERNALLY: Updates selectedTimeSlotsByDay array and calls updateModalDuration().
+ */
 function toggleTimeSlot(time, el) {
     if (!selectedTimeSlotsByDay[currentModalDate]) selectedTimeSlotsByDay[currentModalDate] = [];
     const index = selectedTimeSlotsByDay[currentModalDate].indexOf(time);
@@ -375,6 +422,13 @@ function toggleTimeSlot(time, el) {
     updateModalDuration();
 }
 
+/**
+ * UPDATE MODAL DURATION
+ * 
+ * USE CASE: Calculates and updates the total duration display in the slot picker modal header.
+ * HOW TO USE: Called internally whenever a slot selection is toggled.
+ * WHAT IT DOES INTERNALLY: Multiplies selected slot count by slot duration in minutes.
+ */
 function updateModalDuration() {
     const count = selectedTimeSlotsByDay[currentModalDate] ? selectedTimeSlotsByDay[currentModalDate].length : 0;
     const durationEl = document.getElementById('modalTotalDuration');
@@ -389,6 +443,13 @@ function updateModalDuration() {
     if (durationEl) durationEl.textContent = `${count * slotDur} minutes`;
 }
 
+/**
+ * CONFIRM TIME SLOTS
+ * 
+ * USE CASE: Saves selected time slots from modal and updates sidebar summary and pricing.
+ * HOW TO USE: Triggered by clicking "Confirm Slots" button in time slot modal.
+ * WHAT IT DOES INTERNALLY: Hides modal, updates sidebar duration label, and calls updateFinalPrice().
+ */
 function confirmTimeSlots() {
     const modalEl = document.getElementById('timeSlotModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -432,6 +493,13 @@ function confirmTimeSlots() {
     }
 }
 
+/**
+ * UPDATE FINAL PRICE
+ * 
+ * USE CASE: Recalculates total cost based on selected slots, service unit price, and booking weeks.
+ * HOW TO USE: Called internally whenever slots or week duration input change.
+ * WHAT IT DOES INTERNALLY: Updates final price element with formatted currency symbol.
+ */
 function updateFinalPrice() {
     let totalSlots = 0;
     for (const d in selectedTimeSlotsByDay) {
@@ -448,7 +516,13 @@ function updateFinalPrice() {
     if (amountText) amountText.textContent = `${currencySymbol}${totalPrice.toFixed(2)}`;
 }
 
-// ===== Extra Utilities =====
+/**
+ * OPEN VIDEO POPUP
+ * 
+ * USE CASE: Displays introduction video popup modal on provider profile page.
+ * HOW TO USE: Triggered when user clicks video thumbnail on provider profile.
+ * WHAT IT DOES INTERNALLY: Converts YouTube/Vimeo URL to embed iframe URL and shows modal.
+ */
 function openVideoPopup(url) {
     const modal = new bootstrap.Modal(document.getElementById('videoModal'));
     const iframe = document.getElementById('videoIframe');
