@@ -402,6 +402,11 @@ class Frontend
      */
     public function restrict_direct_page_access()
     {
+        // Enforce no-cache HTTP headers to ensure browser revalidates page state upon login/logout
+        if (is_user_logged_in() || is_front_page() || is_home()) {
+            nocache_headers();
+        }
+
         // Get target page IDs dynamically
         $login_id                 = cosy_get_page_id('login');
         $user_reg_id              = cosy_get_page_id('user-registration');

@@ -363,6 +363,9 @@ class FormsData
                 $redirect_url = home_url('/');
             }
 
+            // Prevent browser from caching pre-login page state on redirect
+            nocache_headers();
+
             // Log user login
             \Cosy\Appointments\Common\LogManager::log(
                 'users',
