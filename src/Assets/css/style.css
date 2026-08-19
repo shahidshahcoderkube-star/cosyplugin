@@ -3473,20 +3473,20 @@ body {
 @media (max-width: 768px) {
 
     .cosy-provider-registration h2 {
-        font-size: clamp(1.4rem, 5vw, 1.9rem) !important;
-        margin-bottom: 25px !important;
-        padding-bottom: 12px !important;
+        font-size: clamp(1.4rem, 5vw, 1.9rem);
+        margin-bottom: 25px;
+        padding-bottom: 12px;
     }
 
     .cosy-reg-form h2 {
-        font-size: 1.6rem !important;
-        line-height: 1.3 !important;
-        margin-bottom: 8px !important;
+        font-size: 1.6rem;
+        line-height: 1.3;
+        margin-bottom: 8px;
     }
 
     .cosy-reg-form .subtitle {
-        font-size: 0.88rem !important;
-        margin-bottom: 20px !important;
+        font-size: 0.88rem;
+        margin-bottom: 20px;
     }
 
     .cosy-form input[type="text"],
