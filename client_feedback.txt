@@ -1,0 +1,94 @@
+================================================================================
+                    COSYCHATS CLIENT TESTING FEEDBACK REPORT
+================================================================================
+
+--------------------------------------------------------------------------------
+SECTION 1: PASSED TEST ITEMS (👍) - WORKING AS EXPECTED
+--------------------------------------------------------------------------------
+1.  👍 Created Customer Account - Customer Registration Email received.
+2.  👍 Customer Account declaration - must be checked.
+3.  👍 Customer Login Test Completed.
+4.  👍 Customer Login - Password forgot, email received.
+5.  👍 Created Cosychats parent, accept bookings Account -, incomplete fields and declarations tested.
+6.  👍 Created Cosychats parent, accept bookings Account - Customer Registration Email received.
+7.  👍 Cosychats parent, Dashboard - Profile information Completed.
+8.  👍 Video Capacity upload amended, 3 to 10 mb.
+9.  👍 Cosychats parent, Video uploaded.
+10. 👍 Cosychats parent, Experiences AD BL IVF added plus Price 20 (mancity - Redswan99 - testmancity@mailinator.com).
+11. 👍 Cosychats parent, Availability added M Tues Sat 08 - 14 (12-1 break) Wed 15 - 19 (no break).
+12. 👍 Cosychats parent, Holidays, 24 - 30 August.
+13. 👍 Cosychats Admin, status Active, parent mancity in manage users.
+14. 👍 Cosychats parent, Parenttest, deleted in Admin Panel.
+15. 👍 Cosychats, booking #379 completed, 2 weeks, Tues Wed, no holidays, correct amount input.
+16. 👍 Cosychats, booking #379 visible on customer and provider dashboard.
+17. 👍 Cosychats, Duplicate booking attempted, for 1st week of booking Sep 1 & 2, both times booked greyed out on calendar.
+18. 👍 Holiday input for Parent Mancity, 12, 13, 14, 15, 16 October 2026 (Monday to Friday) Note Man city also works Saturday.
+19. 👍 Holiday correctly displayed on the Parent Mancity booking calendar.
+20. 👍 Booking input starting 28th Sept, Booking M T W + Sat, £40 per week, 2 weeks £80, 3 weeks £90 (due to Saturday only being available) 4 weeks 130.
+21. 👍 Gifted Booking made, Booking #385, email received by giftee.
+22. 👍 Admin Pages updated, Our story, How it Works.
+23. 👍 Admin User Profiles Admin SEO and email address exist.
+24. 👍 Admin Media upload completed.
+25. 👍 Admin Activity Logs Cleared.
+26. 👍 Media upload approved. CC Booking.
+27. 👍 Order #385 Approved by Service Provider.
+28. 👍 Order #385 Approved in Admin and Customer DashBoard.
+29. 👍 New User Created, Updated in CC Booking Users.
+
+
+--------------------------------------------------------------------------------
+SECTION 2: ISSUES, BUGS & UI ENHANCEMENTS (🤢)
+--------------------------------------------------------------------------------
+1. 🤢 Password Reset Login Error:
+   - Issue: Customer resets password via email link, but logging in with the new password triggers an error: "Security check failed. Received: ..., Expected: cosy_login_nonce".
+   - Root Cause: Nonce validation conflict during login post-reset.
+
+2. 🤢 Profile Picture Upload Button on PC:
+   - Issue: In Parent Dashboard -> Profile Information, clicking the Camera icon on PC does nothing (no file dialog / pop up opens). Pointer hover changes border outline from white to grey.
+   - Fix: Wire click event handler on camera icon overlay to trigger `<input type="file">`.
+
+3. 🤢 Hero Wording & Dynamic Search Placeholder:
+   - Change Headline: "Conversations begin with shared experiences" -> "Start with an experience".
+   - Search Bar Placeholder: Add "Try: New baby • Teenagers • Single parent • Sleep • ADHD" (disappears when user types, must be editable via Admin settings).
+
+4. 🤢 Search Button Icon UI:
+   - Issue: Search button icon looks clunky and out of place. Needs a modern, rounded search icon styling.
+
+5. 🤢 Missing Email Notifications for Booking #379:
+   - Issue: No emails received for completed booking #379 to Customer (booktest1@mailinator.com), Provider (testmancity@mailinator.com), or Admin (contact@cosychats.com).
+
+6. 🤢 Calendar Slot Greying Issue in Multi-Week Booking (#379 / #380):
+   - Issue: Booking #379 was for 2 weeks. On the calendar, only 1st week (Sep 1 & 2) was greyed out. 2nd week (Sep 8 & 9) remained open, allowing duplicate booking #380.
+   - Fix: Query and grey-out booked slots across all weeks of a multi-week booking.
+
+7. 🤢 Booking Summary Modal Clean-up:
+   - Remove: "Service Adoption", "End Date", and "Total slots 12".
+   - Add: Day-by-day booking times breakdown (e.g., Mon 08:00 AM, 08:10 AM) so customers can clearly see days & times booked per week.
+
+8. 🤢 Customer Order Details Modal Clean-up (Order #382):
+   - Remove: "Adoption", "Schedule: 1 Week Duration", "Duration: 02-11-2026 to 08-11-2026", and "Weeks: 1 week(s) (12 slots)".
+   - Add: Weekdays with exact booked time slots breakdown (e.g. Mon 08:00 AM, 08:10 AM).
+
+9. 🤢 Service Provider Order Details Clean-up:
+   - Needs: Start Date, Number of Weeks in Booking, and detailed day-by-day booking times breakdown.
+
+10. 🤢 Gifted Customer Email Confirmation Template (#385):
+    - Remove: "Service / Topic: Adoption" and Support Telephone Number ("01708 956 506").
+    - Add: Start Date, Number of weeks booked, and Days & Times of booking per day.
+
+11. 🤢 Gifted Order Details for Service Provider (#385):
+    - Highlight: Visually label as "Gifted Order" and display Giftee's email address for contact alongside paying customer's email address (booktest1).
+
+
+--------------------------------------------------------------------------------
+SECTION 3: QUESTIONS & CRITICAL SYSTEM BEHAVIOR (❓ / TBC)
+--------------------------------------------------------------------------------
+1. ❓ Profile Creation Email Trigger (Tbc Moin):
+   - Question: Is an email currently produced when a Parent (Accept Bookings) starts, creates profile, and completes profile? Needs confirmation.
+
+2. ❓ User Deactivation & Unapproved User Search Visibility:
+   - Question/Bug:
+     a) Deactivated user ("Man City") in CC Booking Manage Users is still discoverable in search and bookable.
+     b) Standard WP Users deactivation throws an error and fails to deactivate.
+     c) New user ("Manunited") whose profile status is "Account Under Review: Your profile is currently under review by the administrator" is still discoverable in search and able to be booked (Order #386 created!).
+   - Crucial Fix Needed: Frontend search API & booking availability queries must strictly filter for `status = 'active'` and `approved = 1`, blocking deactivated & under-review providers from search results and calendar booking.
