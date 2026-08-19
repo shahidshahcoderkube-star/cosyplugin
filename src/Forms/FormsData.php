@@ -128,7 +128,7 @@ class FormsData
             $name = ucwords(strtolower($name));
         }
         $email = !empty($_POST['cust_email']) ? sanitize_email($_POST['cust_email']) : '';
-        $pass  = !empty($_POST['cust_pass']) ? sanitize_text_field($_POST['cust_pass']) : '';
+        $pass  = !empty($_POST['cust_pass']) ? $_POST['cust_pass'] : '';
 
         // Validate required fields
         if (empty($name) || empty($email) || empty($pass)) {
@@ -228,7 +228,7 @@ class FormsData
         // Sanitize required fields
         $username = !empty($_POST['prov_username']) ? sanitize_user($_POST['prov_username'], true) : '';
         $email    = !empty($_POST['prov_email']) ? sanitize_email($_POST['prov_email']) : '';
-        $pass     = !empty($_POST['prov_pass']) ? sanitize_text_field($_POST['prov_pass']) : '';
+        $pass     = !empty($_POST['prov_pass']) ? $_POST['prov_pass'] : '';
 
         // Basic validation
         if (empty($username) || empty($email) || empty($pass)) {
@@ -337,7 +337,7 @@ class FormsData
 
         $creds = [
             'user_login'    => sanitize_text_field($_POST['log']),
-            'user_password' => sanitize_text_field($_POST['pwd']),
+            'user_password' => isset($_POST['pwd']) ? $_POST['pwd'] : '',
             'remember'      => true,
         ];
 
