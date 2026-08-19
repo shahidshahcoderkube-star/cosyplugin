@@ -44,17 +44,19 @@ if (!defined('ABSPATH')) {
         <div class="alert alert-info" id="daysCount"><?php esc_html_e('No non-working days added yet.', 'cosy-appointments'); ?></div>
 
         <!-- Non‑Working Days Table -->
-        <table class="table table-bordered align-middle" id="daysTable">
-            <thead class="table-danger">
-                <tr>
-                    <th><?php esc_html_e('Date', 'cosy-appointments'); ?></th>
-                    <th><?php esc_html_e('Reason', 'cosy-appointments'); ?></th>
-                    <th><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Dynamic rows will appear here -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle" id="daysTable">
+                <thead class="table-danger">
+                    <tr>
+                        <th><?php esc_html_e('Date', 'cosy-appointments'); ?></th>
+                        <th><?php esc_html_e('Reason', 'cosy-appointments'); ?></th>
+                        <th><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic rows will appear here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
