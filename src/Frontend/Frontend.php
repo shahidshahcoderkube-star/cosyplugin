@@ -673,9 +673,18 @@ class Frontend
             wp_send_json_error(['message' => 'Missing provider or date parameter.']);
         }
 
-        // Normalize target date to timestamp or YYYY-MM-DD
-        $target_time = strtotime($date_str);
-        $target_formatted = $target_time ? date('Y-m-d', $target_time) : $date_str;
+        // Helper closure to normalize any date string to YYYY-MM-DD reliably
+        $parse_date_safe = function ($date_raw) {
+            if (empty($date_raw)) {
+                return '';
+            }
+            $clean = str_replace('/', '-', trim($date_raw));
+            $ts = strtotime($clean);
+            return $ts ? date('Y-m-d', $ts) : $date_raw;
+        };
+
+        // Normalize target requested date
+        $target_formatted = $parse_date_safe($date_str);
 
         $args = [
             'post_type'      => 'cosy_appointment',
@@ -709,6 +718,10 @@ class Frontend
                     }
                 }
 
+                // Retrieve recurring week count (default 1 week)
+                $num_weeks_meta = get_post_meta($appt->ID, 'cosy_number_of_weeks', true);
+                $num_weeks = max(1, intval($num_weeks_meta));
+
                 $slots_meta = get_post_meta($appt->ID, 'cosy_slots', true);
                 if (!empty($slots_meta)) {
                     $decoded = html_entity_decode($slots_meta);
@@ -721,10 +734,25 @@ class Frontend
                         foreach ($slots as $k => $v) {
                             // Case 1: Key-Value Dictionary {"05-08-2026": ["10:00 AM", "10:10 AM"]}
                             if (is_array($v) && !isset($v['date'])) {
-                                $k_time = strtotime($k);
-                                $k_formatted = $k_time ? date('Y-m-d', $k_time) : $k;
+                                $base_formatted = $parse_date_safe($k);
 
-                                if ($k === $date_str || $k_formatted === $target_formatted) {
+                                $is_match = ($k === $date_str || $base_formatted === $target_formatted);
+
+                                // Check recurring weeks if num_weeks > 1
+                                if (!$is_match && $num_weeks > 1 && !empty($base_formatted)) {
+                                    $base_ts = strtotime($base_formatted);
+                                    if ($base_ts) {
+                                        for ($w = 1; $w < $num_weeks; $w++) {
+                                            $recurring_formatted = date('Y-m-d', strtotime("+{$w} week", $base_ts));
+                                            if ($recurring_formatted === $target_formatted) {
+                                                $is_match = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if ($is_match) {
                                     foreach ($v as $time_val) {
                                         $booked_slots[] = $time_val;
                                     }
@@ -734,12 +762,25 @@ class Frontend
                             elseif (is_array($v) || is_object($v)) {
                                 $slot_obj = (array) $v;
                                 if (isset($slot_obj['date'])) {
-                                    $s_time = strtotime($slot_obj['date']);
-                                    $s_formatted = $s_time ? date('Y-m-d', $s_time) : $slot_obj['date'];
-                                    if ($slot_obj['date'] === $date_str || $s_formatted === $target_formatted) {
-                                        if (isset($slot_obj['time'])) {
-                                            $booked_slots[] = $slot_obj['time'];
+                                    $base_formatted = $parse_date_safe($slot_obj['date']);
+                                    $is_match = ($slot_obj['date'] === $date_str || $base_formatted === $target_formatted);
+
+                                    // Check recurring weeks if num_weeks > 1
+                                    if (!$is_match && $num_weeks > 1 && !empty($base_formatted)) {
+                                        $base_ts = strtotime($base_formatted);
+                                        if ($base_ts) {
+                                            for ($w = 1; $w < $num_weeks; $w++) {
+                                                $recurring_formatted = date('Y-m-d', strtotime("+{$w} week", $base_ts));
+                                                if ($recurring_formatted === $target_formatted) {
+                                                    $is_match = true;
+                                                    break;
+                                                }
+                                            }
                                         }
+                                    }
+
+                                    if ($is_match && isset($slot_obj['time'])) {
+                                        $booked_slots[] = $slot_obj['time'];
                                     }
                                 }
                             }
