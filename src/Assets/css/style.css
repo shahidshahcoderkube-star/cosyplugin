@@ -3722,26 +3722,18 @@ body {
     }
 }
 
-/* Service Provider Filter Bar Responsiveness */
-.cosy-providers-filter-bar {
-    width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-#cosyProvidersFilterForm {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
+/* Service Provider Filter Bar Responsiveness (Desktop untouched >992px) */
 @media (max-width: 992px) {
+    .cosy-providers-filter-bar {
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
     #cosyProvidersFilterForm {
+        flex-wrap: wrap !important;
         gap: 10px !important;
+        width: 100% !important;
     }
 
     #cosyProvidersFilterForm .cosy-filter-input,
@@ -3784,5 +3776,42 @@ body {
         height: 42px !important;
         padding-left: 8px !important;
         padding-right: 22px !important;
+    }
+}
+
+/* Provider Single Profile Header Responsive Centering (<768px) */
+@media (max-width: 768px) {
+    .cosy-gradient-bg {
+        padding: 24px 16px !important;
+        text-align: center !important;
+    }
+
+    .cosy-gradient-bg > .d-flex {
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 14px !important;
+    }
+
+    .cosy-profile-img-wrap,
+    .profile-avatar-wrapper-premium {
+        margin: 0 auto !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    .profile-info-top {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    .profile-info-top .d-flex {
+        justify-content: center !important;
+        text-align: center !important;
     }
 }
