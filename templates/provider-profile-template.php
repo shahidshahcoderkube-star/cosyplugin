@@ -30,6 +30,22 @@ if (empty($provider_data['ID']) && $queried_obj instanceof \WP_User) {
     $provider_data = array_merge($common->get_provider_data($queried_obj->ID), $provider_data);
     $provider_data['ID'] = $queried_obj->ID;
 }
+if (!empty($provider_data['ID'])) {
+    $prov_status = get_user_meta($provider_data['ID'], 'cosy_provider_status', true);
+    if ($prov_status === 'deactive' && !current_user_can('manage_options') && get_current_user_id() !== intval($provider_data['ID'])) {
+        ?>
+        <div class="container py-5 text-center my-5">
+            <div class="alert alert-warning p-4 rounded-4 shadow-sm d-inline-block" style="max-width: 600px; border: 1px solid #fde68a; background: #fffbeb;">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
+                <h4 class="fw-bold" style="color: #92400e;"><?php esc_html_e('Profile Unavailable', 'cosy-appointments'); ?></h4>
+                <p class="mb-0" style="color: #b45309;"><?php esc_html_e('This service provider profile is currently inactive or unavailable.', 'cosy-appointments'); ?></p>
+            </div>
+        </div>
+        <?php
+        get_footer();
+        return;
+    }
+}
 
 $current_user = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
@@ -148,6 +164,7 @@ $profile_js_data = sprintf(
 );
 
 wp_add_inline_script('cosy-calendar', $profile_js_data, 'before');
+
 ?>
 
 <main id="primary" class="site-main cosy-main-page-content">

@@ -1,4 +1,5 @@
-<?php if (empty($providers)): ?>
+<?php
+if (empty($providers)): ?>
     <div class="no-providers-found text-center py-5 w-100"
         style="background: #fdfdfd; border: 1px dashed #d1d5db; border-radius: 12px;">
         <i class="fas fa-search fa-3x mb-3" style="color: #9ca3af;"></i>

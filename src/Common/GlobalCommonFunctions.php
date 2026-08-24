@@ -171,6 +171,10 @@ trait GlobalCommonFunctions
             $data[$key] = get_user_meta($user_id, $key, true);
         }
 
+        // Single Source of Truth: Ensure prov_username and prov_email stay in 100% sync with core user account
+        $data['prov_username'] = $user->user_login;
+        $data['prov_email']    = $user->user_email;
+
         $data['video_status'] = $this->get_provider_video_status($user_id);
 
         return $data;

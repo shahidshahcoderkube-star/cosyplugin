@@ -134,26 +134,45 @@ class Dashboard
 
         if (isset($_POST['update_provider_profile']) || !isset($_POST['action']) || $_POST['action'] !== 'cosy_customer_register') {
 
+            $fname = sanitize_text_field($_POST['prov_fname'] ?? '');
+            $lname = sanitize_text_field($_POST['prov_sname'] ?? '');
+            $email = sanitize_email($_POST['prov_email'] ?? '');
+
             $provider_meta = [
-                'prov_username' => sanitize_text_field($_POST['prov_username']),
-                // 'prov_fname'    => sanitize_text_field($_POST['prov_fname']),
-                // 'prov_mname'    => sanitize_text_field($_POST['prov_mname']),
-                'first_name' => sanitize_text_field($_POST['prov_fname']),
-                'prov_mname' => sanitize_text_field($_POST['prov_mname']),
-                'last_name' => sanitize_text_field($_POST['prov_sname']),
-                'prov_email' => sanitize_email($_POST['prov_email']),
-                'prov_phone' => sanitize_text_field($_POST['prov_phone']),
-                'prov_address' => sanitize_textarea_field($_POST['prov_address']),
-                'dob' => sanitize_text_field($_POST['dob']),
-                'postal_code' => sanitize_text_field($_POST['postal_code']),
-                'description' => sanitize_textarea_field($_POST['bio']),
-                'gender' => sanitize_text_field($_POST['gender']),
-                'age_group' => sanitize_text_field($_POST['age_group']),
+                'prov_username' => sanitize_text_field($_POST['prov_username'] ?? ''),
+                'first_name'    => $fname,
+                'prov_mname'    => sanitize_text_field($_POST['prov_mname'] ?? ''),
+                'last_name'     => $lname,
+                'prov_email'    => $email,
+                'prov_phone'    => sanitize_text_field($_POST['prov_phone'] ?? ''),
+                'prov_address'  => sanitize_textarea_field($_POST['prov_address'] ?? ''),
+                'dob'           => sanitize_text_field($_POST['dob'] ?? ''),
+                'postal_code'   => sanitize_text_field($_POST['postal_code'] ?? ''),
+                'description'   => sanitize_textarea_field($_POST['bio'] ?? ''),
+                'gender'        => sanitize_text_field($_POST['gender'] ?? ''),
+                'age_group'     => sanitize_text_field($_POST['age_group'] ?? ''),
             ];
 
             foreach ($provider_meta as $key => $value) {
                 update_user_meta($user_id, $key, $value);
             }
+
+            // Synchronize core WordPress user object
+            $user_data = [
+                'ID'           => $user_id,
+                'first_name'   => $fname,
+                'last_name'    => $lname,
+                'display_name' => trim("$fname $lname") ?: $fname,
+            ];
+
+            if (!empty($email) && is_email($email)) {
+                $existing = get_user_by('email', $email);
+                if (!$existing || $existing->ID === $user_id) {
+                    $user_data['user_email'] = $email;
+                }
+            }
+
+            wp_update_user($user_data);
 
             // Handle profile image upload correctly
 

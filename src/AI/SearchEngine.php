@@ -306,9 +306,11 @@ class SearchEngine
             $cards[] = [
                 'ID'                 => $user_id,
                 'provider_id'        => $user_id,
-                'first_name'         => trim("$first_name $last_name"),
-                'name'               => trim("$first_name $last_name"),
+                'first_name'         => $first_name,
+                'last_name'          => $last_name,
+                'name'               => trim("$first_name $last_name") ?: $user->display_name,
                 'username'           => $user->user_login,
+                'email'              => $user->user_email,
                 'description'        => $bio,
                 'bio'                => $bio,
                 'profile_image'      => $profile_image,
