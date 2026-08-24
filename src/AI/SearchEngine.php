@@ -121,19 +121,22 @@ class SearchEngine
             $p_text = isset($provider_details[$provider_id]) ? strtolower($provider_details[$provider_id]) : '';
             $p_gender = strtolower(get_user_meta($provider_id, 'gender', true) ?: '');
 
-            // 100% Dynamic Gender & Role Contradiction Check (No static regex strings!)
-            $p_facts = get_user_meta($provider_id, 'cosy_profile_facts', true) ?: [];
-            $p_gender = !empty($p_facts['gender']) ? strtolower($p_facts['gender']) : strtolower(get_user_meta($provider_id, 'gender', true) ?: '');
-
-            if ($intent['target_role'] === 'female' && $p_gender === 'male') {
-                // Hard-filter if user explicitly asked for female/mum and provider's structured database gender is male
-                if (empty($p_facts['is_owner_single_parent'])) {
-                    continue;
+            // Strict Contradiction / Negative Matching Hard Filter (Point #7 & #11 of Spec Document)
+            if ($intent['target_role'] === 'female') {
+                // User explicitly asked for female / mum / mother
+                // Hard-filter if provider is male OR if text explicitly establishes father / single father
+                if ($p_gender === 'male' || preg_match('/\b(single father|solo father|father|dad|dads)\b/i', $p_text)) {
+                    if (!preg_match('/\b(mum|mums|mother|mothers|female|woman)\b/i', $p_text)) {
+                        continue;
+                    }
                 }
-            } elseif ($intent['target_role'] === 'male' && $p_gender === 'female') {
-                // Hard-filter if user explicitly asked for male/dad and provider's structured database gender is female
-                if (empty($p_facts['is_owner_single_parent'])) {
-                    continue;
+            } elseif ($intent['target_role'] === 'male') {
+                // User explicitly asked for male / dad / father
+                // Hard-filter if provider is female OR if text explicitly establishes mum / single mum
+                if ($p_gender === 'female' || preg_match('/\b(single mum|solo mum|mother|mum|mums)\b/i', $p_text)) {
+                    if (!preg_match('/\b(father|dad|dads|male|man)\b/i', $p_text)) {
+                        continue;
+                    }
                 }
             }
 
@@ -448,11 +451,14 @@ class SearchEngine
                 $rating = $avg_rating ? round(floatval($avg_rating), 1) : 0;
             }
 
-            // Fetch service title & lowest price
+            // Fetch service title & lowest positive price (e.g., £9.00 starting rate)
             $service_name = '';
             $price = '0.00';
             if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
-                $srow = $wpdb->get_row($wpdb->prepare("SELECT service, price FROM $services_table WHERE provider_id = %d ORDER BY price ASC LIMIT 1", $user_id));
+                $srow = $wpdb->get_row($wpdb->prepare("SELECT service, price FROM $services_table WHERE provider_id = %d AND price > 0 ORDER BY price ASC LIMIT 1", $user_id));
+                if (!$srow) {
+                    $srow = $wpdb->get_row($wpdb->prepare("SELECT service, price FROM $services_table WHERE provider_id = %d ORDER BY price ASC LIMIT 1", $user_id));
+                }
                 if ($srow) {
                     $service_name = $srow->service;
                     $price        = number_format(floatval($srow->price), 2);
