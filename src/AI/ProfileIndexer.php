@@ -124,6 +124,10 @@ class ProfileIndexer
             $profile_text .= ". Keywords: " . implode(" ", array_unique($extra_terms));
         }
 
+        // Extract Structured Profile Facts (Statement Owner Scope vs Helper Scope)
+        $facts = self::extract_profile_facts($bio, $gender, $services_str);
+        update_user_meta($user_id, 'cosy_profile_facts', $facts);
+
         // Fetch vector embedding
         $vector = AIService::get_embedding($profile_text);
         if (empty($vector)) {
@@ -146,6 +150,62 @@ class ProfileIndexer
         self::clear_search_cache();
 
         return $result !== false;
+    }
+
+    /**
+     * Parse and extract structured facts from provider bio text (Statement Owner Scope vs Helper Scope).
+     */
+    public static function extract_profile_facts(string $bio, string $gender = '', string $services = ''): array
+    {
+        $text = strtolower($bio);
+
+        $facts = [
+            'gender'                 => strtolower($gender),
+            'is_owner_single_parent' => false,
+            'is_helper_only'         => false,
+            'children_count'         => 0,
+            'experience_years'       => 0,
+        ];
+
+        // 1. Detect Owner Statement Scope vs Helper Statement Scope
+        // Owner Identity Statements: "I am a single mum", "I'm a solo mother", "I became a single parent"
+        $owner_pattern = '/\b(i am|i\'m|became a|as a)\s+(a\s+)?(single|solo)\s+(mum|mom|mother|parent)\b/i';
+        if (preg_match($owner_pattern, $text)) {
+            $facts['is_owner_single_parent'] = true;
+        }
+
+        // Helper Statements: "I support single mums", "work with single mums", "supported many single mums"
+        $helper_pattern = '/\b(support|supported|working with|help|counsel)\s+(many\s+)?(single|solo)\s+(mums|moms|mothers|parents)\b/i';
+        if (preg_match($helper_pattern, $text) && !preg_match($owner_pattern, $text)) {
+            $facts['is_helper_only'] = true;
+        }
+
+        // Negative Statement Exclusions: "I'm not a single mum"
+        if (preg_match('/\b(not a single mum|not a single mother|not a solo mum)\b/i', $text)) {
+            $facts['is_owner_single_parent'] = false;
+            $facts['is_helper_only'] = true;
+        }
+
+        // 2. Extract Children Count Context
+        $child_word_map = [
+            'one' => 1, 'two' => 2, 'three' => 3, 'four' => 4, 'five' => 5,
+            '1'   => 1, '2'   => 2, '3'     => 3, '4'    => 4, '5'    => 5
+        ];
+
+        foreach ($child_word_map as $word => $count) {
+            if (preg_match('/\b(mum|mother|mom|parent|dad|father)\s+of\s+' . preg_quote($word, '/') . '\b/i', $text) ||
+                preg_match('/\b' . preg_quote($word, '/') . '\s+(children|kids|boys|girls|sons|daughters)\b/i', $text)) {
+                $facts['children_count'] = $count;
+                break;
+            }
+        }
+
+        // 3. Extract Experience Years Context
+        if (preg_match('/(\d+)\s+years?\s+(of\s+)?(experience|supporting|counseling|guiding)/i', $text, $exp_matches)) {
+            $facts['experience_years'] = intval($exp_matches[1]);
+        }
+
+        return $facts;
     }
 
     /**

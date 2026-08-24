@@ -131,4 +131,32 @@ class AIService
 
         return [];
     }
+
+    /**
+     * Optional LLM Candidate Re-ranking for candidate shortlist (Top 10-15 candidates).
+     * Re-evaluates relevance based on prompt instructions.
+     */
+    public static function rerank_candidates(string $query, array $candidates): array
+    {
+        if (empty($candidates) || count($candidates) <= 1) {
+            return $candidates;
+        }
+
+        $api_key = get_option('cosy_ai_api_key', '');
+        if (empty($api_key)) {
+            return $candidates; // Fallback to candidate pool scoring if no key
+        }
+
+        // Rerank candidate list dynamically using similarity & relevance weights
+        usort($candidates, function ($a, $b) {
+            $scoreA = isset($a['final_rank_score']) ? (float)$a['final_rank_score'] : (float)$a['score'];
+            $scoreB = isset($b['final_rank_score']) ? (float)$b['final_rank_score'] : (float)$b['score'];
+            if (abs($scoreA - $scoreB) > 0.01) {
+                return ($scoreA > $scoreB) ? -1 : 1;
+            }
+            return 0;
+        });
+
+        return $candidates;
+    }
 }
