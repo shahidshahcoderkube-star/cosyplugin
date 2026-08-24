@@ -34,7 +34,7 @@ class SearchEngine
         $query_hash = md5(strtolower($query_text));
         $table_cache = $wpdb->prefix . 'cosychats_search_cache';
 
-        // 1. Check Local Search Cache
+        // 1. Check Local Search Cache with On-the-Fly Contradiction Validation
         if ($wpdb->get_var("SHOW TABLES LIKE '$table_cache'") === $table_cache) {
             $cached = $wpdb->get_var(
                 $wpdb->prepare("SELECT matching_provider_ids FROM $table_cache WHERE query_hash = %s", $query_hash)
@@ -42,15 +42,46 @@ class SearchEngine
             if (!empty($cached)) {
                 $cached_ids = json_decode($cached, true);
                 if (is_array($cached_ids) && !empty($cached_ids)) {
-                    // Verify all cached IDs are still active
                     $valid_cached = [];
                     foreach ($cached_ids as $cid) {
-                        $st = get_user_meta((int)$cid, 'cosy_provider_status', true);
-                        if ($st === 'active') {
-                            $valid_cached[] = (int)$cid;
+                        $cid = (int)$cid;
+                        $st  = get_user_meta($cid, 'cosy_provider_status', true);
+                        if ($st !== 'active') {
+                            continue;
                         }
+
+                        // Extract profile facts on-the-fly if missing
+                        $p_facts = get_user_meta($cid, 'cosy_profile_facts', true);
+                        if (empty($p_facts) || !is_array($p_facts)) {
+                            $bio_text = get_user_meta($cid, 'description', true) ?: '';
+                            $gen_meta = get_user_meta($cid, 'gender', true) ?: '';
+                            $p_facts  = ProfileIndexer::extract_profile_facts($bio_text, $gen_meta);
+                            update_user_meta($cid, 'cosy_profile_facts', $p_facts);
+                        }
+
+                        $p_g = !empty($p_facts['gender']) ? strtolower($p_facts['gender']) : strtolower(get_user_meta($cid, 'gender', true) ?: '');
+                        $p_t = strtolower(get_user_meta($cid, 'description', true) ?: '');
+
+                        // Validate against gender contradiction filter
+                        if ($intent['target_role'] === 'female') {
+                            if ($p_g === 'male' || preg_match('/\b(single father|solo father|father|dad|dads)\b/i', $p_t)) {
+                                if (!preg_match('/\b(mum|mums|mother|mothers|female|woman)\b/i', $p_t)) {
+                                    continue; // Stale invalid cached entry -> Filter out!
+                                }
+                            }
+                        } elseif ($intent['target_role'] === 'male') {
+                            if ($p_g === 'female' || preg_match('/\b(single mum|solo mum|mother|mum|mums)\b/i', $p_t)) {
+                                if (!preg_match('/\b(father|dad|dads|male|man)\b/i', $p_t)) {
+                                    continue; // Stale invalid cached entry -> Filter out!
+                                }
+                            }
+                        }
+
+                        $valid_cached[] = $cid;
                     }
-                    if (count($valid_cached) === count($cached_ids)) {
+
+                    // If cache passed full validation, return cards
+                    if (!empty($valid_cached) && count($valid_cached) === count($cached_ids)) {
                         return self::fetch_provider_cards($valid_cached, $limit);
                     }
                 }
