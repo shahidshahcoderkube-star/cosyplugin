@@ -69,10 +69,10 @@ jQuery(document).ready(function ($) {
     //---------------- Tab Navigation with URL Hash ----------------
     $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
         let target = $(e.target).data('bs-target'); // e.g. "#video"
-        history.replaceState(null, null, target);   // URL me slug set karega
+        history.replaceState(null, null, target);   // Update URL hash anchor
     });
 
-    // Page load hone par check karo ki koi hash hai
+    // Check on page load if URL contains active tab hash anchor
     let hash = window.location.hash;
     if (hash) {
         let tabTrigger = document.querySelector('[data-bs-target="' + hash + '"]');
