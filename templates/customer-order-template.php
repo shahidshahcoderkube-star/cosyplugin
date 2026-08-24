@@ -141,33 +141,24 @@ ob_start();
     <!-- Booking & Service Details -->
     <div class="col-md-12">
         <div class="p-3 rounded-4 bg-light" style="border: 1px solid #e2e8f0;">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-comments" style="color: #a44390;"></i> <?php esc_html_e('Conversations', 'cosy-appointments'); ?></h6>
-            <p class="mb-3 fw-bold text-slate" style="font-size: 1.1rem; color: #6d2e67;" id="modalCustServiceName"></p>
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-comments" style="color: #a44390;"></i> <?php esc_html_e('Booking Information', 'cosy-appointments'); ?></h6>
             
             <div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
                 <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Provider:</span>
+                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Provider:</span>
                     <span id="modalCustProviderName" class="text-dark fw-semibold"></span>
                 </div>
                 <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Schedule:</span>
-                    <span id="modalCustWeeklyBooking" class="text-dark fw-semibold"></span>
+                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Start Date:</span>
+                    <span id="modalCustStartDate" class="text-dark fw-semibold"></span>
                 </div>
                 <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Duration:</span>
-                    <span id="modalCustDurationInfo" class="text-dark fw-semibold"></span>
-                </div>
-                <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Weeks Booked:</span>
+                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Number of Weeks:</span>
                     <span id="modalCustWeeks" class="text-dark fw-semibold"></span>
                 </div>
                 <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Week Days:</span>
-                    <span id="modalCustWeekDays" class="text-dark fw-semibold"></span>
-                </div>
-                <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 120px; font-weight: 500;">Selected Slots:</span>
-                    <span id="modalCustSlotsTimeline" class="text-dark fw-semibold" style="word-break: break-word;"></span>
+                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Booking Days:</span>
+                    <span id="modalCustSlotsTimeline" class="text-dark fw-semibold" style="word-break: break-word; line-height: 1.6;"></span>
                 </div>
             </div>
         </div>

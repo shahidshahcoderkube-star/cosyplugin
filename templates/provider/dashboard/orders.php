@@ -83,6 +83,9 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                             $booking_status  = get_post_meta($appt_id, 'cosy_booking_status', true);
                             $week_days       = get_post_meta($appt_id, 'cosy_week_days', true);
                             $slots_timeline  = cosy_clean_slots_timeline(get_post_meta($appt_id, 'cosy_slots_timeline', true));
+                            $is_gift         = get_post_meta($appt_id, 'cosy_is_gift', true);
+                            $recipient_name  = get_post_meta($appt_id, 'cosy_recipient_name', true);
+                            $recipient_email = get_post_meta($appt_id, 'cosy_recipient_email', true);
                             if (empty($booking_status)) {
                                 $booking_status = 'pending';
                             }
@@ -157,6 +160,9 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                             data-status="<?php echo esc_attr($booking_status); ?>"
                                             data-week-days="<?php echo esc_attr($week_days); ?>"
                                             data-slots-timeline="<?php echo esc_attr($slots_timeline); ?>"
+                                            data-is-gift="<?php echo esc_attr(!empty($is_gift) ? '1' : '0'); ?>"
+                                            data-recipient-name="<?php echo esc_attr($recipient_name); ?>"
+                                            data-recipient-email="<?php echo esc_attr($recipient_email); ?>"
                                             data-bs-toggle="modal"
                                             data-bs-target="#orderDetailsModal"
                                             title="View Details">
@@ -191,29 +197,20 @@ ob_start();
     <!-- Service Details -->
     <div class="col-md-12">
         <div class="p-3 rounded-4 bg-light modal-info-box-secondary" style="border: 1px solid var(--cosy-border);">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-comments modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Conversations', 'cosy-appointments'); ?></h6>
-            <p class="mb-3 fw-bold text-slate" style="font-size: 1.1rem; color: var(--cosy-brand-dark);" id="modalServiceName"></p>
+            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2 modal-info-title" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-calendar-alt modal-icon-primary" style="color: var(--cosy-brand-purple) !important;"></i> <?php esc_html_e('Booking Information', 'cosy-appointments'); ?></h6>
 
             <div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
                 <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Schedule:</span>
-                    <span id="modalScheduleInfo" class="text-dark fw-semibold"></span>
+                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Start Date:</span>
+                    <span id="modalStartDateInfo" class="text-dark fw-semibold"></span>
                 </div>
                 <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Duration:</span>
-                    <span id="modalDurationInfo" class="text-dark fw-semibold"></span>
-                </div>
-                <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Weeks:</span>
+                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Number of Weeks:</span>
                     <span id="modalWeeksInfo" class="text-dark fw-semibold"></span>
                 </div>
                 <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Week Days:</span>
-                    <span id="modalWeekDaysInfo" class="text-dark fw-semibold"></span>
-                </div>
-                <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 100px; font-weight: 500;">Selected slots:</span>
-                    <span id="modalSlotsTimelineInfo" class="text-dark fw-semibold" style="word-break: break-word;"></span>
+                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Booking Days:</span>
+                    <span id="modalSlotsTimelineInfo" class="text-dark fw-semibold" style="word-break: break-word; line-height: 1.6;"></span>
                 </div>
             </div>
         </div>

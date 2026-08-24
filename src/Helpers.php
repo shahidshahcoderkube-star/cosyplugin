@@ -141,7 +141,6 @@ if (!function_exists('cosy_send_html_email')) {
             }
 
             $contact_rows = '';
-            if (!empty($sig_phone))   $contact_rows .= "<p style=\"margin:0 0 4px 0; font-size:12px; color:#334155;\">&#128222; " . esc_html($sig_phone) . "</p>";
             if (!empty($sig_email))   $contact_rows .= "<p style=\"margin:0 0 4px 0; font-size:12px; color:#334155;\">&#9993; <a href=\"mailto:" . esc_attr($sig_email) . "\" style=\"color:#a44390; text-decoration:none;\">" . esc_html($sig_email) . "</a></p>";
             if (!empty($sig_website)) $contact_rows .= "<p style=\"margin:0 0 4px 0; font-size:12px; color:#334155;\">&#127760; <a href=\"" . esc_url($sig_website) . "\" style=\"color:#a44390; text-decoration:none;\">" . esc_html($sig_website) . "</a></p>";
             if (!empty($sig_address)) $contact_rows .= "<p style=\"margin:0 0 8px 0; font-size:12px; color:#334155;\">&#128205; " . esc_html($sig_address) . "</p>";

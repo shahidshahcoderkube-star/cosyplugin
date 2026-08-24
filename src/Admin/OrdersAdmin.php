@@ -273,13 +273,10 @@ class OrdersAdmin
           </div>
 
           <div class="cosy-admin-card info-card full" style="margin-top: 12px;">
-            <h3><span class="dashicons dashicons-clipboard"></span> Experience &amp; Schedule</h3>
-            <p><strong>Experience:</strong> <span id="modalAdminServiceName"></span></p>
-            <p><strong>Schedule:</strong> <span id="modalAdminSchedule"></span></p>
-            <p><strong>Duration:</strong> <span id="modalAdminDuration"></span></p>
-            <p><strong>Weeks Booked:</strong> <span id="modalAdminWeeks"></span></p>
-            <p><strong>Week Days:</strong> <span id="modalAdminWeekDays"></span></p>
-            <p><strong>Selected Slots:</strong> <span id="modalAdminSlotsTimeline"></span></p>
+            <h3><span class="dashicons dashicons-clipboard"></span> Booking Information</h3>
+            <p><strong>Start Date:</strong> <span id="modalAdminStartDate"></span></p>
+            <p><strong>Number of Weeks:</strong> <span id="modalAdminWeeks"></span></p>
+            <p><strong>Booking Days:</strong> <span id="modalAdminSlotsTimeline" style="line-height: 1.6;"></span></p>
           </div>
 
           <div class="cosy-admin-grid" style="margin-top: 12px; margin-bottom: 0;">

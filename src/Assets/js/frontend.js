@@ -187,12 +187,9 @@ jQuery(document).ready(function ($) {
 
         $('#customerOrderDetailsModalLabel').text('Order Details - #' + id);
         $('#modalCustProviderName').text(provider);
-        $('#modalCustServiceName').text(service);
-        $('#modalCustWeeklyBooking').text(weekly);
-        $('#modalCustDurationInfo').text(start + ' to ' + end);
-        $('#modalCustWeeks').text(weeks + ' week(s) (' + slots + ' slots)');
-        $('#modalCustWeekDays').text(weekDays);
-        $('#modalCustSlotsTimeline').text(slotsTimeline);
+        $('#modalCustStartDate').text(start);
+        $('#modalCustWeeks').text(weeks + (parseInt(weeks) === 1 ? ' week' : ' weeks'));
+        $('#modalCustSlotsTimeline').html(slotsTimeline);
         var sym = (typeof cosyAppointments !== 'undefined' && cosyAppointments.currencySymbol) ? cosyAppointments.currencySymbol : '£';
         $('#modalCustCost').text(sym + cost);
         $('#modalCustFee').text(sym + fee);

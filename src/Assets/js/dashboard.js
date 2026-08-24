@@ -468,15 +468,27 @@ jQuery(document).ready(function ($) {
             var weekDays = $(this).data('week-days') || '';
             var slotsTimeline = $(this).data('slots-timeline') || '';
 
-            $('#modalOrderTitle').text('Order Details - #' + id);
-            $('#modalCustomerName').text(customer);
-            $('#modalCustomerEmail').text('(' + email + ')');
-            $('#modalServiceName').text(service);
-            $('#modalScheduleInfo').text(weekly);
-            $('#modalDurationInfo').text(start + ' to ' + end);
-            $('#modalWeeksInfo').text(weeks + ' week(s) (' + slots + ' slots)');
-            $('#modalWeekDaysInfo').text(weekDays);
-            $('#modalSlotsTimelineInfo').text(slotsTimeline);
+            var isGift = String($(this).data('is-gift') || '0');
+            var recipientName = $(this).data('recipient-name') || '';
+            var recipientEmail = $(this).data('recipient-email') || '';
+
+            if (isGift === '1' || (recipientEmail && recipientEmail.trim() !== '')) {
+                $('#modalOrderTitle').html('Order Details - #' + id + ' <span class="badge ms-2" style="background: #a44390; color: #fff; font-size: 0.75rem; vertical-align: middle;">🎁 Gifted Order</span>');
+                var custHtml = '<div class="d-flex flex-column gap-1">';
+                custHtml += '<div><span class="badge bg-warning text-dark fw-bold me-1">GIFTEE (Contact Person)</span> <strong>' + (recipientName || 'Gift Recipient') + '</strong> <span class="text-primary fw-semibold">(' + recipientEmail + ')</span></div>';
+                custHtml += '<div class="small text-muted mt-1"><i class="fas fa-credit-card me-1"></i> Paying Customer: <strong>' + customer + '</strong> (' + email + ')</div>';
+                custHtml += '</div>';
+                $('#modalCustomerName').html(custHtml);
+                $('#modalCustomerEmail').text('');
+            } else {
+                $('#modalOrderTitle').text('Order Details - #' + id);
+                $('#modalCustomerName').text(customer);
+                $('#modalCustomerEmail').text('(' + email + ')');
+            }
+
+            $('#modalStartDateInfo').text(start);
+            $('#modalWeeksInfo').text(weeks + (parseInt(weeks) === 1 ? ' week' : ' weeks'));
+            $('#modalSlotsTimelineInfo').html(slotsTimeline);
             $('#modalProviderShare').text(currencySymbol + cost);
             $('#modalServiceFee').text(currencySymbol + fee);
             $('#modalTotalPaid').text(currencySymbol + total);

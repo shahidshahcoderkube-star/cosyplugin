@@ -382,25 +382,82 @@ jQuery(document).ready(function ($) {
         }
         if (!computedWeekDays) computedWeekDays = 'Friday';
 
-        // Compute selected slots timeline (showing ONLY slot times, without date prefix)
+        // Compute selected slots timeline (fallback showing ONLY slot times)
         let computedSelectedSlots = '';
         if (booking.slots && typeof booking.slots === 'object') {
             const allTimes = [];
             Object.values(booking.slots).forEach(timesArr => {
                 if (Array.isArray(timesArr)) {
                     timesArr.forEach(t => {
-                        const normT = normalizeTimeStr(t);
-                        if (!allTimes.includes(normT)) allTimes.push(normT);
+                        const rawT = (typeof t === 'object' && t !== null) ? (t.time || t.slot || '') : t;
+                        const normT = normalizeTimeStr(rawT);
+                        if (normT && !allTimes.includes(normT)) allTimes.push(normT);
                     });
                 }
             });
             computedSelectedSlots = allTimes.join(', ');
         }
         if (!computedSelectedSlots && booking.slotsTimeline) {
-            // Strip any legacy date prefix (e.g., "13 Aug 2026: 10:40 AM, 10:50 AM" -> "10:40 AM, 10:50 AM")
             computedSelectedSlots = booking.slotsTimeline.replace(/^(?:[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}|[0-9]{2}-[0-9]{2}-[0-9]{4}):\s*/, '');
         }
         if (!computedSelectedSlots) computedSelectedSlots = '09:00 AM';
+
+        // Compute Booking Days breakdown (e.g., "Mon 08:00 AM, 08:10 AM <br> Wed 09:00 AM")
+        let formattedBookingDaysBreakdown = '';
+        if (booking.slots) {
+            const dayMap = {};
+            if (Array.isArray(booking.slots) && booking.slots.length > 0) {
+                booking.slots.forEach(s => {
+                    let dayName = '';
+                    let rawTime = '';
+                    if (typeof s === 'object' && s !== null) {
+                        if (s.date) {
+                            const d = new Date(s.date);
+                            if (!isNaN(d.getTime())) {
+                                dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                            }
+                        }
+                        rawTime = s.time || s.slot || '';
+                    } else if (typeof s === 'string') {
+                        rawTime = s;
+                    }
+                    if (!dayName && booking.startDate) {
+                        const d = new Date(booking.startDate);
+                        if (!isNaN(d.getTime())) {
+                            dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                        }
+                    }
+                    if (!dayName) dayName = 'Booked Day';
+                    const normT = normalizeTimeStr(rawTime);
+                    if (!dayMap[dayName]) dayMap[dayName] = [];
+                    if (!dayMap[dayName].includes(normT)) dayMap[dayName].push(normT);
+                });
+            } else if (typeof booking.slots === 'object') {
+                Object.keys(booking.slots).forEach(dKey => {
+                    const times = booking.slots[dKey];
+                    if (Array.isArray(times) && times.length > 0) {
+                        let dayName = dKey;
+                        const d = new Date(dKey);
+                        if (!isNaN(d.getTime())) {
+                            dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                        }
+                        if (!dayMap[dayName]) dayMap[dayName] = [];
+                        times.forEach(t => {
+                            const normT = normalizeTimeStr(t);
+                            if (!dayMap[dayName].includes(normT)) dayMap[dayName].push(normT);
+                        });
+                    }
+                });
+            }
+            const dayKeys = Object.keys(dayMap);
+            if (dayKeys.length > 0) {
+                formattedBookingDaysBreakdown = dayKeys.map(d => `<span class="fw-bold" style="color: #7a2267;">${d}</span> ${dayMap[d].join(', ')}`).join('<br>');
+            }
+        }
+        if (!formattedBookingDaysBreakdown) {
+            const fallbackDay = booking.weekDays ? booking.weekDays.split(',')[0].trim().substring(0, 3) : 'Mon';
+            formattedBookingDaysBreakdown = `<span class="fw-bold" style="color: #7a2267;">${fallbackDay}</span> ${computedSelectedSlots}`;
+        }
 
         container.innerHTML = `
             <div class="cosy-checkout-header mb-4 d-flex align-items-center justify-content-between">
@@ -408,7 +465,7 @@ jQuery(document).ready(function ($) {
                     <i class="fas fa-arrow-left" style="color: #a44390 !important; font-size: 0.95rem;"></i> <span>Back to Schedule</span>
                 </button>
                 <h1 class="cosy-checkout-title h4 fw-bold mb-0 d-inline-flex align-items-center gap-2" style="color: #a44390; font-size: 1.25rem;">
-                    <i class="fas fa-file-alt" style="color: #a44390;"></i> <span>Your Booking Summary</span>
+                    <i class="fas fa-file-alt" style="color: #a44390;"></i> <span>Booking Summary</span>
                 </h1>
             </div>
 
@@ -422,24 +479,14 @@ jQuery(document).ready(function ($) {
                     <table class="cosy-checkout-table w-100 mb-0" style="border-collapse: collapse;">
                         <tbody>
                             <tr style="background: #ffffff;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Service</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${activeServiceTitle || booking.service || 'Parent Conversation'}</td>
-                            </tr>
-                            <tr style="background: #fdfafc;">
                                 <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Provider</td>
                                 <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
                                 <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${booking.providerName}</td>
                             </tr>
-                            <tr style="background: #ffffff;">
+                            <tr style="background: #fdfafc;">
                                 <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Start Date</td>
                                 <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
                                 <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${displayStartDate}</td>
-                            </tr>
-                            <tr style="background: #fdfafc;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">End Date</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${displayEndDate || displayStartDate}</td>
                             </tr>
                             <tr style="background: #ffffff;">
                                 <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Booking Duration</td>
@@ -447,14 +494,9 @@ jQuery(document).ready(function ($) {
                                 <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${booking.weeklyBooking || '1 Week Duration'}</td>
                             </tr>
                             <tr style="background: #fdfafc;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Total Slots Booked</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${booking.numberOfBookings} slots</td>
-                            </tr>
-                            <tr style="background: #ffffff;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Selected slots</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${computedSelectedSlots}</td>
+                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem; vertical-align: top;">Booking Days</td>
+                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem; vertical-align: top;">:</td>
+                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.6;">${formattedBookingDaysBreakdown}</td>
                             </tr>
                         </tbody>
                     </table>

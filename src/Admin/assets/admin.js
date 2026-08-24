@@ -611,19 +611,9 @@ jQuery(document).ready(function ($) {
             $('#modalAdminCustomerEmail').text(email || 'N/A');
             $('#modalAdminProviderName').text(provider);
             $('#modalAdminProviderEmail').text(providerEmail || 'N/A');
-            $('#modalAdminServiceName').text(service);
-            $('#modalAdminSchedule').text(weekly);
-
-            // Display date range or a single start date if end date is missing
-            if (start && end) {
-                $('#modalAdminDuration').text(start + ' to ' + end);
-            } else {
-                $('#modalAdminDuration').text(start || 'N/A');
-            }
-
-            $('#modalAdminWeeks').text(weeks + ' week(s) (' + slots + ' slots booked)');
-            $('#modalAdminWeekDays').text(weekDays || 'N/A');
-            $('#modalAdminSlotsTimeline').text(slotsTimeline || 'N/A');
+            $('#modalAdminStartDate').text(start || 'N/A');
+            $('#modalAdminWeeks').text(weeks + (parseInt(weeks) === 1 ? ' week' : ' weeks'));
+            $('#modalAdminSlotsTimeline').html(slotsTimeline || 'N/A');
             const currencySymbol = (typeof cosyAdmin !== 'undefined' && cosyAdmin.currencySymbol) ? cosyAdmin.currencySymbol : '£';
             $('#modalAdminCost').text(currencySymbol + cost);
             $('#modalAdminFee').text(currencySymbol + fee);
