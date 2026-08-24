@@ -76,6 +76,20 @@ class SearchEngine
             return [];
         }
 
+        // Filter embeddings to include ONLY active service providers
+        $active_vectors = [];
+        foreach ($all_vectors as $row) {
+            $pid = (int)$row->provider_id;
+            $status = get_user_meta($pid, 'cosy_provider_status', true);
+            if ($status === 'active') {
+                $active_vectors[] = $row;
+            }
+        }
+        $all_vectors = $active_vectors;
+        if (empty($all_vectors)) {
+            return [];
+        }
+
         // Pre-fetch provider text details for exact keyword boosting
         $provider_details = self::get_provider_text_lookup(array_column($all_vectors, 'provider_id'));
         $search_keywords  = self::get_search_keywords($query_text, $expanded_query);
@@ -250,6 +264,17 @@ class SearchEngine
         foreach ($provider_ids as $user_id) {
             $user = get_userdata($user_id);
             if (!$user) {
+                continue;
+            }
+
+            // Ensure provider is active
+            $status = get_user_meta($user_id, 'cosy_provider_status', true);
+            if ($status !== 'active') {
+                continue;
+            }
+
+            $acct_status = get_user_meta($user_id, 'account_status', true);
+            if (!empty($acct_status) && $acct_status !== 'active') {
                 continue;
             }
 

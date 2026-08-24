@@ -1106,10 +1106,11 @@ jQuery(document).ready(function ($) {
                         }, 1500);
 
                         const alertType = (status === 'active') ? 'success' : 'warning';
-                        const msg = response.data || (status === 'active' ? 'Provider status set to Active.' : 'Provider status set to Deactive.');
+                        const msg = (typeof response.data === 'string' ? response.data : (response.data && response.data.message ? response.data.message : '')) || (status === 'active' ? 'Provider status set to Active.' : 'Provider status set to Deactive.');
                         CosyAlert.toast(msg, alertType);
                     } else {
-                        CosyAlert.toast(response.data || 'Failed to update status.', 'danger');
+                        const errMsg = (typeof response.data === 'string' ? response.data : (response.data && response.data.message ? response.data.message : 'Failed to update status.'));
+                        CosyAlert.toast(errMsg, 'danger');
                     }
                 }).fail(function () {
                     select.prop('disabled', false);

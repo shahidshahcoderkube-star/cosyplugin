@@ -97,10 +97,11 @@ jQuery(document).ready(function ($) {
                     }, 1500);
 
                     var alertType = (status === 'active') ? 'success' : 'warning';
-                    var msg = response.data || (status === 'active' ? 'User status set to Active.' : 'User status set to Deactive.');
+                    var msg = (typeof response.data === 'string' ? response.data : (response.data && response.data.message ? response.data.message : '')) || (status === 'active' ? 'User status set to Active.' : 'User status set to Deactive.');
                     CosyAlert.toast(msg, alertType);
                 } else {
-                    CosyAlert.toast(response.data || i18n.statusFailed, 'danger');
+                    var errMsg = (typeof response.data === 'string' ? response.data : (response.data && response.data.message ? response.data.message : i18n.statusFailed));
+                    CosyAlert.toast(errMsg, 'danger');
                 }
             });
         },

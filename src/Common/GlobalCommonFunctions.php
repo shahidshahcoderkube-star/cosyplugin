@@ -352,16 +352,23 @@ trait GlobalCommonFunctions
             $args['search_columns'] = ['display_name', 'user_login', 'user_nicename', 'user_email'];
         }
 
-        // Provider status must be active (or NOT EXISTS)
+        // Provider status must be strictly active
+        $args['meta_query'][] = [
+            'key'     => 'cosy_provider_status',
+            'value'   => 'active',
+            'compare' => '='
+        ];
+
+        // Account status must also be active if set
         $args['meta_query'][] = [
             'relation' => 'OR',
             [
-                'key' => 'cosy_provider_status',
-                'value' => 'active',
+                'key'     => 'account_status',
+                'value'   => 'active',
                 'compare' => '='
             ],
             [
-                'key' => 'cosy_provider_status',
+                'key'     => 'account_status',
                 'compare' => 'NOT EXISTS'
             ]
         ];
@@ -913,5 +920,22 @@ trait GlobalCommonFunctions
         }
 
         return get_current_user_id();
+    }
+
+    /**
+     * Flushes all cached provider list transients to instantly reflect status changes on the frontend.
+     */
+    public function flush_provider_transients(): void
+    {
+        global $wpdb;
+        $wpdb->query(
+            "DELETE FROM {$wpdb->options} 
+             WHERE option_name LIKE '_transient_cosy_prov_list_%' 
+                OR option_name LIKE '_transient_timeout_cosy_prov_list_%'"
+        );
+
+        if (class_exists('\Cosy\Appointments\AI\ProfileIndexer')) {
+            \Cosy\Appointments\AI\ProfileIndexer::clear_search_cache();
+        }
     }
 }

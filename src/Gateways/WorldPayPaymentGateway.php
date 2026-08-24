@@ -167,6 +167,13 @@ class WorldPayPaymentGateway
             wp_send_json_error(['message' => __('Missing required provider details.', 'cosy-appointments')]);
         }
 
+        // Verify provider account is active
+        $provider_status = get_user_meta($provider_id, 'cosy_provider_status', true);
+        if ($provider_status !== 'active') {
+            $this->cosy_payment_log("WorldPay Session Creation FAILED: Provider ID {$provider_id} is inactive.", $_POST);
+            wp_send_json_error(['message' => __('This service provider is currently inactive and cannot accept bookings.', 'cosy-appointments')]);
+        }
+
         // Server-side Price Verification (Price Tampering Security Check)
         // PERFORMANCE OPTIMIZATION: Unified single SQL query with COALESCE fallback
         global $wpdb;

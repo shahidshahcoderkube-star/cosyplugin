@@ -104,7 +104,7 @@ class Class_Provider_Verification
      */
     public function handle_status_update()
     {
-        $this->verify_admin_ajax_request('cosy_verify_nonce', 'edit_users');
+        $this->verify_admin_ajax_request('cosy_admin_nonce', 'edit_users');
 
         $user_id = intval($_POST['user_id'] ?? 0);
         $status  = sanitize_text_field($_POST['status'] ?? '');
@@ -119,6 +119,7 @@ class Class_Provider_Verification
         }
 
         update_user_meta($user_id, 'cosy_provider_status', $status);
+        $this->flush_provider_transients();
 
         $user = get_userdata($user_id);
         $user_display = $user ? $user->display_name . ' (' . $user->user_email . ')' : 'ID ' . $user_id;

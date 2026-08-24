@@ -392,6 +392,7 @@ class UsersAdmin
             }
 
             update_user_meta($user_id, 'cosy_provider_status', $status);
+            $this->flush_provider_transients();
 
             // Send notification email to provider if status changed
             if ($old_status !== $status) {

@@ -146,7 +146,7 @@ class SearchController
      */
     public function handle_user_meta_update($meta_id, $object_id, $meta_key, $_meta_value): void
     {
-        $relevant_keys = ['description', 'age_group', 'gender', 'dob', 'first_name', 'last_name'];
+        $relevant_keys = ['description', 'age_group', 'gender', 'dob', 'first_name', 'last_name', 'cosy_provider_status', 'account_status'];
         if (in_array($meta_key, $relevant_keys, true)) {
             $user_id = (int)$object_id;
             $user = get_userdata($user_id);

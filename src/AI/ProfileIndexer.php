@@ -39,6 +39,17 @@ class ProfileIndexer
             return false;
         }
 
+        // If provider is deactive/unverified, purge existing embedding and clear search cache
+        $status = get_user_meta($user_id, 'cosy_provider_status', true);
+        if ($status !== 'active') {
+            $embeddings_table = $wpdb->prefix . 'provider_embeddings';
+            if ($wpdb->get_var("SHOW TABLES LIKE '$embeddings_table'") === $embeddings_table) {
+                $wpdb->delete($embeddings_table, ['provider_id' => $user_id], ['%d']);
+            }
+            self::clear_search_cache();
+            return false;
+        }
+
         $first_name = get_user_meta($user_id, 'first_name', true) ?: $user->display_name;
         $last_name  = get_user_meta($user_id, 'last_name', true) ?: '';
         $bio        = get_user_meta($user_id, 'description', true) ?: '';
@@ -145,9 +156,16 @@ class ProfileIndexer
     public static function bulk_index_all_providers(): int
     {
         $args = [
-            'role'   => 'provider',
-            'number' => -1,
-            'fields' => 'ID',
+            'role'       => 'provider',
+            'number'     => -1,
+            'fields'     => 'ID',
+            'meta_query' => [
+                [
+                    'key'     => 'cosy_provider_status',
+                    'value'   => 'active',
+                    'compare' => '='
+                ]
+            ]
         ];
         $provider_ids = get_users($args);
         $indexed_count = 0;
