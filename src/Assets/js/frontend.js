@@ -86,6 +86,51 @@ jQuery(document).ready(function ($) {
     // ---------------- AJAX Provider Filtering & Pagination ----------------
     let filterTimeout;
 
+    // Detect if page was loaded via BROWSER BACK / FORWARD button vs FRESH RELOAD / REFRESH
+    const navEntries = (window.performance && window.performance.getEntriesByType) ? window.performance.getEntriesByType('navigation') : [];
+    const isBackNav = (navEntries.length > 0 && navEntries[0].type === 'back_forward') || 
+                      (window.performance && window.performance.navigation && window.performance.navigation.type === 2);
+
+    if (isBackNav) {
+        // Restore saved directory search state ONLY if returning via Back button
+        try {
+            const savedHtml = sessionStorage.getItem('cosy_dir_search_html');
+            if (savedHtml && $('#cosyProvidersGridWrap').length) {
+                const savedInput = sessionStorage.getItem('cosy_dir_search_input');
+                const savedCat = sessionStorage.getItem('cosy_dir_search_category');
+                const savedPrice = sessionStorage.getItem('cosy_dir_search_price');
+                const savedGender = sessionStorage.getItem('cosy_dir_search_gender');
+                const savedAge = sessionStorage.getItem('cosy_dir_search_age');
+                const savedRating = sessionStorage.getItem('cosy_dir_search_rating');
+                const savedPaged = sessionStorage.getItem('cosy_dir_search_paged');
+
+                if (savedInput !== null && $('#filter_search_name').length) $('#filter_search_name').val(savedInput);
+                if (savedCat !== null && savedCat !== '' && $('#filter_category').length) $('#filter_category').val(savedCat);
+                if (savedPrice !== null && $('#filter_price').length) $('#filter_price').val(savedPrice);
+                if (savedGender !== null && $('#filter_gender').length) $('#filter_gender').val(savedGender);
+                if (savedAge !== null && $('#filter_age').length) $('#filter_age').val(savedAge);
+                if (savedRating !== null && $('#filter_rating').length) $('#filter_rating').val(savedRating);
+                if (savedPaged !== null && $('#filter_paged').length) $('#filter_paged').val(savedPaged);
+
+                if (savedInput || savedCat || savedPrice || savedGender || savedAge || savedRating || (savedPaged && savedPaged !== '1')) {
+                    $('#cosyProvidersGridWrap').html(savedHtml);
+                }
+            }
+        } catch (e) {}
+    } else {
+        // Clear saved directory search state on fresh page load or manual refresh (F5)
+        try {
+            sessionStorage.removeItem('cosy_dir_search_html');
+            sessionStorage.removeItem('cosy_dir_search_input');
+            sessionStorage.removeItem('cosy_dir_search_category');
+            sessionStorage.removeItem('cosy_dir_search_price');
+            sessionStorage.removeItem('cosy_dir_search_gender');
+            sessionStorage.removeItem('cosy_dir_search_age');
+            sessionStorage.removeItem('cosy_dir_search_rating');
+            sessionStorage.removeItem('cosy_dir_search_paged');
+        } catch (e) {}
+    }
+
     // Prevent form submission on enter press
     $('#cosyProvidersFilterForm').on('submit', function (e) {
         e.preventDefault();
@@ -139,6 +184,19 @@ jQuery(document).ready(function ($) {
             success: function (response) {
                 if (response.success) {
                     $('#cosyProvidersGridWrap').html(response.data.html);
+
+                    // Save directory search state in sessionStorage for Back button navigation
+                    try {
+                        sessionStorage.setItem('cosy_dir_search_input', $('#filter_search_name').val() || '');
+                        sessionStorage.setItem('cosy_dir_search_category', $('#filter_category').val() || '');
+                        sessionStorage.setItem('cosy_dir_search_price', $('#filter_price').val() || '');
+                        sessionStorage.setItem('cosy_dir_search_gender', $('#filter_gender').val() || '');
+                        sessionStorage.setItem('cosy_dir_search_age', $('#filter_age').val() || '');
+                        sessionStorage.setItem('cosy_dir_search_rating', $('#filter_rating').val() || '');
+                        sessionStorage.setItem('cosy_dir_search_paged', $('#filter_paged').val() || '1');
+                        sessionStorage.setItem('cosy_dir_search_html', response.data.html);
+                    } catch (e) {}
+
                     if (scrollToTop) {
                         $('html, body').animate({
                             scrollTop: $('#cosyProvidersGridWrap').offset().top - 100
