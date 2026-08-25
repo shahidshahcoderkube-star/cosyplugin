@@ -44,13 +44,12 @@ class SearchEngine
         // 3. Fetch Query Vector Embedding
         $query_vector = AIService::get_embedding($expanded_query);
 
-        // 4. Load all provider embeddings from database
+        // 4. Load all provider embeddings from database (with fallback to active providers if table is missing or empty)
         $table_embeddings = $wpdb->prefix . 'provider_embeddings';
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_embeddings'") !== $table_embeddings) {
-            return [];
+        $all_vectors      = [];
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table_embeddings'") === $table_embeddings) {
+            $all_vectors = $wpdb->get_results("SELECT provider_id, embedding FROM $table_embeddings");
         }
-
-        $all_vectors = $wpdb->get_results("SELECT provider_id, embedding FROM $table_embeddings");
 
         // Fallback: If embeddings table is empty, fetch all active provider IDs
         $active_provider_ids = [];
