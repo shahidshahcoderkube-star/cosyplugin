@@ -77,9 +77,9 @@ $providers       = array_slice($all_providers, $offset, $per_page);
 
             <select name="rating" id="filter_rating" class="form-select cosy-filter-select" style="min-width: 140px; height: 46px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #334155; font-weight: 500; padding: 10px 36px 10px 16px; box-shadow: none;">
                 <option value=""><?php esc_html_e('--Rating--', 'cosy-appointments'); ?></option>
-                <option value="5">5 Stars</option>
-                <option value="4">4+ Stars</option>
-                <option value="3">3+ Stars</option>
+                <option value="9-10"><?php esc_html_e('9 - 10 Rating (Top Rated)', 'cosy-appointments'); ?></option>
+                <option value="7-8"><?php esc_html_e('7 - 8 Rating (Very Good)', 'cosy-appointments'); ?></option>
+                <option value="5-6"><?php esc_html_e('5 - 6 Rating (Good)', 'cosy-appointments'); ?></option>
             </select>
 
             <input type="hidden" name="paged" id="filter_paged" value="<?php echo esc_attr($paged); ?>">

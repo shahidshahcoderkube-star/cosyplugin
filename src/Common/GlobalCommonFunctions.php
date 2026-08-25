@@ -465,11 +465,29 @@ trait GlobalCommonFunctions
             // Read pre-cached average rating (0 DB queries executed here)
             $avg_rating = isset($ratings_map[$user_id]) ? $ratings_map[$user_id] : 0.0;
 
-            // Filter by rating
+            // Filter by rating (Supports ranges like '9-10', '7-8', '5-6' and single float values)
             if (!empty($filters['rating'])) {
-                $min_rating = floatval($filters['rating']);
-                if ($avg_rating < $min_rating) {
-                    continue; // Skip if rating is too low
+                $rating_val = trim((string)$filters['rating']);
+                if (strpos($rating_val, '-') !== false) {
+                    $parts = explode('-', $rating_val);
+                    $min_r = floatval($parts[0]);
+                    $max_r = floatval($parts[1]);
+                    if ($max_r >= 10) {
+                        if ($avg_rating < $min_r) {
+                            continue;
+                        }
+                    } else {
+                        // Upper bound inclusive up to 8.99 for 7-8, 6.99 for 5-6
+                        $upper_bound = $max_r + 0.999;
+                        if ($avg_rating < $min_r || $avg_rating > $upper_bound) {
+                            continue;
+                        }
+                    }
+                } else {
+                    $min_rating = floatval($rating_val);
+                    if ($avg_rating < $min_rating) {
+                        continue;
+                    }
                 }
             }
 
