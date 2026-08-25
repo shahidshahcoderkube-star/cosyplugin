@@ -25,13 +25,20 @@ class SearchEngine
      */
     public static function search(string $query_text, int $limit = 6): array
     {
-        $query_text = trim($query_text);
-        if (empty($query_text)) {
-            return [];
+        global $wpdb;
+
+        // Auto-purge stale cache & transients on version upgrade (v1.0.43)
+        if (get_option('cosy_ai_search_version') !== '1.0.43') {
+            $table_c = $wpdb->prefix . 'cosychats_search_cache';
+            if ($wpdb->get_var("SHOW TABLES LIKE '$table_c'") === $table_c) {
+                $wpdb->query("TRUNCATE TABLE $table_c");
+            }
+            $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cosy_prov_list_%' OR option_name LIKE '_transient_timeout_cosy_prov_list_%'");
+            update_option('cosy_ai_search_version', '1.0.43');
         }
 
-        global $wpdb;
-        $query_hash = md5(strtolower($query_text));
+        $intent      = self::parse_query_intent($query_text);
+        $query_hash  = md5(strtolower($query_text));
         $table_cache = $wpdb->prefix . 'cosychats_search_cache';
 
         // 1. Check Local Search Cache with On-the-Fly Contradiction Validation
@@ -82,7 +89,8 @@ class SearchEngine
 
                     // If cache passed full validation, return cards
                     if (!empty($valid_cached) && count($valid_cached) === count($cached_ids)) {
-                        return self::fetch_provider_cards($valid_cached, $limit);
+                        $effective_limit = (!empty($intent['requested_limit']) && $intent['requested_limit'] > 0) ? min($intent['requested_limit'], 12) : $limit;
+                        return self::fetch_provider_cards($valid_cached, $effective_limit);
                     }
                 }
             }
@@ -331,7 +339,8 @@ class SearchEngine
             );
         }
 
-        return self::fetch_provider_cards($sorted_provider_ids, $limit);
+        $effective_limit = (!empty($intent['requested_limit']) && $intent['requested_limit'] > 0) ? min($intent['requested_limit'], 12) : $limit;
+        return self::fetch_provider_cards($sorted_provider_ids, $effective_limit);
     }
 
     /**
@@ -370,6 +379,19 @@ class SearchEngine
         // 2. Extract Explicit Price / Budget Constraint (e.g. "under £15", "under 20", "below 25")
         if (preg_match('/(?:under|below|less than|\<)\s*£?\s*(\d+(?:\.\d+)?)/i', $q, $pmatches)) {
             $intent['max_price'] = floatval($pmatches[1]);
+        }
+
+        // 3. Extract Requested Result Count Limit (e.g. "only 2 best providers", "top 3", "only two best")
+        $word_num_map = [
+            'one' => 1, 'two' => 2, 'three' => 3, 'four' => 4, 'five' => 5,
+            'six' => 6, 'seven' => 7, 'eight' => 8, 'nine' => 9, 'ten' => 10,
+        ];
+        if (preg_match('/(?:only|top|first|give me|show me|just|best)\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b/i', $q, $lmatches)) {
+            $val = strtolower($lmatches[1]);
+            $intent['requested_limit'] = is_numeric($val) ? intval($val) : ($word_num_map[$val] ?? 0);
+        } elseif (preg_match('/\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:best|top)?\s*(?:providers?|profiles?|mums?|dads?|parents?)\b/i', $q, $lmatches)) {
+            $val = strtolower($lmatches[1]);
+            $intent['requested_limit'] = is_numeric($val) ? intval($val) : ($word_num_map[$val] ?? 0);
         }
 
         // 3. Dynamic N-Gram Phrase Extractor (2-word, 3-word, 4-word phrases)
