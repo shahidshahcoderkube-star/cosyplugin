@@ -234,7 +234,7 @@ wp_add_inline_script('cosy-calendar', $profile_js_data, 'before');
                 </div>
                 <div class="card-body py-4 px-5">
                     <p class="text-muted text-center italic mb-0" style="font-size: 0.95rem;">
-                        <?php esc_html_e('Could this parent\'s experiences be relevant to your own?', 'cosy-appointments'); ?>
+                        <?php esc_html_e('This is me. I\'m open to sharing my experiences — if you\'d like to talk, book a conversation with me.', 'cosy-appointments'); ?>
                     </p>
                 </div>
             </div>
