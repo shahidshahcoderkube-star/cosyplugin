@@ -27,77 +27,18 @@ class SearchEngine
     {
         global $wpdb;
 
-        // Auto-purge stale cache & transients on version upgrade (v1.0.43)
-        if (get_option('cosy_ai_search_version') !== '1.0.43') {
+        // Auto-purge stale cache & transients on version upgrade (v1.0.45)
+        if (get_option('cosy_ai_search_version') !== '1.0.45') {
             $table_c = $wpdb->prefix . 'cosychats_search_cache';
             if ($wpdb->get_var("SHOW TABLES LIKE '$table_c'") === $table_c) {
                 $wpdb->query("TRUNCATE TABLE $table_c");
             }
             $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cosy_prov_list_%' OR option_name LIKE '_transient_timeout_cosy_prov_list_%'");
-            update_option('cosy_ai_search_version', '1.0.43');
+            update_option('cosy_ai_search_version', '1.0.45');
         }
 
-        $intent      = self::parse_query_intent($query_text);
-        $query_hash  = md5(strtolower($query_text));
-        $table_cache = $wpdb->prefix . 'cosychats_search_cache';
-
-        // 1. Check Local Search Cache with On-the-Fly Contradiction Validation
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_cache'") === $table_cache) {
-            $cached = $wpdb->get_var(
-                $wpdb->prepare("SELECT matching_provider_ids FROM $table_cache WHERE query_hash = %s", $query_hash)
-            );
-            if (!empty($cached)) {
-                $cached_ids = json_decode($cached, true);
-                if (is_array($cached_ids) && !empty($cached_ids)) {
-                    $valid_cached = [];
-                    foreach ($cached_ids as $cid) {
-                        $cid = (int)$cid;
-                        $st  = get_user_meta($cid, 'cosy_provider_status', true);
-                        if ($st !== 'active') {
-                            continue;
-                        }
-
-                        // Extract profile facts on-the-fly if missing
-                        $p_facts = get_user_meta($cid, 'cosy_profile_facts', true);
-                        if (empty($p_facts) || !is_array($p_facts)) {
-                            $bio_text = get_user_meta($cid, 'description', true) ?: '';
-                            $gen_meta = get_user_meta($cid, 'gender', true) ?: '';
-                            $p_facts  = ProfileIndexer::extract_profile_facts($bio_text, $gen_meta);
-                            update_user_meta($cid, 'cosy_profile_facts', $p_facts);
-                        }
-
-                        $p_g = !empty($p_facts['gender']) ? strtolower($p_facts['gender']) : strtolower(get_user_meta($cid, 'gender', true) ?: '');
-                        $p_t = strtolower(get_user_meta($cid, 'description', true) ?: '');
-
-                        // Validate against gender contradiction filter
-                        if ($intent['target_role'] === 'female') {
-                            if ($p_g === 'male' || preg_match('/\b(single father|solo father|father|dad|dads)\b/i', $p_t)) {
-                                if (!preg_match('/\b(mum|mums|mother|mothers|female|woman)\b/i', $p_t)) {
-                                    continue; // Stale invalid cached entry -> Filter out!
-                                }
-                            }
-                        } elseif ($intent['target_role'] === 'male') {
-                            if ($p_g === 'female' || preg_match('/\b(single mum|solo mum|mother|mum|mums)\b/i', $p_t)) {
-                                if (!preg_match('/\b(father|dad|dads|male|man)\b/i', $p_t)) {
-                                    continue; // Stale invalid cached entry -> Filter out!
-                                }
-                            }
-                        }
-
-                        $valid_cached[] = $cid;
-                    }
-
-                    // If cache passed full validation, return cards
-                    if (!empty($valid_cached) && count($valid_cached) === count($cached_ids)) {
-                        $effective_limit = (!empty($intent['requested_limit']) && $intent['requested_limit'] > 0) ? min($intent['requested_limit'], 12) : $limit;
-                        return self::fetch_provider_cards($valid_cached, $effective_limit);
-                    }
-                }
-            }
-        }
-
-        // 2. Parse Query Intent, Gender Constraints, Price, and Number Normalization
-        $intent = self::parse_query_intent($query_text);
+        // 1. Always-Live Real-Time Search (Search caching disabled for 100% fresh real-time database results)
+        $intent         = self::parse_query_intent($query_text);
         $expanded_query = self::expand_query_numbers($query_text);
 
         // 3. Fetch Query Vector Embedding
@@ -148,6 +89,29 @@ class SearchEngine
             }
         }
 
+        // 4.5. Check for Explicit Provider Name Matches in Query
+        $name_matched_ids = [];
+        $query_words      = preg_split('/[\s,;.!?-]+/', strtolower($query_text), -1, PREG_SPLIT_NO_EMPTY);
+        $common_words     = ['mum', 'mums', 'dad', 'dads', 'father', 'mother', 'parent', 'parents', 'guide', 'guides', 'support', 'help', 'under', 'max', 'only', 'best', 'top', 'year', 'years', 'old', 'kids', 'child', 'children', 'good', 'rated'];
+
+        foreach ($active_provider_ids as $pid) {
+            $user_obj = get_userdata($pid);
+            if (!$user_obj) continue;
+
+            $fname = strtolower(get_user_meta($pid, 'first_name', true) ?: '');
+            $dname = strtolower($user_obj->display_name ?: '');
+
+            foreach ($query_words as $qw) {
+                if (strlen($qw) >= 3 && !in_array($qw, $common_words, true)) {
+                    if (($fname !== '' && $qw === $fname) || ($dname !== '' && strpos($dname, $qw) !== false)) {
+                        $name_matched_ids[] = $pid;
+                        break;
+                    }
+                }
+            }
+        }
+        $name_matched_ids = array_unique($name_matched_ids);
+
         // 5. Multi-Layer Hybrid Relevance Scoring & Contradiction Filtering
         $raw_matches       = [];
         $max_score         = 0.0;
@@ -157,6 +121,11 @@ class SearchEngine
         $clean_query = strtolower(trim($query_text));
 
         foreach ($active_provider_ids as $provider_id) {
+            // Strict Provider Name Hard Filter: If query explicitly contains a provider's name, filter out unrelated providers
+            if (!empty($name_matched_ids) && !in_array($provider_id, $name_matched_ids, true)) {
+                continue;
+            }
+
             $p_text = isset($provider_details[$provider_id]) ? strtolower($provider_details[$provider_id]) : '';
             $p_gender = strtolower(get_user_meta($provider_id, 'gender', true) ?: '');
 
@@ -212,15 +181,29 @@ class SearchEngine
                 }
             }
 
-            // Layer C: Keyword Matches (+0.25 per matching keyword)
-            $keyword_boost = 0.0;
+            // Layer C: Dynamic Keyword Matches (+0.25 per matching keyword)
+            $keyword_boost   = 0.0;
+            $prov_has_kw     = false;
+            $modifier_words  = ['highest', 'top', 'best', 'rated', 'rating', 'ratings', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'dad', 'dads', 'under', 'max', 'only', 'cheap', 'for', 'with', 'and', 'the', 'who', 'need', 'needs', 'needing', 'want', 'wants', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking'];
+            $domain_query_kws = array_diff($search_keywords, $modifier_words);
+            $query_has_domain_kw = !empty($domain_query_kws);
+
             if (!empty($p_text) && !empty($search_keywords)) {
                 foreach ($search_keywords as $kw) {
                     if (strlen($kw) >= 2 && strpos($p_text, $kw) !== false) {
                         $keyword_boost += 0.25;
                         $has_keyword_match = true;
+                        if (in_array($kw, $domain_query_kws, true)) {
+                            $prov_has_kw = true;
+                        }
                     }
                 }
+            }
+
+            // Per-Provider Dynamic Domain Keyword Hard Filter:
+            // If user explicitly queried a domain topic (e.g. "ivf", "kids", "sleep"), provider MUST match that exact topic.
+            if ($query_has_domain_kw && !$prov_has_kw) {
+                continue;
             }
 
             // Layer D: Gender / Role Intent Alignment Multiplier
@@ -251,8 +234,13 @@ class SearchEngine
             return [];
         }
 
-        // Out-of-Context Safety Filter:
-        if ($max_score < 0.30 && !$has_exact_phrase && !$has_keyword_match) {
+        // Strict Out-of-Context & Gibberish Query Safety Filter
+        // Rejects queries that lack domain keyword alignment (e.g. "xyz 123 random text")
+        if (!$has_exact_phrase && !$has_keyword_match) {
+            if ($max_score < 0.82) {
+                return [];
+            }
+        } elseif (!$has_exact_phrase && $max_score < 0.45) {
             return [];
         }
 
@@ -270,8 +258,9 @@ class SearchEngine
         }
 
         // 6. Fetch Ratings, Reviews & Price for Hybrid Ranking Boosts
-        $services_table = $wpdb->prefix . 'provider_services';
-        $reviews_table  = $wpdb->prefix . 'cosy_provider_reviews';
+        $services_table          = $wpdb->prefix . 'provider_services';
+        $reviews_table           = $wpdb->prefix . 'cosy_provider_reviews';
+        $is_highest_rated_intent = preg_match('/\b(highest|top|best)\b.*?\b(rated|rating|ratings|stars|reviews)\b/i', $query_text) || preg_match('/\b(highest|top|best)\b/i', $query_text);
 
         foreach ($matches as &$item) {
             $pid = $item['provider_id'];
@@ -294,8 +283,12 @@ class SearchEngine
                 $price = $min_price ? floatval($min_price) : 0;
             }
 
-            // Apply Rating Boost: +0.05 per star, plus review count bonus
-            $rating_boost = ($rating / 10.0) * 0.15 + (min(5, $review_count) * 0.02);
+            // Apply Rating Boost: Strong +3.0 multiplier for explicit "highest/top rated" intent
+            if ($is_highest_rated_intent) {
+                $rating_boost = ($rating / 10.0) * 3.0 + (min(5, $review_count) * 0.1);
+            } else {
+                $rating_boost = ($rating / 10.0) * 0.15 + (min(5, $review_count) * 0.02);
+            }
 
             // Apply Price Budget Fit Boost if user specified a budget
             $price_boost = 0.0;
@@ -324,20 +317,8 @@ class SearchEngine
             return 0;
         });
 
-        // 8. Extract Provider IDs & Save to Cache Table
+        // 8. Extract Sorted Provider IDs & Return Real-Time Cards
         $sorted_provider_ids = array_column($matches, 'provider_id');
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_cache'") === $table_cache) {
-            $wpdb->replace(
-                $table_cache,
-                [
-                    'query_hash'            => $query_hash,
-                    'query_text'            => $query_text,
-                    'matching_provider_ids' => json_encode($sorted_provider_ids),
-                    'created_at'            => current_time('mysql'),
-                ],
-                ['%s', '%s', '%s', '%s']
-            );
-        }
 
         $effective_limit = (!empty($intent['requested_limit']) && $intent['requested_limit'] > 0) ? min($intent['requested_limit'], 12) : $limit;
         return self::fetch_provider_cards($sorted_provider_ids, $effective_limit);
@@ -597,7 +578,7 @@ class SearchEngine
     {
         $all_text  = strtolower($query . ' ' . $expanded_query);
         $words     = preg_split('/[\s,;.!?-]+/', $all_text, -1, PREG_SPLIT_NO_EMPTY);
-        $stopwords = ['and', 'the', 'for', 'with', 'you', 'our', 'are', 'was', 'were', 'who', 'this', 'that', 'have', 'has', 'looking', 'need', 'want', 'someone', 'help', 'guide', 'support'];
+        $stopwords = ['and', 'the', 'for', 'with', 'you', 'our', 'are', 'was', 'were', 'who', 'this', 'that', 'have', 'has', 'looking', 'need', 'want', 'someone', 'help', 'guide', 'support', 'text', 'random', 'test', 'sample', 'xyz'];
         $keywords  = [];
 
         foreach ($words as $w) {
