@@ -302,7 +302,8 @@ function openTimeSlotModal(dateStr) {
             action: 'cosy_get_booked_slots',
             nonce: window.nonce,
             provider_id: window.providerId,
-            date: dateStr
+            date: dateStr,
+            num_weeks: parseInt(jQuery('#selDurationWeeks').val()) || 1
         },
         success: function (response) {
             grid.innerHTML = '';

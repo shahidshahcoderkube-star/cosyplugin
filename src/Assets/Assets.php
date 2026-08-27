@@ -385,7 +385,7 @@ class Assets
                 'cosy-calendar',
                 COSY_APPT_URL . 'src/Assets/js/calendar.js',
                 ['jquery', 'bootstrap-bundle', 'sweetalert2'],
-                COSY_APPT_VER,
+                time(),
                 true
             );
             wp_localize_script('cosy-calendar', 'cosyCalendar', [

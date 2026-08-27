@@ -45,9 +45,10 @@ class Frontend
 
         // Register AJAX handlers for booking creation
         $this->register_ajax_handlers([
-            'cosy_update_booking_status' => 'handle_update_booking_status',
-            'cosy_get_booked_slots' => 'handle_get_booked_slots',
-            'filter_service_providers' => 'handle_filter_service_providers'
+            'cosy_update_booking_status'  => 'handle_update_booking_status',
+            'cosy_get_booked_slots'       => 'handle_get_booked_slots',
+            'cosy_validate_booking_slots' => 'handle_validate_booking_slots',
+            'filter_service_providers'    => 'handle_filter_service_providers'
         ], $this);
     }
 
@@ -660,20 +661,19 @@ class Frontend
     }
 
     /**
-     * handle_get_booked_slots
-     * 
-     * Retrieves already booked time slots for a given provider on a specific date.
+     * Get all booked slots for a provider across a list of YYYY-MM-DD dates.
+     * Takes into account multi-week recurring bookings in both forward and backward directions.
+     *
+     * @param int   $provider_id Provider ID.
+     * @param array $requested_dates Array of YYYY-MM-DD date strings.
+     * @return array List of booked time slots across all requested dates.
      */
-    public function handle_get_booked_slots(): void
+    public static function get_booked_slots_for_dates(int $provider_id, array $requested_dates): array
     {
-        $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
-        $date_str    = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
-
-        if (empty($provider_id) || empty($date_str)) {
-            wp_send_json_error(['message' => 'Missing provider or date parameter.']);
+        if (empty($provider_id) || empty($requested_dates)) {
+            return [];
         }
 
-        // Helper closure to normalize any date string to YYYY-MM-DD reliably
         $parse_date_safe = function ($date_raw) {
             if (empty($date_raw)) {
                 return '';
@@ -683,8 +683,10 @@ class Frontend
             return $ts ? date('Y-m-d', $ts) : $date_raw;
         };
 
-        // Normalize target requested date
-        $target_formatted = $parse_date_safe($date_str);
+        $normalized_requested_dates = array_filter(array_map($parse_date_safe, $requested_dates));
+        if (empty($normalized_requested_dates)) {
+            return [];
+        }
 
         $args = [
             'post_type'      => 'cosy_appointment',
@@ -718,71 +720,69 @@ class Frontend
                     }
                 }
 
-                // Retrieve recurring week count (default 1 week)
                 $num_weeks_meta = get_post_meta($appt->ID, 'cosy_number_of_weeks', true);
                 $num_weeks = max(1, intval($num_weeks_meta));
 
                 $slots_meta = get_post_meta($appt->ID, 'cosy_slots', true);
-                if (!empty($slots_meta)) {
-                    $decoded = html_entity_decode($slots_meta);
-                    $slots = json_decode($decoded, true);
-                    if (!is_array($slots)) {
-                        $slots = json_decode($slots_meta, true);
-                    }
+                if (empty($slots_meta)) {
+                    continue;
+                }
 
-                    if (is_array($slots)) {
-                        foreach ($slots as $k => $v) {
-                            // Case 1: Key-Value Dictionary {"05-08-2026": ["10:00 AM", "10:10 AM"]}
-                            if (is_array($v) && !isset($v['date'])) {
-                                $base_formatted = $parse_date_safe($k);
+                $decoded = html_entity_decode($slots_meta);
+                $slots = json_decode($decoded, true);
+                if (!is_array($slots)) {
+                    $slots = json_decode($slots_meta, true);
+                }
 
-                                $is_match = ($k === $date_str || $base_formatted === $target_formatted);
+                if (!is_array($slots)) {
+                    continue;
+                }
 
-                                // Check recurring weeks if num_weeks > 1
-                                if (!$is_match && $num_weeks > 1 && !empty($base_formatted)) {
-                                    $base_ts = strtotime($base_formatted);
-                                    if ($base_ts) {
-                                        for ($w = 1; $w < $num_weeks; $w++) {
-                                            $recurring_formatted = date('Y-m-d', strtotime("+{$w} week", $base_ts));
-                                            if ($recurring_formatted === $target_formatted) {
-                                                $is_match = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
+                foreach ($slots as $k => $v) {
+                    // Case 1: Key-Value Dictionary {"05-08-2026": ["10:00 AM", "10:10 AM"]}
+                    if (is_array($v) && !isset($v['date'])) {
+                        $base_formatted = $parse_date_safe($k);
+                        if (empty($base_formatted)) {
+                            continue;
+                        }
 
-                                if ($is_match) {
-                                    foreach ($v as $time_val) {
-                                        $booked_slots[] = $time_val;
-                                    }
-                                }
+                        $base_ts = strtotime($base_formatted);
+                        if (!$base_ts) {
+                            continue;
+                        }
+
+                        $appt_dates = [];
+                        for ($w = 0; $w < $num_weeks; $w++) {
+                            $appt_dates[] = date('Y-m-d', strtotime("+{$w} week", $base_ts));
+                        }
+
+                        if (!empty(array_intersect($normalized_requested_dates, $appt_dates))) {
+                            foreach ($v as $time_val) {
+                                $booked_slots[] = (string) $time_val;
                             }
-                            // Case 2: Array of objects [{"date": "...", "time": "..."}]
-                            elseif (is_array($v) || is_object($v)) {
-                                $slot_obj = (array) $v;
-                                if (isset($slot_obj['date'])) {
-                                    $base_formatted = $parse_date_safe($slot_obj['date']);
-                                    $is_match = ($slot_obj['date'] === $date_str || $base_formatted === $target_formatted);
+                        }
+                    }
+                    // Case 2: Array of objects [{"date": "...", "time": "..."}]
+                    elseif (is_array($v) || is_object($v)) {
+                        $slot_obj = (array) $v;
+                        if (isset($slot_obj['date'])) {
+                            $base_formatted = $parse_date_safe($slot_obj['date']);
+                            if (empty($base_formatted)) {
+                                continue;
+                            }
 
-                                    // Check recurring weeks if num_weeks > 1
-                                    if (!$is_match && $num_weeks > 1 && !empty($base_formatted)) {
-                                        $base_ts = strtotime($base_formatted);
-                                        if ($base_ts) {
-                                            for ($w = 1; $w < $num_weeks; $w++) {
-                                                $recurring_formatted = date('Y-m-d', strtotime("+{$w} week", $base_ts));
-                                                if ($recurring_formatted === $target_formatted) {
-                                                    $is_match = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
+                            $base_ts = strtotime($base_formatted);
+                            if (!$base_ts) {
+                                continue;
+                            }
 
-                                    if ($is_match && isset($slot_obj['time'])) {
-                                        $booked_slots[] = $slot_obj['time'];
-                                    }
-                                }
+                            $appt_dates = [];
+                            for ($w = 0; $w < $num_weeks; $w++) {
+                                $appt_dates[] = date('Y-m-d', strtotime("+{$w} week", $base_ts));
+                            }
+
+                            if (!empty(array_intersect($normalized_requested_dates, $appt_dates)) && isset($slot_obj['time'])) {
+                                $booked_slots[] = (string) $slot_obj['time'];
                             }
                         }
                     }
@@ -790,7 +790,191 @@ class Frontend
             }
         }
 
-        wp_send_json_success(array_values(array_unique($booked_slots)));
+        return array_values(array_unique($booked_slots));
+    }
+
+    /**
+     * Validates if a set of requested time slots is available for all weeks in a multi-week booking.
+     * Provides explicit breakdown of which weeks are already booked and which weeks are available.
+     *
+     * @param int          $provider_id Provider ID.
+     * @param string       $start_date  Start date string.
+     * @param int          $number_of_weeks Duration in weeks.
+     * @param array|string $slots_input JSON string or array of requested slots.
+     * @return array Array with 'valid' (bool) and optional 'message', 'conflict_slot', 'booked_weeks', 'available_weeks'.
+     */
+    public static function validate_slots_availability(int $provider_id, string $start_date, int $number_of_weeks, $slots_input): array
+    {
+        if (empty($provider_id) || empty($start_date)) {
+            return ['valid' => true];
+        }
+
+        $number_of_weeks = max(1, intval($number_of_weeks));
+
+        $start_clean = str_replace('/', '-', trim($start_date));
+        $start_ts = strtotime($start_clean);
+        if (!$start_ts) {
+            return ['valid' => true];
+        }
+
+        // Parse requested slots input
+        $requested_slots = [];
+        if (is_string($slots_input)) {
+            $decoded = html_entity_decode($slots_input);
+            $parsed = json_decode($decoded, true);
+            if (!is_array($parsed)) {
+                $parsed = json_decode($slots_input, true);
+            }
+            $slots_input = $parsed;
+        }
+
+        if (is_array($slots_input)) {
+            foreach ($slots_input as $k => $v) {
+                if (is_array($v) && !isset($v['date'])) {
+                    foreach ($v as $time_val) {
+                        $requested_slots[] = (string) $time_val;
+                    }
+                } elseif (is_array($v) || is_object($v)) {
+                    $slot_obj = (array) $v;
+                    if (isset($slot_obj['time'])) {
+                        $requested_slots[] = (string) $slot_obj['time'];
+                    }
+                }
+            }
+        }
+
+        $requested_slots = array_values(array_unique($requested_slots));
+        if (empty($requested_slots)) {
+            return ['valid' => true];
+        }
+
+        // Track per-week status (booked vs available)
+        $booked_weeks_details = [];
+        $available_weeks_details = [];
+        $has_collision = false;
+        $all_conflicting_slots = [];
+
+        for ($w = 0; $w < $number_of_weeks; $w++) {
+            $week_num = $w + 1;
+            $week_date_formatted = date('Y-m-d', strtotime("+{$w} week", $start_ts));
+            $week_date_display = date('d M Y', strtotime($week_date_formatted));
+
+            $booked_slots_for_week = self::get_booked_slots_for_dates($provider_id, [$week_date_formatted]);
+            $collisions = array_intersect($requested_slots, $booked_slots_for_week);
+
+            if (!empty($collisions)) {
+                $has_collision = true;
+                foreach ($collisions as $cs) {
+                    $all_conflicting_slots[] = $cs;
+                }
+                $booked_weeks_details[] = sprintf(__('Week %d (%s)', 'cosy-appointments'), $week_num, $week_date_display);
+            } else {
+                $available_weeks_details[] = sprintf(__('Week %d (%s)', 'cosy-appointments'), $week_num, $week_date_display);
+            }
+        }
+
+        if ($has_collision) {
+            $conflicting_slots_str = implode(', ', array_unique($all_conflicting_slots));
+
+            $booked_list_html = '<li>' . implode('</li><li>', array_map('esc_html', $booked_weeks_details)) . '</li>';
+            $avail_list_html  = !empty($available_weeks_details) 
+                ? '<li>' . implode('</li><li>', array_map('esc_html', $available_weeks_details)) . '</li>'
+                : '<li>' . esc_html__('None available in this selection', 'cosy-appointments') . '</li>';
+
+            $message = sprintf(
+                '<div style="text-align: left; font-size: 14px; line-height: 1.5; color: #334155; margin-top: 8px;">
+                    <p style="margin-bottom: 10px; font-weight: 500;">' . esc_html__('Slot(s) %s cannot be booked for the selected duration:', 'cosy-appointments') . '</p>
+                    <div style="background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;">
+                        <strong style="color: #dc2626; font-size: 13px;">❌ ' . esc_html__('Already Booked:', 'cosy-appointments') . '</strong>
+                        <ul style="margin: 6px 0 0 18px; padding: 0; color: #991b1b; font-size: 13px;">%s</ul>
+                    </div>
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px;">
+                        <strong style="color: #16a34a; font-size: 13px;">✅ ' . esc_html__('Available Weeks:', 'cosy-appointments') . '</strong>
+                        <ul style="margin: 6px 0 0 18px; padding: 0; color: #166534; font-size: 13px;">%s</ul>
+                    </div>
+                    <p style="margin: 0; font-size: 12px; color: #64748b; text-align: center; font-style: italic;">' . esc_html__('Please select another time slot or start date.', 'cosy-appointments') . '</p>
+                </div>',
+                '<strong>' . esc_html($conflicting_slots_str) . '</strong>',
+                $booked_list_html,
+                $avail_list_html
+            );
+
+            return [
+                'valid'           => false,
+                'conflict_slot'   => reset($all_conflicting_slots),
+                'booked_weeks'    => $booked_weeks_details,
+                'available_weeks' => $available_weeks_details,
+                'message'         => $message
+            ];
+        }
+
+        return ['valid' => true];
+    }
+
+    /**
+     * handle_get_booked_slots
+     * 
+     * Retrieves already booked time slots for a given provider on a specific date and duration (weeks).
+     */
+    public function handle_get_booked_slots(): void
+    {
+        $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
+        $date_str    = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
+        $num_weeks   = isset($_POST['num_weeks']) ? max(1, intval($_POST['num_weeks'])) : 1;
+
+        if (empty($provider_id) || empty($date_str)) {
+            wp_send_json_error(['message' => 'Missing provider or date parameter.']);
+        }
+
+        $parse_date_safe = function ($date_raw) {
+            if (empty($date_raw)) {
+                return '';
+            }
+            $clean = str_replace('/', '-', trim($date_raw));
+            $ts = strtotime($clean);
+            return $ts ? date('Y-m-d', $ts) : $date_raw;
+        };
+
+        $start_formatted = $parse_date_safe($date_str);
+        $start_ts = strtotime($start_formatted);
+
+        $requested_dates = [];
+        if ($start_ts) {
+            for ($w = 0; $w < $num_weeks; $w++) {
+                $requested_dates[] = date('Y-m-d', strtotime("+{$w} week", $start_ts));
+            }
+        } else {
+            $requested_dates[] = $date_str;
+        }
+
+        $booked_slots = self::get_booked_slots_for_dates($provider_id, $requested_dates);
+
+        wp_send_json_success($booked_slots);
+    }
+
+    /**
+     * handle_validate_booking_slots
+     * 
+     * AJAX handler to validate slot availability when duration changes or when customer clicks Book Service Now.
+     */
+    public function handle_validate_booking_slots(): void
+    {
+        $provider_id = isset($_POST['provider_id']) ? intval($_POST['provider_id']) : 0;
+        $start_date  = isset($_POST['start_date']) ? sanitize_text_field($_POST['start_date']) : '';
+        $num_weeks   = isset($_POST['num_weeks']) ? max(1, intval($_POST['num_weeks'])) : 1;
+        $slots_json  = isset($_POST['slots']) ? wp_unslash($_POST['slots']) : '';
+
+        if (empty($provider_id) || empty($start_date)) {
+            wp_send_json_error(['message' => __('Missing provider or start date parameter.', 'cosy-appointments')]);
+        }
+
+        $res = self::validate_slots_availability($provider_id, $start_date, $num_weeks, $slots_json);
+
+        if (isset($res['valid']) && !$res['valid']) {
+            wp_send_json_error(['message' => $res['message']]);
+        }
+
+        wp_send_json_success(['valid' => true]);
     }
 
     public function cosy_payment_log(string $message, $data = null): void

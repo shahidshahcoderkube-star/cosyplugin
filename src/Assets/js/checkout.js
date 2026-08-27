@@ -648,7 +648,8 @@ jQuery(document).ready(function ($) {
             data: {
                 action: 'cosy_get_booked_slots',
                 provider_id: targetProviderId,
-                date: currentModalDateStr
+                date: currentModalDateStr,
+                num_weeks: parseInt($('#selDurationWeeks').val()) || 1
             },
             success: function (res) {
                 let bookedSlots = [];
@@ -869,6 +870,43 @@ jQuery(document).ready(function ($) {
 
     $(document).on('change', '#selDurationWeeks', function () {
         calculateLiveTotal();
+        if (typeof currentModalDateStr !== 'undefined' && currentModalDateStr) {
+            renderSlotsForDate(currentModalDateStr);
+        }
+
+        // Instant validation check when duration changes if slots are already selected
+        let hasSlots = false;
+        Object.values(selectedSlotsByDay).forEach(slots => {
+            if (slots && slots.length > 0) hasSlots = true;
+        });
+
+        if (hasSlots && startDateParam) {
+            const weeks = parseInt($('#selDurationWeeks').val()) || 1;
+            const ajaxUrl = (window.cosyCheckout && window.cosyCheckout.ajaxUrl) || window.ajaxurl || '/wp-admin/admin-ajax.php';
+            const existingPending = JSON.parse(localStorage.getItem('cosy_pending_booking') || '{}');
+            const targetProviderId = existingPending.providerId || providerIdParam || (window.cosyCheckout && window.cosyCheckout.providerId) || 0;
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'cosy_validate_booking_slots',
+                    provider_id: targetProviderId,
+                    start_date: startDateParam,
+                    num_weeks: weeks,
+                    slots: JSON.stringify(selectedSlotsByDay)
+                },
+                success: function (res) {
+                    if (res && res.success === false && res.data && res.data.message) {
+                        if (typeof CosyAlert !== 'undefined') {
+                            CosyAlert.error('Slot Unavailable', res.data.message);
+                        } else {
+                            alert(res.data.message);
+                        }
+                    }
+                }
+            });
+        }
     });
 
     // Proceed from Call Schedule to Booking Summary
@@ -983,12 +1021,44 @@ jQuery(document).ready(function ($) {
         };
 
         const $btn = $(this);
-        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing Summary...');
+        const origBtnText = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Verifying Slots...');
 
-        localStorage.setItem('cosy_pending_booking', JSON.stringify(bookingPayload));
-        setTimeout(() => {
-            renderSummaryScreen();
-        }, 300);
+        const ajaxUrl = (window.cosyCheckout && window.cosyCheckout.ajaxUrl) || window.ajaxurl || '/wp-admin/admin-ajax.php';
+        const targetProviderId = existingPending.providerId || providerIdParam || (window.cosyCheckout && window.cosyCheckout.providerId) || 0;
+
+        $.ajax({
+            url: ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'cosy_validate_booking_slots',
+                provider_id: targetProviderId,
+                start_date: startDateParam || '',
+                num_weeks: weeks,
+                slots: JSON.stringify(selectedSlotsByDay)
+            },
+            success: function (res) {
+                $btn.prop('disabled', false).html(origBtnText);
+                if (res && res.success === false && res.data && res.data.message) {
+                    if (typeof CosyAlert !== 'undefined') {
+                        CosyAlert.error('Slot Unavailable', res.data.message);
+                    } else {
+                        alert(res.data.message);
+                    }
+                    return;
+                }
+
+                localStorage.setItem('cosy_pending_booking', JSON.stringify(bookingPayload));
+                setTimeout(() => {
+                    renderSummaryScreen();
+                }, 200);
+            },
+            error: function () {
+                $btn.prop('disabled', false).html(origBtnText);
+                localStorage.setItem('cosy_pending_booking', JSON.stringify(bookingPayload));
+                renderSummaryScreen();
+            }
+        });
     });
 
     $(document).on('click', '#btnBackToSchedule', function () {

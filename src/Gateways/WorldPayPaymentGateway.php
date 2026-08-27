@@ -167,6 +167,20 @@ class WorldPayPaymentGateway
             wp_send_json_error(['message' => __('Missing required provider details.', 'cosy-appointments')]);
         }
 
+        // Validate multi-week slot availability across all projected dates
+        $slot_validation = \Cosy\Appointments\Frontend\Frontend::validate_slots_availability(
+            $provider_id,
+            $start_date,
+            $number_of_weeks,
+            $slots_json
+        );
+
+        if (isset($slot_validation['valid']) && !$slot_validation['valid']) {
+            $error_msg = $slot_validation['message'] ?? __('One or more selected time slots are already booked. Please choose another time or date.', 'cosy-appointments');
+            $this->cosy_payment_log("WorldPay Session Creation FAILED: Slot collision detected. " . $error_msg, $_POST);
+            wp_send_json_error(['message' => $error_msg]);
+        }
+
         // Verify provider account is active
         $provider_status = get_user_meta($provider_id, 'cosy_provider_status', true);
         if ($provider_status !== 'active') {
