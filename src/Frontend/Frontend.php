@@ -867,36 +867,82 @@ class Frontend
                 foreach ($collisions as $cs) {
                     $all_conflicting_slots[] = $cs;
                 }
-                $booked_weeks_details[] = sprintf(__('Week %d (%s)', 'cosy-appointments'), $week_num, $week_date_display);
+                $booked_weeks_details[] = [
+                    'num'  => $week_num,
+                    'date' => $week_date_display
+                ];
             } else {
-                $available_weeks_details[] = sprintf(__('Week %d (%s)', 'cosy-appointments'), $week_num, $week_date_display);
+                $available_weeks_details[] = [
+                    'num'  => $week_num,
+                    'date' => $week_date_display
+                ];
             }
         }
 
         if ($has_collision) {
             $conflicting_slots_str = implode(', ', array_unique($all_conflicting_slots));
 
-            $booked_list_html = '<li>' . implode('</li><li>', array_map('esc_html', $booked_weeks_details)) . '</li>';
-            $avail_list_html  = !empty($available_weeks_details) 
-                ? '<li>' . implode('</li><li>', array_map('esc_html', $available_weeks_details)) . '</li>'
-                : '<li>' . esc_html__('None available in this selection', 'cosy-appointments') . '</li>';
+            // Build Booked Rows HTML
+            $booked_rows_html = '';
+            foreach ($booked_weeks_details as $bw) {
+                $booked_rows_html .= sprintf(
+                    '<div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 7px 12px; border-radius: 8px; margin-top: 6px; border: 1px solid #fee2e2; font-size: 13px; font-weight: 600; color: #991b1b;">
+                        <span><i class="fas fa-calendar-xmark me-2" style="color: #ef4444;"></i>' . esc_html__('Week %d', 'cosy-appointments') . '</span>
+                        <span style="font-size: 12px; background: #fef2f2; padding: 3px 10px; border-radius: 20px; color: #dc2626; border: 1px solid #fecaca; font-weight: 700;">%s</span>
+                    </div>',
+                    $bw['num'],
+                    esc_html($bw['date'])
+                );
+            }
+
+            // Build Available Rows HTML
+            $avail_rows_html = '';
+            if (!empty($available_weeks_details)) {
+                foreach ($available_weeks_details as $aw) {
+                    $avail_rows_html .= sprintf(
+                        '<div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 7px 12px; border-radius: 8px; margin-top: 6px; border: 1px solid #dcfce7; font-size: 13px; font-weight: 600; color: #166534;">
+                            <span><i class="fas fa-calendar-check me-2" style="color: #22c55e;"></i>' . esc_html__('Week %d', 'cosy-appointments') . '</span>
+                            <span style="font-size: 12px; background: #f0fdf4; padding: 3px 10px; border-radius: 20px; color: #16a34a; border: 1px solid #bbf7d0; font-weight: 700;">%s</span>
+                        </div>',
+                        $aw['num'],
+                        esc_html($aw['date'])
+                    );
+                }
+            } else {
+                $avail_rows_html = '<div style="font-size: 12px; color: #94a3b8; font-style: italic; padding: 6px 0; text-align: center;">' . esc_html__('None available in this selection', 'cosy-appointments') . '</div>';
+            }
 
             $message = sprintf(
-                '<div style="text-align: left; font-size: 14px; line-height: 1.5; color: #334155; margin-top: 8px;">
-                    <p style="margin-bottom: 10px; font-weight: 500;">' . esc_html__('Slot(s) %s cannot be booked for the selected duration:', 'cosy-appointments') . '</p>
-                    <div style="background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;">
-                        <strong style="color: #dc2626; font-size: 13px;">❌ ' . esc_html__('Already Booked:', 'cosy-appointments') . '</strong>
-                        <ul style="margin: 6px 0 0 18px; padding: 0; color: #991b1b; font-size: 13px;">%s</ul>
+                '<div style="text-align: left; font-size: 14px; line-height: 1.5; color: #334155; margin-top: 4px;">
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <span style="font-size: 12px; font-weight: 700; color: #a44390; background: #fdf4ff; border: 1px solid #f5d0fe; padding: 4px 14px; border-radius: 20px; display: inline-block;">
+                            <i class="fas fa-clock me-1"></i> ' . esc_html__('Requested Slot:', 'cosy-appointments') . ' %s
+                        </span>
                     </div>
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px;">
-                        <strong style="color: #16a34a; font-size: 13px;">✅ ' . esc_html__('Available Weeks:', 'cosy-appointments') . '</strong>
-                        <ul style="margin: 6px 0 0 18px; padding: 0; color: #166534; font-size: 13px;">%s</ul>
+
+                    <div style="background: linear-gradient(135deg, #fff5f5 0%%, #fff0f0 100%%); border: 1.5px solid #fecaca; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.04);">
+                        <div style="color: #dc2626; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-circle-xmark me-2"></i>' . esc_html__('Already Booked Dates', 'cosy-appointments') . '</span>
+                            <span style="font-size: 10px; background: #dc2626; color: #ffffff; padding: 2px 8px; border-radius: 10px; font-weight: 700;">UNAVAILABLE</span>
+                        </div>
+                        %s
                     </div>
-                    <p style="margin: 0; font-size: 12px; color: #64748b; text-align: center; font-style: italic;">' . esc_html__('Please select another time slot or start date.', 'cosy-appointments') . '</p>
+
+                    <div style="background: linear-gradient(135deg, #f0fdf4 0%%, #ecfdf5 100%%); border: 1.5px solid #bbf7d0; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; box-shadow: 0 2px 4px rgba(22, 163, 74, 0.04);">
+                        <div style="color: #16a34a; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-circle-check me-2"></i>' . esc_html__('Available Weeks', 'cosy-appointments') . '</span>
+                            <span style="font-size: 10px; background: #16a34a; color: #ffffff; padding: 2px 8px; border-radius: 10px; font-weight: 700;">FREE</span>
+                        </div>
+                        %s
+                    </div>
+
+                    <div style="text-align: center; font-size: 12px; color: #64748b; font-weight: 500; background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <i class="fas fa-lightbulb me-1" style="color: #eab308;"></i> ' . esc_html__('Please select another time slot or start date to proceed.', 'cosy-appointments') . '
+                    </div>
                 </div>',
                 '<strong>' . esc_html($conflicting_slots_str) . '</strong>',
-                $booked_list_html,
-                $avail_list_html
+                $booked_rows_html,
+                $avail_rows_html
             );
 
             return [
