@@ -65,7 +65,7 @@ if ($current_user->exists()) {
 							$cost = get_post_meta($appt->ID, 'cosy_service_cost', true);
 							$fee = get_post_meta($appt->ID, 'cosy_service_fee', true);
 							$week_days = get_post_meta($appt->ID, 'cosy_week_days', true);
-							$slots_timeline = cosy_clean_slots_timeline(get_post_meta($appt->ID, 'cosy_slots_timeline', true));
+							$slots_timeline = cosy_clean_slots_timeline(get_post_meta($appt->ID, 'cosy_slots_timeline', true), $start_date, $week_days);
 						?>
 							<tr style="border-bottom: 1px solid #edf2f7; transition: all 0.2s;">
 								<td class="ps-4 py-3 fw-bold text-dark" style="font-size: 0.9rem;">#<?php echo esc_html($appt->ID); ?></td>

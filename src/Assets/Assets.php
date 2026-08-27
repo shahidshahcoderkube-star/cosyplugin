@@ -73,13 +73,15 @@ class Assets
             null
         );
 
-        // Bootstrap CSS
-        wp_enqueue_style(
-            'cosy-bootstrap',
-            'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
-            [],
-            '5.3.2'
-        );
+        // Bootstrap CSS (Do not load on native WP users.php to preserve WordPress default list table styles)
+        if ($hook !== 'users.php') {
+            wp_enqueue_style(
+                'cosy-bootstrap',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+                [],
+                '5.3.2'
+            );
+        }
 
         // Bootstrap JS (with Popper)
         wp_enqueue_script(

@@ -152,7 +152,7 @@ class OrdersAdmin
               $total_payable   = get_post_meta($appt_id, 'cosy_total_payable', true);
               $booking_status  = get_post_meta($appt_id, 'cosy_booking_status', true);
               $week_days       = get_post_meta($appt_id, 'cosy_week_days', true);
-              $slots_timeline  = cosy_clean_slots_timeline(get_post_meta($appt_id, 'cosy_slots_timeline', true));
+              $slots_timeline  = cosy_clean_slots_timeline(get_post_meta($appt_id, 'cosy_slots_timeline', true), $start_date, $week_days);
               if (empty($booking_status)) {
                 $booking_status = 'pending';
               }

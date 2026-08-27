@@ -994,20 +994,34 @@ jQuery(document).ready(function ($) {
         });
         const computedWeekDays = computedWeekDaysArr.join(', ');
 
-        // Compute Selected Slots Timeline (showing ONLY slot times, without date prefix)
+        // Compute Selected Slots Timeline (showing Day Name + Slot Times breakdown e.g. Mon 08:00 AM, 08:10 AM)
         let computedTimelineArr = [];
+        const shortDaysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         Object.keys(selectedSlotsByDay).forEach(dKey => {
             const timesArr = selectedSlotsByDay[dKey];
             if (Array.isArray(timesArr) && timesArr.length > 0) {
-                timesArr.forEach(t => {
-                    const normT = normalizeTimeStr(t);
-                    if (!computedTimelineArr.includes(normT)) {
-                        computedTimelineArr.push(normT);
-                    }
-                });
+                let dObj;
+                if (/^\d{2}-\d{2}-\d{4}$/.test(dKey)) {
+                    const parts = dKey.split('-');
+                    dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                } else {
+                    dObj = new Date(dKey);
+                }
+
+                let dayLabel = '';
+                if (dObj && !isNaN(dObj.getTime())) {
+                    dayLabel = shortDaysMap[dObj.getDay()];
+                }
+
+                const dayTimes = timesArr.map(normalizeTimeStr).join(', ');
+                if (dayLabel) {
+                    computedTimelineArr.push(`${dayLabel} ${dayTimes}`);
+                } else {
+                    computedTimelineArr.push(dayTimes);
+                }
             }
         });
-        const computedSlotsTimeline = computedTimelineArr.join(', ');
+        const computedSlotsTimeline = computedTimelineArr.join(' | ');
 
         const bookingPayload = {
             serviceId: activeServiceId,

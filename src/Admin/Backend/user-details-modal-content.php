@@ -140,7 +140,7 @@ defined('ABSPATH') || exit;
                                 <?php if (!empty($appt->slots_timeline)) : ?>
                                     <span style="display: flex; align-items: center; gap: 4px;">
                                         <span class="dashicons dashicons-clock" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
-                                        <span><?php echo esc_html(cosy_clean_slots_timeline($appt->slots_timeline)); ?></span>
+                                        <span><?php echo cosy_clean_slots_timeline($appt->slots_timeline, $appt->start_date); ?></span>
                                     </span>
                                 <?php endif; ?>
                             </div>

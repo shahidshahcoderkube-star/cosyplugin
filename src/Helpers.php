@@ -276,19 +276,28 @@ if (!function_exists('cosy_send_html_email')) {
 
 if (!function_exists('cosy_clean_slots_timeline')) {
     /**
-     * Cleans slots timeline string to remove date headers (e.g., "13 Aug 2026: 10:40 AM" -> "10:40 AM").
+     * Formats slots timeline string into clean "Day Time1, Time2" breakdown.
+     * e.g., "06 Oct 2026 (Tuesday): 08:00 AM, 08:10 AM" -> "Tue 08:00 AM, 08:10 AM"
      *
      * @param string $slots_timeline
+     * @param string $start_date     Optional start date fallback (e.g. "01-10-2026")
+     * @param string $week_days      Optional week days fallback (e.g. "Thursday")
      * @return string
      */
-    function cosy_clean_slots_timeline($slots_timeline)
+    function cosy_clean_slots_timeline($slots_timeline, $start_date = '', $week_days = '')
     {
         if (empty($slots_timeline)) {
             return '';
         }
 
-        $parts = explode('|', $slots_timeline);
-        $cleaned_times = [];
+        // Double-clean Protection Guard: If input is already formatted HTML table or div, return as-is
+        if (is_string($slots_timeline) && (strpos($slots_timeline, '<table') !== false || strpos($slots_timeline, '<div') !== false)) {
+            return $slots_timeline;
+        }
+
+        $parts = preg_split('/[|\n]+/', $slots_timeline);
+        $day_slots_map = [];
+        $has_any_day_label = false;
 
         foreach ($parts as $part) {
             $part = trim($part);
@@ -296,20 +305,110 @@ if (!function_exists('cosy_clean_slots_timeline')) {
                 continue;
             }
 
-            // Strip date header if present before a colon (e.g., "13 Aug 2026: 10:40 AM" or "13-08-2026: 10:40 AM")
-            if (preg_match('/^(?:[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}|[0-9]{2}-[0-9]{2}-[0-9]{4}|[A-Za-z]{3,}[\s\w()]*):\s*(.+)$/i', $part, $matches)) {
-                $part = trim($matches[1]);
+            $day_label = '';
+            $times_str = $part;
+
+            // Case 1: Part starts with Day Name (e.g. "Sun 11:30 AM" or "Wed 10:10 AM")
+            if (preg_match('/^\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun)[\s:]*(.+)$/i', $part, $m)) {
+                $day_name = ucfirst(strtolower($m[1]));
+                $day_label = substr($day_name, 0, 3);
+                $times_str = trim($m[2]);
+                $has_any_day_label = true;
+            }
+            // Case 2: Date Header before colon (e.g. "06 Oct 2026: 09:00 AM" or "01-10-2026: 09:30 AM")
+            elseif (preg_match('/^(.*?):\s*(.+)$/', $part, $m)) {
+                $header = trim($m[1]);
+                $rest   = trim($m[2]);
+
+                if (preg_match('/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/i', $header, $dm)) {
+                    $day_label = substr(ucfirst(strtolower($dm[1])), 0, 3);
+                    $times_str = $rest;
+                    $has_any_day_label = true;
+                } elseif (preg_match('/[A-Za-z\s\-]/', $header) && !preg_match('/^\d{1,2}$/', $header)) {
+                    $dt = strtotime($header);
+                    if ($dt) {
+                        $day_label = date('D', $dt);
+                        $times_str = $rest;
+                        $has_any_day_label = true;
+                    }
+                }
             }
 
-            $times = array_map('trim', explode(',', $part));
-            foreach ($times as $t) {
-                if (!empty($t) && !in_array($t, $cleaned_times)) {
-                    $cleaned_times[] = $t;
+            $times_str = strip_tags($times_str);
+            $key = !empty($day_label) ? $day_label : '__NO_DAY__';
+
+            if (!isset($day_slots_map[$key])) {
+                $day_slots_map[$key] = [];
+            }
+
+            $raw_times = array_filter(array_map('trim', explode(',', $times_str)));
+            foreach ($raw_times as $t) {
+                // Normalize "10 AM" -> "10:00 AM" or "9:20 AM" -> "09:20 AM"
+                if (preg_match('/^(\d{1,2})\s*(AM|PM)$/i', $t, $tm)) {
+                    $t = sprintf('%02d:00 %s', $tm[1], strtoupper($tm[2]));
+                } elseif (preg_match('/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i', $t, $tm)) {
+                    $t = sprintf('%02d:%02d %s', $tm[1], $tm[2], strtoupper($tm[3]));
                 }
+                $timestamp = strtotime("2026-01-01 " . $t);
+                $day_slots_map[$key][] = [
+                    'formatted' => $t,
+                    'ts'        => $timestamp ?: 0
+                ];
             }
         }
 
-        return !empty($cleaned_times) ? implode(', ', $cleaned_times) : $slots_timeline;
+        // Fallback if NO day label was detected
+        if (!$has_any_day_label && isset($day_slots_map['__NO_DAY__'])) {
+            $fallback_day = '';
+            if (!empty($week_days)) {
+                $first_day = trim(explode(',', $week_days)[0]);
+                if (preg_match('/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/i', $first_day, $dm)) {
+                    $fallback_day = substr(ucfirst(strtolower($dm[1])), 0, 3);
+                }
+            }
+            if (empty($fallback_day) && !empty($start_date)) {
+                $dt = strtotime($start_date);
+                if (!$dt && preg_match('/^\d{2}-\d{2}-\d{4}$/', $start_date)) {
+                    $p = explode('-', $start_date);
+                    $dt = strtotime("{$p[2]}-{$p[1]}-{$p[0]}");
+                }
+                if ($dt) {
+                    $fallback_day = date('D', $dt);
+                }
+            }
+            if (!empty($fallback_day)) {
+                $day_slots_map[$fallback_day] = $day_slots_map['__NO_DAY__'];
+                unset($day_slots_map['__NO_DAY__']);
+            }
+        }
+
+        $rows_html = [];
+        foreach ($day_slots_map as $d => $slot_list) {
+            usort($slot_list, function($a, $b) {
+                return $a['ts'] <=> $b['ts'];
+            });
+
+            $clean_times = [];
+            foreach ($slot_list as $sl) {
+                if (!in_array($sl['formatted'], $clean_times, true)) {
+                    $clean_times[] = $sl['formatted'];
+                }
+            }
+
+            $times_output = implode(', ', $clean_times);
+
+            if ($d !== '__NO_DAY__') {
+                $rows_html[] = '<tr><td style="padding: 2px 0; color: #334155; line-height: 1.5; font-size: 13px;"><strong>' . esc_html($d) . '</strong> ' . esc_html($times_output) . '</td></tr>';
+            } else {
+                $rows_html[] = '<tr><td style="padding: 2px 0; color: #334155; line-height: 1.5; font-size: 13px;">' . esc_html($times_output) . '</td></tr>';
+            }
+        }
+
+        if (empty($rows_html)) {
+            return '';
+        }
+
+        return '<table style="width:100%; border-collapse:collapse; margin:0; padding:0; border:none; background:transparent;">' . implode('', $rows_html) . '</table>';
     }
 }
 

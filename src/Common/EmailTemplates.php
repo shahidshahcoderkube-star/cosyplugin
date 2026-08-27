@@ -223,7 +223,7 @@ class EmailTemplates
                 {$gift_row}
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['start_date']) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Number of Weeks:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['num_weeks']) . "</td></tr>
-                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . cosy_clean_slots_timeline($data['slots_timeline'] ?? '') . "</td></tr>
+                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '') . "</td></tr>
             </table>
 
             <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Payment Details:</h4>
@@ -271,7 +271,7 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer Email:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['customer_email']) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['start_date']) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Number of Weeks:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['num_weeks']) . "</td></tr>
-                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . cosy_clean_slots_timeline($data['slots_timeline'] ?? '') . "</td></tr>
+                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '') . "</td></tr>
             </table>
 
             <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Payment Details:</h4>
@@ -307,7 +307,7 @@ class EmailTemplates
         $service_title  = $data['service_title'] ?? '';
         $provider_name  = $data['provider_name'] ?? '';
         $start_date     = $data['start_date'] ?? '';
-        $slots_timeline = cosy_clean_slots_timeline($data['slots_timeline'] ?? '');
+        $slots_timeline = cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '');
 
         $html_content = "
             <p>Hello <strong>" . esc_html($recipient_name) . "</strong>,</p>
@@ -493,7 +493,7 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Weekly Schedule:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['weekly_type']) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Week Days Available:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['week_days']) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Weeks &amp; Slots:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['num_bookings']) . " slots over " . esc_html($data['num_weeks']) . " week(s)</td></tr>
-                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Selected Slots:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html(cosy_clean_slots_timeline($data['slots_timeline'] ?? '')) . "</td></tr>
+                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Selected Slots:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '') . "</td></tr>
             </table>
 
             <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Financial Details:</h4>
@@ -720,7 +720,7 @@ class EmailTemplates
         $provider_name  = $data['provider_name'] ?? 'Provider';
         $service_title  = $data['service_title'] ?? '';
         $start_date     = $data['start_date'] ?? '';
-        $slots_timeline = cosy_clean_slots_timeline($data['slots_timeline'] ?? '');
+        $slots_timeline = cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '');
 
         $html_content = "
             <p>Hello <strong>" . esc_html($customer_name) . "</strong>,</p>
@@ -731,7 +731,7 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Order ID:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>#" . esc_html($order_id) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Experience / Topic:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($service_title) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($provider_name) . "</td></tr>
-                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Scheduled Date &amp; Time:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . " (" . esc_html($slots_timeline) . ")</td></tr>
+                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Scheduled Date &amp; Time:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . " (" . $slots_timeline . ")</td></tr>
             </table>
 
             <p>We apologize for any inconvenience this may cause. If you have any questions regarding refunds or re-booking another parent, please contact our support team at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
@@ -759,7 +759,7 @@ class EmailTemplates
         $provider_name  = $data['provider_name'] ?? 'Provider';
         $service_title  = $data['service_title'] ?? '';
         $start_date     = $data['start_date'] ?? '';
-        $slots_timeline = cosy_clean_slots_timeline($data['slots_timeline'] ?? '');
+        $slots_timeline = cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '');
 
         $html_content = "
             <p>Hello <strong>" . esc_html($customer_name) . "</strong>,</p>
@@ -770,7 +770,7 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Order ID:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>#" . esc_html($order_id) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Experience / Topic:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($service_title) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($provider_name) . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Scheduled Date &amp; Time:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . " (" . esc_html($slots_timeline) . ")</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Scheduled Date &amp; Time:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . " (" . $slots_timeline . ")</td></tr>
                 <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Current Status:</td><td style='padding: 10px 14px; color: #a44390; font-weight: bold; vertical-align: top;'>" . esc_html($status_label) . "</td></tr>
             </table>
 
