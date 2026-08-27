@@ -219,8 +219,8 @@ if (!function_exists('cosy_send_html_email')) {
             $site_name = 'CosyChats';
         }
         // Configure Gmail SMTP settings
-        $smtp_user = 'shahidtest1995@gmail.com';
-        $smtp_pass = 'mlljoimbeblraugh';
+        $smtp_user = 'contact@cosychats.com';
+        $smtp_pass = 'suln klpu wrwp bsvy';
 
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
