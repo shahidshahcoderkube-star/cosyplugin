@@ -107,6 +107,11 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         const originalHref = $(this).attr('href');
 
+        if (typeof Swal === 'undefined') {
+            window.location.href = originalHref;
+            return;
+        }
+
         // First Popup (Send OTP)
         Swal.fire({
             title: 'Are you sure?',

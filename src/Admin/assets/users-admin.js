@@ -103,6 +103,10 @@ jQuery(document).ready(function ($) {
                     var errMsg = (typeof response.data === 'string' ? response.data : (response.data && response.data.message ? response.data.message : i18n.statusFailed));
                     CosyAlert.toast(errMsg, 'danger');
                 }
+            }).fail(function () {
+                select.prop('disabled', false);
+                spinner.removeClass('is-active');
+                CosyAlert.toast('Server connection failed. Please try again.', 'danger');
             });
         },
 
@@ -133,6 +137,9 @@ jQuery(document).ready(function ($) {
                         } else {
                             CosyAlert.toast(response.data || i18n.emailFailed, 'danger');
                         }
+                    }).fail(function () {
+                        btn.prop('disabled', false).text(i18n.resendEmail);
+                        CosyAlert.toast('Failed to reach server. Please try again.', 'danger');
                     });
                 }
             });

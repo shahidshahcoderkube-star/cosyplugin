@@ -612,7 +612,9 @@ jQuery(document).ready(function ($) {
         }
 
         const slots = [];
-        for (let current = startMins; current < endMins; current += 10) {
+        let maxSlotsGuard = 300; // Safeguard against infinite loops (max 300 10-minute slots per day)
+        for (let current = startMins; current < endMins && maxSlotsGuard > 0; current += 10) {
+            maxSlotsGuard--;
             if (breakStartMins >= 0 && breakEndMins >= 0 && current >= breakStartMins && current < breakEndMins) {
                 continue;
             }
@@ -621,6 +623,8 @@ jQuery(document).ready(function ($) {
 
         return slots;
     }
+
+    let isDurationValidating = false;
 
     // Open Time Slot Modal for specific day
     $(document).on('click', '.btn-open-time-modal', function (e) {
@@ -749,8 +753,14 @@ jQuery(document).ready(function ($) {
             $(this).css({ background: '#a44390', color: '#ffffff', border: '1.5px solid #a44390' });
         }
 
-        const count = selectedSlotsByDay[currentModalDateStr].length;
-        $('#modalTotalDuration').text((count * 10) + ' minutes');
+        calculateLiveTotal();
+        const safeIdKey = currentModalDateStr.replace(/[^a-zA-Z0-9]/g, '-');
+        const durationTextEl = document.getElementById(`duration-${safeIdKey}`);
+        if (durationTextEl) {
+            const duration = selectedSlotsByDay[currentModalDateStr].length * 10;
+            durationTextEl.textContent = `${duration} minutes Call Duration`;
+        }
+        $('#modalTotalDuration').text((selectedSlotsByDay[currentModalDateStr].length * 10) + ' minutes');
     });
 
     // Confirm Time Slots in Modal

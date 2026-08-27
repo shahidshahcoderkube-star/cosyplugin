@@ -343,8 +343,10 @@ function openTimeSlotModal(dateStr) {
 
             let currentTime = new Date(startTime);
             let slotsCount = 0;
+            let maxLoopGuard = 500; // Infinite loop safeguard (max 500 iterations per day)
 
-            while (currentTime < endTime) {
+            while (currentTime < endTime && maxLoopGuard > 0) {
+                maxLoopGuard--;
                 const timeStr = currentTime.toTimeString().substring(0, 5); // "HH:MM"
                 const displayTime = currentTime.toLocaleTimeString([], {
                     hour: '2-digit',
@@ -398,7 +400,7 @@ function openTimeSlotModal(dateStr) {
             updateModalDuration();
         },
         error: function () {
-            grid.innerHTML = '<div class="col-12 text-center py-4 text-danger">Failed to check slot availability. Please try again.</div>';
+            grid.innerHTML = '<div class="col-12 text-center py-4 text-danger font-semibold">Failed to check slot availability. Please try again.</div>';
         }
     });
 }

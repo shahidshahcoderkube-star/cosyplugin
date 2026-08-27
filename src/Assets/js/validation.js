@@ -95,6 +95,10 @@ var CosyApp = (function ($) {
                     msgBox.html(cosyAlert("danger", response.data));
                 }
             },
+            error() {
+                let msgBox = $form.find(".cosy-message");
+                msgBox.html(cosyAlert("danger", "Connection error. Please check your network and try again."));
+            },
             complete() {
                 $btn.prop("disabled", false).html("Submit");
             }
@@ -188,6 +192,11 @@ var CosyApp = (function ($) {
                             } else {
                                 msgBox.html(cosyAlert("danger", response.data));
                             }
+                        },
+
+                        error() {
+                            let msgBox = $form.find(".cosy-message");
+                            msgBox.html(cosyAlert("danger", "Connection error. Please check your connection and try again."));
                         },
 
                         complete() {

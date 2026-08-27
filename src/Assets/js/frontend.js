@@ -322,11 +322,19 @@ jQuery(document).ready(function ($) {
             if (res.success) {
                 location.reload();
             } else {
-                alert(res.data.message || 'Error posting follow-up reply.');
+                if (typeof CosyAlert !== 'undefined') {
+                    CosyAlert.error('Reply Error', res.data.message || 'Error posting follow-up reply.');
+                } else {
+                    alert(res.data.message || 'Error posting follow-up reply.');
+                }
                 submitBtn.prop('disabled', false).html('Submit Follow-up');
             }
         }).fail(function () {
-            alert('Server error posting follow-up reply. Please try again.');
+            if (typeof CosyAlert !== 'undefined') {
+                CosyAlert.error('Server Error', 'Server error posting follow-up reply. Please try again.');
+            } else {
+                alert('Server error posting follow-up reply. Please try again.');
+            }
             submitBtn.prop('disabled', false).html('Submit Follow-up');
         });
     });
