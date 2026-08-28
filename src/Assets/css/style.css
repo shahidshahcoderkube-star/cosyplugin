@@ -3815,3 +3815,52 @@ body {
         text-align: center !important;
     }
 }
+
+/* --- LEAVE A REVIEW RATING SCORE BUTTONS --- */
+.rating-top-row {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 6px;
+}
+
+.rating-score-btn {
+    font-weight: 700;
+    border: 1.5px solid #cbd5e1;
+    color: #475569;
+    background-color: #ffffff;
+    transition: all 0.2s ease-in-out;
+}
+
+.rating-btn-small {
+    padding: 10px 0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+}
+
+.rating-btn-large {
+    width: 100%;
+    padding: 12px 0;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    margin-top: 4px;
+}
+
+.rating-score-btn:hover {
+    border-color: #a44390;
+    color: #a44390;
+    background-color: #fdf5fc;
+}
+
+.rating-score-btn.active {
+    background: #a44390 !important;
+    border-color: #a44390 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.25);
+}
+
+@media (max-width: 576px) {
+    .rating-top-row {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+}

@@ -423,7 +423,8 @@ class Assets
                     'cosy_customer_order',
                     'cosy_service_provider_list',
                     'cosy_checkout',
-                    'cosy_provider_dashboard'
+                    'cosy_provider_dashboard',
+                    'cosy_leave_review'
                 ];
 
                 foreach ($shortcodes as $shortcode) {
@@ -444,7 +445,8 @@ class Assets
                     'provider-dashboard',
                     'provider-verify',
                     'service-provider',
-                    'cosy-checkout'
+                    'cosy-checkout',
+                    'cosy-leave-review'
                 ];
 
                 $current_page_id = $post->ID;
