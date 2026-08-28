@@ -461,8 +461,17 @@ class FormsData
             wp_set_current_user($uid);
             wp_set_auth_cookie($uid);
 
-            // Redirect after setting cookie
-            wp_safe_redirect(home_url('/provider-verify?verified=1'));
+            // Redirect after setting cookie based on user role
+            $role_type  = get_user_meta($uid, 'role_type', true);
+            $user_roles = $user ? (array) $user->roles : [];
+
+            if (in_array('customer', $user_roles, true) || $role_type === 'customer') {
+                $target_url = add_query_arg('verified', '1', cosy_get_page_url('customer-profile'));
+            } else {
+                $target_url = add_query_arg('verified', '1', home_url('/provider-verify'));
+            }
+
+            wp_safe_redirect($target_url);
             exit;
         } else {
             wp_die(__('Invalid or expired verification link.', 'cosy-appointments'));

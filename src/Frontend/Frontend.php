@@ -627,6 +627,12 @@ class Frontend
                 $appt_post = get_post($order_id);
                 $customer_user_id = $appt_post ? intval($appt_post->post_author) : 0;
             }
+            if (empty($customer_user_id) && !empty($customer_email)) {
+                $user_by_email = get_user_by('email', $customer_email);
+                if ($user_by_email) {
+                    $customer_user_id = $user_by_email->ID;
+                }
+            }
 
             // Only send if no unused token already exists for this order
             $existing_token = $wpdb->get_var($wpdb->prepare(
