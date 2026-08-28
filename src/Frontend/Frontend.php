@@ -689,6 +689,27 @@ class Frontend
             return $ts ? date('Y-m-d', $ts) : $date_raw;
         };
 
+        $normalize_time_safe = function ($t_raw) {
+            if (empty($t_raw)) {
+                return '';
+            }
+            $t = strtoupper(trim((string) $t_raw));
+            if (preg_match('/^(\d{1,2}):(\d{2})$/', $t, $m)) {
+                $h = intval($m[1]);
+                $min = $m[2];
+                $ap = $h >= 12 ? 'PM' : 'AM';
+                $h12 = $h % 12 ?: 12;
+                return sprintf('%02d:%s %s', $h12, $min, $ap);
+            }
+            if (preg_match('/^(\d{1,2}):(\d{2})\s*(AM|PM)$/', $t, $m)) {
+                $h = intval($m[1]);
+                $min = $m[2];
+                $ap = strtoupper($m[3]);
+                return sprintf('%02d:%s %s', $h, $min, $ap);
+            }
+            return $t;
+        };
+
         $normalized_requested_dates = array_filter(array_map($parse_date_safe, $requested_dates));
         if (empty($normalized_requested_dates)) {
             return [];
@@ -736,8 +757,8 @@ class Frontend
 
                 $decoded = html_entity_decode($slots_meta);
                 $slots = json_decode($decoded, true);
-                if (!is_array($slots)) {
-                    $slots = json_decode($slots_meta, true);
+                if (!is_array($parsed = json_decode($slots_meta, true))) {
+                    $slots = $parsed;
                 }
 
                 if (!is_array($slots)) {
@@ -764,7 +785,10 @@ class Frontend
 
                         if (!empty(array_intersect($normalized_requested_dates, $appt_dates))) {
                             foreach ($v as $time_val) {
-                                $booked_slots[] = (string) $time_val;
+                                $norm_t = $normalize_time_safe($time_val);
+                                if ($norm_t) {
+                                    $booked_slots[] = $norm_t;
+                                }
                             }
                         }
                     }
@@ -788,7 +812,10 @@ class Frontend
                             }
 
                             if (!empty(array_intersect($normalized_requested_dates, $appt_dates)) && isset($slot_obj['time'])) {
-                                $booked_slots[] = (string) $slot_obj['time'];
+                                $norm_t = $normalize_time_safe($slot_obj['time']);
+                                if ($norm_t) {
+                                    $booked_slots[] = $norm_t;
+                                }
                             }
                         }
                     }
@@ -823,8 +850,17 @@ class Frontend
             return ['valid' => true];
         }
 
-        // Parse requested slots input
-        $requested_slots = [];
+        $parse_date_safe = function ($date_raw) {
+            if (empty($date_raw)) {
+                return '';
+            }
+            $clean = str_replace('/', '-', trim($date_raw));
+            $ts = strtotime($clean);
+            return $ts ? date('Y-m-d', $ts) : '';
+        };
+
+        // Parse requested slots input mapped by base date: ['2026-09-25' => ['11:00 AM', '11:10 AM']]
+        $slots_by_base_date = [];
         if (is_string($slots_input)) {
             $decoded = html_entity_decode($slots_input);
             $parsed = json_decode($decoded, true);
@@ -837,20 +873,36 @@ class Frontend
         if (is_array($slots_input)) {
             foreach ($slots_input as $k => $v) {
                 if (is_array($v) && !isset($v['date'])) {
-                    foreach ($v as $time_val) {
-                        $requested_slots[] = (string) $time_val;
+                    $base_formatted = $parse_date_safe($k);
+                    if ($base_formatted) {
+                        if (!isset($slots_by_base_date[$base_formatted])) {
+                            $slots_by_base_date[$base_formatted] = [];
+                        }
+                        foreach ($v as $time_val) {
+                            $slots_by_base_date[$base_formatted][] = (string) $time_val;
+                        }
                     }
                 } elseif (is_array($v) || is_object($v)) {
                     $slot_obj = (array) $v;
-                    if (isset($slot_obj['time'])) {
-                        $requested_slots[] = (string) $slot_obj['time'];
+                    if (!empty($slot_obj['date']) && !empty($slot_obj['time'])) {
+                        $base_formatted = $parse_date_safe($slot_obj['date']);
+                        if ($base_formatted) {
+                            if (!isset($slots_by_base_date[$base_formatted])) {
+                                $slots_by_base_date[$base_formatted] = [];
+                            }
+                            $slots_by_base_date[$base_formatted][] = (string) $slot_obj['time'];
+                        }
                     }
                 }
             }
         }
 
-        $requested_slots = array_values(array_unique($requested_slots));
-        if (empty($requested_slots)) {
+        // Clean and unique time values per base date
+        foreach ($slots_by_base_date as $bd => $tArr) {
+            $slots_by_base_date[$bd] = array_values(array_unique($tArr));
+        }
+
+        if (empty($slots_by_base_date)) {
             return ['valid' => true];
         }
 
@@ -862,25 +914,49 @@ class Frontend
 
         for ($w = 0; $w < $number_of_weeks; $w++) {
             $week_num = $w + 1;
-            $week_date_formatted = date('Y-m-d', strtotime("+{$w} week", $start_ts));
-            $week_date_display = date('d M Y', strtotime($week_date_formatted));
+            $week_has_collision = false;
+            $week_display_date = '';
 
-            $booked_slots_for_week = self::get_booked_slots_for_dates($provider_id, [$week_date_formatted]);
-            $collisions = array_intersect($requested_slots, $booked_slots_for_week);
-
-            if (!empty($collisions)) {
-                $has_collision = true;
-                foreach ($collisions as $cs) {
-                    $all_conflicting_slots[] = $cs;
+            foreach ($slots_by_base_date as $base_date => $req_times) {
+                if (empty($req_times)) {
+                    continue;
                 }
+
+                $base_ts = strtotime($base_date);
+                if (!$base_ts) {
+                    continue;
+                }
+
+                $target_date = date('Y-m-d', strtotime("+{$w} week", $base_ts));
+                if (empty($week_display_date)) {
+                    $week_display_date = date('d M Y', strtotime($target_date));
+                }
+
+                $booked_slots_for_target = self::get_booked_slots_for_dates($provider_id, [$target_date]);
+                $collisions = array_intersect($req_times, $booked_slots_for_target);
+
+                if (!empty($collisions)) {
+                    $week_has_collision = true;
+                    foreach ($collisions as $cs) {
+                        $all_conflicting_slots[] = $cs;
+                    }
+                }
+            }
+
+            if (empty($week_display_date)) {
+                $week_display_date = date('d M Y', strtotime("+{$w} week", $start_ts));
+            }
+
+            if ($week_has_collision) {
+                $has_collision = true;
                 $booked_weeks_details[] = [
                     'num'  => $week_num,
-                    'date' => $week_date_display
+                    'date' => $week_display_date
                 ];
             } else {
                 $available_weeks_details[] = [
                     'num'  => $week_num,
-                    'date' => $week_date_display
+                    'date' => $week_display_date
                 ];
             }
         }
