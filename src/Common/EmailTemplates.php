@@ -729,9 +729,9 @@ class EmailTemplates
             <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Cancelled Booking Details:</h4>
             <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px;'>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Order ID:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>#" . esc_html($order_id) . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Experience / Topic:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($service_title) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($provider_name) . "</td></tr>
-                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Scheduled Date &amp; Time:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . " (" . $slots_timeline . ")</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . "</td></tr>
+                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . $slots_timeline . "</td></tr>
             </table>
 
             <p>We apologize for any inconvenience this may cause. If you have any questions regarding refunds or re-booking another parent, please contact our support team at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
@@ -768,9 +768,9 @@ class EmailTemplates
             <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Booking Summary:</h4>
             <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px;'>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Order ID:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>#" . esc_html($order_id) . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Experience / Topic:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($service_title) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($provider_name) . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Scheduled Date &amp; Time:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . " (" . $slots_timeline . ")</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . $slots_timeline . "</td></tr>
                 <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Current Status:</td><td style='padding: 10px 14px; color: #a44390; font-weight: bold; vertical-align: top;'>" . esc_html($status_label) . "</td></tr>
             </table>
 
@@ -806,11 +806,6 @@ class EmailTemplates
             <p>Thank you for your recent conversation with <strong>{$provider_name}</strong> on CosyChats.</p>
             <p>We hope you found the session helpful and meaningful. Your feedback helps other parents discover the right person to talk to, and it means a great deal to the parents who share their experiences on CosyChats.</p>
 
-            <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Session Details:</h4>
-            <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px;'>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Parent Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>{$provider_name}</td></tr>
-                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Experience:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>{$service_title}</td></tr>
-            </table>
 
             <p>If you'd like to share your experience, simply click the button below. Your review will be submitted for approval before appearing on the parent's profile.</p>
 
