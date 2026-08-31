@@ -873,41 +873,14 @@ jQuery(document).ready(function ($) {
     }
 
     function calculateTotalActiveSlotsAcrossWeeks(weeks) {
-        let totalActiveSlots = 0;
-        Object.keys(selectedSlotsByDay).forEach(dateStr => {
-            const slotsCount = selectedSlotsByDay[dateStr] ? selectedSlotsByDay[dateStr].length : 0;
-            if (slotsCount === 0) return;
-
-            const baseSlotDate = new Date(dateStr);
-            for (let w = 0; w < weeks; w++) {
-                const checkDate = new Date(baseSlotDate);
-                checkDate.setDate(baseSlotDate.getDate() + (w * 7));
-
-                const cYear = checkDate.getFullYear();
-                const cMonth = String(checkDate.getMonth() + 1).padStart(2, '0');
-                const cDayStr = String(checkDate.getDate()).padStart(2, '0');
-                const dateISO = `${cYear}-${cMonth}-${cDayStr}`;
-                const dayNamesMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                const dayNameStr = dayNamesMap[checkDate.getDay()];
-
-                const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateISO);
-                let isDayOff = false;
-                if (window.providerAvailability && typeof window.providerAvailability === 'object') {
-                    const dayConfig = window.providerAvailability[dayNameStr];
-                    if (!dayConfig || (!dayConfig.start_time && !dayConfig.end_time)) {
-                        isDayOff = true;
-                    }
-                }
-
-                if (!isHoliday && !isDayOff) {
-                    totalActiveSlots += slotsCount;
-                }
-            }
+        let totalSlots1Week = 0;
+        Object.values(selectedSlotsByDay).forEach(slots => {
+            totalSlots1Week += (slots ? slots.length : 0);
         });
-        return totalActiveSlots;
+        return totalSlots1Week * weeks;
     }
 
-    // Recalculate Live Price Formula: Total Active Non-Holiday Slots Across Weeks * Unit Price
+    // Recalculate Live Price Formula: Total Slots Across Weeks * Unit Price
     function calculateLiveTotal() {
         let totalSlots1Week = 0;
         Object.values(selectedSlotsByDay).forEach(slots => {
@@ -931,14 +904,9 @@ jQuery(document).ready(function ($) {
         $('#txtLiveTotalAmount').text(`${currencySymbol} ${totalCost.toFixed(2)}`);
 
         const $note = $('#txtLiveTotalNote');
-        const maxPossibleSlots = totalSlots1Week * weeks;
-        const hasHolidayExclusion = (weeks > 1 && totalActiveSlots < maxPossibleSlots);
-
         if ($note.length) {
-            if (weeks > 1 && hasHolidayExclusion) {
-                $note.html('<i class="fas fa-info-circle me-1" style="color: #a44390;"></i> Some of your selected booking dates fall during the parent\'s holiday. Those sessions will be skipped and won\'t be charged.').slideDown(200);
-            } else if (weeks > 1) {
-                $note.html('<i class="fas fa-info-circle me-1" style="color: #a44390;"></i> Note: Price is calculated ONLY for active available sessions.').slideDown(200);
+            if (weeks > 1) {
+                $note.html(`<i class="fas fa-calendar-check me-1" style="color: #a44390;"></i> Recurring Plan: ${weeks} consecutive weeks (${totalActiveSlots} total 10-min sessions).`).slideDown(200);
             } else {
                 $note.slideUp(200);
             }

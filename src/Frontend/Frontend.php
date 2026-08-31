@@ -906,15 +906,46 @@ class Frontend
             return ['valid' => true];
         }
 
-        // Track per-week status (booked vs available)
+        // Fetch Provider Holidays for inclusion in availability validation
+        $raw_holidays = get_user_meta($provider_id, 'cosy_provider_holidays', true);
+        $provider_holidays = [];
+        if (!empty($raw_holidays)) {
+            if (is_array($raw_holidays)) {
+                $provider_holidays = $raw_holidays;
+            } else {
+                $decoded = json_decode($raw_holidays, true);
+                if (is_array($decoded)) {
+                    $provider_holidays = $decoded;
+                }
+            }
+        }
+        $holiday_map = [];
+        foreach ($provider_holidays as $h) {
+            if (!empty($h['date'])) {
+                $holiday_map[$h['date']] = !empty($h['reason']) ? $h['reason'] : 'Holiday';
+            }
+        }
+
+        // Track per-week status (booked/holiday vs available)
+        $all_requested_times = [];
+        foreach ($slots_by_base_date as $bd => $tArr) {
+            foreach ($tArr as $tVal) {
+                $all_requested_times[] = $tVal;
+            }
+        }
+        $requested_times_str = !empty($all_requested_times) ? implode(', ', array_unique($all_requested_times)) : 'Selected Time';
+
         $booked_weeks_details = [];
         $available_weeks_details = [];
         $has_collision = false;
-        $all_conflicting_slots = [];
+        $has_holiday_collision = false;
+        $has_booked_collision = false;
 
         for ($w = 0; $w < $number_of_weeks; $w++) {
             $week_num = $w + 1;
-            $week_has_collision = false;
+            $week_has_holiday = false;
+            $week_has_booked = false;
+            $holiday_reason_label = '';
             $week_display_date = '';
 
             foreach ($slots_by_base_date as $base_date => $req_times) {
@@ -932,14 +963,21 @@ class Frontend
                     $week_display_date = date('d M Y', strtotime($target_date));
                 }
 
+                // Check 1: Provider Holiday collision
+                if (isset($holiday_map[$target_date])) {
+                    $week_has_holiday = true;
+                    $has_holiday_collision = true;
+                    $raw_reason = $holiday_map[$target_date];
+                    $holiday_reason_label = (!empty($raw_reason) && $raw_reason !== 'Holiday') ? $raw_reason : 'Holiday';
+                }
+
+                // Check 2: Already booked slots collision
                 $booked_slots_for_target = self::get_booked_slots_for_dates($provider_id, [$target_date]);
                 $collisions = array_intersect($req_times, $booked_slots_for_target);
 
                 if (!empty($collisions)) {
-                    $week_has_collision = true;
-                    foreach ($collisions as $cs) {
-                        $all_conflicting_slots[] = $cs;
-                    }
+                    $week_has_booked = true;
+                    $has_booked_collision = true;
                 }
             }
 
@@ -947,11 +985,14 @@ class Frontend
                 $week_display_date = date('d M Y', strtotime("+{$w} week", $start_ts));
             }
 
-            if ($week_has_collision) {
+            if ($week_has_holiday || $week_has_booked) {
                 $has_collision = true;
                 $booked_weeks_details[] = [
-                    'num'  => $week_num,
-                    'date' => $week_display_date
+                    'num'        => $week_num,
+                    'date'       => $week_display_date,
+                    'is_holiday' => $week_has_holiday,
+                    'is_booked'  => $week_has_booked,
+                    'reason'     => $week_has_holiday ? $holiday_reason_label : 'Already Booked',
                 ];
             } else {
                 $available_weeks_details[] = [
@@ -962,17 +1003,37 @@ class Frontend
         }
 
         if ($has_collision) {
-            $conflicting_slots_str = implode(', ', array_unique($all_conflicting_slots));
+            // Determine concise red box header based on collision type
+            $red_box_header = esc_html__('Unavailable Dates', 'cosy-appointments');
+            if ($has_holiday_collision && !$has_booked_collision) {
+                $red_box_header = esc_html__('Unavailable Dates (Holiday)', 'cosy-appointments');
+            } elseif ($has_booked_collision && !$has_holiday_collision) {
+                $red_box_header = esc_html__('Unavailable Dates (Already Booked)', 'cosy-appointments');
+            }
 
-            // Build Booked Rows HTML
+            // Build Booked / Holiday Rows HTML
             $booked_rows_html = '';
             foreach ($booked_weeks_details as $bw) {
+                if ($bw['is_holiday']) {
+                    $icon_class = 'fa-umbrella-beach';
+                    $tag_text   = $bw['reason'] !== 'Holiday' ? 'Holiday: ' . $bw['reason'] : 'Holiday';
+                } else {
+                    $icon_class = 'fa-calendar-xmark';
+                    $tag_text   = 'Already Booked';
+                }
+
                 $booked_rows_html .= sprintf(
                     '<div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 7px 12px; border-radius: 8px; margin-top: 6px; border: 1px solid #fee2e2; font-size: 13px; font-weight: 600; color: #991b1b;">
-                        <span><i class="fas fa-calendar-xmark me-2" style="color: #ef4444;"></i>' . esc_html__('Week %d', 'cosy-appointments') . '</span>
-                        <span style="font-size: 12px; background: #fef2f2; padding: 3px 10px; border-radius: 20px; color: #dc2626; border: 1px solid #fecaca; font-weight: 700;">%s</span>
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fas %s" style="color: #ef4444; font-size: 13px;"></i>
+                            <span>' . esc_html__('Week %d', 'cosy-appointments') . '</span>
+                            <span style="font-size: 10px; font-weight: 700; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 1px 7px; border-radius: 10px;">%s</span>
+                        </span>
+                        <span style="font-size: 12px; background: #f8fafc; padding: 3px 10px; border-radius: 20px; color: #475569; border: 1px solid #e2e8f0; font-weight: 700;">%s</span>
                     </div>',
+                    esc_attr($icon_class),
                     $bw['num'],
+                    esc_html($tag_text),
                     esc_html($bw['date'])
                 );
             }
@@ -998,13 +1059,13 @@ class Frontend
                 '<div style="text-align: left; font-size: 14px; line-height: 1.5; color: #334155; margin-top: 4px;">
                     <div style="text-align: center; margin-bottom: 12px;">
                         <span style="font-size: 12px; font-weight: 700; color: #a44390; background: #fdf4ff; border: 1px solid #f5d0fe; padding: 4px 14px; border-radius: 20px; display: inline-block;">
-                            <i class="fas fa-clock me-1"></i> ' . esc_html__('Requested Slot:', 'cosy-appointments') . ' %s
+                            <i class="fas fa-clock me-1"></i> ' . esc_html__('Requested Time:', 'cosy-appointments') . ' %s
                         </span>
                     </div>
 
                     <div style="background: linear-gradient(135deg, #fff5f5 0%%, #fff0f0 100%%); border: 1.5px solid #fecaca; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.04);">
                         <div style="color: #dc2626; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: space-between;">
-                            <span><i class="fas fa-circle-xmark me-2"></i>' . esc_html__('Already Booked Dates', 'cosy-appointments') . '</span>
+                            <span><i class="fas fa-circle-xmark me-2"></i>%s</span>
                             <span style="font-size: 10px; background: #dc2626; color: #ffffff; padding: 2px 8px; border-radius: 10px; font-weight: 700;">UNAVAILABLE</span>
                         </div>
                         %s
@@ -1022,14 +1083,15 @@ class Frontend
                         <i class="fas fa-lightbulb me-1" style="color: #eab308;"></i> ' . esc_html__('Please select another time slot or start date to proceed.', 'cosy-appointments') . '
                     </div>
                 </div>',
-                '<strong>' . esc_html($conflicting_slots_str) . '</strong>',
+                esc_html($requested_times_str),
+                $red_box_header,
                 $booked_rows_html,
                 $avail_rows_html
             );
 
             return [
                 'valid'           => false,
-                'conflict_slot'   => reset($all_conflicting_slots),
+                'conflict_slot'   => $requested_times_str,
                 'booked_weeks'    => $booked_weeks_details,
                 'available_weeks' => $available_weeks_details,
                 'message'         => $message
