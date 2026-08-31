@@ -53,6 +53,7 @@ class Assets
             'cc-booking_page_cosy-users',
             'cc-booking_page_cosy-reviews',
             'cc-booking_page_cosy-logs',
+            'cc-booking_page_cosy-email-templates',
             'users.php', // Required for the verification dropdown
         ];
 
@@ -155,6 +156,22 @@ class Assets
                 COSY_APPT_VER,
                 true
             );
+        }
+
+        // Enqueue dedicated Email Templates Admin JS ONLY on the email templates management page
+        if ($hook === 'cc-booking_page_cosy-email-templates' || (isset($_GET['page']) && $_GET['page'] === 'cosy-email-templates')) {
+            wp_enqueue_script(
+                'cosy-email-templates-admin-script',
+                COSY_APPT_URL . 'src/Admin/assets/email-templates-admin.js',
+                ['jquery'],
+                COSY_APPT_VER . '-' . time(),
+                true
+            );
+
+            wp_localize_script('cosy-email-templates-admin-script', 'cosyEmailTemplatesAdmin', [
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce'   => wp_create_nonce('cosy_admin_email_tpl_nonce'),
+            ]);
         }
     }
 

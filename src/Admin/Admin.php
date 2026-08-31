@@ -5,6 +5,7 @@ namespace Cosy\Appointments\Admin;
 use Cosy\Appointments\Admin\OrdersAdmin;
 use Cosy\Appointments\Admin\DashboardAdmin;
 use Cosy\Appointments\Admin\UsersAdmin;
+use Cosy\Appointments\Email\EmailTemplatesAdmin;
 use Cosy\Appointments\Loader;
 use Cosy\Appointments\Common\GlobalCommonFunctions;
 
@@ -16,6 +17,7 @@ class Admin
     private $ordersAdmin;
     private $dashboardAdmin;
     private $usersAdmin;
+    private $emailTemplatesAdmin;
 
     /**
      * CONSTRUCTS ADMIN CONTROLLER & SUB-MODULES
@@ -27,13 +29,14 @@ class Admin
      * $admin = new Admin();
      * 
      * WHAT IT DOES INTERNALLY:
-     * 1. Instantiates OrdersAdmin, DashboardAdmin, and UsersAdmin controller instances.
+     * 1. Instantiates OrdersAdmin, DashboardAdmin, UsersAdmin, and EmailTemplatesAdmin controller instances.
      */
     public function __construct()
     {
         $this->ordersAdmin = new OrdersAdmin();
         $this->dashboardAdmin = new DashboardAdmin();
         $this->usersAdmin = new UsersAdmin();
+        $this->emailTemplatesAdmin = new EmailTemplatesAdmin();
     }
 
     /**
@@ -58,6 +61,7 @@ class Admin
         $loader->add_action('save_post_cosy_service', $this, 'log_admin_service_save', 10, 3);
         $loader->add_action('wp_trash_post', $this, 'log_admin_service_trash');
         $loader->add_action('updated_option', $this, 'log_admin_settings_update', 10, 3);
+        $this->emailTemplatesAdmin->register($loader);
     }
 
     /**
@@ -181,6 +185,15 @@ class Admin
             'manage_cosy_appointments',
             'cosy-reviews',
             [$this, 'render_reviews_page']
+        );
+
+        add_submenu_page(
+            'cosy-booking-dashboard',
+            __('Email Templates', 'cosy-appointments'),
+            __('Email Templates', 'cosy-appointments'),
+            'manage_cosy_appointments',
+            'cosy-email-templates',
+            [$this->emailTemplatesAdmin, 'render_email_templates_page']
         );
 
         add_submenu_page(
