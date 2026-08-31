@@ -421,6 +421,45 @@ if (!function_exists('cosy_clean_slots_timeline')) {
     }
 }
 
+if (!function_exists('cosy_format_date')) {
+    /**
+     * Formats raw date string into clean standard '01 Oct 2026' (d M Y) format.
+     * Handles '01-10-2026', '2026-10-01', '01/10/2026', timestamps, and already-formatted dates.
+     *
+     * @param string|null $date_str Raw date string.
+     * @return string Formatted date string (e.g. '01 Oct 2026') or original if unparseable.
+     */
+    function cosy_format_date($date_str)
+    {
+        if (empty($date_str)) {
+            return '';
+        }
+        $trimmed = trim((string)$date_str);
+        if ($trimmed === 'N/A' || $trimmed === '-' || $trimmed === '') {
+            return $trimmed;
+        }
+        // If already in '01 Oct 2026' or '1 Oct 2026' format, return as is
+        if (preg_match('/^\d{1,2}\s+[A-Za-z]{3,}\s+\d{4}$/', $trimmed)) {
+            return $trimmed;
+        }
+        // Handle dd-mm-yyyy or dd/mm/yyyy
+        if (preg_match('/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/', $trimmed, $m)) {
+            $day   = str_pad($m[1], 2, '0', STR_PAD_LEFT);
+            $month = $m[2];
+            $year  = $m[3];
+            $ts    = strtotime("{$year}-{$month}-{$day}");
+            if ($ts) {
+                return date('d M Y', $ts);
+            }
+        }
+        $ts = strtotime(str_replace('/', '-', $trimmed));
+        if ($ts) {
+            return date('d M Y', $ts);
+        }
+        return $trimmed;
+    }
+}
+
 if (!function_exists('cosy_get_currency_symbol')) {
     /**
      * Gets the currency symbol based on the saved 'cosy_payment_currency' option.

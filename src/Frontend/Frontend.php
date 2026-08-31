@@ -571,8 +571,8 @@ class Frontend
             $customer_email ?: 'N/A',
             $service_name ?: 'N/A',
             $provider_name ?: $current_user->display_name,
-            $start_date ?: 'N/A',
-            $end_date ?: 'N/A',
+            cosy_format_date($start_date) ?: 'N/A',
+            cosy_format_date($end_date) ?: 'N/A',
             $total_payable ?: '0.00',
             $current_user->display_name
         );

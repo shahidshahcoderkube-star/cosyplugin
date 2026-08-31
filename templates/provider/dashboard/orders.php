@@ -131,7 +131,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                     </div>
                                 </td>
                                 <td><span class="badge bg-light text-dark border-0 px-3 py-2 rounded-3 order-service-badge"><?php echo esc_html($service_name); ?></span></td>
-                                <td class="order-date-cell"><?php echo esc_html($start_date); ?></td>
+                                <td class="order-date-cell"><?php echo esc_html(cosy_format_date($start_date)); ?></td>
                                 <td class="status-cell"><?php echo $status_badge; ?></td>
                                 <td>
                                     <div class="d-flex gap-2">
@@ -154,8 +154,8 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                             data-customer="<?php echo esc_attr($customer_name); ?>"
                                             data-email="<?php echo esc_attr($customer_email); ?>"
                                             data-service="<?php echo esc_attr($service_name); ?>"
-                                            data-start="<?php echo esc_attr($start_date); ?>"
-                                            data-end="<?php echo esc_attr($end_date); ?>"
+                                            data-start="<?php echo esc_attr(cosy_format_date($start_date)); ?>"
+                                            data-end="<?php echo esc_attr(cosy_format_date($end_date)); ?>"
                                             data-weekly="<?php echo esc_attr($weekly_booking); ?>"
                                             data-weeks="<?php echo esc_attr($number_of_weeks); ?>"
                                             data-slots="<?php echo esc_attr($number_of_slots); ?>"

@@ -87,7 +87,7 @@ if ($current_user->exists()) {
 									</span>
 								</td>
 								<td class="py-3 fw-bold text-dark" style="font-size: 0.95rem;"><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($total_price); ?></td>
-								<td class="py-3 text-muted" style="font-size: 0.85rem;"><?php echo esc_html($start_date); ?></td>
+								<td class="py-3 text-muted" style="font-size: 0.85rem;"><?php echo esc_html(cosy_format_date($start_date)); ?></td>
 								<td class="py-3">
 									<?php if ($status === 'completed'): ?>
 										<span class="badge px-3 py-2 rounded-3 text-success" style="background-color: rgba(34, 197, 94, 0.1); font-weight: 600; font-size: 0.75rem;">
@@ -112,8 +112,8 @@ if ($current_user->exists()) {
 										data-total="<?php echo esc_attr($total_price); ?>"
 										data-cost="<?php echo esc_attr($cost); ?>"
 										data-fee="<?php echo esc_attr($fee); ?>"
-										data-start="<?php echo esc_attr($start_date); ?>"
-										data-end="<?php echo esc_attr($end_date); ?>"
+										data-start="<?php echo esc_attr(cosy_format_date($start_date)); ?>"
+										data-end="<?php echo esc_attr(cosy_format_date($end_date)); ?>"
 										data-weeks="<?php echo esc_attr($weeks); ?>"
 										data-slots="<?php echo esc_attr($slots); ?>"
 										data-week-days="<?php echo esc_attr($week_days); ?>"

@@ -67,7 +67,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                 <td class="fw-bold text-dark"><?php esc_html_e('INV-', 'cosy-appointments'); ?><?php echo esc_html($appt_id); ?></td>
                                 <td class="fw-semibold text-slate invoice-customer-name"><?php echo esc_html($customer_name); ?></td>
                                 <td><span class="badge bg-light text-dark border-0 px-3 py-2 rounded-3 invoice-service-badge"><?php echo esc_html($service_name); ?></span></td>
-                                <td class="invoice-date-cell"><?php echo esc_html($start_date); ?></td>
+                                <td class="invoice-date-cell"><?php echo esc_html(cosy_format_date($start_date)); ?></td>
                                 <td class="fw-bold text-slate invoice-amount-cell"><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($total_payable); ?></td>
                                 <td>
                                     <span class="badge invoice-status-paid">
@@ -81,7 +81,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                             data-customer="<?php echo esc_attr($customer_name); ?>"
                                             data-email="<?php echo esc_attr($customer_email); ?>"
                                             data-service="<?php echo esc_attr($service_name); ?>"
-                                            data-start="<?php echo esc_attr($start_date); ?>"
+                                            data-start="<?php echo esc_attr(cosy_format_date($start_date)); ?>"
                                             data-weekly="<?php echo esc_attr($weekly_booking); ?>"
                                             data-cost="<?php echo esc_attr($service_cost); ?>"
                                             data-fee="<?php echo esc_attr($service_fee); ?>"

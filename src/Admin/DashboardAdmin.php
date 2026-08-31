@@ -209,7 +209,7 @@ class DashboardAdmin
                                     <td><?php echo $customer ? esc_html($customer->display_name) : '—'; ?></td>
                                     <td><?php echo $provider ? esc_html($provider->display_name) : '—'; ?></td>
                                     <td><?php echo $service_name ? esc_html($service_name) : '—'; ?></td>
-                                    <td style="white-space:nowrap;"><?php echo $appt_date ? esc_html($appt_date) : esc_html(date('M d, Y', strtotime($booking->post_date))); ?></td>
+                                    <td style="white-space:nowrap;"><?php echo $appt_date ? esc_html(cosy_format_date($appt_date)) : esc_html(cosy_format_date($booking->post_date)); ?></td>
                                     <td>
                                         <span class="cdb-badge <?php echo esc_attr($status); ?>">
                                             <?php echo $status === 'publish' ? 'Confirmed' : ucfirst($status); ?>

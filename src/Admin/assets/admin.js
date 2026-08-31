@@ -608,6 +608,29 @@ jQuery(document).ready(function ($) {
             const recipientName = $(this).data('recipient-name') || '';
             const recipientEmail = $(this).data('recipient-email') || '';
 
+            function formatCosyDate(dStr) {
+                if (!dStr || dStr === 'N/A' || dStr === '-') return dStr || 'N/A';
+                try {
+                    let dObj;
+                    if (/^\d{2}-\d{2}-\d{4}$/.test(dStr)) {
+                        const parts = dStr.split('-');
+                        dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                    } else if (/^\d{4}-\d{2}-\d{2}$/.test(dStr)) {
+                        const parts = dStr.split('-');
+                        dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    } else {
+                        dObj = new Date(dStr);
+                    }
+                    if (!isNaN(dObj.getTime())) {
+                        const day = String(dObj.getDate()).padStart(2, '0');
+                        const month = dObj.toLocaleDateString('en-GB', { month: 'short' });
+                        const year = dObj.getFullYear();
+                        return `${day} ${month} ${year}`;
+                    }
+                } catch (e) {}
+                return dStr;
+            }
+
             // Populate modal text fields
             if (isGift === '1' || (recipientEmail && String(recipientEmail).trim() !== '')) {
                 $('#modalAdminOrderTitle').html('Order Details - #' + id + ' <span class="badge" style="background: #ffffff; color: #a44390; font-size: 0.78rem; font-weight: 700; vertical-align: middle; padding: 4px 12px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.18); margin-left: 10px; display: inline-block;">🎁 Gifted Order</span>');
@@ -622,7 +645,7 @@ jQuery(document).ready(function ($) {
             $('#modalAdminCustomerEmail').text(email || 'N/A');
             $('#modalAdminProviderName').text(provider);
             $('#modalAdminProviderEmail').text(providerEmail || 'N/A');
-            $('#modalAdminStartDate').text(start || 'N/A');
+            $('#modalAdminStartDate').text(formatCosyDate(start));
             $('#modalAdminWeeks').text(weeks + (parseInt(weeks) === 1 ? ' week' : ' weeks'));
             $('#modalAdminSlotsTimeline').html(slotsTimeline || 'N/A');
             const currencySymbol = (typeof cosyAdmin !== 'undefined' && cosyAdmin.currencySymbol) ? cosyAdmin.currencySymbol : '£';

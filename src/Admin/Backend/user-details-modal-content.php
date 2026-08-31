@@ -135,7 +135,7 @@ defined('ABSPATH') || exit;
                             <div style="display: flex; flex-wrap: wrap; gap: 12px; color: #64748b; font-size: 11px;">
                                 <span style="display: flex; align-items: center; gap: 4px;">
                                     <span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
-                                    <span><?php echo esc_html($appt->start_date); ?></span>
+                                    <span><?php echo esc_html(cosy_format_date($appt->start_date)); ?></span>
                                 </span>
                                 <?php if (!empty($appt->slots_timeline)) : ?>
                                     <span style="display: flex; align-items: center; gap: 4px;">

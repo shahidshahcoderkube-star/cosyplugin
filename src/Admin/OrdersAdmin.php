@@ -199,7 +199,7 @@ class OrdersAdmin
                 </td>
                 <td><?php echo esc_html($provider_name); ?></td>
                 <td><span class="badge" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; color:#334155; font-size:0.85em;"><?php echo esc_html($service_name); ?></span></td>
-                <td style="color:#475569; font-size:12px;"><?php echo esc_html($start_date); ?> <br><span style="color:#94a3b8; font-size:11px;"><?php echo esc_html($weekly_booking); ?></span></td>
+                <td style="color:#475569; font-size:12px;"><?php echo esc_html(cosy_format_date($start_date)); ?> <br><span style="color:#94a3b8; font-size:11px;"><?php echo esc_html($weekly_booking); ?></span></td>
                 <td><strong><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($total_payable); ?></strong></td>
                 <td><span class="status <?php echo $booking_status; ?>"><?php echo esc_html($booking_status); ?></span></td>
                 <td>
@@ -210,8 +210,8 @@ class OrdersAdmin
                     data-provider="<?php echo esc_attr($provider_name); ?>"
                     data-provider-email="<?php echo esc_attr($provider_email); ?>"
                     data-service="<?php echo esc_attr($service_name); ?>"
-                    data-start="<?php echo esc_attr($start_date); ?>"
-                    data-end="<?php echo esc_attr($end_date); ?>"
+                    data-start="<?php echo esc_attr(cosy_format_date($start_date)); ?>"
+                    data-end="<?php echo esc_attr(cosy_format_date($end_date)); ?>"
                     data-weekly="<?php echo esc_attr($weekly_booking); ?>"
                     data-weeks="<?php echo esc_attr($number_of_weeks); ?>"
                     data-slots="<?php echo esc_attr($number_of_slots); ?>"

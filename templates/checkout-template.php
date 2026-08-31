@@ -45,7 +45,7 @@ if ($step === 'schedule' || !empty($start_date_param)) {
         $base_date = time();
     }
 
-    $formatted_start_date = date('F j, Y', $base_date);
+    $formatted_start_date = date('d M Y', $base_date);
     $slots_rows_html = '';
     $day_offset = 0;
 

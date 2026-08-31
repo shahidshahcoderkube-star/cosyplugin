@@ -486,7 +486,30 @@ jQuery(document).ready(function ($) {
                 $('#modalCustomerEmail').text('(' + email + ')');
             }
 
-            $('#modalStartDateInfo').text(start);
+            function formatCosyDate(dStr) {
+                if (!dStr || dStr === 'N/A' || dStr === '-') return dStr || 'N/A';
+                try {
+                    let dObj;
+                    if (/^\d{2}-\d{2}-\d{4}$/.test(dStr)) {
+                        const parts = dStr.split('-');
+                        dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                    } else if (/^\d{4}-\d{2}-\d{2}$/.test(dStr)) {
+                        const parts = dStr.split('-');
+                        dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    } else {
+                        dObj = new Date(dStr);
+                    }
+                    if (!isNaN(dObj.getTime())) {
+                        const day = String(dObj.getDate()).padStart(2, '0');
+                        const month = dObj.toLocaleDateString('en-GB', { month: 'short' });
+                        const year = dObj.getFullYear();
+                        return `${day} ${month} ${year}`;
+                    }
+                } catch (e) {}
+                return dStr;
+            }
+
+            $('#modalStartDateInfo').text(formatCosyDate(start));
             $('#modalWeeksInfo').text(weeks + (parseInt(weeks) === 1 ? ' week' : ' weeks'));
             $('#modalSlotsTimelineInfo').html(slotsTimeline);
             $('#modalProviderShare').text(currencySymbol + cost);

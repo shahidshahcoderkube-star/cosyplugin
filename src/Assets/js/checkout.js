@@ -136,11 +136,13 @@ jQuery(document).ready(function ($) {
         window.scrollTo(0, 0);
 
         const baseDate = parseStartDate(startDateParam);
-        const formattedDate = startDateParam ? baseDate.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }) : 'Select Date';
+        let formattedDate = 'Select Date';
+        if (startDateParam && !isNaN(baseDate.getTime())) {
+            const day = String(baseDate.getDate()).padStart(2, '0');
+            const month = baseDate.toLocaleDateString('en-GB', { month: 'short' });
+            const year = baseDate.getFullYear();
+            formattedDate = `${day} ${month} ${year}`;
+        }
 
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -349,17 +351,25 @@ jQuery(document).ready(function ($) {
         const recipientEmailClean = escapeHtml(booking.recipientEmail || '');
 
         function formatDateNice(dInput) {
-            if (!dInput) return '';
+            if (!dInput || dInput === 'N/A' || dInput === '-') return dInput || '';
             try {
                 let dObj;
-                if (/^\d{2}-\d{2}-\d{4}$/.test(dInput)) {
+                if (dInput instanceof Date) {
+                    dObj = dInput;
+                } else if (/^\d{2}-\d{2}-\d{4}$/.test(dInput)) {
                     const parts = dInput.split('-');
                     dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                } else if (/^\d{4}-\d{2}-\d{2}$/.test(dInput)) {
+                    const parts = dInput.split('-');
+                    dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
                 } else {
                     dObj = new Date(dInput);
                 }
                 if (!isNaN(dObj.getTime())) {
-                    return dObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    const day = String(dObj.getDate()).padStart(2, '0');
+                    const month = dObj.toLocaleDateString('en-GB', { month: 'short' });
+                    const year = dObj.getFullYear();
+                    return `${day} ${month} ${year}`;
                 }
             } catch (e) { }
             return dInput;
@@ -374,13 +384,16 @@ jQuery(document).ready(function ($) {
                 if (/^\d{2}-\d{2}-\d{4}$/.test(booking.startDate)) {
                     const parts = booking.startDate.split('-');
                     sObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                } else if (/^\d{4}-\d{2}-\d{2}$/.test(booking.startDate)) {
+                    const parts = booking.startDate.split('-');
+                    sObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
                 } else {
                     sObj = new Date(booking.startDate);
                 }
                 if (!isNaN(sObj.getTime())) {
                     const weeksNum = parseInt(booking.numberOfWeeks) || 1;
                     sObj.setDate(sObj.getDate() + (weeksNum * 7) - 1);
-                    displayEndDate = sObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    displayEndDate = formatDateNice(sObj);
                 }
             } catch (e) { }
         }

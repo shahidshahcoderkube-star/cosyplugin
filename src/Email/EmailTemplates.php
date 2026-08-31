@@ -433,13 +433,14 @@ class EmailTemplates
         $currency = $data['currency_symbol'] ?? '£';
         $order_id = $data['order_id'] ?? $data['appointment_id'] ?? '';
         $service_title = $data['service_title'] ?? $data['service_name'] ?? 'Parent Consultation';
+        $formatted_start_date = cosy_format_date($data['start_date'] ?? '');
 
         $replacements = [
             '{customer_name}'  => esc_html($data['customer_name'] ?? 'Customer'),
             '{provider_name}'  => esc_html($data['provider_name'] ?? 'Provider'),
             '{service_name}'   => esc_html($service_title),
             '{order_id}'       => esc_html($order_id),
-            '{start_date}'     => esc_html($data['start_date'] ?? ''),
+            '{start_date}'     => esc_html($formatted_start_date),
             '{total_payable}'  => esc_html($currency . number_format((float)($data['total_payable'] ?? 0), 2)),
         ];
 
@@ -476,7 +477,7 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer Name:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['customer_name'] ?? '') . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer Email:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['customer_email'] ?? '') . "</td></tr>
                 {$gift_row}
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['start_date'] ?? '') . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($formatted_start_date) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Number of Weeks:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['num_weeks'] ?? '1') . "</td></tr>
                 <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . $slots_timeline . "</td></tr>
             </table>
@@ -522,13 +523,14 @@ class EmailTemplates
         $currency = $data['currency_symbol'] ?? '£';
         $order_id = $data['order_id'] ?? $data['appointment_id'] ?? '';
         $customer_name = $data['customer_name'] ?? 'Customer';
+        $formatted_start_date = cosy_format_date($data['start_date'] ?? '');
 
         $replacements = [
             '{customer_name}'  => esc_html($customer_name),
             '{provider_name}'  => esc_html($data['provider_name'] ?? 'Provider'),
             '{service_name}'   => esc_html($data['service_title'] ?? $data['service_name'] ?? 'Parent Consultation'),
             '{order_id}'       => esc_html($order_id),
-            '{start_date}'     => esc_html($data['start_date'] ?? ''),
+            '{start_date}'     => esc_html($formatted_start_date),
             '{total_payable}'  => esc_html($currency . number_format((float)($data['total_payable'] ?? 0), 2)),
         ];
 
@@ -563,7 +565,7 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer Name:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['customer_name'] ?? '') . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer Email:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['customer_email'] ?? '') . "</td></tr>
                 {$gift_row}
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['start_date'] ?? '') . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($formatted_start_date) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Number of Weeks:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['num_weeks'] ?? '1') . "</td></tr>
                 <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . $slots_timeline . "</td></tr>
             </table>
@@ -918,6 +920,9 @@ class EmailTemplates
             ? cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '')
             : esc_html($data['slots_timeline'] ?? '');
 
+        $formatted_start_date = cosy_format_date($data['start_date'] ?? '');
+        $formatted_end_date   = !empty($data['end_date']) && $data['end_date'] !== 'N/A' ? cosy_format_date($data['end_date']) : 'N/A';
+
         $protected_system_tables = "
             <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Order Information Summary:</h4>
             <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px;'>
@@ -926,8 +931,8 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer Name:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['customer_name'] ?? '') . " (" . esc_html($data['customer_email'] ?? '') . ")</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Parent Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['provider_name'] ?? '') . "</td></tr>
                 {$gift_row}
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['start_date'] ?? '') . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>End Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['end_date'] ?? 'N/A') . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($formatted_start_date) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>End Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($formatted_end_date) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Weekly Schedule:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['weekly_type'] ?? 'Standard') . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Week Days Available:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['week_days'] ?? '') . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Weeks &amp; Slots:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['num_bookings'] ?? '1') . " slots over " . esc_html($data['num_weeks'] ?? '1') . " week(s)</td></tr>
@@ -986,6 +991,7 @@ class EmailTemplates
         $customer_name  = $data['customer_name'] ?? 'Customer';
         $provider_name  = $data['provider_name'] ?? 'Provider';
         $start_date     = $data['start_date'] ?? '';
+        $formatted_start_date = cosy_format_date($start_date);
         $slots_timeline = function_exists('cosy_clean_slots_timeline')
             ? cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '')
             : esc_html($data['slots_timeline'] ?? '');
@@ -995,7 +1001,7 @@ class EmailTemplates
             '{customer_name}'  => esc_html($customer_name),
             '{provider_name}'  => esc_html($provider_name),
             '{service_name}'   => esc_html($data['service_title'] ?? 'Parent Conversation'),
-            '{start_date}'     => esc_html($start_date),
+            '{start_date}'     => esc_html($formatted_start_date),
         ];
 
         $defaults = [
@@ -1014,7 +1020,7 @@ class EmailTemplates
             <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px;'>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Order ID:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>#" . esc_html($order_id) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($provider_name) . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($formatted_start_date) . "</td></tr>
                 <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . $slots_timeline . "</td></tr>
             </table>
         ";
@@ -1053,6 +1059,7 @@ class EmailTemplates
         $customer_name  = $data['customer_name'] ?? 'Customer';
         $provider_name  = $data['provider_name'] ?? 'Provider';
         $start_date     = $data['start_date'] ?? '';
+        $formatted_start_date = cosy_format_date($start_date);
         $slots_timeline = function_exists('cosy_clean_slots_timeline')
             ? cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '')
             : esc_html($data['slots_timeline'] ?? '');
@@ -1062,7 +1069,7 @@ class EmailTemplates
             '{status}'         => esc_html($status_label),
             '{customer_name}'  => esc_html($customer_name),
             '{provider_name}'  => esc_html($provider_name),
-            '{start_date}'     => esc_html($start_date),
+            '{start_date}'     => esc_html($formatted_start_date),
         ];
 
         $defaults = [
@@ -1081,7 +1088,7 @@ class EmailTemplates
             <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px;'>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Order ID:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>#" . esc_html($order_id) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($provider_name) . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($formatted_start_date) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . $slots_timeline . "</td></tr>
                 <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Current Status:</td><td style='padding: 10px 14px; color: #a44390; font-weight: bold; vertical-align: top;'>" . esc_html($status_label) . "</td></tr>
             </table>

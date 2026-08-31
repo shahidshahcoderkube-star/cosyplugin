@@ -254,8 +254,31 @@ jQuery(document).ready(function ($) {
             $('#modalCustGiftRow').removeClass('d-flex').addClass('d-none');
         }
 
+        function formatCosyDate(dStr) {
+            if (!dStr || dStr === 'N/A' || dStr === '-') return dStr || 'N/A';
+            try {
+                let dObj;
+                if (/^\d{2}-\d{2}-\d{4}$/.test(dStr)) {
+                    const parts = dStr.split('-');
+                    dObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                } else if (/^\d{4}-\d{2}-\d{2}$/.test(dStr)) {
+                    const parts = dStr.split('-');
+                    dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                } else {
+                    dObj = new Date(dStr);
+                }
+                if (!isNaN(dObj.getTime())) {
+                    const day = String(dObj.getDate()).padStart(2, '0');
+                    const month = dObj.toLocaleDateString('en-GB', { month: 'short' });
+                    const year = dObj.getFullYear();
+                    return `${day} ${month} ${year}`;
+                }
+            } catch (e) {}
+            return dStr;
+        }
+
         $('#modalCustProviderName').text(provider);
-        $('#modalCustStartDate').text(start);
+        $('#modalCustStartDate').text(formatCosyDate(start));
         $('#modalCustWeeks').text(weeks + (parseInt(weeks) === 1 ? ' week' : ' weeks'));
         $('#modalCustSlotsTimeline').html(slotsTimeline);
         var sym = (typeof cosyAppointments !== 'undefined' && cosyAppointments.currencySymbol) ? cosyAppointments.currencySymbol : '£';
