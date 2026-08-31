@@ -765,7 +765,7 @@ class Dashboard
             $provider_name = $provider_user ? $provider_user->display_name : 'Provider #' . $provider_id;
 
             if (!empty($admin_email) && function_exists('cosy_send_html_email')) {
-                $tpl = \Cosy\Appointments\Common\EmailTemplates::get_admin_new_review_template(
+                $tpl = \Cosy\Appointments\Email\EmailTemplates::get_admin_new_review_template(
                     $provider_name,
                     $current_user->display_name,
                     intval($rating),
@@ -1022,7 +1022,7 @@ class Dashboard
                         $l1_text = $l1_row ? $l1_row->reply_text : ($review->provider_reply ?: '');
                         $l2_text = $l2_row ? $l2_row->reply_text : '';
 
-                        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_customer_review_closing_template(
+                        $tpl = \Cosy\Appointments\Email\EmailTemplates::get_customer_review_closing_template(
                             $customer_name,
                             $prov_name,
                             $review->review,
@@ -1032,7 +1032,7 @@ class Dashboard
                         );
                     } else {
                         // Level 1 Initial Response Email
-                        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_customer_review_reply_template(
+                        $tpl = \Cosy\Appointments\Email\EmailTemplates::get_customer_review_reply_template(
                             $customer_name,
                             $prov_name,
                             $reply_text,
@@ -1133,7 +1133,7 @@ class Dashboard
             $provider_user = get_userdata($review->provider_id);
             if ($provider_user && !empty($provider_user->user_email) && function_exists('cosy_send_html_email')) {
                 $provider_name = $provider_user->first_name ?: $provider_user->display_name;
-                $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_review_followup_template(
+                $tpl = \Cosy\Appointments\Email\EmailTemplates::get_provider_review_followup_template(
                     $provider_name,
                     $cust_name,
                     $reply_text,
@@ -1328,7 +1328,7 @@ class Dashboard
         $admin_email = get_option('admin_email');
         if (!empty($admin_email) && function_exists('cosy_send_html_email') && $provider_user) {
             $prov_name = $provider_user->display_name ?: $provider_user->first_name;
-            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_admin_new_review_template(
+            $tpl = \Cosy\Appointments\Email\EmailTemplates::get_admin_new_review_template(
                 $prov_name,
                 $customer_name,
                 intval($rating),

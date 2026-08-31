@@ -418,7 +418,7 @@ class FormsData
         ], wp_login_url());
 
         // Send email via central EmailTemplates class
-        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_password_reset_template($user->display_name ?: $user->user_login, $reset_url);
+        $tpl = \Cosy\Appointments\Email\EmailTemplates::get_password_reset_template($user->display_name ?: $user->user_login, $reset_url);
         $mail_sent = cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
 
         if ($mail_sent) {

@@ -96,7 +96,7 @@ class Backend_Actions_Handler
         // Send email to provider
         $user = get_userdata($user_id);
         if ($user) {
-            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_video_approved_template($user->display_name);
+            $tpl = \Cosy\Appointments\Email\EmailTemplates::get_video_approved_template($user->display_name);
             cosy_send_html_email($user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
             
             \Cosy\Appointments\Common\LogManager::log(
@@ -163,7 +163,7 @@ class Backend_Actions_Handler
             $default_reason= sprintf(__('Video did not meet guidelines or quality standards. Maximum size allowed: %d MB, MP4 format.', 'cosy-appointments'), $limit_mb > 0 ? $limit_mb : 3);
             $reason        = !empty($custom_reason) ? $custom_reason : $default_reason;
 
-            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_video_rejected_template($user->display_name, $reason);
+            $tpl = \Cosy\Appointments\Email\EmailTemplates::get_video_rejected_template($user->display_name, $reason);
             cosy_send_html_email($user->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
 
             \Cosy\Appointments\Common\LogManager::log(
@@ -341,7 +341,7 @@ class Backend_Actions_Handler
                         if ($provider && !empty($provider->user_email)) {
                             $limit_mb = intval(get_option('cosy_max_video_upload_size', 3));
                             $reason   = sprintf(__('Video did not meet guidelines or quality standards. Maximum size allowed: %d MB, MP4 format.', 'cosy-appointments'), $limit_mb > 0 ? $limit_mb : 3);
-                            $tpl      = \Cosy\Appointments\Common\EmailTemplates::get_video_rejected_template($provider->display_name, $reason);
+                            $tpl      = \Cosy\Appointments\Email\EmailTemplates::get_video_rejected_template($provider->display_name, $reason);
                             cosy_send_html_email($provider->user_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
                         }
 

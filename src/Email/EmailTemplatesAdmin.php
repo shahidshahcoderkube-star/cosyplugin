@@ -22,6 +22,17 @@ class EmailTemplatesAdmin
 
     /**
      * REGISTERS EMAIL TEMPLATES ADMIN HOOKS & AJAX ENDPOINTS
+     *
+     * USE CASE:
+     * Called during plugin load sequence to attach all AJAX action handlers
+     * for the Email Templates admin interface.
+     *
+     * HOW TO USE:
+     * $emailTemplatesAdmin->register($loader);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Registers wp_ajax_* hooks for Save, Reset, Preview, and Send Test Email actions.
+     * 2. All handlers require manage_options or manage_cosy_appointments capability.
      */
     public function register(Loader $loader): void
     {
@@ -32,7 +43,19 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * Master registry of customizable email templates.
+     * MASTER REGISTRY OF ALL CUSTOMIZABLE EMAIL TEMPLATES
+     *
+     * USE CASE:
+     * Central source-of-truth for all email templates in the plugin.
+     * Used both as default fallback and as the tab list on the admin page.
+     *
+     * HOW TO USE:
+     * $templates = EmailTemplatesAdmin::get_default_email_templates();
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Returns an array of all template keys (e.g. 'customer_booking', 'provider_booking').
+     * 2. Each entry defines title, default subject, heading, body_text, outro_text.
+     * 3. Some entries include 'has_table' => true and 'table_type' for locked system data rows.
      */
     public static function get_default_email_templates(): array
     {
@@ -245,7 +268,22 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * Gets stored option or fallback default template values.
+     * GET STORED TEMPLATE SETTINGS OR FALLBACK TO PLUGIN DEFAULTS
+     *
+     * USE CASE:
+     * Called by EmailTemplates.php on every outgoing email send to resolve
+     * the correct subject, heading, body and outro for a given template key.
+     *
+     * HOW TO USE:
+     * $settings = EmailTemplatesAdmin::get_template_settings('customer_booking');
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Reads saved admin option 'cosy_email_template_{key}' from wp_options.
+     * 2. Falls back to plugin default values from get_default_email_templates().
+     * 3. Returns a merged array with keys: title, subject, heading, body_text, outro_text.
+     *
+     * @param string $template_key Unique key for the email template (e.g. 'customer_booking').
+     * @return array Resolved template fields ready for email construction.
      */
     public static function get_template_settings(string $template_key): array
     {
@@ -270,7 +308,19 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * Renders WP Admin Email Templates Settings Page.
+     * RENDER WP ADMIN EMAIL TEMPLATES SETTINGS PAGE
+     *
+     * USE CASE:
+     * Registered as the display callback for the 'cosy-email' admin submenu page.
+     * Outputs the full Email Templates Manager admin interface.
+     *
+     * HOW TO USE:
+     * Automatically called by WordPress when admin visits:
+     * wp-admin/admin.php?page=cosy-email
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Checks that current user has manage_options or manage_cosy_appointments capability.
+     * 2. Includes src/Email/Views/email-templates-page.php for the full UI render.
      */
     public function render_email_templates_page(): void
     {
@@ -283,7 +333,21 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * AJAX handler: Saves email template settings.
+     * AJAX HANDLER: SAVE EMAIL TEMPLATE SETTINGS
+     *
+     * USE CASE:
+     * Triggered when admin clicks 'Save Changes' on the Email Templates page.
+     * Persists customized subject, heading, body_text, and outro_text to wp_options.
+     *
+     * HOW TO USE:
+     * Called via jQuery AJAX: action = 'cosy_admin_save_email_template'
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Verifies nonce (cosy_admin_email_tpl_nonce) and user capability.
+     * 2. Validates that template_key is a known registered template.
+     * 3. Saves sanitized fields to 'cosy_email_template_{key}' wp_option.
+     * 4. Logs the save action via LogManager.
+     * 5. Returns wp_send_json_success with confirmation message.
      */
     public function handle_ajax_save_email_template(): void
     {
@@ -326,7 +390,21 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * AJAX handler: Resets email template to default values.
+     * AJAX HANDLER: RESET EMAIL TEMPLATE TO PLUGIN DEFAULTS
+     *
+     * USE CASE:
+     * Triggered when admin clicks 'Reset to Default' on the Email Templates page.
+     * Deletes any saved customization and restores original plugin defaults.
+     *
+     * HOW TO USE:
+     * Called via jQuery AJAX: action = 'cosy_admin_reset_email_template'
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Verifies nonce and user capability.
+     * 2. Validates the template_key is recognized.
+     * 3. Deletes the wp_option 'cosy_email_template_{key}' to restore defaults.
+     * 4. Logs the reset action via LogManager.
+     * 5. Returns the fresh default template content so JS can repopulate the form fields.
      */
     public function handle_ajax_reset_email_template(): void
     {
@@ -361,7 +439,25 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * Builds realistic sample dynamic tables and elements for live previews and test emails.
+     * BUILD REALISTIC SAMPLE DYNAMIC HTML FOR LIVE PREVIEW & TEST EMAILS
+     *
+     * USE CASE:
+     * Generates a realistic-looking system data table or element for each template type
+     * so that the admin live preview shows what the real email will look like.
+     * These system tables are locked and cannot be edited by admin.
+     *
+     * HOW TO USE:
+     * $html = EmailTemplatesAdmin::build_sample_element_html('customer_booking');
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Switches on template_key to determine which element type to generate.
+     * 2. For booking templates: returns a styled booking summary + payment table.
+     * 3. For verification/reset templates: returns a styled action button.
+     * 4. For review templates: returns a styled review quote block.
+     * 5. Returns an empty string for templates with no locked system data.
+     *
+     * @param string $template_key Unique key for the email template.
+     * @return string Raw HTML string of the sample system element.
      */
     public static function build_sample_element_html(string $template_key): string
     {
@@ -501,8 +597,25 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * Builds the exact full HTML email body including the official global signature
-     * from Settings > Email Signature. Untouched and consistent with cosy_send_html_email().
+     * BUILD COMPLETE FULL HTML EMAIL BODY FOR PREVIEW
+     *
+     * USE CASE:
+     * Assembles the full branded HTML email layout (header, content, signature, footer)
+     * exactly matching what cosy_send_html_email() sends to the recipient's inbox.
+     * Used by both the live preview AJAX handler and the test email sender.
+     *
+     * HOW TO USE:
+     * $html = EmailTemplatesAdmin::build_complete_preview_html($heading, $content_html);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Reads Email Signature settings from wp_options (logo, name, tagline, socials).
+     * 2. Constructs the official global email signature block.
+     * 3. Wraps heading + content_html + signature inside the full branded HTML template.
+     * 4. Returns the complete HTML string ready to be injected into the preview panel.
+     *
+     * @param string $heading      Email heading text displayed at the top of the email.
+     * @param string $content_html Full HTML content body of the email.
+     * @return string Complete branded HTML email ready for preview or sending.
      */
     public static function build_complete_preview_html(string $heading, string $content_html): string
     {
@@ -605,7 +718,22 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * AJAX handler: Generates live real-time HTML email preview.
+     * AJAX HANDLER: RENDER LIVE EMAIL TEMPLATE PREVIEW
+     *
+     * USE CASE:
+     * Called automatically as admin types in form fields (debounced 500ms)
+     * and on manual 'Refresh Preview' button click. Renders a full HTML
+     * preview using current unsaved form values.
+     *
+     * HOW TO USE:
+     * Called via jQuery AJAX: action = 'cosy_admin_preview_email_template'
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Verifies nonce and user capability.
+     * 2. Replaces dynamic {tags} in subject, heading, body, outro with sample data.
+     * 3. Builds sample system element HTML for locked data tables.
+     * 4. Assembles the full branded HTML via build_complete_preview_html().
+     * 5. Returns subject text and full HTML to JavaScript for preview panel injection.
      */
     public function handle_ajax_preview_email_template(): void
     {
@@ -662,7 +790,22 @@ class EmailTemplatesAdmin
     }
 
     /**
-     * AJAX handler: Sends real test email to specified recipient address.
+     * AJAX HANDLER: SEND REAL TEST EMAIL
+     *
+     * USE CASE:
+     * Triggered when admin enters a recipient address and clicks 'Send Test Email'.
+     * Delivers an actual email to verify how the template appears in a real inbox.
+     *
+     * HOW TO USE:
+     * Called via jQuery AJAX: action = 'cosy_admin_send_test_email'
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Verifies nonce and user capability.
+     * 2. Validates and sanitizes the recipient test_email address.
+     * 3. Resolves subject, heading, body, outro from form POST data.
+     * 4. Replaces all {tags} with realistic sample values.
+     * 5. Builds the full HTML email and dispatches via cosy_send_html_email().
+     * 6. Returns success or error JSON to the admin UI.
      */
     public function handle_ajax_send_test_email(): void
     {

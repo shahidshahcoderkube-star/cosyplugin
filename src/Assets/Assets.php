@@ -164,6 +164,13 @@ class Assets
             || (isset($_GET['page']) && in_array($_GET['page'], ['cosy-email', 'cosy-email-templates'], true));
 
         if ($is_email_page) {
+            wp_enqueue_style(
+                'cosy-email-templates-admin-style',
+                COSY_APPT_URL . 'src/Admin/assets/email-templates-admin.css',
+                [],
+                COSY_APPT_VER . '-' . time()
+            );
+
             wp_enqueue_script(
                 'cosy-email-templates-admin-script',
                 COSY_APPT_URL . 'src/Admin/assets/email-templates-admin.js',

@@ -599,7 +599,7 @@ class Frontend
         ];
 
         if ($new_status === 'cancelled') {
-            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_booking_cancelled_customer_template($email_payload);
+            $tpl = \Cosy\Appointments\Email\EmailTemplates::get_booking_cancelled_customer_template($email_payload);
             if (!empty($customer_email)) {
                 cosy_send_html_email($customer_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
             }
@@ -608,7 +608,7 @@ class Frontend
                 cosy_send_html_email($admin_email, $admin_subject, $tpl['heading'], $tpl['content']);
             }
         } else {
-            $tpl = \Cosy\Appointments\Common\EmailTemplates::get_booking_status_update_customer_template($email_payload);
+            $tpl = \Cosy\Appointments\Email\EmailTemplates::get_booking_status_update_customer_template($email_payload);
             if (!empty($customer_email)) {
                 cosy_send_html_email($customer_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
             }
@@ -653,7 +653,7 @@ class Frontend
                 ], ['%s', '%d', '%d', '%d', '%s', '%d', '%s']);
 
                 $review_page_url = add_query_arg('token', $review_token, cosy_get_page_url('cosy-leave-review'));
-                $review_tpl = \Cosy\Appointments\Common\EmailTemplates::get_review_invite_template([
+                $review_tpl = \Cosy\Appointments\Email\EmailTemplates::get_review_invite_template([
                     'customer_name' => $customer_name ?: 'Customer',
                     'provider_name' => $provider_name ?: $current_user->display_name,
                     'service_title' => $service_name ?: 'Parent Conversation',
@@ -1211,25 +1211,25 @@ class Frontend
         ];
 
         // 1. Send Customer Email
-        $cust_tpl = \Cosy\Appointments\Common\EmailTemplates::get_booking_customer_template($booking_data);
+        $cust_tpl = \Cosy\Appointments\Email\EmailTemplates::get_booking_customer_template($booking_data);
         cosy_send_html_email($current_user->user_email, $cust_tpl['subject'], $cust_tpl['heading'], $cust_tpl['content']);
 
         // 2. Send Provider Email
         if (!empty($provider_email)) {
-            $prov_tpl = \Cosy\Appointments\Common\EmailTemplates::get_booking_provider_template($booking_data);
+            $prov_tpl = \Cosy\Appointments\Email\EmailTemplates::get_booking_provider_template($booking_data);
             cosy_send_html_email($provider_email, $prov_tpl['subject'], $prov_tpl['heading'], $prov_tpl['content']);
         }
 
         // 3. Send Administrator Email
         $admin_email = get_option('admin_email');
         if (!empty($admin_email)) {
-            $admin_tpl = \Cosy\Appointments\Common\EmailTemplates::get_admin_payment_template($booking_data);
+            $admin_tpl = \Cosy\Appointments\Email\EmailTemplates::get_admin_payment_template($booking_data);
             cosy_send_html_email($admin_email, $admin_tpl['subject'], $admin_tpl['heading'], $admin_tpl['content']);
         }
 
         // 4. Send Gift Recipient Email (If Gift Booking)
         if (!empty($is_gift) && !empty($recipient_email)) {
-            $gift_tpl = \Cosy\Appointments\Common\EmailTemplates::get_gifted_booking_template($booking_data);
+            $gift_tpl = \Cosy\Appointments\Email\EmailTemplates::get_gifted_booking_template($booking_data);
             cosy_send_html_email($recipient_email, $gift_tpl['subject'], $gift_tpl['heading'], $gift_tpl['content']);
         }
     }

@@ -16,7 +16,22 @@ if (!defined('ABSPATH')) {
 class EmailTemplates
 {
     /**
-     * Replace template dynamic tags with actual data values.
+     * REPLACE {PLACEHOLDER} TAGS WITH ACTUAL DATA VALUES
+     *
+     * USE CASE:
+     * Core utility used by all template methods to swap dynamic {tags}
+     * (e.g. {customer_name}, {order_id}) with real data before sending.
+     *
+     * HOW TO USE:
+     * $content = EmailTemplates::replace_tags($template, ['{customer_name}' => 'Sarah']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Performs a bulk str_replace() swapping all tag keys with their values.
+     * 2. Returns the final processed string.
+     *
+     * @param string $content      Template string containing {tag} placeholders.
+     * @param array  $replacements Associative array of '{tag}' => 'value' pairs.
+     * @return string Processed string with all tags replaced.
      */
     public static function replace_tags(string $content, array $replacements): string
     {
@@ -24,8 +39,26 @@ class EmailTemplates
     }
 
     /**
-     * Helper to load saved admin settings or fallback to exact original defaults,
-     * then replace placeholders.
+     * LOAD ADMIN SETTINGS OR FALLBACK TO DEFAULTS, THEN REPLACE PLACEHOLDERS
+     *
+     * USE CASE:
+     * Core internal helper used by every public template method.
+     * Merges admin-customized content with plugin defaults and injects data values.
+     *
+     * HOW TO USE:
+     * Internal only — called inside each get_*_template() method.
+     * $parts = self::get_rendered_template_parts('customer_booking', $defaults, $replacements);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Calls EmailTemplatesAdmin::get_template_settings() to load saved admin overrides.
+     * 2. Falls back to $defaults if admin has not customized that field.
+     * 3. Auto-injects {site_url}, {site_name}, {support_email} tags if not already in $replacements.
+     * 4. Calls replace_tags() on each field and returns processed subject, heading, body, outro.
+     *
+     * @param string $template_key  Unique key for this template (e.g. 'customer_booking').
+     * @param array  $defaults      Default subject, heading, body_text, outro_text values.
+     * @param array  $replacements  Dynamic {tag} => value pairs to inject into template.
+     * @return array Processed array with keys: subject, heading, body_text, outro_text.
      */
     protected static function get_rendered_template_parts(string $template_key, array $defaults, array $replacements): array
     {
@@ -57,7 +90,25 @@ class EmailTemplates
     }
 
     /**
-     * 1. Customer Registration Verification Email
+     * 1. CUSTOMER REGISTRATION EMAIL VERIFICATION TEMPLATE
+     *
+     * USE CASE:
+     * Sent automatically when a new customer registers on the site.
+     * Contains a secure email verification link to activate their account.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_customer_verification_template($name, $verify_url);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for {customer_name} and {verify_url}.
+     * 2. Loads admin-customized or default body text via get_rendered_template_parts().
+     * 3. Appends a branded 'Verify & Activate Account' CTA button.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param string $name       Customer's display name.
+     * @param string $verify_url Full URL for email verification.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_customer_verification_template(string $name, string $verify_url): array
     {
@@ -103,7 +154,25 @@ class EmailTemplates
     }
 
     /**
-     * 2. Provider Registration Verification Email
+     * 2. PROVIDER REGISTRATION EMAIL VERIFICATION TEMPLATE
+     *
+     * USE CASE:
+     * Sent automatically when a new provider registers on the site.
+     * Contains a secure verification link for the provider to activate their account.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_provider_verification_template($name, $verify_url);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for {provider_name} and {verify_url}.
+     * 2. Loads admin-customized or default content via get_rendered_template_parts().
+     * 3. Appends a branded CTA button.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param string $name       Provider's display name.
+     * @param string $verify_url Full URL for email verification.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_provider_verification_template(string $name, string $verify_url): array
     {
@@ -146,7 +215,25 @@ class EmailTemplates
     }
 
     /**
-     * 3. Forgot Password / Password Reset Email
+     * 3. FORGOT PASSWORD / PASSWORD RESET EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent when a customer or provider requests a password reset from the login page.
+     * Contains a secure one-time WordPress reset link.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_password_reset_template($name, $reset_url);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for {customer_name} and {reset_url}.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Appends a branded 'Reset Password' CTA button.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param string $name      Recipient's display name.
+     * @param string $reset_url Full WordPress password reset URL.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_password_reset_template(string $name, string $reset_url): array
     {
@@ -181,7 +268,23 @@ class EmailTemplates
     }
 
     /**
-     * 4. Provider Account Approved & Activated Email
+     * 4. PROVIDER ACCOUNT APPROVED & ACTIVATED EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent when an admin approves and activates a provider's account for the first time.
+     * Welcomes the provider and tells them their profile is now live.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_provider_active_template($name);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacement for {provider_name}.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $name Provider's display name.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_provider_active_template(string $name): array
     {
@@ -219,7 +322,23 @@ class EmailTemplates
     }
 
     /**
-     * 5. Provider Account Deactivated Email
+     * 5. PROVIDER ACCOUNT DEACTIVATED EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent when an admin deactivates a provider's account.
+     * Notifies the provider that their account has been suspended.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_provider_deactivated_template($name);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacement for {provider_name}.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $name Provider's display name.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_provider_deactivated_template(string $name): array
     {
@@ -246,7 +365,23 @@ class EmailTemplates
     }
 
     /**
-     * 6. Provider Account Re-Activated Email
+     * 6. PROVIDER ACCOUNT RE-ACTIVATED EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent when an admin re-activates a provider who was previously deactivated.
+     * Distinguishes from first-time activation by using 'welcome back' messaging.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_provider_reactivated_template($name);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacement for {provider_name}.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $name Provider's display name.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_provider_reactivated_template(string $name): array
     {
@@ -274,7 +409,24 @@ class EmailTemplates
     }
 
     /**
-     * 7. Customer Booking Confirmation Email
+     * 7. CUSTOMER BOOKING CONFIRMATION EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to the customer immediately after a successful booking and payment.
+     * Confirms booking details and sets expectations for the upcoming conversation.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_booking_customer_template($booking_data);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements from $data array (customer_name, order_id, provider, slots, etc.).
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Builds and appends the live booking summary + payment table HTML.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param array $data Booking data: customer_name, order_id, provider_name, slots, etc.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_booking_customer_template(array $data): array
     {
@@ -346,7 +498,24 @@ class EmailTemplates
     }
 
     /**
-     * 8. Provider Booking Notification Email
+     * 8. PROVIDER BOOKING NOTIFICATION EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to the provider immediately after a customer completes a booking.
+     * Notifies the provider of the new conversation request with full booking details.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_booking_provider_template($booking_data);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements from $data array (provider_name, customer_name, slots, etc.).
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Builds and appends the booking details table HTML.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param array $data Booking data: provider_name, customer_name, order_id, slots, etc.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_booking_provider_template(array $data): array
     {
@@ -410,7 +579,24 @@ class EmailTemplates
     }
 
     /**
-     * 9. Gifted Booking Email (Recipient)
+     * 9. GIFTED BOOKING CONFIRMATION EMAIL TEMPLATE (RECIPIENT)
+     *
+     * USE CASE:
+     * Sent to the gift recipient (friend/family member) when a booking is made as a gift.
+     * Informs them of their upcoming conversation booked by the gifter.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_gifted_booking_template($booking_data);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements from $data (recipient_name, gifter_name, provider, slots, etc.).
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Builds and appends a session summary table.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param array $data Booking data: recipient_name, gifter_name, provider_name, slots, etc.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_gifted_booking_template(array $data): array
     {
@@ -466,7 +652,23 @@ class EmailTemplates
     }
 
     /**
-     * 10. Video Approval Email
+     * 10. VIDEO APPROVAL EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to a provider when the admin approves their introduction video.
+     * Congratulates them and confirms their video is now visible on their profile.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_video_approved_template($name);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacement for {provider_name}.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $name Provider's display name.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_video_approved_template(string $name): array
     {
@@ -504,7 +706,24 @@ class EmailTemplates
     }
 
     /**
-     * 11. Video Rejection / Update Required Email
+     * 11. VIDEO REJECTION / UPDATE REQUIRED EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to a provider when the admin rejects or requests an update to their introduction video.
+     * Includes the rejection reason and guidelines for re-submission.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_video_rejected_template($name, $reason);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for {provider_name} and {rejection_reason}.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $name   Provider's display name.
+     * @param string $reason Admin-provided rejection reason message.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_video_rejected_template(string $name, string $reason): array
     {
@@ -543,7 +762,26 @@ class EmailTemplates
     }
 
     /**
-     * 12. Admin Notification - New Provider Profile Ready for Review
+     * 12. ADMIN NOTIFICATION - NEW PROVIDER PROFILE READY FOR REVIEW
+     *
+     * USE CASE:
+     * Sent to the site admin when a provider completes their profile setup.
+     * Prompts the admin to review the profile and activate the provider's account.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_admin_provider_setup_template($provider_name, $username, $email, $status);
+     * cosy_send_html_email($admin_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for {provider_name}, {username}, {email}, {status}.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $provider_name Display name of the newly registered provider.
+     * @param string $username      WordPress username of the provider.
+     * @param string $email         Provider's email address.
+     * @param string $status        Current account status (e.g. 'pending review').
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_admin_provider_setup_template(string $provider_name, string $username, string $email, string $status): array
     {
@@ -599,7 +837,24 @@ class EmailTemplates
     }
 
     /**
-     * 13. Admin Payment Alert Email (Complete with WorldPay Payment Gateway Details)
+     * 13. ADMIN PAYMENT ALERT EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to the site admin after every successful booking payment.
+     * Provides a full order, customer, provider, and payment summary.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_admin_payment_template($booking_data);
+     * cosy_send_html_email($admin_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements from $data (order_id, customer, provider, amount, gateway, etc.).
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Builds and appends a full order + payment summary table.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param array $data Booking data including order_id, customer_name, amount, gateway, etc.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_admin_payment_template(array $data): array
     {
@@ -690,7 +945,24 @@ class EmailTemplates
     }
 
     /**
-     * 14. Booking Cancellation Email (Customer)
+     * 14. BOOKING CANCELLATION EMAIL TEMPLATE (CUSTOMER)
+     *
+     * USE CASE:
+     * Sent to the customer when a provider cancels their booking.
+     * Informs the customer of the cancellation with full booking details.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_booking_cancelled_customer_template($data);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements from $data (customer_name, provider_name, order_id, slots, etc.).
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Builds and appends the cancelled booking summary table.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param array $data Booking data: customer_name, provider_name, order_id, slots, etc.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_booking_cancelled_customer_template(array $data): array
     {
@@ -739,7 +1011,24 @@ class EmailTemplates
     }
 
     /**
-     * 15. Booking Status Update Email (Customer)
+     * 15. BOOKING STATUS UPDATE EMAIL TEMPLATE (CUSTOMER)
+     *
+     * USE CASE:
+     * Sent to the customer whenever a provider updates the status of their booking
+     * (e.g. from 'pending' to 'confirmed', or 'confirmed' to 'completed').
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_booking_status_update_customer_template($data);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements from $data (customer_name, provider_name, new_status, slots, etc.).
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Builds and appends a booking status summary table.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param array $data Booking data: customer_name, provider_name, status, order_id, etc.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_booking_status_update_customer_template(array $data): array
     {
@@ -790,7 +1079,24 @@ class EmailTemplates
     }
 
     /**
-     * 16. Review Invite Email
+     * 16. REVIEW INVITE EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to the customer after their booking is marked as 'completed'.
+     * Invites them to leave a review for the provider via a secure one-time token link.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_review_invite_template($data);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements from $data (customer_name, provider_name, service_title, review_url).
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Appends a branded 'Leave Your Review' CTA button.
+     * 4. Returns array with keys: subject, heading, content.
+     *
+     * @param array $data Data: customer_name, provider_name, service_title, review_url.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_review_invite_template(array $data): array
     {
@@ -833,15 +1139,34 @@ class EmailTemplates
     }
 
     /**
-     * 17. Provider Review Approved Notification Email
+     * 17. PROVIDER REVIEW APPROVED NOTIFICATION EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to the provider when an admin approves a customer review on their profile.
+     * Notifies them of the star rating and the positive feedback received.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_provider_review_approved_template($provider_name, $customer_name, $rating, $review);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for provider_name, customer_name, rating, and review text.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $provider_name Provider's display name.
+     * @param string $customer_name Customer's display name who left the review.
+     * @param int    $rating        Star rating (1-5).
+     * @param string $review        Review text content.
+     * @return array Email parts: subject, heading, content.
      */
-    public static function get_provider_review_approved_template(string $provider_name, string $customer_name, int $rating, string $review_text): array
+    public static function get_provider_review_approved_template(string $provider_name, string $customer_name, int $rating, string $review): array
     {
         $replacements = [
             '{provider_name}' => esc_html($provider_name),
             '{customer_name}' => esc_html($customer_name),
             '{rating}'        => (string)$rating,
-            '{review_text}'   => esc_html($review_text),
+            '{review_text}'   => esc_html($review),
         ];
 
         $defaults = [
@@ -855,7 +1180,7 @@ class EmailTemplates
         $parts = self::get_rendered_template_parts('provider_review_approved', $defaults, $replacements);
 
         $blockquote = "
-            <blockquote style='background: #fdf5fc; border-left: 4px solid #a44390; padding: 12px 16px; margin: 15px 0; font-style: italic;'>\"" . esc_html($review_text) . "\"</blockquote>
+            <blockquote style='background: #fdf5fc; border-left: 4px solid #a44390; padding: 12px 16px; margin: 15px 0; font-style: italic;'>\"" . esc_html($review) . "\"</blockquote>
         ";
 
         return [
@@ -866,15 +1191,34 @@ class EmailTemplates
     }
 
     /**
-     * 18. Admin New Review Submitted Alert Email
+     * 18. ADMIN NEW REVIEW SUBMITTED ALERT EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to the admin when a customer submits a new review.
+     * Prompts the admin to approve or reject the review from the Admin > Reviews page.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_admin_new_review_template($provider_name, $customer_name, $rating, $review);
+     * cosy_send_html_email($admin_email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for provider_name, customer_name, rating, and review text.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $provider_name Provider being reviewed.
+     * @param string $customer_name Reviewer's name.
+     * @param int    $rating        Star rating submitted (1-5).
+     * @param string $review        Review text content.
+     * @return array Email parts: subject, heading, content.
      */
-    public static function get_admin_new_review_template(string $provider_name, string $customer_name, int $rating, string $review_text): array
+    public static function get_admin_new_review_template(string $provider_name, string $customer_name, int $rating, string $review): array
     {
         $replacements = [
             '{provider_name}' => esc_html($provider_name),
             '{customer_name}' => esc_html($customer_name),
             '{rating}'        => (string)$rating,
-            '{review_text}'   => esc_html($review_text),
+            '{review_text}'   => esc_html($review),
         ];
 
         $defaults = [
@@ -893,7 +1237,7 @@ class EmailTemplates
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Parent Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($provider_name) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($customer_name) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Rating:</td><td style='padding: 10px 14px; color: #a44390; font-weight: bold; vertical-align: top;'>" . (int)$rating . "/10</td></tr>
-                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Review Text:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; font-style: italic;'>\"" . esc_html($review_text) . "\"</td></tr>
+                <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Review Text:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; font-style: italic;'>\"" . esc_html($review) . "\"</td></tr>
             </table>
         ";
 
@@ -905,7 +1249,26 @@ class EmailTemplates
     }
 
     /**
-     * 19. Customer Review Reply Email
+     * 19. CUSTOMER REVIEW REPLY EMAIL TEMPLATE
+     *
+     * USE CASE:
+     * Sent to the customer when a provider responds to their review for the first time.
+     * Notifies the customer that their review has received a reply.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_customer_review_reply_template($customer_name, $provider_name, $reply, $original_review);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for customer_name, provider_name, reply_text, and original review.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $customer_name   Customer's display name.
+     * @param string $provider_name   Provider's display name.
+     * @param string $reply_text      Provider's reply text.
+     * @param string $original_review The customer's original review text.
+     * @return array Email parts: subject, heading, content.
      */
     public static function get_customer_review_reply_template(string $customer_name, string $provider_name, string $reply_text, string $original_review): array
     {
@@ -945,14 +1308,33 @@ class EmailTemplates
     }
 
     /**
-     * 20. Customer Follow-up Response Email (to Provider)
+     * 20. CUSTOMER FOLLOW-UP RESPONSE EMAIL TEMPLATE (TO PROVIDER)
+     *
+     * USE CASE:
+     * Sent to the provider when a customer adds a follow-up reply to the review thread.
+     * Notifies the provider that the conversation is continuing.
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_provider_review_followup_template($provider_name, $customer_name, $reply, $original_review);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements for provider_name, customer_name, reply_text, and original review.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $provider_name   Provider's display name.
+     * @param string $customer_name   Customer's display name.
+     * @param string $reply_text      Customer's follow-up reply text.
+     * @param string $original_review The original review text.
+     * @return array Email parts: subject, heading, content.
      */
-    public static function get_provider_review_followup_template(string $provider_name, string $customer_name, string $followup_text, string $original_review): array
+    public static function get_provider_review_followup_template(string $provider_name, string $customer_name, string $reply_text, string $original_review): array
     {
         $replacements = [
             '{provider_name}' => esc_html($provider_name),
             '{customer_name}' => esc_html($customer_name),
-            '{followup_text}' => esc_html($followup_text),
+            '{followup_text}' => esc_html($reply_text),
             '{original_review}' => esc_html($original_review),
         ];
 
@@ -972,7 +1354,7 @@ class EmailTemplates
                 <p style='margin: 0 0 15px 0; font-style: italic; color: #334155;'>\"" . esc_html($original_review) . "\"</p>
                 <div style='border-top: 1px dashed #cbd5e1; padding-top: 12px;'>
                     <p style='margin: 0 0 6px 0; font-size: 13px; color: #a44390;'><strong>" . esc_html($customer_name) . "'s Follow-up Response:</strong></p>
-                    <p style='margin: 0; color: #1e293b; font-weight: 500;'>\"" . esc_html($followup_text) . "\"</p>
+                    <p style='margin: 0; color: #1e293b; font-weight: 500;'>\"" . esc_html($reply_text) . "\"</p>
                 </div>
             </div>
         ";
@@ -985,9 +1367,30 @@ class EmailTemplates
     }
 
     /**
-     * 21. Provider Final Closing Response Email (to Customer with Full Conversation History)
+     * 21. PROVIDER FINAL CLOSING RESPONSE EMAIL TEMPLATE (TO CUSTOMER)
+     *
+     * USE CASE:
+     * Sent to the customer when a provider sends a final closing reply to a review thread.
+     * Includes the full conversation history (original review, provider reply, customer follow-up, closing reply).
+     *
+     * HOW TO USE:
+     * $tpl = EmailTemplates::get_customer_review_closing_template($customer_name, $provider_name, $review, $l1_reply, $l2_reply, $closing);
+     * cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Builds replacements including full conversation thread text.
+     * 2. Loads content via get_rendered_template_parts().
+     * 3. Returns array with keys: subject, heading, content.
+     *
+     * @param string $customer_name   Customer's display name.
+     * @param string $provider_name   Provider's display name.
+     * @param string $original_review Customer's original review text.
+     * @param string $l1_reply        Provider's first reply.
+     * @param string $l2_reply        Customer's follow-up response.
+     * @param string $closing_reply   Provider's final closing reply.
+     * @return array Email parts: subject, heading, content.
      */
-    public static function get_customer_review_closing_template(string $customer_name, string $provider_name, string $review_text, string $l1_text, string $l2_text, string $l3_text): array
+    public static function get_customer_review_closing_template(string $customer_name, string $provider_name, string $original_review, string $l1_reply, string $l2_reply, string $closing_reply): array
     {
         $replacements = [
             '{customer_name}' => esc_html($customer_name),
@@ -1035,6 +1438,24 @@ class EmailTemplates
 
     /**
      * CENTRALIZED SINGLE-LINE EMAIL DISPATCHER HELPER
+     *
+     * USE CASE:
+     * Convenient single-line method to build and send any registered template email
+     * without manually calling the get_*_template() method and cosy_send_html_email() separately.
+     *
+     * HOW TO USE:
+     * $sent = EmailTemplates::send('customer_booking', $email, $booking_data);
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Validates that $to_email is not empty and cosy_send_html_email() function exists.
+     * 2. Dynamically constructs the correct get_*_template() method name from $template_name.
+     * 3. Calls that method with $data to build the email payload.
+     * 4. Dispatches the email via cosy_send_html_email() and returns true/false result.
+     *
+     * @param string $template_name Registered template key (e.g. 'customer_booking').
+     * @param string $to_email      Recipient email address.
+     * @param array  $data          Data payload passed to the template method.
+     * @return bool True if email sent successfully, false otherwise.
      */
     public static function send(string $template_name, string $to_email, array $data = []): bool
     {

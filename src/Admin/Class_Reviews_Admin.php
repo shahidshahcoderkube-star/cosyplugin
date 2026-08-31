@@ -111,7 +111,7 @@ class Class_Reviews_Admin
 
             $provider = get_userdata($review->provider_id);
             if ($provider && !empty($provider->user_email) && function_exists('cosy_send_html_email')) {
-                $tpl = \Cosy\Appointments\Common\EmailTemplates::get_provider_review_approved_template(
+                $tpl = \Cosy\Appointments\Email\EmailTemplates::get_provider_review_approved_template(
                     $provider->display_name,
                     $review->customer_name,
                     intval($review->rating),

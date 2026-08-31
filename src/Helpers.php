@@ -612,7 +612,7 @@ if (!function_exists('cosy_notify_admin_provider_setup_ready')) {
 
         $prov_status = get_user_meta($user_id, 'cosy_provider_status', true) ?: 'deactive (pending review)';
 
-        $tpl = \Cosy\Appointments\Common\EmailTemplates::get_admin_provider_setup_template(
+        $tpl = \Cosy\Appointments\Email\EmailTemplates::get_admin_provider_setup_template(
             $provider_name,
             $user->user_login,
             $user->user_email,
