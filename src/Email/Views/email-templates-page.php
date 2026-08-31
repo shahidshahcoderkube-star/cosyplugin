@@ -51,6 +51,9 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
     border-radius: 14px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
+.cosy-email-wrap .card {
+    margin-top: 0 !important;
+}
 #cosy_email_body_text, #cosy_email_outro_text {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     font-size: 14px !important;
@@ -338,7 +341,7 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
         <div class="col-xl-6 col-lg-6 col-md-12">
             
             <!-- Quick Send Test Email Bar -->
-            <div class="card p-3 rounded-4 border shadow-sm mb-3 bg-white">
+            <div class="card mt-0 p-3 rounded-4 border shadow-sm mb-3 bg-white" style="margin-top: 0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <span class="fw-bold text-dark small d-flex align-items-center gap-2">
                         <i class="fa-solid fa-paper-plane" style="color: #a44390;"></i>
