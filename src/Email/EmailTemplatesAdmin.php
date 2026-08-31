@@ -52,7 +52,7 @@ class EmailTemplatesAdmin
 <p>After your conversation, we'd love to hear your feedback.</p>
 <p>If you enjoy your CosyChats experience, we'd be grateful if you could tell your friends and family about us. Every recommendation helps more parents discover CosyChats and the conversations available.</p>
 <p>Thank you again for choosing CosyChats. We really appreciate your support and look forward to welcoming you back.</p>",
-                'outro_text' => "<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm regards,</p>",
+                'outro_text' => "<p>Warm regards,</p>",
                 'has_table'  => true,
                 'table_type' => 'booking_customer',
             ],
@@ -67,7 +67,7 @@ class EmailTemplatesAdmin
 <p>Before the scheduled time, please arrange your conversation with the customer using their chosen communication method, such as setting up a virtual meeting or another agreed way to connect. At the scheduled time, simply begin your conversation.</p>
 <p>If you have any questions or need any assistance before your booking, please don't hesitate to contact us at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
 <p>Thank you for being part of CosyChats. We hope you enjoy your upcoming conversation, and we appreciate you helping make conversations based on shared experiences available to more parents.</p>",
-                'outro_text' => "<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm regards,</p>",
+                'outro_text' => "<p>Warm regards,</p>",
                 'has_table'  => true,
                 'table_type' => 'booking_provider',
             ],
@@ -78,7 +78,7 @@ class EmailTemplatesAdmin
                 'body_text'  => "<p>Hello <strong>{customer_name}</strong>,</p>
 <p>Great news! Your booking status with <strong>{provider_name}</strong> has been updated to <strong>{status}</strong>.</p>",
                 'outro_text' => "<p>You can view your booking details at any time in your account dashboard.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+<p>Kind regards,</p>",
                 'has_table'  => true,
                 'table_type' => 'booking_status',
             ],
@@ -89,7 +89,7 @@ class EmailTemplatesAdmin
                 'body_text'  => "<p>Hello <strong>{customer_name}</strong>,</p>
 <p>We are writing to inform you that your upcoming conversation session with <strong>{provider_name}</strong> has been cancelled by the parent provider.</p>",
                 'outro_text' => "<p>We apologize for any inconvenience this may cause. If you have any questions regarding refunds or re-booking another parent, please contact our support team at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+<p>Kind regards,</p>",
                 'has_table'  => true,
                 'table_type' => 'booking_cancelled',
             ],
@@ -101,10 +101,10 @@ class EmailTemplatesAdmin
 <p>Thank you for your recent conversation with <strong>{provider_name}</strong> on CosyChats.</p>
 <p>We hope you found the session helpful and meaningful. Your feedback helps other parents discover the right person to talk to, and it means a great deal to the parents who share their experiences on CosyChats.</p>
 <p>If you'd like to share your experience, simply click the button below. Your review will be submitted for approval before appearing on the parent's profile.</p>",
-                'outro_text' => "<p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
-<p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='{review_url}' style='color: #a44390; text-decoration: none;'>{review_url}</a></p>
-<p style='font-size: 13px; color: #94a3b8; margin-top: 20px; font-style: italic;'>This is a one-time link. Once you've submitted your review, the link will no longer be active.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+                'outro_text' => "<p>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
+<p style='word-break: break-all;'><a href='{review_url}' style='color: #a44390; text-decoration: none;'>{review_url}</a></p>
+<p style='font-style: italic;'>This is a one-time link. Once you've submitted your review, the link will no longer be active.</p>
+<p>Kind regards,</p>",
                 'has_table'  => false,
                 'table_type' => 'review_button',
             ],
@@ -187,7 +187,7 @@ class EmailTemplatesAdmin
                 'body_text'  => "<p style='margin-bottom: 15px;'>Hello Administrator,</p>
 <p style='margin-bottom: 15px;'>A Service Provider (Parent) has completed/updated their profile details and is ready for your review and activation.</p>",
                 'outro_text' => "<p style='margin-bottom: 20px;'>Please log in to your WP Admin dashboard to review their details and activate their provider profile.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+<p>Kind regards,</p>",
                 'has_table'  => false,
                 'table_type' => 'simple',
             ],

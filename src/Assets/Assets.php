@@ -53,6 +53,7 @@ class Assets
             'cc-booking_page_cosy-users',
             'cc-booking_page_cosy-reviews',
             'cc-booking_page_cosy-logs',
+            'cc-booking_page_cosy-email',
             'cc-booking_page_cosy-email-templates',
             'users.php', // Required for the verification dropdown
         ];
@@ -159,7 +160,10 @@ class Assets
         }
 
         // Enqueue dedicated Email Templates Admin JS ONLY on the email templates management page
-        if ($hook === 'cc-booking_page_cosy-email-templates' || (isset($_GET['page']) && $_GET['page'] === 'cosy-email-templates')) {
+        $is_email_page = in_array($hook, ['cc-booking_page_cosy-email', 'cc-booking_page_cosy-email-templates'], true)
+            || (isset($_GET['page']) && in_array($_GET['page'], ['cosy-email', 'cosy-email-templates'], true));
+
+        if ($is_email_page) {
             wp_enqueue_script(
                 'cosy-email-templates-admin-script',
                 COSY_APPT_URL . 'src/Admin/assets/email-templates-admin.js',

@@ -189,10 +189,10 @@ class Admin
 
         add_submenu_page(
             'cosy-booking-dashboard',
-            __('Email Templates', 'cosy-appointments'),
-            __('Email Templates', 'cosy-appointments'),
+            __('Emails', 'cosy-appointments'),
+            __('Emails', 'cosy-appointments'),
             'manage_cosy_appointments',
-            'cosy-email-templates',
+            'cosy-email',
             [$this->emailTemplatesAdmin, 'render_email_templates_page']
         );
 

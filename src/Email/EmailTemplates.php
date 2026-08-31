@@ -200,7 +200,7 @@ class EmailTemplates
 <p>If you believe in what we're building, we'd love your help in spreading the word. Friends, family, and the people who know you best are often the first to tell others about something they genuinely believe in. By mentioning CosyChats or sharing it with people in your own network, you'll be helping more parents discover that these conversations are available when they need them.</p>
 <p>If you have any questions or need any assistance getting started, we're always happy to help. Contact the CosyChats team at <a href='mailto:contact@CosyChats.com' style='color: #a44390; font-weight: 600;'>contact@CosyChats.com</a>.</p>
 <p>Thank you for being part of CosyChats. We're excited to have you with us.</p>",
-            'outro_text' => "<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+            'outro_text' => "<p>Kind regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('provider_active', $defaults, $replacements);
@@ -233,7 +233,7 @@ class EmailTemplates
 <p>While your account is inactive, your profile won't be visible to customers and you won't be able to receive new bookings.</p>
 <p>If you have any questions or think this has happened in error, please don't hesitate to get in touch with the CosyChats team. We'll be happy to help.</p>
 <p>Contact the CosyChats team at <a href='mailto:contact@CosyChats.com' style='color: #a44390; font-weight: 600;'>contact@CosyChats.com</a>.</p>",
-            'outro_text' => "<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+            'outro_text' => "<p>Kind regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('provider_deactivated', $defaults, $replacements);
@@ -261,7 +261,7 @@ class EmailTemplates
 <p>We're sorry for any inconvenience caused while your account was unavailable, and we really appreciate your patience and understanding.</p>
 <p>If you have any questions or need any assistance, simply reply to this email or get in touch with the CosyChats team—we're always happy to help.</p>
 <p>Thank you for being part of CosyChats. We're delighted to have you back.</p>",
-            'outro_text' => "<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm wishes,</p>",
+            'outro_text' => "<p>Warm wishes,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('provider_reactivated', $defaults, $replacements);
@@ -303,7 +303,7 @@ class EmailTemplates
 <p>After your conversation, we'd love to hear your feedback.</p>
 <p>If you enjoy your CosyChats experience, we'd be grateful if you could tell your friends and family about us. Every recommendation helps more parents discover CosyChats and the conversations available.</p>
 <p>Thank you again for choosing CosyChats. We really appreciate your support and look forward to welcoming you back.</p>",
-            'outro_text' => "<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm regards,</p>",
+            'outro_text' => "<p>Warm regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('customer_booking', $defaults, $replacements);
@@ -373,7 +373,7 @@ class EmailTemplates
 <p>Before the scheduled time, please arrange your conversation with the customer using their chosen communication method, such as setting up a virtual meeting or another agreed way to connect. At the scheduled time, simply begin your conversation.</p>
 <p>If you have any questions or need any assistance before your booking, please don't hesitate to contact us at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
 <p>Thank you for being part of CosyChats. We hope you enjoy your upcoming conversation, and we appreciate you helping make conversations based on shared experiences available to more parents.</p>",
-            'outro_text' => "<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm regards,</p>",
+            'outro_text' => "<p>Warm regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('provider_booking', $defaults, $replacements);
@@ -435,7 +435,7 @@ class EmailTemplates
             'heading'    => __('🎁 A Special Gift For You!', 'cosy-appointments'),
             'body_text'  => "<p>Hello <strong>{recipient_name}</strong>,</p>
 <p><strong>{sender_name}</strong> has gifted you a parent conversation session on CosyChats!</p>",
-            'outro_text' => "<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+            'outro_text' => "<p>Kind regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('gifted_booking', $defaults, $replacements);
@@ -485,7 +485,7 @@ class EmailTemplates
             'outro_text' => "<p>Thank you for taking the time to create your video. It adds a personal touch to your profile and helps bring your story to life.</p>
 <p>If you have any questions or need any help, please don't hesitate to get in touch with us at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>—we're always happy to help.</p>
 <p>Thank you for being part of CosyChats.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm wishes,</p>",
+<p>Warm wishes,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('video_approved', $defaults, $replacements);
@@ -526,7 +526,7 @@ class EmailTemplates
 </p>
 <p>If you're unsure what needs changing or would like any help creating your video, please don't hesitate to get in touch with us at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>. We'll be happy to help you get your video ready to go live.</p>
 <p>Thank you for taking the time to update it—we're looking forward to seeing your new introduction.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Warm wishes,</p>",
+<p>Warm wishes,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('video_rejected', $defaults, $replacements);
@@ -564,7 +564,7 @@ class EmailTemplates
 <p style='text-align: center; margin: 30px 0;'>
     <a href='" . esc_url($admin_review_url) . "' style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(164, 67, 144, 0.2);'>Review Provider in WP Admin</a>
 </p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+<p>Kind regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('admin_provider_setup', $defaults, $replacements);
@@ -716,7 +716,7 @@ class EmailTemplates
             'body_text'  => "<p>Hello <strong>{customer_name}</strong>,</p>
 <p>We are writing to inform you that your upcoming conversation session with <strong>{provider_name}</strong> has been cancelled by the parent provider.</p>",
             'outro_text' => "<p>We apologize for any inconvenience this may cause. If you have any questions regarding refunds or re-booking another parent, please contact our support team at <a href='mailto:contact@cosychats.com' style='color: #a44390; font-weight: 600;'>contact@cosychats.com</a>.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+<p>Kind regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('booking_cancelled', $defaults, $replacements);
@@ -766,7 +766,7 @@ class EmailTemplates
             'body_text'  => "<p>Hello <strong>{customer_name}</strong>,</p>
 <p>Great news! Your booking status with <strong>{provider_name}</strong> has been updated to <strong>{status}</strong>.</p>",
             'outro_text' => "<p>You can view your booking details at any time in your account dashboard.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+<p>Kind regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('booking_status', $defaults, $replacements);
@@ -811,10 +811,10 @@ class EmailTemplates
 <p>Thank you for your recent conversation with <strong>{provider_name}</strong> on CosyChats.</p>
 <p>We hope you found the session helpful and meaningful. Your feedback helps other parents discover the right person to talk to, and it means a great deal to the parents who share their experiences on CosyChats.</p>
 <p>If you'd like to share your experience, simply click the button below. Your review will be submitted for approval before appearing on the parent's profile.</p>",
-            'outro_text' => "<p style='font-size: 13px; color: #64748b; margin-top: 25px;'>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
-<p style='font-size: 13px; word-break: break-all; color: #a44390;'><a href='{review_url}' style='color: #a44390; text-decoration: none;'>{review_url}</a></p>
-<p style='font-size: 13px; color: #94a3b8; margin-top: 20px; font-style: italic;'>This is a one-time link. Once you've submitted your review, the link will no longer be active.</p>
-<p style='font-size: 14px; line-height: 1.6; color: #64748b; margin-top: 25px;'>Kind regards,</p>",
+            'outro_text' => "<p>If you're having trouble clicking the button, copy and paste the link below into your web browser:</p>
+<p style='word-break: break-all;'><a href='{review_url}' style='color: #a44390; text-decoration: none;'>{review_url}</a></p>
+<p style='font-style: italic;'>This is a one-time link. Once you've submitted your review, the link will no longer be active.</p>
+<p>Kind regards,</p>",
         ];
 
         $parts = self::get_rendered_template_parts('review_invite', $defaults, $replacements);

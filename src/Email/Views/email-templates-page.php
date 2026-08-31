@@ -90,8 +90,8 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
     transform: translateY(-1px);
 }
 .cosy-locked-table-bar {
-    background: #f8fafc;
-    border: 1.5px dashed #cbd5e1;
+    background: #fdf6fc;
+    border: 1.5px dashed #f1c7ec;
     border-radius: 10px;
     padding: 12px 16px;
     margin: 16px 0;
@@ -101,12 +101,39 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
     font-size: 12.5px;
     color: #475569;
 }
+@media (min-width: 992px) {
+    .cosy-preview-col {
+        position: relative;
+    }
+    .cosy-preview-col-inner {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(var(--bs-gutter-x, 1rem) * 0.5);
+        right: calc(var(--bs-gutter-x, 1rem) * 0.5);
+        display: flex;
+        flex-direction: column;
+    }
+}
+@media (max-width: 991.98px) {
+    .cosy-preview-col-inner {
+        display: flex;
+        flex-direction: column;
+    }
+    .cosy-preview-body {
+        max-height: 600px;
+    }
+}
 .cosy-live-preview-box {
     background: #faf6f9;
     border: 1px solid #e2e8f0;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(109, 46, 103, 0.06);
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 .cosy-preview-header {
     background: #ffffff;
@@ -115,11 +142,7 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-.cosy-preview-body {
-    max-height: 720px;
-    overflow-y: auto;
-    padding: 20px;
+    flex-shrink: 0;
 }
 .cosy-preview-subject-bar {
     background: #f8fafc;
@@ -128,6 +151,13 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
     font-size: 12.5px;
     color: #334155;
     font-family: monospace;
+    flex-shrink: 0;
+}
+.cosy-preview-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 20px;
 }
 </style>
 
@@ -160,7 +190,7 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
         <ul class="nav nav-tabs border-bottom border-2 flex-nowrap overflow-x-auto" style="gap: 3px;">
             <?php foreach ($all_templates as $key => $tpl) : 
                 $is_active = ($key === $active_tab);
-                $tab_url = add_query_arg(['page' => 'cosy-email-templates', 'tab' => $key], admin_url('admin.php'));
+                $tab_url = add_query_arg(['page' => 'cosy-email', 'tab' => $key], admin_url('admin.php'));
             ?>
                 <li class="nav-item">
                     <a href="<?php echo esc_url($tab_url); ?>" class="nav-link text-nowrap <?php echo $is_active ? 'active' : ''; ?>">
@@ -250,7 +280,7 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
 
                     <!-- 4. Compact Locked System Table / Button Bar -->
                     <?php if ($is_button_template): ?>
-                        <div class="cosy-locked-table-bar" style="background: #fdf6fc; border-color: #f1c7ec;">
+                        <div class="cosy-locked-table-bar">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge text-white" style="background: #a44390;"><i class="fa-solid fa-square-check"></i></span>
                                 <span class="fw-bold text-dark">
@@ -263,7 +293,7 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
                     <?php else: ?>
                         <div class="cosy-locked-table-bar">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-secondary text-white"><i class="fa-solid fa-lock"></i></span>
+                                <span class="badge text-white" style="background: #a44390;"><i class="fa-solid fa-lock"></i></span>
                                 <span class="fw-bold text-dark">
                                     <?php esc_html_e('Dynamic System Tables Render Here', 'cosy-appointments'); ?>
                                 </span>
@@ -338,54 +368,56 @@ $default_test_email = $current_user->user_email ?: get_option('admin_email');
         </div>
 
         <!-- RIGHT COLUMN: Real-Time Live Preview & Test Mail Widget (50% Width) -->
-        <div class="col-xl-6 col-lg-6 col-md-12">
-            
-            <!-- Quick Send Test Email Bar -->
-            <div class="card mt-0 p-3 rounded-4 border shadow-sm mb-3 bg-white" style="margin-top: 0 !important;">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="fw-bold text-dark small d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-paper-plane" style="color: #a44390;"></i>
-                        <?php esc_html_e('Send Real Test Email', 'cosy-appointments'); ?>
-                    </span>
-                    <span class="text-muted" style="font-size: 11px;">
-                        <?php esc_html_e('Sends live email with sample data', 'cosy-appointments'); ?>
-                    </span>
-                </div>
-                <div class="input-group">
-                    <input type="email" id="cosy_test_email_address" class="form-control py-2 px-3 rounded-start-3" value="<?php echo esc_attr($default_test_email); ?>" placeholder="your-email@example.com">
-                    <button type="button" id="btnSendTestEmail" class="btn fw-bold px-3 text-white rounded-end-3" style="background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);">
-                        <i class="fa-solid fa-paper-plane me-1"></i> <?php esc_html_e('Send Test', 'cosy-appointments'); ?>
-                    </button>
-                </div>
-                <div id="cosyTestEmailAlert" class="mt-2 p-2 rounded-3 fw-semibold small" style="display: none;"></div>
-            </div>
-
-            <!-- Real-Time Interactive Live Preview Card -->
-            <div class="cosy-live-preview-box">
-                <div class="cosy-preview-header">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-desktop" style="color: #a44390;"></i>
-                        <span class="fw-bold text-dark small"><?php esc_html_e('Interactive Live Email Preview', 'cosy-appointments'); ?></span>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 10px;">Live Sync</span>
+        <div class="col-xl-6 col-lg-6 col-md-12 cosy-preview-col">
+            <div class="cosy-preview-col-inner">
+                
+                <!-- Quick Send Test Email Bar -->
+                <div class="card mt-0 p-3 rounded-4 border shadow-sm mb-3 bg-white" style="margin-top: 0 !important; flex-shrink: 0;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-dark small d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-paper-plane" style="color: #a44390;"></i>
+                            <?php esc_html_e('Send Real Test Email', 'cosy-appointments'); ?>
+                        </span>
+                        <span class="text-muted" style="font-size: 11px;">
+                            <?php esc_html_e('Sends live email with sample data', 'cosy-appointments'); ?>
+                        </span>
                     </div>
-                    <button type="button" id="btnManualRefreshPreview" class="btn btn-sm btn-light border py-1 px-2 fw-semibold" style="font-size: 11px;" title="Refresh preview from current form inputs">
-                        <i class="fa-solid fa-rotate me-1 text-secondary"></i> Refresh
-                    </button>
+                    <div class="input-group">
+                        <input type="email" id="cosy_test_email_address" class="form-control py-2 px-3 rounded-start-3" value="<?php echo esc_attr($default_test_email); ?>" placeholder="your-email@example.com">
+                        <button type="button" id="btnSendTestEmail" class="btn fw-bold px-3 text-white rounded-end-3" style="background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);">
+                            <i class="fa-solid fa-paper-plane me-1"></i> <?php esc_html_e('Send Test', 'cosy-appointments'); ?>
+                        </button>
+                    </div>
+                    <div id="cosyTestEmailAlert" class="mt-2 p-2 rounded-3 fw-semibold small" style="display: none;"></div>
                 </div>
 
-                <div class="cosy-preview-subject-bar">
-                    <span class="fw-bold text-dark">Subject:</span>
-                    <span id="previewSubjectText" class="fw-semibold text-primary" style="color: #a44390 !important;">Loading...</span>
-                </div>
+                <!-- Real-Time Interactive Live Preview Card -->
+                <div class="cosy-live-preview-box">
+                    <div class="cosy-preview-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-desktop" style="color: #a44390;"></i>
+                            <span class="fw-bold text-dark small"><?php esc_html_e('Interactive Live Email Preview', 'cosy-appointments'); ?></span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 10px;">Live Sync</span>
+                        </div>
+                        <button type="button" id="btnManualRefreshPreview" class="btn btn-sm btn-light border py-1 px-2 fw-semibold" style="font-size: 11px;" title="Refresh preview from current form inputs">
+                            <i class="fa-solid fa-rotate me-1 text-secondary"></i> Refresh
+                        </button>
+                    </div>
 
-                <div class="cosy-preview-body" id="previewEmailBodyContainer">
-                    <div class="text-center py-5 text-muted">
-                        <i class="fa-solid fa-spinner fa-spin fs-3 mb-2" style="color: #a44390;"></i>
-                        <div><?php esc_html_e('Rendering real-time email preview...', 'cosy-appointments'); ?></div>
+                    <div class="cosy-preview-subject-bar">
+                        <span class="fw-bold text-dark">Subject:</span>
+                        <span id="previewSubjectText" class="fw-semibold text-primary" style="color: #a44390 !important;">Loading...</span>
+                    </div>
+
+                    <div class="cosy-preview-body" id="previewEmailBodyContainer">
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-spinner fa-spin fs-3 mb-2" style="color: #a44390;"></i>
+                            <div><?php esc_html_e('Rendering real-time email preview...', 'cosy-appointments'); ?></div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
 
     </div>

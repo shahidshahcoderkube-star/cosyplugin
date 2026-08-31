@@ -32,6 +32,23 @@ $email = $current_user->user_email;
 <div class="container my-5" style="font-family: 'Plus Jakarta Sans', sans-serif;">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">
+            <?php if (isset($_GET['verified']) && $_GET['verified'] === '1') : ?>
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-3 p-3 mb-4 border-0 shadow-sm" role="alert" style="background: #f0fdf4; border-left: 5px solid #16a34a !important; border-radius: 14px;">
+                    <div style="background: #dcfce7; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-check text-success fs-5"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1 fw-bold text-success" style="font-family: 'Outfit', sans-serif; font-size: 1.05rem;">
+                            <?php esc_html_e('🎉 Email Successfully Verified!', 'cosy-appointments'); ?>
+                        </h5>
+                        <p class="mb-0 text-dark small" style="opacity: 0.85;">
+                            <?php esc_html_e('Your account has been successfully activated and you are now logged in.', 'cosy-appointments'); ?>
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
             <!-- Header Section -->
             <div class="d-flex align-items-center gap-3 mb-4 pb-3" style="border-bottom: 1.5px solid #f1f5f9;">
                 <div class="header-icon-badge" style="background: rgba(164, 67, 144, 0.1); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
