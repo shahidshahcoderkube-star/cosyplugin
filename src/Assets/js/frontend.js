@@ -241,9 +241,19 @@ jQuery(document).ready(function ($) {
         var slots = $(this).data('slots');
         var weekDays = $(this).data('week-days') || '';
         var slotsTimeline = $(this).data('slots-timeline') || '';
-        var status = $(this).attr('data-status');
+        var isGift = String($(this).data('is-gift') || '0');
+        var recipientName = $(this).data('recipient-name') || '';
+        var recipientEmail = $(this).data('recipient-email') || '';
 
-        $('#customerOrderDetailsModalLabel').text('Order Details - #' + id);
+        if (isGift === '1' || (recipientEmail && recipientEmail.trim() !== '')) {
+            $('#customerOrderDetailsModalLabel').html('Order Details - #' + id + ' <span class="badge ms-2" style="background: #ffffff; color: #a44390; font-size: 0.8rem; font-weight: 700; vertical-align: middle; padding: 5px 12px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.18);"><i class="fas fa-gift me-1"></i> Gifted Order</span>');
+            $('#modalCustRecipientInfo').text((recipientName || 'Gift Recipient') + (recipientEmail ? ' (' + recipientEmail + ')' : ''));
+            $('#modalCustGiftRow').removeClass('d-none').addClass('d-flex');
+        } else {
+            $('#customerOrderDetailsModalLabel').text('Order Details - #' + id);
+            $('#modalCustGiftRow').removeClass('d-flex').addClass('d-none');
+        }
+
         $('#modalCustProviderName').text(provider);
         $('#modalCustStartDate').text(start);
         $('#modalCustWeeks').text(weeks + (parseInt(weeks) === 1 ? ' week' : ' weeks'));

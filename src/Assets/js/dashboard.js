@@ -473,7 +473,7 @@ jQuery(document).ready(function ($) {
             var recipientEmail = $(this).data('recipient-email') || '';
 
             if (isGift === '1' || (recipientEmail && recipientEmail.trim() !== '')) {
-                $('#modalOrderTitle').html('Order Details - #' + id + ' <span class="badge ms-2" style="background: #a44390; color: #fff; font-size: 0.75rem; vertical-align: middle;">🎁 Gifted Order</span>');
+                $('#orderDetailsModalLabel, #modalOrderTitle').html('Order Details - #' + id + ' <span class="badge ms-2" style="background: #ffffff; color: #a44390; font-size: 0.8rem; font-weight: 700; vertical-align: middle; padding: 5px 12px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.18);"><i class="fas fa-gift me-1"></i> Gifted Order</span>');
                 var custHtml = '<div class="d-flex flex-column gap-1">';
                 custHtml += '<div><span class="badge bg-warning text-dark fw-bold me-1">GIFTEE (Contact Person)</span> <strong>' + (recipientName || 'Gift Recipient') + '</strong> <span class="text-primary fw-semibold">(' + recipientEmail + ')</span></div>';
                 custHtml += '<div class="small text-muted mt-1"><i class="fas fa-credit-card me-1"></i> Paying Customer: <strong>' + customer + '</strong> (' + email + ')</div>';
@@ -481,7 +481,7 @@ jQuery(document).ready(function ($) {
                 $('#modalCustomerName').html(custHtml);
                 $('#modalCustomerEmail').text('');
             } else {
-                $('#modalOrderTitle').text('Order Details - #' + id);
+                $('#orderDetailsModalLabel, #modalOrderTitle').text('Order Details - #' + id);
                 $('#modalCustomerName').text(customer);
                 $('#modalCustomerEmail').text('(' + email + ')');
             }

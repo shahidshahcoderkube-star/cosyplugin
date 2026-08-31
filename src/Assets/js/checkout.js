@@ -331,6 +331,23 @@ jQuery(document).ready(function ($) {
 
         const booking = JSON.parse(pendingBookingData);
 
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        const isGiftBooking = Boolean(
+            (booking.isGift && (booking.isGift === true || booking.isGift === 'true' || booking.isGift === 1 || booking.isGift === '1')) ||
+            (booking.recipientEmail && String(booking.recipientEmail).trim() !== '')
+        );
+        const recipientNameClean = escapeHtml(booking.recipientName || 'Gift Recipient');
+        const recipientEmailClean = escapeHtml(booking.recipientEmail || '');
+
         function formatDateNice(dInput) {
             if (!dInput) return '';
             try {
@@ -469,6 +486,29 @@ jQuery(document).ready(function ($) {
                 </h1>
             </div>
 
+            ${isGiftBooking ? `
+            <!-- Gifted Booking Banner -->
+            <div class="cosy-bento-panel mb-4 p-3 rounded-4 shadow-sm d-flex align-items-center gap-3" style="background: linear-gradient(135deg, #fdf5fc 0%, #f9e8f6 100%); border: 1.5px solid #f1c7ec;">
+                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 46px; height: 46px; background: #a44390; color: #ffffff; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(164, 67, 144, 0.25);">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div>
+                    <div class="fw-bold d-flex align-items-center gap-2" style="color: #6d2e67; font-size: 1rem;">
+                        <span>Gifted Booking Confirmation</span>
+                        <span class="badge rounded-pill px-2.5 py-1" style="background: #a44390; color: #fff; font-size: 0.72rem; font-weight: 600;">Gift a Conversation 🎁</span>
+                    </div>
+                    <div class="mt-1" style="font-size: 0.88rem; color: #334155;">
+                        This conversation is gifted for: <strong class="text-dark">${recipientNameClean}</strong>
+                    </div>
+                    ${recipientEmailClean ? `
+                    <div class="small text-muted mt-0.5" style="font-size: 0.82rem;">
+                        <i class="fas fa-envelope me-1" style="color: #a44390;"></i> Recipient Email: <a href="mailto:${recipientEmailClean}" style="color: #a44390; text-decoration: none; font-weight: 600;">${recipientEmailClean}</a>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            ` : ''}
+
             <!-- Bento Card 1: Service Information -->
             <div class="cosy-bento-panel mb-4 rounded-4 shadow-sm overflow-hidden" style="background: #fff; border: 1px solid #f3e8fc;">
                 <div class="py-3 px-4" style="background: #fdf5fc; border-bottom: 1px solid #f9e8f6;">
@@ -483,7 +523,21 @@ jQuery(document).ready(function ($) {
                                 <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
                                 <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${booking.providerName}</td>
                             </tr>
-                            <tr style="background: #fdfafc;">
+                            ${isGiftBooking ? `
+                            <tr style="background: #fcf4fa; border-left: 4px solid #a44390;">
+                                <td class="ps-4 pe-2 py-3 fw-bold" style="width: 32%; font-size: 0.92rem; color: #a44390;">Recipient Name 🎁</td>
+                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #a44390; font-size: 0.92rem;">:</td>
+                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem; color: #6d2e67;">${recipientNameClean}</td>
+                            </tr>
+                            ${recipientEmailClean ? `
+                            <tr style="background: #fdfafc; border-left: 4px solid #a44390;">
+                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Recipient Email</td>
+                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
+                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${recipientEmailClean}</td>
+                            </tr>
+                            ` : ''}
+                            ` : ''}
+                            <tr style="background: #ffffff;">
                                 <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Start Date</td>
                                 <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
                                 <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${displayStartDate}</td>

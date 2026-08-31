@@ -66,9 +66,17 @@ if ($current_user->exists()) {
 							$fee = get_post_meta($appt->ID, 'cosy_service_fee', true);
 							$week_days = get_post_meta($appt->ID, 'cosy_week_days', true);
 							$slots_timeline = cosy_clean_slots_timeline(get_post_meta($appt->ID, 'cosy_slots_timeline', true), $start_date, $week_days);
+							$is_gift = get_post_meta($appt->ID, 'cosy_is_gift', true);
+							$recipient_name = get_post_meta($appt->ID, 'cosy_recipient_name', true);
+							$recipient_email = get_post_meta($appt->ID, 'cosy_recipient_email', true);
 						?>
 							<tr style="border-bottom: 1px solid #edf2f7; transition: all 0.2s;">
-								<td class="ps-4 py-3 fw-bold text-dark" style="font-size: 0.9rem;">#<?php echo esc_html($appt->ID); ?></td>
+								<td class="ps-4 py-3 fw-bold text-dark" style="font-size: 0.9rem;">
+									#<?php echo esc_html($appt->ID); ?>
+									<?php if (!empty($is_gift)): ?>
+										<span class="badge ms-1" style="background: #a44390; color: #fff; font-size: 0.7rem; vertical-align: middle; border-radius: 12px; padding: 3px 8px;" title="<?php esc_attr_e('Gifted Booking', 'cosy-appointments'); ?>">🎁 Gift</span>
+									<?php endif; ?>
+								</td>
 								<td class="py-3 fw-semibold text-dark" style="font-size: 0.9rem;"><?php echo esc_html($service); ?></td>
 								<td class="py-3" style="font-size: 0.9rem; color: #475569;"><?php echo esc_html($provider); ?></td>
 								<td class="py-3" style="font-size: 0.85rem; color: #64748b;"><?php echo esc_html($weekly_booking); ?></td>
@@ -110,6 +118,9 @@ if ($current_user->exists()) {
 										data-slots="<?php echo esc_attr($slots); ?>"
 										data-week-days="<?php echo esc_attr($week_days); ?>"
 										data-slots-timeline="<?php echo esc_attr($slots_timeline); ?>"
+										data-is-gift="<?php echo esc_attr(!empty($is_gift) ? '1' : '0'); ?>"
+										data-recipient-name="<?php echo esc_attr($recipient_name); ?>"
+										data-recipient-email="<?php echo esc_attr($recipient_email); ?>"
 										data-status="<?php echo esc_attr($status); ?>"
 										data-bs-toggle="modal"
 										data-bs-target="#customerOrderDetailsModal"
@@ -147,6 +158,10 @@ ob_start();
                 <div class="d-flex align-items-baseline gap-1">
                     <span class="text-muted" style="min-width: 130px; font-weight: 500;">Provider:</span>
                     <span id="modalCustProviderName" class="text-dark fw-semibold"></span>
+                </div>
+                <div id="modalCustGiftRow" class="d-none align-items-baseline gap-1" style="background: #fdf2fb; padding: 6px 10px; border-radius: 6px; border-left: 3px solid #a44390;">
+                    <span class="fw-bold" style="min-width: 130px; color: #a44390;">Gift Recipient 🎁:</span>
+                    <span id="modalCustRecipientInfo" class="text-dark fw-semibold"></span>
                 </div>
                 <div class="d-flex align-items-baseline gap-1">
                     <span class="text-muted" style="min-width: 130px; font-weight: 500;">Start Date:</span>

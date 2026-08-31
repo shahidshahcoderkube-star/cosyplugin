@@ -551,12 +551,18 @@ class EmailTemplates
             ? cosy_clean_slots_timeline($data['slots_timeline'] ?? '', $data['start_date'] ?? '', $data['week_days'] ?? '')
             : esc_html($data['slots_timeline'] ?? '');
 
+        // Check if this booking was purchased as a gift for another person
+        $gift_row = !empty($data['is_gift'])
+            ? "<tr style='border-bottom: 1px solid #e2e8f0; background-color: #fcf4fa;'><td style='padding: 10px 14px; font-weight: bold; color: #a44390; vertical-align: top;'>Gifted To 🎁:</td><td style='padding: 10px 14px; color: #a44390; font-weight: 600; vertical-align: top;'>" . esc_html($data['recipient_name'] ?? '') . " (" . esc_html($data['recipient_email'] ?? '') . ")</td></tr>"
+            : "";
+
         $protected_system_tables = "
             <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Booking Information:</h4>
             <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px;'>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Order ID:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>#" . esc_html($order_id) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer Name:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['customer_name'] ?? '') . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Customer Email:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['customer_email'] ?? '') . "</td></tr>
+                {$gift_row}
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['start_date'] ?? '') . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Number of Weeks:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['num_weeks'] ?? '1') . "</td></tr>
                 <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . $slots_timeline . "</td></tr>
@@ -607,13 +613,23 @@ class EmailTemplates
         $start_date     = $data['start_date'] ?? '';
         $gift_message   = $data['gift_message'] ?? '';
 
-        $sender_disp = esc_html($sender_name) . (!empty($sender_email) ? " (" . esc_html($sender_email) . ")" : "");
+        // Point 2: Use clean sender name without bracketed email
+        $sender_disp = esc_html($sender_name);
+
+        // Point 4: Format start date nicely (e.g. 08 Sep 2026)
+        $formatted_start_date = $start_date;
+        if (!empty($start_date)) {
+            $ts = strtotime(str_replace('/', '-', $start_date));
+            if ($ts) {
+                $formatted_start_date = date('d M Y', $ts);
+            }
+        }
 
         $replacements = [
             '{recipient_name}' => esc_html($recipient_name),
             '{sender_name}'    => $sender_disp,
             '{provider_name}'  => esc_html($provider_name),
-            '{start_date}'     => esc_html($start_date),
+            '{start_date}'     => esc_html($formatted_start_date),
         ];
 
         $defaults = [
@@ -638,7 +654,7 @@ class EmailTemplates
             <h4 style='color: #6d2e67; margin-top: 25px; margin-bottom: 12px; font-size: 15px; font-weight: 700; border-bottom: 2px solid #f1e4ef; padding-bottom: 6px;'>Session Details:</h4>
             <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px;'>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; width: 40%; vertical-align: top;'>Service Provider:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($provider_name) . "</td></tr>
-                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($start_date) . "</td></tr>
+                <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Start Date:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($formatted_start_date) . "</td></tr>
                 <tr style='border-bottom: 1px solid #e2e8f0;'><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Number of Weeks:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top;'>" . esc_html($data['num_weeks'] ?? $data['number_of_weeks'] ?? '1') . "</td></tr>
                 <tr><td style='padding: 10px 14px; font-weight: bold; color: #1e293b; vertical-align: top;'>Booking Days:</td><td style='padding: 10px 14px; color: #334155; vertical-align: top; line-height: 1.6;'>" . $slots_timeline . "</td></tr>
             </table>
@@ -879,7 +895,7 @@ class EmailTemplates
         $parts = self::get_rendered_template_parts('admin_payment', $defaults, $replacements);
 
         $gift_row = !empty($data['is_gift'])
-            ? "<tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding: 10px 0; font-weight: 600;'>Gift Recipient</td><td style='padding: 10px 0; color: #a44390; font-weight: 600;'>" . esc_html($data['recipient_name'] ?? '') . " (" . esc_html($data['recipient_email'] ?? '') . ")</td></tr>"
+            ? "<tr style='border-bottom: 1px solid #fdf2fb;'><td style='padding:10px 14px;font-weight:bold;color:#1e293b;vertical-align:top;'>Gift Recipient</td><td style='padding: 10px 0; color: #a44390; font-weight: 600;'>" . esc_html($data['recipient_name'] ?? '') . " (" . esc_html($data['recipient_email'] ?? '') . ")</td></tr>"
             : "";
 
         $card_brand_str   = !empty($data['card_brand']) ? strtoupper($data['card_brand']) : '';

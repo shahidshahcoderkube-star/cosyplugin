@@ -118,7 +118,12 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                             }
                         ?>
                             <tr class="order-table-row" id="order-row-<?php echo esc_attr($appt_id); ?>" data-search="<?php echo esc_attr(strtolower("#{$appt_id} {$customer_name}")); ?>" data-status="<?php echo esc_attr($booking_status); ?>">
-                                <td class="fw-bold text-dark">#<?php echo esc_html($appt_id); ?></td>
+                                <td class="fw-bold text-dark">
+                                    #<?php echo esc_html($appt_id); ?>
+                                    <?php if (!empty($is_gift)): ?>
+                                        <span class="badge ms-1" style="background: #a44390; color: #fff; font-size: 0.7rem; vertical-align: middle; border-radius: 12px; padding: 3px 8px;" title="<?php esc_attr_e('Gifted Booking', 'cosy-appointments'); ?>">🎁 Gift</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="rounded-circle bg-light d-flex align-items-center justify-content-center order-customer-avatar"><?php echo esc_html($initials); ?></div>

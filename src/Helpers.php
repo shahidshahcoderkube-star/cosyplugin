@@ -174,25 +174,34 @@ if (!function_exists('cosy_send_html_email')) {
         <html>
         <head>
             <meta charset='utf-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
             <title>" . esc_html($subject) . "</title>
+            <link rel='preconnect' href='https://fonts.googleapis.com'>
+            <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+            <link href='https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap' rel='stylesheet'>
             <style>
+                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+                body, table, td, th, p, a, h1, h2, h3, h4, h5, h6, span, div, strong, em, b, i, li {
+                    font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                }
                 body {
                     margin: 0;
                     padding: 0;
                     background-color: #faf6f9;
+                    -webkit-font-smoothing: antialiased;
                 }
             </style>
         </head>
-        <body style='margin: 0; padding: 0; background-color: #faf6f9; font-family: \"Outfit\", \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>
-            <div style='background-color: #faf6f9; padding: 40px 15px; color: #1e293b;'>
+        <body style='margin: 0; padding: 0; background-color: #faf6f9; font-family: \"Outfit\", \"Plus Jakarta Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;'>
+            <div style='background-color: #faf6f9; padding: 40px 15px; color: #1e293b; font-family: \"Outfit\", \"Plus Jakarta Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif; line-height: 1.6;'>
                 <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; border: 1px solid #f1e4ef; box-shadow: 0 10px 25px rgba(109, 46, 103, 0.05); overflow: hidden;'>
                     <!-- Header -->
                     <div style='background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); padding: 30px 20px; text-align: center; color: #ffffff;'>
-                        <h1 style='margin: 0; font-size: 24px; font-weight: 700; color: #ffffff;'>" . esc_html($heading) . "</h1>
+                        <h1 style='margin: 0; font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; font-family: \"Outfit\", \"Plus Jakarta Sans\", sans-serif;'>" . esc_html($heading) . "</h1>
                     </div>
                     
                     <!-- Body -->
-                    <div style='padding: 35px 25px; font-size: 15px; line-height: 1.6;'>
+                    <div style='padding: 35px 25px; font-size: 15px; line-height: 1.6; font-family: \"Outfit\", \"Plus Jakarta Sans\", sans-serif;'>
                         " . $content_html . "
                         " . ($show_signature ? $sig_html : '') . "
                     </div>
@@ -398,9 +407,9 @@ if (!function_exists('cosy_clean_slots_timeline')) {
             $times_output = implode(', ', $clean_times);
 
             if ($d !== '__NO_DAY__') {
-                $rows_html[] = '<tr><td style="padding: 2px 0; color: #334155; line-height: 1.5; font-size: 13px;"><strong>' . esc_html($d) . '</strong> ' . esc_html($times_output) . '</td></tr>';
+                $rows_html[] = '<tr><td style="padding: 2px 0; color: #334155; line-height: 1.5; font-size: 13px; font-family: \'Outfit\', \'Plus Jakarta Sans\', sans-serif;"><strong>' . esc_html($d) . '</strong> ' . esc_html($times_output) . '</td></tr>';
             } else {
-                $rows_html[] = '<tr><td style="padding: 2px 0; color: #334155; line-height: 1.5; font-size: 13px;">' . esc_html($times_output) . '</td></tr>';
+                $rows_html[] = '<tr><td style="padding: 2px 0; color: #334155; line-height: 1.5; font-size: 13px; font-family: \'Outfit\', \'Plus Jakarta Sans\', sans-serif;">' . esc_html($times_output) . '</td></tr>';
             }
         }
 

@@ -604,9 +604,20 @@ jQuery(document).ready(function ($) {
             const authCode  = $(this).data('auth-code') || '';
             const lastEvent = $(this).data('last-event') || '';
             const paymentDate = $(this).data('payment-date') || 'N/A';
+            const isGift = String($(this).data('is-gift') || '0');
+            const recipientName = $(this).data('recipient-name') || '';
+            const recipientEmail = $(this).data('recipient-email') || '';
 
             // Populate modal text fields
-            $('#modalAdminOrderTitle').text('Order Details - #' + id);
+            if (isGift === '1' || (recipientEmail && String(recipientEmail).trim() !== '')) {
+                $('#modalAdminOrderTitle').html('Order Details - #' + id + ' <span class="badge" style="background: #ffffff; color: #a44390; font-size: 0.78rem; font-weight: 700; vertical-align: middle; padding: 4px 12px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.18); margin-left: 10px; display: inline-block;">🎁 Gifted Order</span>');
+                $('#modalAdminRecipientName').text(recipientName || 'Gift Recipient');
+                $('#modalAdminRecipientEmail').text(recipientEmail || 'N/A');
+                $('#modalAdminGiftCard').show();
+            } else {
+                $('#modalAdminOrderTitle').text('Order Details - #' + id);
+                $('#modalAdminGiftCard').hide();
+            }
             $('#modalAdminCustomerName').text(customer);
             $('#modalAdminCustomerEmail').text(email || 'N/A');
             $('#modalAdminProviderName').text(provider);

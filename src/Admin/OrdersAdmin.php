@@ -161,6 +161,12 @@ class OrdersAdmin
               $provider_user   = get_userdata($provider_id);
               $provider_email  = $provider_user ? $provider_user->user_email : (get_post_meta($appt_id, 'cosy_provider_email', true) ?: 'N/A');
 
+              // Gift order metadata
+              $is_gift         = get_post_meta($appt_id, 'cosy_is_gift', true);
+              $recipient_name  = get_post_meta($appt_id, 'cosy_recipient_name', true);
+              $recipient_email = get_post_meta($appt_id, 'cosy_recipient_email', true);
+              $is_gift_order   = (!empty($is_gift) && $is_gift !== '0') || !empty($recipient_email);
+
               // Fetch WorldPay transaction details for Admin
               global $wpdb;
               $wp_table = $wpdb->prefix . 'cosy_worldpay_payments';
@@ -185,7 +191,12 @@ class OrdersAdmin
               <tr>
                 <th scope="row" class="check-column"><input type="checkbox" class="cosy-order-checkbox" value="<?php echo $appt_id; ?>"></th>
                 <td>#<?php echo $appt_id; ?></td>
-                <td><strong><?php echo esc_html($customer_name); ?></strong></td>
+                <td>
+                  <strong><?php echo esc_html($customer_name); ?></strong>
+                  <?php if ($is_gift_order) : ?>
+                    <span style="display:inline-block; margin-left:6px; color:#a44390; background:#fdf2fb; border:1px solid #f1c7ec; font-size:11px; font-weight:600; padding:1px 7px; border-radius:10px; vertical-align:middle;">Gift</span>
+                  <?php endif; ?>
+                </td>
                 <td><?php echo esc_html($provider_name); ?></td>
                 <td><span class="badge" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; color:#334155; font-size:0.85em;"><?php echo esc_html($service_name); ?></span></td>
                 <td style="color:#475569; font-size:12px;"><?php echo esc_html($start_date); ?> <br><span style="color:#94a3b8; font-size:11px;"><?php echo esc_html($weekly_booking); ?></span></td>
@@ -210,6 +221,9 @@ class OrdersAdmin
                     data-status="<?php echo esc_attr($booking_status); ?>"
                     data-week-days="<?php echo esc_attr($week_days); ?>"
                     data-slots-timeline="<?php echo esc_attr($slots_timeline); ?>"
+                    data-is-gift="<?php echo esc_attr($is_gift_order ? '1' : '0'); ?>"
+                    data-recipient-name="<?php echo esc_attr($recipient_name); ?>"
+                    data-recipient-email="<?php echo esc_attr($recipient_email); ?>"
                     data-txn-ref="<?php echo esc_attr($txn_ref); ?>"
                     data-payment-id="<?php echo esc_attr($payment_id); ?>"
                     data-card-brand="<?php echo esc_attr($card_brand); ?>"
@@ -269,6 +283,18 @@ class OrdersAdmin
                 <p><strong>Name:</strong> <span id="modalAdminProviderName"></span></p>
                 <p><strong>Email:</strong> <span id="modalAdminProviderEmail"></span></p>
               </div>
+            </div>
+          </div>
+
+          <!-- Gift Recipient Info Card (Shown only if gifted) -->
+          <div id="modalAdminGiftCard" class="cosy-admin-card info-card full" style="margin-top: 12px; background: linear-gradient(135deg, #fdf5fc 0%, #faeaf7 100%); border: 1.5px solid #f1c7ec; border-left: 4px solid #a44390; display: none;">
+            <h3 style="color: #6d2e67; margin-bottom: 8px;">
+              <span class="dashicons dashicons-heart" style="color: #a44390; vertical-align: middle;"></span> 🎁 Gift Order Details
+              <span class="badge" style="background: #a44390; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px; margin-left: 8px;">Gifted by Customer</span>
+            </h3>
+            <div style="display: flex; gap: 30px; flex-wrap: wrap; font-size: 13px; margin-top: 6px;">
+              <p style="margin: 0;"><strong>Recipient Name:</strong> <span id="modalAdminRecipientName" style="color: #6d2e67; font-weight: 700;"></span></p>
+              <p style="margin: 0;"><strong>Recipient Email:</strong> <span id="modalAdminRecipientEmail" style="color: #334155; font-weight: 600;"></span></p>
             </div>
           </div>
 
