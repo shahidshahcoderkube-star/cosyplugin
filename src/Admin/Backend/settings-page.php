@@ -116,8 +116,6 @@ defined('ABSPATH') || exit;
                             </div>
                         </div>
 
-
-
                         <!-- AI Search Settings Tab -->
                         <div class="tab-pane fade" id="v-pills-aisearch" role="tabpanel" aria-labelledby="v-pills-aisearch-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">

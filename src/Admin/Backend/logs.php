@@ -113,7 +113,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
     <!-- Logging Config Panel -->
     <div class="bg-white rounded-4 border border-secondary-subtle shadow-sm p-4 mb-4">
         <h3 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 cosy-logs-section-title">
-            <i class="fa-solid fa-sliders text-primary cosy-logs-section-icon"></i>
+            <i class="fa-solid fa-sliders cosy-logs-section-icon"></i>
             <?php _e('Log Settings by Section', 'cosy-appointments'); ?>
         </h3>
         <p class="text-muted mb-4 cosy-logs-section-sub">
@@ -160,7 +160,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <!-- Card 1: Total Logs -->
         <div class="col-md-3 col-sm-6">
             <div class="cosy-kpi-card">
-                <div class="cosy-kpi-icon text-primary bg-primary-subtle cosy-kpi-icon-purple">
+                <div class="cosy-kpi-icon cosy-kpi-icon-purple">
                     <i class="fa-solid fa-database"></i>
                 </div>
                 <div class="cosy-kpi-info">
@@ -173,7 +173,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <!-- Card 2: Today's Logs -->
         <div class="col-md-3 col-sm-6">
             <div class="cosy-kpi-card">
-                <div class="cosy-kpi-icon text-success bg-success-subtle cosy-kpi-icon-green">
+                <div class="cosy-kpi-icon cosy-kpi-icon-green">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
                 <div class="cosy-kpi-info">
@@ -186,7 +186,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <!-- Card 3: Provider Logs -->
         <div class="col-md-3 col-sm-6">
             <div class="cosy-kpi-card">
-                <div class="cosy-kpi-icon text-info bg-info-subtle cosy-kpi-icon-cyan">
+                <div class="cosy-kpi-icon cosy-kpi-icon-cyan">
                     <i class="fa-solid fa-user-tie"></i>
                 </div>
                 <div class="cosy-kpi-info">
@@ -199,7 +199,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <!-- Card 4: Customer Logs -->
         <div class="col-md-3 col-sm-6">
             <div class="cosy-kpi-card">
-                <div class="cosy-kpi-icon text-warning bg-warning-subtle cosy-kpi-icon-amber">
+                <div class="cosy-kpi-icon cosy-kpi-icon-amber">
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <div class="cosy-kpi-info">

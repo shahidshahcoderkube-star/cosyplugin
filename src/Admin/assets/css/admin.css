@@ -14,6 +14,7 @@
  * 07. PAGE: GLOBAL SETTINGS & EMAIL SIGNATURE (settings-page.php)
  * 08. COMPONENT: SWEETALERT CONFIRM DIALOGS & TOASTS (cosy-sweetalert.js)
  * 09. PAGE: PLUGIN DOCUMENTATION VIEW (documentation.php)
+ * 10. PAGE: EXPERIENCES / SERVICES CPT LIST TABLE (edit.php?post_type=cosy_service)
  * =========================================================================
  */
 
@@ -155,11 +156,22 @@
     border-radius: 6px;
     transition: all 0.2s ease;
     border: none;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .cosy-tab-pill:hover {
     color: #0f172a;
     background-color: #e2e8f0;
+}
+
+.cosy-tab-pill:focus,
+.cosy-tab-pill:focus-visible,
+.cosy-tab-pill:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    text-decoration: none !important;
 }
 
 .cosy-tab-pill.active {
@@ -168,9 +180,14 @@
     box-shadow: 0 2px 6px rgba(164, 67, 144, 0.2);
 }
 
-.cosy-tab-pill.active:hover {
+.cosy-tab-pill.active:hover,
+.cosy-tab-pill.active:focus,
+.cosy-tab-pill.active:focus-visible,
+.cosy-tab-pill.active:active {
     background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
     color: #ffffff;
+    outline: none !important;
+    box-shadow: 0 2px 6px rgba(164, 67, 144, 0.2) !important;
 }
 
 /* Premium Delete Selected Bulk Button */
@@ -2010,7 +2027,7 @@ input.cosy-review-checkbox:checked::before {
 }
 
 .cosy-logs-section-icon {
-    color: #a44390;
+    color: #a44390 !important;
     font-size: 18px;
 }
 
@@ -2089,23 +2106,23 @@ input.cosy-review-checkbox:checked::before {
 }
 
 .cosy-kpi-icon-purple {
-    color: #a44390;
-    background-color: rgba(164, 67, 144, 0.1);
+    color: #a44390 !important;
+    background-color: rgba(164, 67, 144, 0.1) !important;
 }
 
 .cosy-kpi-icon-green {
-    color: #10b981;
-    background-color: rgba(164, 67, 144, 0.1);
+    color: #10b981 !important;
+    background-color: rgba(16, 185, 129, 0.1) !important;
 }
 
 .cosy-kpi-icon-cyan {
-    color: #06b6d4;
-    background-color: rgba(6, 182, 212, 0.1);
+    color: #06b6d4 !important;
+    background-color: rgba(6, 182, 212, 0.1) !important;
 }
 
 .cosy-kpi-icon-amber {
-    color: #f59e0b;
-    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b !important;
+    background-color: rgba(245, 158, 11, 0.1) !important;
 }
 
 .cosy-logs-search-wrapper {
@@ -3336,4 +3353,404 @@ input.cosy-review-checkbox:checked::before {
 
 /* -------------------------------------------------------------------------
    END: 09. PAGE: PLUGIN DOCUMENTATION VIEW
+   ------------------------------------------------------------------------- */
+
+
+/* =========================================================================
+   10. PAGE: EXPERIENCES / SERVICES CPT LIST TABLE
+   Backend Screen: edit.php?post_type=cosy_service
+   ========================================================================= */
+
+body.post-type-cosy_service .wrap {
+    padding-top: 15px;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body.post-type-cosy_service .wrap h1.wp-heading-inline {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.5px;
+    margin-right: 15px;
+}
+
+body.post-type-cosy_service .wrap .page-title-action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 6px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(164, 67, 144, 0.25) !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    top: 0 !important;
+}
+
+body.post-type-cosy_service .wrap .page-title-action:hover {
+    background: linear-gradient(135deg, #8f357b 0%, #762b66 100%) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.35) !important;
+}
+
+/* Subsubsub Filter Bar (Segmented Tab Style) */
+body.post-type-cosy_service ul.subsubsub {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin: 16px 0 16px 0 !important;
+    padding: 4px !important;
+    list-style: none !important;
+    background-color: #f1f5f9 !important;
+    border-radius: 8px !important;
+    float: none !important;
+}
+
+body.post-type-cosy_service ul.subsubsub li {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    color: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+body.post-type-cosy_service ul.subsubsub a,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 6px 16px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+body.post-type-cosy_service ul.subsubsub a:hover,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a:hover {
+    color: #0f172a !important;
+    background-color: #e2e8f0 !important;
+}
+
+body.post-type-cosy_service ul.subsubsub a:focus,
+body.post-type-cosy_service ul.subsubsub a:focus-visible,
+body.post-type-cosy_service ul.subsubsub a:active,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a:focus,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a:focus-visible,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    text-decoration: none !important;
+}
+
+body.post-type-cosy_service ul.subsubsub a.current,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a.current {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%) !important;
+    color: #ffffff !important;
+    outline: none !important;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(164, 67, 144, 0.2) !important;
+}
+
+body.post-type-cosy_service ul.subsubsub a.current:hover,
+body.post-type-cosy_service ul.subsubsub a.current:focus,
+body.post-type-cosy_service ul.subsubsub a.current:focus-visible,
+body.post-type-cosy_service ul.subsubsub a.current:active,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a.current:hover,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a.current:focus,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a.current:focus-visible,
+.wp-core-ui body.post-type-cosy_service ul.subsubsub a.current:active {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%) !important;
+    color: #ffffff !important;
+    outline: none !important;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(164, 67, 144, 0.2) !important;
+}
+
+body.post-type-cosy_service ul.subsubsub .count {
+    font-weight: inherit !important;
+    color: inherit !important;
+    font-size: 13px !important;
+}
+
+/* Search Box */
+body.post-type-cosy_service p.search-box,
+.wp-core-ui body.post-type-cosy_service p.search-box {
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+body.post-type-cosy_service p.search-box input[type="search"],
+.wp-core-ui body.post-type-cosy_service p.search-box input[type="search"] {
+    height: 34px !important;
+    min-height: 34px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #334155 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    outline: none !important;
+    transition: border-color 0.2s ease !important;
+}
+
+body.post-type-cosy_service p.search-box input[type="search"]:focus,
+.wp-core-ui body.post-type-cosy_service p.search-box input[type="search"]:focus {
+    border-color: #a44390 !important;
+    box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1) !important;
+}
+
+body.post-type-cosy_service p.search-box input[type="submit"],
+.wp-core-ui body.post-type-cosy_service p.search-box input[type="submit"] {
+    height: 34px !important;
+    min-height: 34px !important;
+    line-height: 32px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 0 16px !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+body.post-type-cosy_service p.search-box input[type="submit"]:hover,
+.wp-core-ui body.post-type-cosy_service p.search-box input[type="submit"]:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+}
+
+/* Tablenav (Bulk Actions, Filters, Pagination) */
+body.post-type-cosy_service .tablenav {
+    height: auto !important;
+    margin: 8px 0 12px 0 !important;
+    padding: 0 !important;
+}
+
+body.post-type-cosy_service .tablenav .actions select {
+    height: 34px !important;
+    min-height: 34px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    padding: 0 28px 0 10px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+    outline: none !important;
+    vertical-align: middle !important;
+}
+
+body.post-type-cosy_service .tablenav .actions select:focus {
+    border-color: #a44390 !important;
+    box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1) !important;
+}
+
+body.post-type-cosy_service .tablenav .actions .button {
+    height: 34px !important;
+    min-height: 34px !important;
+    line-height: 32px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 0 16px !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+    vertical-align: middle !important;
+}
+
+body.post-type-cosy_service .tablenav .actions .button:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+}
+
+body.post-type-cosy_service .tablenav .displaying-num {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    line-height: 34px !important;
+}
+
+body.post-type-cosy_service .tablenav .tablenav-pages {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+body.post-type-cosy_service .tablenav .tablenav-pages a.button,
+body.post-type-cosy_service .tablenav .tablenav-pages .tablenav-pages-navspan {
+    height: 30px !important;
+    min-width: 30px !important;
+    line-height: 28px !important;
+    padding: 0 8px !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body.post-type-cosy_service .tablenav .tablenav-pages a.button:hover {
+    border-color: #a44390 !important;
+    color: #a44390 !important;
+    background: #fdf5fc !important;
+}
+
+/* Services WP List Table */
+body.post-type-cosy_service .wrap table.wp-list-table {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #ffffff !important;
+    width: 100% !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table thead th,
+body.post-type-cosy_service .wrap table.wp-list-table thead td,
+body.post-type-cosy_service .wrap table.wp-list-table tfoot th,
+body.post-type-cosy_service .wrap table.wp-list-table tfoot td {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 14px 16px !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    border-top: none !important;
+    vertical-align: middle !important;
+    text-transform: capitalize !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table thead th a,
+body.post-type-cosy_service .wrap table.wp-list-table tfoot th a {
+    color: #475569 !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table thead th a:hover,
+body.post-type-cosy_service .wrap table.wp-list-table tfoot th a:hover {
+    color: #a44390 !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table thead .check-column,
+body.post-type-cosy_service .wrap table.wp-list-table tfoot .check-column,
+body.post-type-cosy_service .wrap table.wp-list-table tbody .check-column {
+    padding: 14px 0 14px 16px !important;
+    vertical-align: middle !important;
+    text-align: left !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table tbody tr {
+    transition: background-color 0.15s ease !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table tbody td,
+body.post-type-cosy_service .wrap table.wp-list-table tbody th {
+    padding: 16px 16px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #334155 !important;
+    font-size: 13px !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table tbody tr:last-child td,
+body.post-type-cosy_service .wrap table.wp-list-table tbody tr:last-child th {
+    border-bottom: none !important;
+}
+
+/* Post Title */
+body.post-type-cosy_service .wrap table.wp-list-table .row-title {
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    color: #0f172a !important;
+    text-decoration: none !important;
+    transition: color 0.15s ease !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table .row-title:hover {
+    color: #a44390 !important;
+}
+
+/* Row Actions (Edit, Quick Edit, Trash, View) */
+body.post-type-cosy_service .wrap table.wp-list-table .row-actions {
+    margin-top: 6px !important;
+    font-size: 12px !important;
+    color: #94a3b8 !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table .row-actions span a,
+body.post-type-cosy_service .wrap table.wp-list-table .row-actions span button {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    text-decoration: none !important;
+    transition: color 0.15s ease !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table .row-actions span.edit a:hover {
+    color: #a44390 !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table .row-actions span.inline button:hover {
+    color: #0284c7 !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table .row-actions span.trash a:hover {
+    color: #dc2626 !important;
+}
+
+body.post-type-cosy_service .wrap table.wp-list-table .row-actions span.view a:hover {
+    color: #10b981 !important;
+}
+
+/* Date Column */
+body.post-type-cosy_service .wrap table.wp-list-table .column-date {
+    font-size: 12.5px !important;
+    color: #64748b !important;
+    font-weight: 500 !important;
+}
+
+/* -------------------------------------------------------------------------
+   END: 10. PAGE: EXPERIENCES / SERVICES CPT LIST TABLE
    ------------------------------------------------------------------------- */
