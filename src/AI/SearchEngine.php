@@ -18,10 +18,65 @@ class SearchEngine
 {
     /**
      * PERFORMS ENTERPRISE HYBRID AI SEMANTIC & LEXICAL SEARCH
-     * 
-     * @param string $query_text Natural language search query.
-     * @param int    $limit      Maximum provider cards to return.
-     * @return array             Array of provider profile cards.
+     *
+     * USE CASE:
+     * Used by the frontend search bar, AJAX live search endpoints, REST APIs, and conversational finder
+     * to match users with the most relevant and empathetic parent guides/mentors. Handles diverse inputs:
+     * - Short queries (e.g., "sleep", "stress", "adhd")
+     * - Multi-topic & constraint searches (e.g., "mum with baby loss and IVF experience under 20")
+     * - Conversational & emotional crisis queries (e.g., "i feel like im losing my mind", "need someone to listen")
+     * - Typos, spelling mistakes, and Hinglish queries (e.g., "relation ship problem", "kisi se bat karni he")
+     *
+     * HOW TO USE:
+     * ```php
+     * use Cosy\Appointments\AI\SearchEngine;
+     *
+     * // 1. Basic search (returns top 6 provider cards by default)
+     * $results = SearchEngine::search('mum of primary school kids with ADHD');
+     *
+     * // 2. Search with custom result limit (e.g., 4 cards)
+     * $results = SearchEngine::search('cheap IVF parent guide under 20', 4);
+     *
+     * // 3. Iterate over returned provider cards
+     * foreach ($results as $guide) {
+     *     $id       = $guide['id'];
+     *     $name     = $guide['name'];
+     *     $service  = $guide['service'];
+     *     $price    = $guide['price'];     // Formatted price string e.g. "15.00"
+     *     $bio      = $guide['bio'];       // Contextual bio highlight
+     *     $avatar   = $guide['avatar_url'];
+     *     $rating   = $guide['rating'];    // Float rating e.g. 5.0
+     * }
+     * ```
+     *
+     * WHAT IT DOES INTERNALLY:
+     * 1. Query Pre-processing & Typo Correction:
+     *    - Strips special characters and fixes spelling errors/typos against domain vocabulary.
+     *    - Normalizes colloquial phrases and Hinglish inputs to standard conversational English.
+     * 2. Intent & Constraint Extraction (`parse_query_intent`):
+     *    - Detects gender/role filters (female/mum vs male/father).
+     *    - Detects budget caps (e.g., "under 20" -> max price £20.00).
+     *    - Detects target child age ranges (e.g., "5-year-old", "teenager").
+     *    - Detects open-ended emotional distress vs domain-specific queries.
+     * 3. Vector Embedding Generation:
+     *    - Generates 3072-dimension OpenAI semantic embeddings (`text-embedding-3-large`) with persistent DB caching.
+     * 4. Multi-Layer Candidate Filtering:
+     *    - Hard-filters out inactive profiles, gender contradictions, and over-budget guides.
+     *    - Verifies genuine lived experience proof in bio narratives for registered domain topics.
+     * 5. Hybrid Scoring Engine:
+     *    - Vector Semantic Similarity (Cosine score baseline).
+     *    - Exact Phrase Boost (+1.5) & BM25 Keyword Match Boost (+0.25 per matched keyword).
+     *    - Age Proximity Boost (+3.0 for exact age, +2.0 for close age range).
+     *    - Multi-Topic Joint Intersection Bonus (+3.5 for dual-experience matching, e.g. Baby Loss + IVF).
+     * 6. Safety Filter & Dynamic Ranking:
+     *    - Guards against irrelevant/out-of-domain queries.
+     *    - Blends composite relevance scores with guide ratings and budget fit.
+     * 7. Profile Card Hydration (`fetch_provider_cards`):
+     *    - Fetches user metadata, services, hourly rates, and extracts relevant bio snippets.
+     *
+     * @param string $query_text Natural language search query entered by the user.
+     * @param int    $limit      Maximum number of provider profile cards to return (default: 6).
+     * @return array<int, array<string, mixed>> Structured list of matched provider profile cards.
      */
     public static function search(string $query_text, int $limit = 6): array
     {
@@ -37,9 +92,12 @@ class SearchEngine
             update_option('cosy_ai_search_version', '1.0.45');
         }
 
-        // 1. Always-Live Real-Time Search (Search caching disabled for 100% fresh real-time database results)
-        $intent         = self::parse_query_intent($query_text);
-        $expanded_query = self::expand_query_numbers($query_text);
+        // 1. Auto-Correct Typo & Spelling Mistakes (e.g. "adoptoin" -> "adoption", "misscarriage" -> "miscarriage")
+        $corrected_query = self::correct_spelling_typos($query_text);
+
+        // 2. Always-Live Real-Time Intent Parsing
+        $intent         = self::parse_query_intent($corrected_query);
+        $expanded_query = self::expand_query_numbers($corrected_query);
 
         // 3. Fetch Query Vector Embedding
         $query_vector = AIService::get_embedding($expanded_query);
@@ -66,8 +124,9 @@ class SearchEngine
         }
 
         // Build text lookup and keywords
-        $provider_details = self::get_provider_text_lookup($active_provider_ids);
-        $search_keywords  = self::get_search_keywords($query_text, $expanded_query);
+        $provider_details    = self::get_provider_text_lookup($active_provider_ids);
+        $provider_narratives = self::get_provider_narrative_lookup($active_provider_ids);
+        $search_keywords     = self::get_search_keywords($corrected_query, $expanded_query);
 
         if (!empty($intent['synonyms'])) {
             $search_keywords = array_unique(array_merge($search_keywords, $intent['synonyms']));
@@ -84,20 +143,23 @@ class SearchEngine
         $clean_search_kws = array_unique($clean_search_kws);
 
         // Extract domain topic keywords
-        $modifier_words   = ['highest', 'highly', 'high', 'top', 'best', 'good', 'popular', 'great', 'rated', 'rating', 'ratings', 'reviewed', 'reviews', 'review', 'experience', 'experiences', 'experienced', 'expert', 'experts', 'specialist', 'specialists', 'trained', 'qualified', 'knowledgeable', 'proven', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'mom', 'moms', 'mother', 'mothers', 'mama', 'mamas', 'dad', 'dads', 'father', 'fathers', 'papa', 'papas', 'female', 'male', 'woman', 'women', 'man', 'men', 'girl', 'boy', 'profile', 'profiles', 'person', 'people', 'user', 'users', 'account', 'accounts', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'something', 'anything', 'everything', 'nothing', 'nice', 'cool', 'awesome', 'lovely', 'amazing', 'sweet', 'friendly', 'kind', 'helpful', 'caring', 'warm', 'gentle', 'under', 'max', 'only', 'cheap', 'cheapest', 'affordable', 'budget', 'low', 'cost', 'price', 'rate', 'rates', 'value', 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '40', '50', 'for', 'with', 'and', 'but', 'also', 'or', 'so', 'is', 'am', 'are', 'be', 'been', 'being', 'can', 'could', 'would', 'should', 'will', 'the', 'who', 'need', 'needs', 'needing', 'want', 'wants', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking', 'support', 'guidance', 'advisor', 'coaching'];
+        $modifier_words   = ['highest', 'highly', 'high', 'top', 'best', 'good', 'popular', 'great', 'rated', 'rating', 'ratings', 'reviewed', 'reviews', 'review', 'experience', 'experiences', 'experienced', 'expert', 'experts', 'specialist', 'specialists', 'trained', 'qualified', 'knowledgeable', 'proven', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'mom', 'moms', 'mother', 'mothers', 'mama', 'mamas', 'dad', 'dads', 'father', 'fathers', 'papa', 'papas', 'female', 'male', 'woman', 'women', 'man', 'men', 'girl', 'boy', 'profile', 'profiles', 'person', 'people', 'user', 'users', 'account', 'accounts', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'something', 'anything', 'everything', 'nothing', 'nice', 'cool', 'awesome', 'lovely', 'amazing', 'sweet', 'friendly', 'kind', 'helpful', 'caring', 'warm', 'gentle', 'under', 'max', 'only', 'cheap', 'cheapest', 'affordable', 'budget', 'low', 'cost', 'price', 'rate', 'rates', 'value', 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '40', '50', 'for', 'with', 'and', 'but', 'also', 'or', 'so', 'is', 'am', 'are', 'be', 'been', 'being', 'can', 'could', 'would', 'should', 'will', 'the', 'who', 'need', 'needs', 'needing', 'want', 'wants', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking', 'support', 'guidance', 'advisor', 'coaching', 'emergency', 'urgent', 'repair', 'fixing', 'fitting', 'fittings', 'service', 'services', 'talk', 'talks', 'talking', 'chat', 'chatting', 'call', 'meeting', 'session', 'consultation', 'conversation', 'kisi', 'se', 'bat', 'baat', 'karni', 'he', 'hai', 'chahiye', 'madad', 'listen', 'listening', 'listener', 'hear', 'somebody', 'anyone', 'anybody', 'today', 'tonight', 'tomorrow', 'weekend', 'soon', 'now', 'therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'coach', 'mentor', 'second', 'hand', 'car', 'buy', 'not', 'sure', 'kind', 'just', 'what', 'which', 'where', 'when', 'why', 'feel', 'feeling', 'type', 'know', 'handle', 'anymore', 'okay', 'ok', 'much', 'mess', 'mind', 'really', 'bad', 'cant', 'cannot', 'dont', 'im'];
         $domain_query_kws = array_diff($clean_search_kws, $modifier_words);
 
         // 4.5. Check for Explicit Provider Name Matches in Query
         $name_matched_ids = [];
-        $query_words      = preg_split('/[\s,;.!?-]+/', strtolower($query_text), -1, PREG_SPLIT_NO_EMPTY);
+        $query_words      = preg_split('/[\s,;.!?-]+/', strtolower($corrected_query), -1, PREG_SPLIT_NO_EMPTY);
 
         $has_potential_name = false;
 
-        foreach ($query_words as $qw) {
-            $clean_qw = preg_replace('/[^a-z0-9]/i', '', $qw);
-            if (strlen($clean_qw) >= 3 && !is_numeric($clean_qw) && !in_array($clean_qw, $modifier_words, true)) {
-                $has_potential_name = true;
-                break;
+        // Name searches are 1-3 word specific queries, not broad conversational / emotional phrases
+        if (empty($intent['is_conversational_broad']) && count($query_words) <= 3) {
+            foreach ($query_words as $qw) {
+                $clean_qw = preg_replace('/[^a-z0-9]/i', '', $qw);
+                if (strlen($clean_qw) >= 3 && !is_numeric($clean_qw) && !in_array($clean_qw, $modifier_words, true)) {
+                    $has_potential_name = true;
+                    break;
+                }
             }
         }
 
@@ -215,6 +277,11 @@ class SearchEngine
                 $vector_score = self::cosine_similarity($query_vector, $vector_lookup[$provider_id]);
             }
 
+            // Baseline score for broad conversational / exploratory queries without explicit domain topic
+            if (!empty($intent['is_conversational_broad']) && empty($domain_query_kws)) {
+                $vector_score = max(0.50, $vector_score);
+            }
+
             // Layer B: Exact Phrase Boosting (+2.0 Score for Exact Match)
             $phrase_boost = 0.0;
             if (!empty($clean_query) && strpos($p_text, $clean_query) !== false) {
@@ -233,7 +300,7 @@ class SearchEngine
             // Layer C: Dynamic Keyword Matches (+0.25 per matching keyword)
             $keyword_boost   = 0.0;
             $prov_has_kw     = false;
-            $modifier_words  = ['highest', 'highly', 'high', 'top', 'best', 'good', 'popular', 'great', 'rated', 'rating', 'ratings', 'reviewed', 'reviews', 'review', 'experience', 'experiences', 'experienced', 'expert', 'experts', 'specialist', 'specialists', 'trained', 'qualified', 'knowledgeable', 'proven', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'mom', 'moms', 'mother', 'mothers', 'mama', 'mamas', 'dad', 'dads', 'father', 'fathers', 'papa', 'papas', 'female', 'male', 'woman', 'women', 'man', 'men', 'girl', 'boy', 'profile', 'profiles', 'person', 'people', 'user', 'users', 'account', 'accounts', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'something', 'anything', 'everything', 'nothing', 'nice', 'cool', 'awesome', 'lovely', 'amazing', 'sweet', 'friendly', 'kind', 'helpful', 'caring', 'warm', 'gentle', 'under', 'max', 'only', 'cheap', 'cheapest', 'affordable', 'budget', 'low', 'cost', 'price', 'rate', 'rates', 'value', 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '40', '50', 'for', 'with', 'and', 'but', 'also', 'or', 'so', 'is', 'am', 'are', 'be', 'been', 'being', 'can', 'could', 'would', 'should', 'will', 'the', 'who', 'need', 'needs', 'needing', 'want', 'wants', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking', 'support', 'guidance', 'advisor', 'coaching'];
+            $modifier_words   = ['highest', 'highly', 'high', 'top', 'best', 'good', 'popular', 'great', 'rated', 'rating', 'ratings', 'reviewed', 'reviews', 'review', 'experience', 'experiences', 'experienced', 'expert', 'experts', 'specialist', 'specialists', 'trained', 'qualified', 'knowledgeable', 'proven', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'mom', 'moms', 'mother', 'mothers', 'mama', 'mamas', 'dad', 'dads', 'father', 'fathers', 'papa', 'papas', 'female', 'male', 'woman', 'women', 'man', 'men', 'girl', 'boy', 'profile', 'profiles', 'person', 'people', 'user', 'users', 'account', 'accounts', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'something', 'anything', 'everything', 'nothing', 'nice', 'cool', 'awesome', 'lovely', 'amazing', 'sweet', 'friendly', 'kind', 'helpful', 'caring', 'warm', 'gentle', 'under', 'max', 'only', 'cheap', 'cheapest', 'affordable', 'budget', 'low', 'cost', 'price', 'rate', 'rates', 'value', 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '40', '50', 'for', 'with', 'and', 'but', 'also', 'or', 'so', 'is', 'am', 'are', 'be', 'been', 'being', 'can', 'could', 'would', 'should', 'will', 'the', 'who', 'need', 'needs', 'needing', 'want', 'wants', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking', 'support', 'guidance', 'advisor', 'coaching', 'emergency', 'urgent', 'repair', 'fixing', 'fitting', 'fittings', 'service', 'services', 'talk', 'talks', 'talking', 'chat', 'chatting', 'call', 'meeting', 'session', 'consultation', 'conversation', 'kisi', 'se', 'bat', 'baat', 'karni', 'he', 'hai', 'chahiye', 'madad', 'listen', 'listening', 'listener', 'hear', 'somebody', 'anyone', 'anybody', 'today', 'tonight', 'tomorrow', 'weekend', 'soon', 'now', 'therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'coach', 'mentor', 'second', 'hand', 'car', 'buy', 'not', 'sure', 'kind', 'just', 'what', 'which', 'where', 'when', 'why', 'feel', 'feeling', 'type', 'know', 'handle', 'anymore', 'okay', 'ok', 'much', 'mess', 'mind', 'really', 'bad', 'cant', 'cannot', 'dont', 'im'];
             $domain_query_kws = array_diff($clean_search_kws, $modifier_words);
             $query_has_domain_kw = !empty($domain_query_kws);
 
@@ -250,42 +317,46 @@ class SearchEngine
                 }
             }
 
-            // Per-Provider Dynamic Domain Keyword Hard Filter:
-            // If user explicitly queried a domain topic (e.g. "ivf"), check service categories & positive bio context.
-            if ($query_has_domain_kw) {
-                $has_topic_match = false;
-
-                // Fetch registered service names for this provider
-                $services_table  = $wpdb->prefix . 'provider_services';
-                $p_services_list = [];
-                if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
-                    $p_srows = $wpdb->get_results($wpdb->prepare("SELECT service FROM $services_table WHERE provider_id = %d", $provider_id));
-                    foreach ($p_srows as $psr) {
-                        if (!empty($psr->service)) {
-                            $p_services_list[] = strtolower($psr->service);
-                        }
-                    }
+            // Filter domain query keywords down to actual registered taxonomy topics
+            $registered_domain_topics = [];
+            foreach ($domain_query_kws as $dkw) {
+                if (self::is_domain_taxonomy_topic($dkw)) {
+                    $registered_domain_topics[] = $dkw;
                 }
+            }
+            $query_has_registered_topic = !empty($registered_domain_topics);
 
-                foreach ($domain_query_kws as $dkw) {
+            // Per-Provider Dynamic Domain Keyword Hard Filter:
+            // If user explicitly queried a registered domain category topic (e.g. "adoption" or "ivf"), check strict topic proof
+            if ($query_has_registered_topic) {
+                $has_topic_match = false;
+                $p_narrative     = $provider_narratives[$provider_id] ?? '';
+
+                foreach ($registered_domain_topics as $dkw) {
                     if (strlen($dkw) < 2) continue;
-                    $dkw_stem = (strlen($dkw) > 3 && substr($dkw, -1) === 's') ? substr($dkw, 0, -1) : $dkw;
 
-                    // 1. Check if provider has an officially registered service category for this topic
-                    foreach ($p_services_list as $pserv) {
-                        if (strpos($pserv, $dkw) !== false || strpos($pserv, $dkw_stem) !== false) {
-                            $has_topic_match = true;
-                            break 2;
-                        }
-                    }
+                    // Get full synonym/alternative cluster for this domain keyword
+                    $cluster = self::get_domain_synonym_cluster($dkw);
 
-                    // 2. Check bio text, ignoring negative past context like "failed ivf", "failed ... ivf", "ivf attempts"
-                    if (strpos($p_text, $dkw) !== false || strpos($p_text, $dkw_stem) !== false) {
-                        if (!preg_match('/failed\s+(?:\w+\s+){0,2}' . preg_quote($dkw, '/') . '/i', $p_text) && 
-                            !preg_match('/' . preg_quote($dkw, '/') . '\s+attempts/i', $p_text)) {
-                            $has_topic_match = true;
+                    // Check if provider's narrative (Bio or service descriptions) actually contains proof (topic or any alternative term)
+                    $has_text_proof = false;
+                    foreach ($cluster as $cword) {
+                        if (preg_match('/\b' . preg_quote($cword, '/') . '\b/i', $p_narrative)) {
+                            // Negative context check e.g. "failed ivf" when user isn't asking for failure
+                            if ($cword === 'ivf' && (preg_match('/failed\s+(?:\w+\s+){0,2}ivf/i', $p_narrative) || preg_match('/ivf\s+attempts/i', $p_narrative))) {
+                                continue;
+                            }
+                            $has_text_proof = true;
                             break;
                         }
+                    }
+
+                    // Strict Topic Qualification:
+                    // Provider must have actual text proof in their bio or service description.
+                    // If they merely checked a service checkbox with ZERO mention of the topic or its alternatives in their narrative, reject them.
+                    if ($has_text_proof) {
+                        $has_topic_match = true;
+                        break;
                     }
                 }
 
@@ -322,7 +393,28 @@ class SearchEngine
                 }
             }
 
-            $composite_score = ($vector_score + $phrase_boost + $keyword_boost + $age_boost) * $intent_multiplier;
+            // Layer F: Multi-Topic Joint Intersection Bonus
+            // If query contains 2+ distinct topics (e.g. Baby Loss AND IVF), reward providers who have BOTH experiences
+            $intersection_boost = 0.0;
+            if (count($registered_domain_topics) >= 2) {
+                $matched_topics = 0;
+                foreach ($registered_domain_topics as $dkw) {
+                    $cluster = self::get_domain_synonym_cluster($dkw);
+                    foreach ($cluster as $cword) {
+                        if (preg_match('/\b' . preg_quote($cword, '/') . '\b/i', $p_narrative)) {
+                            $matched_topics++;
+                            break;
+                        }
+                    }
+                }
+                if ($matched_topics >= count($registered_domain_topics)) {
+                    $intersection_boost = 3.5; // Matches ALL requested topics!
+                } elseif ($matched_topics >= 2) {
+                    $intersection_boost = 1.5;
+                }
+            }
+
+            $composite_score = ($vector_score + $phrase_boost + $keyword_boost + $age_boost + $intersection_boost) * $intent_multiplier;
 
             if ($composite_score > $max_score) {
                 $max_score = $composite_score;
@@ -339,8 +431,8 @@ class SearchEngine
         }
 
         // Strict Out-of-Context & Gibberish Query Safety Filter
-        // Rejects queries that lack domain keyword alignment & intent (e.g. "hello", "hi", "xyz 123 random text")
-        $is_valid_intent = ($intent['target_role'] !== 'any') || ($intent['max_price'] > 0) || ($intent['target_age'] > 0) || ($intent['target_children_count'] > 0) || ($intent['target_experience_years'] > 0) || !empty($intent['synonyms']) || preg_match('/\b(best|top|cheap|cheapest|affordable|rated|rating|reviewed|reviews|guide|guides|parent|parents|mum|mums|dad|dads)\b/i', $query_text);
+        // Rejects queries that lack domain keyword alignment & intent (e.g. "xyz 123 random text", "crypto bitcoin")
+        $is_valid_intent = ($intent['target_role'] !== 'any') || ($intent['max_price'] > 0) || ($intent['target_age'] > 0) || ($intent['target_children_count'] > 0) || ($intent['target_experience_years'] > 0) || !empty($intent['synonyms']) || !empty($intent['is_conversational_broad']) || preg_match('/\b(best|top|cheap|cheapest|affordable|rated|rating|reviewed|reviews|guide|guides|parent|parents|mum|mums|dad|dads|talk|listen|listening|help|someone|support|therapist|counsellor|counselor|coach|advice|guidance|bat|baat|madad)\b/i', $corrected_query);
 
         if (!$is_valid_intent && empty($domain_query_kws)) {
             return [];
@@ -362,7 +454,7 @@ class SearchEngine
         // 6. Fetch Ratings, Reviews & Price for Hybrid Ranking Boosts
         $services_table          = $wpdb->prefix . 'provider_services';
         $reviews_table           = $wpdb->prefix . 'cosy_provider_reviews';
-        $is_highest_rated_intent = preg_match('/\b(highest|top|best)\b.*?\b(rated|rating|ratings|stars|reviews)\b/i', $query_text) || preg_match('/\b(highest|top|best)\b/i', $query_text);
+        $is_highest_rated_intent = preg_match('/\b(highest|top|best)\b.*?\b(rated|rating|ratings|stars|reviews)\b/i', $corrected_query) || preg_match('/\b(highest|top|best)\b/i', $corrected_query);
 
         foreach ($matches as &$item) {
             $pid = $item['provider_id'];
@@ -394,7 +486,7 @@ class SearchEngine
 
             // Apply Price Budget Fit Boost if user specified a budget or asked for cheap/affordable/low cost
             $price_boost = 0.0;
-            if ($price > 0 && (preg_match('/\b(cheap|cheapest|affordable|budget)\b/i', $query_text) || preg_match('/\blow\s*(?:cost|price|rate|rates)*\b/i', $query_text))) {
+            if ($price > 0 && (preg_match('/\b(cheap|cheapest|affordable|budget)\b/i', $corrected_query) || preg_match('/\blow\s*(?:cost|price|rate|rates)*\b/i', $corrected_query))) {
                 $price_boost += max(0, (60.0 - $price) * 0.10);
             }
             if ($intent['max_price'] > 0 && $price > 0) {
@@ -426,7 +518,7 @@ class SearchEngine
         $sorted_provider_ids = array_column($matches, 'provider_id');
 
         $effective_limit = (!empty($intent['requested_limit']) && $intent['requested_limit'] > 0) ? min($intent['requested_limit'], 12) : $limit;
-        return self::fetch_provider_cards($sorted_provider_ids, $effective_limit, $query_text);
+        return self::fetch_provider_cards($sorted_provider_ids, $effective_limit, $corrected_query);
     }
 
     /**
@@ -442,9 +534,15 @@ class SearchEngine
             'target_children_count'   => 0,
             'target_experience_years' => 0,
             'max_price'               => 0,
+            'is_conversational_broad' => false,
             'phrases'                 => [],
             'synonyms'                => [],
         ];
+
+        // Detect broad emotional, open-ended or conversational intent
+        if (preg_match('/\b(talk|speak|chat|listen|listening|listener|help|someone|somebody|anyone|anybody|guidance|advice|confused|overwhelmed|overwhelming|low|alone|isolated|isolation|support|therapist|counsellor|counselor|coach|mentor|hear me|hear us|anymore|handle|okay|ok|struggling|struggle|coping|cope|suffering|suffer|exhausted|exhaustion|broken|breaking|crying|tears|lost|mess|failing|fail|hopeless|desperate|mind|drowning|giving up|give up|survive|surviving|hard|difficult|scared|afraid|panic|panicking|lonely|loneliness|anxiety|anxious|depressed|depression|stress|stressed|burnout|bat|baat|madad|feel|feeling|bad|sad|hurt|hurting|pain|tough|trouble|know|need|want|much|everything|find|do|cant|cannot)\b/i', $q)) {
+            $intent['is_conversational_broad'] = true;
+        }
 
         // Extract explicit child age intent (e.g. "5 year old", "5-year-old", "5yo", "age 5")
         if (preg_match('/\b(\d+)\s*(?:-| |\s*to\s*)*year\s*(?:s|-)*old\b/i', $q, $amatches)) {
@@ -469,6 +567,8 @@ class SearchEngine
             'adolescence'  => ['teenager', 'teenage', 'teen', 'teens'],
             'youth'        => ['teenager', 'teenage', 'teen', 'teens'],
             'puberty'      => ['teenager', 'teenage', 'teen', 'teens'],
+            'gcse'         => ['teenager', 'teenage', 'teen', 'teens'],
+            'gcses'        => ['teenager', 'teenage', 'teen', 'teens'],
             'infant'       => ['baby', 'newborn'],
             'preschool'    => ['toddler', 'kids'],
             'nursery'      => ['toddler', 'kids'],
@@ -479,6 +579,12 @@ class SearchEngine
             'nighttime'    => ['sleep', 'sleeping', 'bedtime'],
             'nap'          => ['sleep', 'sleeping'],
             'naps'         => ['sleep', 'sleeping'],
+            'marriage'     => ['divorce', 'separation', 'co-parenting', 'wellbeing'],
+            'marital'      => ['divorce', 'separation', 'co-parenting', 'wellbeing'],
+            'relationship' => ['divorce', 'separation', 'co-parenting', 'wellbeing'],
+            'therapist'    => ['wellbeing', 'mental health', 'support', 'guide'],
+            'counsellor'   => ['wellbeing', 'mental health', 'support', 'guide'],
+            'counselor'    => ['wellbeing', 'mental health', 'support', 'guide'],
         ];
 
         foreach ($synonym_map as $trigger => $syns) {
@@ -492,7 +598,7 @@ class SearchEngine
             'adoption'     => ['adoption', 'adopting', 'adoptive', 'adopted', 'adopt'],
             'ivf'          => ['ivf', 'fertility', 'icsi'],
             'sleep'        => ['sleep', 'sleeping', 'bedtime', 'nighttime'],
-            'teenager'     => ['teenager', 'teenagers', 'teenage', 'teens', 'teen'],
+            'teenager'     => ['teenager', 'teenagers', 'teenage', 'teens', 'teen', 'gcses', 'gcse'],
             'toddler'      => ['toddler', 'toddlers'],
             'baby'         => ['baby', 'babies', 'infant', 'newborn'],
             'adhd'         => ['adhd', 'autism', 'send', 'senco', 'special needs'],
@@ -501,6 +607,9 @@ class SearchEngine
             'miscarriage'  => ['miscarriage', 'baby loss', 'grief', 'bereavement'],
             'twins'        => ['twins', 'twin', 'multiples'],
             'breastfeeding'=> ['breastfeeding', 'nursing', 'lactation'],
+            'relationship' => ['relationship', 'marriage', 'marital', 'couples', 'divorce', 'separation', 'coparenting', 'co-parenting'],
+            'marriage'     => ['marriage', 'marital', 'relationship', 'couples', 'divorce', 'separation', 'coparenting'],
+            'therapist'    => ['therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'wellbeing', 'coach', 'mentor'],
         ];
 
         $q_tokens = preg_split('/[\s,;.!?-]+/', $q, -1, PREG_SPLIT_NO_EMPTY);
@@ -557,9 +666,9 @@ class SearchEngine
         }
 
         // 2. Extract Explicit Price / Budget Constraint (e.g. "under £15", "15 or less", "up to 20", "below 25", "max 15")
-        if (preg_match('/(?:under|below|less than|up to|max|budget|\<)\s*£?\s*(\d+(?:\.\d+)?)/i', $q, $pmatches)) {
+        if (preg_match('/(?:under|below|less than|up to|max|budget|\<)\s*(?:£|&pound;|gbp|\$)?\s*(\d+(?:\.\d+)?)/iu', $q, $pmatches)) {
             $intent['max_price'] = floatval($pmatches[1]);
-        } elseif (preg_match('/£?\s*(\d+(?:\.\d+)?)\s*(?:or less|or lower|max|budget|below)\b/i', $q, $pmatches)) {
+        } elseif (preg_match('/(?:£|&pound;|gbp|\$)?\s*(\d+(?:\.\d+)?)\s*(?:or less|or lower|max|budget|below)\b/iu', $q, $pmatches)) {
             $intent['max_price'] = floatval($pmatches[1]);
         }
 
@@ -699,30 +808,77 @@ class SearchEngine
             // Fetch service title & lowest positive price matching searched topic first!
             $service_name = '';
             $price = '0.00';
+            $matched_service_desc = '';
             if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
                 $srow = null;
 
-                // Try to find service matching exact searched topic (e.g. IVF or Adoption)
+                // Try to find service matching exact searched topic or its synonym cluster (e.g. IVF or Adoption)
                 if (!empty($query_topics)) {
                     foreach ($query_topics as $topic) {
-                        if (strlen($topic) >= 2) {
-                            $srow = $wpdb->get_row($wpdb->prepare("SELECT service, price FROM $services_table WHERE provider_id = %d AND LOWER(service) LIKE %s ORDER BY price ASC LIMIT 1", $user_id, '%' . $wpdb->esc_like(strtolower($topic)) . '%'));
-                            if ($srow) {
-                                break;
+                        $cluster = self::get_domain_synonym_cluster($topic);
+                        foreach ($cluster as $cword) {
+                            if (strlen($cword) >= 3) {
+                                $srow = $wpdb->get_row($wpdb->prepare(
+                                    "SELECT service, price, description FROM $services_table WHERE provider_id = %d AND (LOWER(service) LIKE %s OR LOWER(description) LIKE %s) ORDER BY price ASC LIMIT 1",
+                                    $user_id,
+                                    '%' . $wpdb->esc_like(strtolower($cword)) . '%',
+                                    '%' . $wpdb->esc_like(strtolower($cword)) . '%'
+                                ));
+                                if ($srow) {
+                                    break 2;
+                                }
                             }
                         }
                     }
                 }
 
                 if (!$srow) {
-                    $srow = $wpdb->get_row($wpdb->prepare("SELECT service, price FROM $services_table WHERE provider_id = %d AND price > 0 ORDER BY price ASC LIMIT 1", $user_id));
+                    $srow = $wpdb->get_row($wpdb->prepare("SELECT service, price, description FROM $services_table WHERE provider_id = %d AND price > 0 ORDER BY price ASC LIMIT 1", $user_id));
                 }
                 if (!$srow) {
-                    $srow = $wpdb->get_row($wpdb->prepare("SELECT service, price FROM $services_table WHERE provider_id = %d ORDER BY price ASC LIMIT 1", $user_id));
+                    $srow = $wpdb->get_row($wpdb->prepare("SELECT service, price, description FROM $services_table WHERE provider_id = %d ORDER BY price ASC LIMIT 1", $user_id));
                 }
                 if ($srow) {
-                    $service_name = $srow->service;
-                    $price        = number_format(floatval($srow->price), 2);
+                    $service_name         = $srow->service;
+                    $price                = number_format(floatval($srow->price), 2);
+                    $matched_service_desc = !empty($srow->description) ? trim($srow->description) : '';
+                }
+            }
+
+            // Contextual Description: Show the exact service description or relevant sentence matching user query
+            $card_desc = $bio;
+            if (!empty($matched_service_desc)) {
+                // If service description has relevant topic content, prefer it over generic bio
+                if (!empty($query_topics)) {
+                    foreach ($query_topics as $topic) {
+                        $cluster = self::get_domain_synonym_cluster($topic);
+                        foreach ($cluster as $cword) {
+                            if (stripos($matched_service_desc, $cword) !== false) {
+                                $card_desc = $matched_service_desc;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If general bio is used, highlight the relevant sentence matching query topic
+            if (!empty($query_topics) && strlen($card_desc) > 80) {
+                $sentences = preg_split('/(?<=[.?!])\s+/', $card_desc, -1, PREG_SPLIT_NO_EMPTY);
+                $best_idx = -1;
+                foreach ($query_topics as $topic) {
+                    $cluster = self::get_domain_synonym_cluster($topic);
+                    foreach ($sentences as $s_idx => $sentence) {
+                        foreach ($cluster as $cword) {
+                            if (stripos($sentence, $cword) !== false) {
+                                $best_idx = $s_idx;
+                                break 3;
+                            }
+                        }
+                    }
+                }
+                if ($best_idx > 0) {
+                    $card_desc = implode(' ', array_slice($sentences, $best_idx));
                 }
             }
 
@@ -739,7 +895,7 @@ class SearchEngine
                 'name'               => trim("$first_name $last_name") ?: $user->display_name,
                 'username'           => $user->user_login,
                 'email'              => $user->user_email,
-                'description'        => $bio,
+                'description'        => $card_desc,
                 'bio'                => $bio,
                 'profile_image'      => $profile_image,
                 'rating'             => $rating,
@@ -805,7 +961,19 @@ class SearchEngine
     {
         $all_text  = strtolower($query . ' ' . $expanded_query);
         $words     = preg_split('/[\s,;.!?-]+/', $all_text, -1, PREG_SPLIT_NO_EMPTY);
-        $stopwords = ['and', 'the', 'for', 'with', 'you', 'our', 'are', 'was', 'were', 'who', 'this', 'that', 'have', 'has', 'looking', 'need', 'want', 'someone', 'help', 'guide', 'support', 'text', 'random', 'test', 'sample', 'xyz', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'good', 'morning', 'afternoon', 'evening'];
+        $stopwords = [
+            'and', 'the', 'for', 'with', 'you', 'your', 'our', 'are', 'was', 'were', 'who', 'whom', 'whose',
+            'this', 'that', 'these', 'those', 'have', 'has', 'had', 'having', 'looking', 'need', 'needs',
+            'needing', 'want', 'wants', 'someone', 'somebody', 'anyone', 'anybody', 'me', 'my', 'myself',
+            'text', 'random', 'test', 'sample', 'xyz', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou',
+            'pls', 'please', 'good', 'morning', 'afternoon', 'evening', 'what', 'which', 'where', 'when',
+            'why', 'how', 'can', 'could', 'would', 'should', 'will', 'shall', 'may', 'might', 'must',
+            'just', 'not', 'sure', 'kind', 'type', 'about', 'some', 'any', 'all', 'more', 'most', 'very', 'like',
+            'of', 'in', 'to', 'at', 'by', 'on', 'off', 'up', 'out', 'over', 'into', 'onto', 'down', 'from',
+            'as', 'if', 'an', 'a', 'is', 'am', 'be', 'been', 'being', 'so', 'than',
+            'do', 'doing', 'done', 'did', 'cant', 'cannot', 'im', 'dont', 'ive', 'ill', 'id', 'anymore',
+            'too', 'much', 'really', 'bad', 'okay', 'ok', 'handle', 'mind', 'mess', 'everything', 'something'
+        ];
         $keywords  = [];
 
         foreach ($words as $w) {
@@ -815,6 +983,149 @@ class SearchEngine
         }
 
         return array_unique($keywords);
+    }
+
+    /**
+     * Return domain synonyms and alternative topic terms for strict semantic verification.
+     */
+    public static function get_domain_synonym_cluster(string $term): array
+    {
+        $term = strtolower(trim($term));
+        $clusters = [
+            'adoption' => [
+                'adoption', 'adopt', 'adopting', 'adopted', 'adoptive', 'adopter', 'adopters',
+                'foster', 'fostering', 'foster-to-adopt', 'foster carer', 'panel approval',
+                'adoption panel', 'placement', 'child placement', 'guardianship'
+            ],
+            'adopt' => [
+                'adoption', 'adopt', 'adopting', 'adopted', 'adoptive', 'adopter', 'adopters',
+                'foster', 'fostering', 'foster-to-adopt', 'foster carer', 'panel approval',
+                'adoption panel', 'placement', 'child placement', 'guardianship'
+            ],
+            'baby loss' => [
+                'baby loss', 'pregnancy loss', 'miscarriage', 'miscarriages', 'stillbirth', 'stillborn',
+                'infant loss', 'bereavement', 'grief', 'angel baby', 'tfmr', 'rainbow baby', 'loss of a baby'
+            ],
+            'loss' => [
+                'baby loss', 'pregnancy loss', 'miscarriage', 'miscarriages', 'stillbirth', 'stillborn',
+                'infant loss', 'bereavement', 'grief', 'angel baby', 'tfmr', 'rainbow baby', 'loss of a baby'
+            ],
+            'ivf' => [
+                'ivf', 'infertility', 'fertility', 'icsi', 'embryo', 'donor sperm', 'donor egg',
+                'surrogacy', 'egg retrieval', 'two-week wait', 'two week wait', 'fertility treatment'
+            ],
+            'fertility' => [
+                'ivf', 'infertility', 'fertility', 'icsi', 'embryo', 'donor sperm', 'donor egg',
+                'surrogacy', 'egg retrieval', 'two-week wait', 'two week wait', 'fertility treatment'
+            ],
+            'adhd' => [
+                'adhd', 'add', 'neurodivergent', 'hyperactive', 'attention deficit', 'inattention'
+            ],
+            'autism' => [
+                'autism', 'autistic', 'asd', 'neurodivergent', 'sensory overload', 'aspergers'
+            ],
+            'teen' => [
+                'teen', 'teens', 'teenager', 'teenagers', 'adolescent', 'adolescence', 'puberty',
+                'secondary school', 'high school', 'gcse', 'gcses', 'exams', 'revision', 'mood swings',
+                'screaming', 'attitude', 'screen time', 'gaming'
+            ],
+            'teenager' => [
+                'teen', 'teens', 'teenager', 'teenagers', 'adolescent', 'adolescence', 'puberty',
+                'secondary school', 'high school', 'gcse', 'gcses', 'exams', 'revision', 'mood swings',
+                'screaming', 'attitude', 'screen time', 'gaming'
+            ],
+            'sleep' => [
+                'sleep', 'sleeping', 'night feeding', 'sleepless', 'deprivation', 'insomnia',
+                'exhaustion', 'tired', 'cant sleep', 'night waking', 'bedtime', 'nighttime'
+            ],
+            'relationship' => [
+                'relationship', 'marriage', 'marital', 'partner', 'husband', 'wife', 'couples',
+                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'broken up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
+                'family dynamics', 'conflict', 'wellbeing'
+            ],
+            'marriage' => [
+                'relationship', 'marriage', 'marital', 'partner', 'husband', 'wife', 'couples',
+                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
+                'family dynamics', 'conflict', 'wellbeing'
+            ],
+            'divorce' => [
+                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
+                'marriage', 'marital', 'relationship', 'partner', 'couples', 'family dynamics'
+            ],
+            'separation' => [
+                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
+                'marriage', 'marital', 'relationship', 'partner', 'couples', 'family dynamics'
+            ],
+            'breakup' => [
+                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'broken up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
+                'marriage', 'marital', 'relationship', 'partner', 'couples', 'family dynamics'
+            ],
+            'break-up' => [
+                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'broken up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
+                'marriage', 'marital', 'relationship', 'partner', 'couples', 'family dynamics'
+            ],
+            'co-parenting' => [
+                'co-parenting', 'coparenting', 'divorce', 'separation', 'breakup', 'break-up', 'custody', 'split', 'ex',
+                'ex-partner', 'marriage', 'marital', 'relationship', 'partner', 'couples'
+            ],
+            'coparenting' => [
+                'co-parenting', 'coparenting', 'divorce', 'separation', 'breakup', 'break-up', 'custody', 'split', 'ex',
+                'ex-partner', 'marriage', 'marital', 'relationship', 'partner', 'couples'
+            ],
+            'therapist' => [
+                'therapist', 'counsellor', 'counselor', 'counseling', 'therapy', 'psychologist',
+                'coach', 'mentor', 'advisor', 'listening', 'support', 'guide', 'wellbeing', 'mental health'
+            ],
+            'counsellor' => [
+                'therapist', 'counsellor', 'counselor', 'counseling', 'therapy', 'psychologist',
+                'coach', 'mentor', 'advisor', 'listening', 'support', 'guide', 'wellbeing', 'mental health'
+            ],
+            'wellbeing' => [
+                'wellbeing', 'well-being', 'burnout', 'anxiety', 'depression', 'mental health',
+                'divorce', 'separation', 'co-parenting', 'exhaustion', 'stress', 'low', 'support', 'listen'
+            ],
+        ];
+
+        foreach ($clusters as $key => $syns) {
+            if ($term === $key || in_array($term, $syns, true)) {
+                return $syns;
+            }
+        }
+
+        // Return term and its standard singular/plural stem
+        $stem = (strlen($term) > 3 && substr($term, -1) === 's') ? substr($term, 0, -1) : $term;
+        return array_unique([$term, $stem]);
+    }
+
+    /**
+     * Check if a search keyword represents a registered parenting domain taxonomy topic.
+     */
+    public static function is_domain_taxonomy_topic(string $term): bool
+    {
+        $term = strtolower(trim($term));
+        if ($term === 'ivf' || $term === 'asd' || $term === 'add') {
+            return true;
+        }
+
+        $domain_roots = [
+            'adoption', 'adopt', 'adopting', 'adopted', 'adoptive', 'adopter', 'adopters', 'foster', 'fostering', 'foster-to-adopt', 'guardianship',
+            'baby loss', 'pregnancy loss', 'miscarriage', 'miscarriages', 'stillbirth', 'stillborn', 'bereavement', 'grief', 'angel baby', 'tfmr', 'rainbow baby',
+            'infertility', 'fertility', 'icsi', 'embryo', 'surrogacy', 'surrogate', 'donor egg', 'donor sperm', 'egg retrieval',
+            'adhd', 'autism', 'autistic', 'neurodivergent', 'hyperactive', 'senco',
+            'teen', 'teens', 'teenager', 'teenagers', 'adolescent', 'adolescence', 'puberty', 'gcse', 'gcses',
+            'sleep', 'sleeping', 'sleepless', 'insomnia', 'night feeding',
+            'relationship', 'marriage', 'marital', 'partner', 'husband', 'wife', 'couples', 'divorce', 'separation', 'co-parenting', 'coparenting', 'breakup', 'break-up',
+            'newborn', 'newborns', 'postnatal', 'postpartum', 'paternity', 'maternity', 'breastfeeding', 'colic',
+            'wellbeing', 'burnout', 'anxiety', 'depression', 'mental health',
+            'therapist', 'counsellor', 'counselor', 'therapy', 'counseling'
+        ];
+
+        foreach ($domain_roots as $root) {
+            if ($term === $root || (strlen($term) >= 4 && strpos($root, $term) !== false) || (strlen($root) >= 4 && strpos($term, $root) !== false)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -840,19 +1151,143 @@ class SearchEngine
             $lname = get_user_meta($id, 'last_name', true) ?: '';
             $bio   = get_user_meta($id, 'description', true) ?: '';
 
-            $services = [];
+            $services_text = [];
             if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
-                $rows = $wpdb->get_results($wpdb->prepare("SELECT service FROM $services_table WHERE provider_id = %d", $id));
+                $rows = $wpdb->get_results($wpdb->prepare("SELECT service, description FROM $services_table WHERE provider_id = %d", $id));
                 foreach ($rows as $r) {
                     if (!empty($r->service)) {
-                        $services[] = $r->service;
+                        $services_text[] = $r->service;
+                    }
+                    if (!empty($r->description)) {
+                        $services_text[] = $r->description;
                     }
                 }
             }
 
-            $lookup[$id] = trim("$fname $lname " . implode(' ', $services) . " $bio");
+            $lookup[$id] = trim("$fname $lname " . implode(' ', $services_text) . " $bio");
         }
 
         return $lookup;
+    }
+
+    /**
+     * Build lookup array of provider narrative content (Bio and Service Descriptions)
+     * strictly excluding service category titles to verify genuine lived experience.
+     */
+    private static function get_provider_narrative_lookup(array $provider_ids): array
+    {
+        if (empty($provider_ids)) {
+            return [];
+        }
+
+        global $wpdb;
+        $services_table = $wpdb->prefix . 'provider_services';
+        $lookup = [];
+
+        foreach ($provider_ids as $id) {
+            $bio = get_user_meta($id, 'description', true) ?: '';
+
+            $descriptions = [];
+            if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
+                $rows = $wpdb->get_results($wpdb->prepare("SELECT description FROM $services_table WHERE provider_id = %d", $id));
+                foreach ($rows as $r) {
+                    if (!empty($r->description)) {
+                        $descriptions[] = $r->description;
+                    }
+                }
+            }
+
+            $lookup[$id] = strtolower(trim($bio . ' ' . implode(' ', $descriptions)));
+        }
+
+        return $lookup;
+    }
+
+    /**
+     * Auto-correct common typos, Hinglish phrases, and spelling errors in search query
+     * against our domain taxonomy vocabulary.
+     */
+    public static function correct_spelling_typos(string $query): string
+    {
+        $q_norm = strtolower(trim($query));
+
+        // Normalise common typos and Hinglish phrases to standard conversational English
+        $typo_phrase_map = [
+            '/\b(?:mujhe\s+)?kisi\s+se\s+ba?t\s+karni\s+he?\b/i' => 'talk to someone',
+            '/\b(?:madad|help)\s+chahiye\b/i'                   => 'need help',
+            '/\bproblem\s+hai\b/i'                              => 'having problems',
+            '/\b(?:stress|tension)\s+ho\s+rah[ia]\s+hai?\b/i'    => 'feeling stressed anxiety',
+            '/\bmy\s+wife\s+se\s+problem\b/i'                   => 'marriage problem with wife',
+            '/\bkisi\s+se\s+milna\b/i'                          => 'meet someone',
+            '/\brelation\s+ship\b/i'                            => 'relationship',
+            '/\bmental\s+helth\b/i'                             => 'mental health',
+            '/\btlk\b/i'                                        => 'talk',
+            '/\btheripist\b/i'                                  => 'therapist',
+            '/\bcounsling\b/i'                                  => 'counseling',
+            '/\bcounseller\b/i'                                 => 'counsellor',
+            '/\banxeity\b/i'                                    => 'anxiety',
+            '/\brelashionship\b/i'                              => 'relationship',
+        ];
+        foreach ($typo_phrase_map as $pattern => $replacement) {
+            $q_norm = preg_replace($pattern, $replacement, $q_norm);
+        }
+
+        $has_phrase_correction = ($q_norm !== strtolower(trim($query)));
+
+        $words = preg_split('/[\s,;.!?-]+/', $q_norm, -1, PREG_SPLIT_NO_EMPTY);
+        if (empty($words)) {
+            return $query;
+        }
+
+        $vocabulary = [
+            'adoption', 'adoptive', 'adopted', 'fostering', 'foster', 'guardianship',
+            'pregnancy', 'miscarriage', 'miscarriages', 'stillbirth', 'bereavement', 'infant', 'grief',
+            'infertility', 'fertility', 'embryo', 'surrogacy', 'surrogate', 'ivf',
+            'toddler', 'toddlers', 'teenager', 'teenagers', 'adolescent', 'puberty',
+            'autism', 'autistic', 'neurodivergent', 'hyperactive', 'senco', 'adhd',
+            'newborn', 'newborns', 'postnatal', 'paternity', 'maternity', 'breastfeeding',
+            'wellbeing', 'burnout', 'anxiety', 'depression', 'divorce', 'separation', 'coparenting',
+            'father', 'mother', 'parent', 'parents', 'children', 'experience', 'experienced',
+            'marriage', 'marital', 'relationship', 'partner', 'husband', 'wife', 'couples',
+            'therapist', 'counsellor', 'counseling', 'therapy', 'mentor', 'coach', 'listen', 'listening',
+            'sleepless', 'insomnia', 'lonely', 'anxious'
+        ];
+
+        $corrected_words = [];
+        $has_correction = false;
+
+        foreach ($words as $w) {
+            $clean_w = preg_replace('/[^a-z0-9]/i', '', $w);
+            if (strlen($clean_w) < 4 || is_numeric($clean_w) || in_array($clean_w, $vocabulary, true)) {
+                $corrected_words[] = $w;
+                continue;
+            }
+
+            $best_match = $w;
+            $best_distance = 99;
+
+            foreach ($vocabulary as $vocab) {
+                if (abs(strlen($clean_w) - strlen($vocab)) > 2) {
+                    continue;
+                }
+
+                $dist = levenshtein($clean_w, $vocab);
+                $max_allowed_dist = (strlen($vocab) >= 7) ? 2 : 1;
+
+                if ($dist <= $max_allowed_dist && $dist < $best_distance) {
+                    $best_distance = $dist;
+                    $best_match = $vocab;
+                }
+            }
+
+            if ($best_distance <= 2 && $best_match !== $w) {
+                $has_correction = true;
+                $corrected_words[] = $best_match;
+            } else {
+                $corrected_words[] = $w;
+            }
+        }
+
+        return ($has_correction || $has_phrase_correction) ? implode(' ', $corrected_words) : $query;
     }
 }
