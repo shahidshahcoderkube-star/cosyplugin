@@ -40,7 +40,7 @@
         <table class="wp-list-table widefat fixed striped table-view-list cosy-orders-table cosy-media-table">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 45px; padding: 8px 20px 8px 15px; vertical-align: middle;">
+                    <th scope="col" class="manage-column column-cb check-column">
                         <input type="checkbox" id="cosy-select-all-media">
                     </th>
                     <th scope="col" style="width: 240px;">Media</th>
@@ -79,7 +79,7 @@
                     ?>
                     <tr id="media-row-<?php echo esc_attr($media->id); ?>" data-id="<?php echo esc_attr($user_id); ?>">
                         <!-- Checkbox -->
-                        <th scope="row" class="check-column" style="padding: 8px 20px 8px 15px; vertical-align: middle; width: 45px;">
+                        <th scope="row" class="check-column">
                             <input type="checkbox" class="cosy-media-checkbox" value="<?php echo esc_attr($media->id); ?>" data-user-id="<?php echo esc_attr($user_id); ?>">
                         </th>
                         <!-- Media -->

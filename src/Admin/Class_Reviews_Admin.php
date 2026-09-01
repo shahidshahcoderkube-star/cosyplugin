@@ -50,6 +50,10 @@ class Class_Reviews_Admin
     {
         $status_filter   = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';
         $provider_filter = isset($_GET['provider']) ? intval($_GET['provider']) : 0;
+        $search_query    = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
+        $paged           = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+        $per_page        = 20;
+        $offset          = ($paged - 1) * $per_page;
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_provider_reviews';
@@ -61,9 +65,15 @@ class Class_Reviews_Admin
         if (!empty($provider_filter)) {
             $where[] = $wpdb->prepare("provider_id = %d", $provider_filter);
         }
+        if (!empty($search_query)) {
+            $search_like = '%' . $wpdb->esc_like($search_query) . '%';
+            $where[] = $wpdb->prepare("(customer_name LIKE %s OR review LIKE %s OR provider_reply LIKE %s)", $search_like, $search_like, $search_like);
+        }
 
-        $where_sql = implode(' AND ', $where);
-        $reviews = $wpdb->get_results("SELECT * FROM $table_name WHERE $where_sql ORDER BY id DESC");
+        $where_sql     = implode(' AND ', $where);
+        $total_reviews = intval($wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE $where_sql"));
+        $total_pages   = max(1, ceil($total_reviews / $per_page));
+        $reviews       = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE $where_sql ORDER BY id DESC LIMIT %d OFFSET %d", $per_page, $offset));
 
         $providers = get_users(['role' => 'provider']);
 

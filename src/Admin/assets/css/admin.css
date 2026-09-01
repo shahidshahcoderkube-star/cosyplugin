@@ -86,6 +86,35 @@
     color: #0f172a;
 }
 
+.cosy-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 0 16px !important;
+    height: 34px !important;
+    line-height: 32px !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.cosy-reset-btn:hover,
+.cosy-reset-btn:focus {
+    background: transparent !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+
 /* Modern Pill-Style Tabs */
 .cosy-role-tabs {
     display: flex;
@@ -152,48 +181,122 @@
     opacity: 0.65;
 }
 
-/* Cozy Orders Table Styling */
-.cosy-orders-table {
-    border-radius: 12px;
-    overflow: hidden;
+/* ============================================================
+   COSY UNIFIED ADMIN TABLES (Orders, Users, Reviews, Media, Logs)
+   ============================================================ */
+.cosy-orders-table,
+.cosy-users-table,
+.cosy-media-table,
+.cosy-users-admin table.wp-list-table {
+    border-radius: 12px !important;
+    overflow: hidden !important;
     border: 1px solid #e2e8f0 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01) !important;
     border-collapse: separate !important;
     border-spacing: 0 !important;
-    background: #ffffff;
+    background: #ffffff !important;
+    width: 100% !important;
 }
 
-.cosy-orders-table thead th {
+.cosy-orders-table thead th,
+.cosy-orders-table thead td,
+.cosy-orders-table tfoot th,
+.cosy-orders-table tfoot td,
+.cosy-users-table thead th,
+.cosy-users-table thead td,
+.cosy-users-table tfoot th,
+.cosy-users-table tfoot td,
+.cosy-users-admin table.wp-list-table thead th,
+.cosy-users-admin table.wp-list-table thead td,
+.cosy-users-admin table.wp-list-table tfoot th,
+.cosy-users-admin table.wp-list-table tfoot td {
     background-color: #f8fafc !important;
     color: #475569 !important;
     font-weight: 700 !important;
     font-size: 13px !important;
-    padding: 14px 10px !important;
+    padding: 14px 12px !important;
     border-bottom: 2px solid #e2e8f0 !important;
+    border-top: none !important;
+    vertical-align: middle !important;
 }
 
-.cosy-orders-table tbody tr {
-    transition: background-color 0.15s ease;
+/* Unified Checkbox Column & Alignment */
+.cosy-orders-table thead .check-column,
+.cosy-orders-table tfoot .check-column,
+.cosy-orders-table tbody .check-column,
+.cosy-users-table thead .check-column,
+.cosy-users-table tfoot .check-column,
+.cosy-users-table tbody .check-column,
+.cosy-users-admin table.wp-list-table thead .check-column,
+.cosy-users-admin table.wp-list-table tfoot .check-column,
+.cosy-users-admin table.wp-list-table tbody .check-column {
+    padding: 14px 0 14px 16px !important;
+    vertical-align: middle !important;
+    text-align: left !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    box-sizing: border-box !important;
 }
 
-.cosy-orders-table tbody tr:hover {
+/* Unified Checkbox Input Element */
+.cosy-orders-table .check-column input[type="checkbox"],
+.cosy-users-table .check-column input[type="checkbox"],
+.cosy-users-admin table.wp-list-table .check-column input[type="checkbox"] {
+    display: inline-block !important;
+    margin: 0 !important;
+    vertical-align: middle !important;
+    width: 16px !important;
+    height: 16px !important;
+    position: relative !important;
+    top: 0 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background-color: #ffffff !important;
+}
+
+.cosy-orders-table tbody tr,
+.cosy-users-table tbody tr,
+.cosy-users-admin table.wp-list-table tbody tr {
+    transition: background-color 0.15s ease !important;
+}
+
+.cosy-orders-table tbody tr:hover,
+.cosy-users-table tbody tr:hover,
+.cosy-users-admin table.wp-list-table tbody tr:hover {
     background-color: #f8fafc !important;
 }
 
+/* Unified Data Cells */
 .cosy-orders-table tbody td,
-.cosy-orders-table tbody th {
-    padding: 14px 10px !important;
+.cosy-orders-table tbody th,
+.cosy-users-table tbody td,
+.cosy-users-table tbody th,
+.cosy-users-admin table.wp-list-table tbody td,
+.cosy-users-admin table.wp-list-table tbody th {
+    padding: 14px 12px !important;
     vertical-align: middle !important;
     border-bottom: 1px solid #f1f5f9 !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    color: #334155 !important;
 }
 
 .cosy-orders-table tbody tr:last-child td,
-.cosy-orders-table tbody tr:last-child th {
+.cosy-orders-table tbody tr:last-child th,
+.cosy-users-table tbody tr:last-child td,
+.cosy-users-table tbody tr:last-child th,
+.cosy-users-admin table.wp-list-table tbody tr:last-child td,
+.cosy-users-admin table.wp-list-table tbody tr:last-child th {
     border-bottom: none !important;
 }
 
-/* Cozy Orders Status badges */
-.wrap.cosy-orders span.status {
+/* Universal Badge Styling */
+.cosy-users-admin span.status,
+.cosy-users-admin span.badge {
     display: inline-block;
     padding: 4px 10px;
     font-size: 11px;
@@ -206,25 +309,62 @@
     border: 1px solid transparent;
 }
 
-.wrap.cosy-orders span.status.pending {
-    background-color: #fef9c3;
-    color: #854d0e;
-    border: 1px solid #fef08a;
+.cosy-users-admin span.status.pending,
+.cosy-users-admin span.badge-pending {
+    background-color: #fef9c3 !important;
+    color: #854d0e !important;
+    border: 1px solid #fef08a !important;
 }
 
-.wrap.cosy-orders span.status.completed,
-.wrap.cosy-orders span.status.confirmed,
-.wrap.cosy-orders span.status.approved {
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+.cosy-users-admin span.status.completed,
+.cosy-users-admin span.status.confirmed,
+.cosy-users-admin span.status.approved,
+.cosy-users-admin span.badge-approved {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    border: 1px solid #bbf7d0 !important;
 }
 
-.wrap.cosy-orders span.status.cancelled,
-.wrap.cosy-orders span.status.rejected {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+.cosy-users-admin span.status.cancelled,
+.cosy-users-admin span.status.rejected,
+.cosy-users-admin span.badge-rejected {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+}
+
+/* Unified Admin Table Action Buttons (Orders & Users View Details) */
+.btn-view-admin-order-details,
+.btn-view-cosy-user-details,
+.cosy-btn-resend-verification,
+.cosy-admin-action-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 30px !important;
+    line-height: 28px !important;
+    padding: 0 14px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    border: 1.5px solid #2271b1 !important;
+    color: #2271b1 !important;
+    background: #ffffff !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+}
+
+.btn-view-admin-order-details:hover,
+.btn-view-cosy-user-details:hover,
+.cosy-btn-resend-verification:hover,
+.cosy-admin-action-btn:hover {
+    background: #2271b1 !important;
+    color: #ffffff !important;
+    border-color: #2271b1 !important;
+    box-shadow: 0 2px 8px rgba(34, 113, 177, 0.25) !important;
 }
 
 /* Premium Orders Detail Modal */
@@ -1824,6 +1964,7 @@
         opacity: 0;
         transform: translateY(12px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

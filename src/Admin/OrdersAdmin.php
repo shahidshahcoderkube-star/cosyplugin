@@ -28,11 +28,15 @@ class OrdersAdmin
     // Fetch filter parameters
     $status_filter   = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';
     $provider_filter = isset($_GET['provider']) ? intval($_GET['provider']) : 0;
+    $search_query    = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
+    $paged           = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+    $per_page        = 20;
 
-    // Dynamic WP Query to fetch all appointments
+    // Dynamic WP Query to fetch paginated appointments
     $args = [
       'post_type'      => 'cosy_appointment',
-      'posts_per_page' => -1,
+      'posts_per_page' => $per_page,
+      'paged'          => $paged,
       'post_status'    => 'publish',
       'orderby'        => 'date',
       'order'          => 'DESC'
@@ -57,8 +61,33 @@ class OrdersAdmin
       $args['meta_query'] = $meta_query;
     }
 
+    // Search query: by Order ID (numeric) or Customer / Provider / Service / Ref
+    if (!empty($search_query)) {
+      if (is_numeric($search_query)) {
+        $args['post__in'] = [intval($search_query)];
+      } else {
+        global $wpdb;
+        $search_like = '%' . $wpdb->esc_like($search_query) . '%';
+        $matched_post_ids = $wpdb->get_col($wpdb->prepare("
+          SELECT DISTINCT post_id FROM {$wpdb->postmeta}
+          WHERE (meta_key IN ('cosy_customer_name', 'cosy_customer_email', 'cosy_provider_name', 'cosy_service_name', 'cosy_payment_id', 'cosy_txn_ref')
+                 AND meta_value LIKE %s)
+        ", $search_like));
+
+        $title_post_ids = $wpdb->get_col($wpdb->prepare("
+          SELECT ID FROM {$wpdb->posts}
+          WHERE post_type = 'cosy_appointment' AND post_title LIKE %s
+        ", $search_like));
+
+        $all_search_ids = array_unique(array_merge($matched_post_ids, $title_post_ids));
+        $args['post__in'] = !empty($all_search_ids) ? $all_search_ids : [0];
+      }
+    }
+
     $appointments_query = new WP_Query($args);
-    $appointments = $appointments_query->posts;
+    $appointments       = $appointments_query->posts;
+    $total_orders       = $appointments_query->found_posts;
+    $total_pages        = $appointments_query->max_num_pages;
 
     // Fetch all providers for filter dropdown
     $providers = get_users(['role' => 'provider']);
@@ -72,7 +101,7 @@ class OrdersAdmin
       <!-- Premium Control Bar -->
       <div class="cosy-control-bar">
         <div class="cosy-control-left">
-          <form method="get" class="cosy-filter-form-modern" style="margin: 0; display: flex; align-items: center; gap: 10px;">
+          <form method="get" class="cosy-filter-form-modern" style="margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <input type="hidden" name="page" value="cosy-orders">
             
             <div class="cosy-select-wrapper">
@@ -97,9 +126,19 @@ class OrdersAdmin
               </select>
             </div>
 
+            <div class="cosy-search-input-wrapper">
+              <span class="dashicons dashicons-search" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
+              <input type="search" name="s" value="<?php echo esc_attr($search_query); ?>" placeholder="<?php esc_attr_e('Search orders...', 'cosy-appointments'); ?>" style="border: none; background: transparent; height: 34px; font-size: 13px; color: #334155; outline: none; padding-right: 10px; min-width: 180px;">
+            </div>
+
             <button type="submit" class="cosy-filter-btn">
               <?php esc_html_e('Filter', 'cosy-appointments'); ?>
             </button>
+            <?php if (!empty($status_filter) || !empty($provider_filter) || !empty($search_query)) : ?>
+              <a href="<?php echo esc_url(admin_url('admin.php?page=cosy-orders')); ?>" class="cosy-reset-btn">
+                <?php esc_html_e('Reset', 'cosy-appointments'); ?>
+              </a>
+            <?php endif; ?>
           </form>
         </div>
 
@@ -253,11 +292,40 @@ class OrdersAdmin
         </tfoot>
       </table>
 
-      <!-- Pagination -->
-      <div class="tablenav bottom">
-        <div class="tablenav-pages">
-          <span class="displaying-num"><?php echo count($appointments); ?> item(s)</span>
+      <!-- Pagination Navigation -->
+      <div class="tablenav bottom" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="alignleft actions">
+          <span class="displaying-num" style="color: #64748b; font-weight: 600;">
+            <?php printf(esc_html(_n('%s order', '%s orders', $total_orders, 'cosy-appointments')), number_format_i18n($total_orders)); ?>
+          </span>
         </div>
+        <?php if ($total_pages > 1) : ?>
+          <div class="tablenav-pages">
+            <span class="pagination-links" style="display: flex; align-items: center; gap: 4px;">
+              <?php if ($paged > 1) : ?>
+                <a class="first-page button" href="<?php echo esc_url(remove_query_arg('paged')); ?>" title="<?php esc_attr_e('First page', 'cosy-appointments'); ?>">&laquo;</a>
+                <a class="prev-page button" href="<?php echo esc_url(add_query_arg('paged', max(1, $paged - 1))); ?>" title="<?php esc_attr_e('Previous page', 'cosy-appointments'); ?>">&lsaquo;</a>
+              <?php else : ?>
+                <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&laquo;</span>
+                <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&lsaquo;</span>
+              <?php endif; ?>
+
+              <span class="paging-input" style="margin: 0 8px; font-weight: 500;">
+                <span class="tablenav-paging-text">
+                  <?php printf(esc_html__('%1$s of %2$s', 'cosy-appointments'), '<span class="current-page">' . $paged . '</span>', '<span class="total-pages">' . $total_pages . '</span>'); ?>
+                </span>
+              </span>
+
+              <?php if ($paged < $total_pages) : ?>
+                <a class="next-page button" href="<?php echo esc_url(add_query_arg('paged', min($total_pages, $paged + 1))); ?>" title="<?php esc_attr_e('Next page', 'cosy-appointments'); ?>">&rsaquo;</a>
+                <a class="last-page button" href="<?php echo esc_url(add_query_arg('paged', $total_pages)); ?>" title="<?php esc_attr_e('Last page', 'cosy-appointments'); ?>">&raquo;</a>
+              <?php else : ?>
+                <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&rsaquo;</span>
+                <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&raquo;</span>
+              <?php endif; ?>
+            </span>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
 

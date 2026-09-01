@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
   <!-- Premium Control Bar (Identical to Orders Page) -->
   <div class="cosy-control-bar">
     <div class="cosy-control-left">
-      <form method="get" class="cosy-filter-form-modern" style="margin: 0; display: flex; align-items: center; gap: 10px;">
+      <form method="get" class="cosy-filter-form-modern" style="margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
         <input type="hidden" name="page" value="cosy-reviews">
         
         <div class="cosy-select-wrapper">
@@ -39,9 +39,19 @@ if (!defined('ABSPATH')) {
           </select>
         </div>
 
+        <div class="cosy-search-input-wrapper">
+          <span class="dashicons dashicons-search" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
+          <input type="search" name="s" value="<?php echo esc_attr($search_query ?? ''); ?>" placeholder="<?php esc_attr_e('Search reviews...', 'cosy-appointments'); ?>" style="border: none; background: transparent; height: 34px; font-size: 13px; color: #334155; outline: none; padding-right: 10px; min-width: 180px;">
+        </div>
+
         <button type="submit" class="cosy-filter-btn">
           <?php esc_html_e('Filter', 'cosy-appointments'); ?>
         </button>
+        <?php if (!empty($status_filter) || !empty($provider_filter) || !empty($search_query)) : ?>
+          <a href="<?php echo esc_url(admin_url('admin.php?page=cosy-reviews')); ?>" class="cosy-reset-btn">
+            <?php esc_html_e('Reset', 'cosy-appointments'); ?>
+          </a>
+        <?php endif; ?>
       </form>
     </div>
 
@@ -178,10 +188,39 @@ if (!defined('ABSPATH')) {
     </tfoot>
   </table>
 
-  <!-- Pagination -->
-  <div class="tablenav bottom">
-    <div class="tablenav-pages">
-      <span class="displaying-num"><?php echo count($reviews); ?> item(s)</span>
+  <!-- Pagination Navigation -->
+  <div class="tablenav bottom" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+    <div class="alignleft actions">
+      <span class="displaying-num" style="color: #64748b; font-weight: 600;">
+        <?php printf(esc_html(_n('%s review', '%s reviews', $total_reviews, 'cosy-appointments')), number_format_i18n($total_reviews)); ?>
+      </span>
     </div>
+    <?php if ($total_pages > 1) : ?>
+      <div class="tablenav-pages">
+        <span class="pagination-links" style="display: flex; align-items: center; gap: 4px;">
+          <?php if ($paged > 1) : ?>
+            <a class="first-page button" href="<?php echo esc_url(remove_query_arg('paged')); ?>" title="<?php esc_attr_e('First page', 'cosy-appointments'); ?>">&laquo;</a>
+            <a class="prev-page button" href="<?php echo esc_url(add_query_arg('paged', max(1, $paged - 1))); ?>" title="<?php esc_attr_e('Previous page', 'cosy-appointments'); ?>">&lsaquo;</a>
+          <?php else : ?>
+            <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&laquo;</span>
+            <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&lsaquo;</span>
+          <?php endif; ?>
+
+          <span class="paging-input" style="margin: 0 8px; font-weight: 500;">
+            <span class="tablenav-paging-text">
+              <?php printf(esc_html__('%1$s of %2$s', 'cosy-appointments'), '<span class="current-page">' . $paged . '</span>', '<span class="total-pages">' . $total_pages . '</span>'); ?>
+            </span>
+          </span>
+
+          <?php if ($paged < $total_pages) : ?>
+            <a class="next-page button" href="<?php echo esc_url(add_query_arg('paged', min($total_pages, $paged + 1))); ?>" title="<?php esc_attr_e('Next page', 'cosy-appointments'); ?>">&rsaquo;</a>
+            <a class="last-page button" href="<?php echo esc_url(add_query_arg('paged', $total_pages)); ?>" title="<?php esc_attr_e('Last page', 'cosy-appointments'); ?>">&raquo;</a>
+          <?php else : ?>
+            <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&rsaquo;</span>
+            <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&raquo;</span>
+          <?php endif; ?>
+        </span>
+      </div>
+    <?php endif; ?>
   </div>
 </div>

@@ -391,7 +391,12 @@ window.openVideo = function (url) {
         modal.onclick = function () { window.closeVideo(); };
         modal.innerHTML = `
             <div class="cosy-video-modal-content-v2" onclick="event.stopPropagation()">
-                <span class="close-modal" onclick="window.closeVideo()">&times;</span>
+                <button type="button" class="close-modal" onclick="window.closeVideo()" aria-label="Close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
                 <video id="videoPlayer" controls width="100%" height="100%" src="" style="width:100%; height:100%; object-fit:contain; border-radius:20px; outline:none; background:#000;"></video>
             </div>
         `;

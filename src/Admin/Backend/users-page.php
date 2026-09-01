@@ -90,13 +90,13 @@ defined('ABSPATH') || exit;
     <table class="wp-list-table widefat fixed striped table-view-list cosy-users-table">
         <thead>
             <tr>
-                <td id="cb" class="manage-column column-cb check-column" style="width: 45px; padding: 8px 20px 8px 15px; vertical-align: middle;">
+                <td id="cb" class="manage-column column-cb check-column">
                     <input type="checkbox" id="cosy-select-all-users">
                 </td>
-                <th scope="col" class="manage-column" style="width: 220px;"><?php esc_html_e('Username & Name', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column" style="width: 100px;"><?php esc_html_e('Name', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 100px;"><?php esc_html_e('Role', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 170px;"><?php esc_html_e('Email', 'cosy-appointments'); ?></th>
-                <th scope="col" class="manage-column" style="width: 320px;"><?php esc_html_e('Experiences', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column" style="width: 420px;"><?php esc_html_e('Experiences', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 130px;"><?php esc_html_e('Email Verify', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 120px;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
                 <th scope="col" class="manage-column" style="width: 170px;"><?php esc_html_e('Actions', 'cosy-appointments'); ?></th>
@@ -137,12 +137,11 @@ defined('ABSPATH') || exit;
                     $appt_booking_numbers = $controller->calculate_booking_ordinals($appointments);
                 ?>
                     <tr id="user-row-<?php echo $user_id; ?>">
-                        <th scope="row" class="check-column" style="padding: 8px 20px 8px 15px; vertical-align: middle; width: 45px;">
+                        <th scope="row" class="check-column">
                             <input type="checkbox" class="cosy-user-checkbox" value="<?php echo $user_id; ?>">
                         </th>
                         <td>
                             <strong><?php echo esc_html($user->display_name); ?></strong>
-                            <div style="font-size: 11px; color: #64748b;">@<?php echo esc_html($user->user_login); ?></div>
                         </td>
                         <td>
                             <?php if ($primary_role === 'provider'): ?>
@@ -235,12 +234,12 @@ defined('ABSPATH') || exit;
                         </td>
                         <td>
                             <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-                                <button type="button" class="button button-small btn-view-cosy-user-details" data-user-id="<?php echo $user_id; ?>" style="padding: 6px 16px; font-size: 13px;">
+                                <button type="button" class="button button-small btn-view-cosy-user-details" data-user-id="<?php echo $user_id; ?>">
                                     <?php esc_html_e('View Details', 'cosy-appointments'); ?>
                                 </button>
 
                                 <?php if ($email_status === 'pending') : ?>
-                                    <button type="button" class="button button-small cosy-btn-resend-verification" data-user-id="<?php echo $user_id; ?>" data-role="<?php echo $primary_role; ?>" style="padding: 6px 16px; font-size: 13px;">
+                                    <button type="button" class="button button-small cosy-btn-resend-verification" data-user-id="<?php echo $user_id; ?>" data-role="<?php echo $primary_role; ?>">
                                         <?php esc_html_e('Resend Email', 'cosy-appointments'); ?>
                                     </button>
                                 <?php endif; ?>

@@ -3056,26 +3056,49 @@ label.error,
 
 .close-modal {
     position: absolute !important;
-    top: 15px !important;
-    right: 15px !important;
+    top: 14px !important;
+    right: 14px !important;
     color: #ffffff !important;
-    font-size: 28px !important;
-    font-weight: bold !important;
-    cursor: pointer !important;
-    z-index: 999999 !important;
-    line-height: 1 !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-    width: 40px !important;
-    height: 40px !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
     border-radius: 50% !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transition: background 0.2s ease !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    z-index: 999999 !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    outline: none !important;
+    text-decoration: none !important;
+}
+
+.close-modal svg {
+    width: 18px !important;
+    height: 18px !important;
+    stroke: #ffffff !important;
+    display: block !important;
+    margin: auto !important;
+    transition: transform 0.25s ease !important;
 }
 
 .close-modal:hover {
-    background: rgba(239, 68, 68, 0.9) !important;
+    background: rgba(220, 38, 38, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45) !important;
+}
+
+.close-modal:hover svg {
+    transform: rotate(90deg) !important;
 }
 
 /* ============================================================
