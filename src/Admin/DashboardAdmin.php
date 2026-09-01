@@ -112,7 +112,7 @@ class DashboardAdmin
 
             <!-- Page Header -->
             <div class="cdb-page-header">
-                <h1><i class="fas fa-chart-bar" style="margin-right:10px;"></i>Booking Dashboard</h1>
+                <h1><i class="fas fa-chart-bar cdb-header-icon"></i>Booking Dashboard</h1>
                 <p>A real-time overview of your platform's appointments, providers, customers, and revenue.</p>
             </div>
 
@@ -205,11 +205,11 @@ class DashboardAdmin
                                     $status       = $booking->post_status;
                                 ?>
                                 <tr>
-                                    <td style="color:#94a3b8;font-size:0.8rem;">#<?php echo $booking->ID; ?></td>
+                                    <td class="cdb-col-id">#<?php echo $booking->ID; ?></td>
                                     <td><?php echo $customer ? esc_html($customer->display_name) : '—'; ?></td>
                                     <td><?php echo $provider ? esc_html($provider->display_name) : '—'; ?></td>
                                     <td><?php echo $service_name ? esc_html($service_name) : '—'; ?></td>
-                                    <td style="white-space:nowrap;"><?php echo $appt_date ? esc_html(cosy_format_date($appt_date)) : esc_html(cosy_format_date($booking->post_date)); ?></td>
+                                    <td class="cdb-col-date"><?php echo $appt_date ? esc_html(cosy_format_date($appt_date)) : esc_html(cosy_format_date($booking->post_date)); ?></td>
                                     <td>
                                         <span class="cdb-badge <?php echo esc_attr($status); ?>">
                                             <?php echo $status === 'publish' ? 'Confirmed' : ucfirst($status); ?>

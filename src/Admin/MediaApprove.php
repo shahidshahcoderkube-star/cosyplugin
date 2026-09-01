@@ -41,8 +41,8 @@ class MediaApprove
                     <tbody>
                         <tr data-id="1">
                             <!-- Media -->
-                            <td style="max-width:220px;">
-                                <video controls class="w-100" style="max-height:140px;">
+                            <td class="cosy-col-media">
+                                <video controls class="w-100 cosy-media-video-preview">
                                     <source src="sample-video.mp4" type="video/mp4">
                                 </video>
                             </td>

@@ -101,11 +101,11 @@ class OrdersAdmin
       <!-- Premium Control Bar -->
       <div class="cosy-control-bar">
         <div class="cosy-control-left">
-          <form method="get" class="cosy-filter-form-modern" style="margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <form method="get" class="cosy-filter-form-modern">
             <input type="hidden" name="page" value="cosy-orders">
             
             <div class="cosy-select-wrapper">
-              <span class="dashicons dashicons-filter" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
+              <span class="dashicons dashicons-filter cosy-search-input-icon"></span>
               <select name="status" id="filter-status">
                 <option value=""><?php esc_html_e('All Statuses', 'cosy-appointments'); ?></option>
                 <option value="pending" <?php selected($status_filter, 'pending'); ?>><?php esc_html_e('Pending', 'cosy-appointments'); ?></option>
@@ -115,7 +115,7 @@ class OrdersAdmin
             </div>
 
             <div class="cosy-select-wrapper">
-              <span class="dashicons dashicons-admin-users" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
+              <span class="dashicons dashicons-admin-users cosy-search-input-icon"></span>
               <select name="provider" id="filter-provider">
                 <option value=""><?php esc_html_e('All Providers', 'cosy-appointments'); ?></option>
                 <?php foreach ($providers as $prov) : ?>
@@ -127,8 +127,8 @@ class OrdersAdmin
             </div>
 
             <div class="cosy-search-input-wrapper">
-              <span class="dashicons dashicons-search" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
-              <input type="search" name="s" value="<?php echo esc_attr($search_query); ?>" placeholder="<?php esc_attr_e('Search orders...', 'cosy-appointments'); ?>" style="border: none; background: transparent; height: 34px; font-size: 13px; color: #334155; outline: none; padding-right: 10px; min-width: 180px;">
+              <span class="dashicons dashicons-search cosy-search-input-icon"></span>
+              <input type="search" name="s" value="<?php echo esc_attr($search_query); ?>" placeholder="<?php esc_attr_e('Search orders...', 'cosy-appointments'); ?>" class="cosy-search-input-field">
             </div>
 
             <button type="submit" class="cosy-filter-btn">
@@ -144,8 +144,8 @@ class OrdersAdmin
 
         <div class="cosy-control-right">
           <button type="button" class="cosy-btn-delete-selected-modern" id="cosy-btn-delete-selected" disabled>
-            <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></span>
-            <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete', 'cosy-appointments'); ?></span>
+            <span class="dashicons dashicons-trash cosy-btn-icon-trash"></span>
+            <span class="cosy-btn-text cosy-btn-text-vmiddle"><?php esc_html_e('Delete', 'cosy-appointments'); ?></span>
           </button>
         </div>
       </div>
@@ -157,20 +157,20 @@ class OrdersAdmin
             <td id="cb" class="manage-column column-cb check-column">
               <input type="checkbox" id="cosy-select-all-orders">
             </td>
-            <th scope="col" class="manage-column" style="width: 80px;">Order ID</th>
+            <th scope="col" class="manage-column cosy-col-id">Order ID</th>
             <th scope="col" class="manage-column">Customer</th>
             <th scope="col" class="manage-column">Provider</th>
             <th scope="col" class="manage-column">Experience</th>
-            <th scope="col" class="manage-column" style="width: 25%;">Date &amp; Time</th>
+            <th scope="col" class="manage-column cosy-col-datetime">Date &amp; Time</th>
             <th scope="col" class="manage-column">Amount</th>
             <th scope="col" class="manage-column">Status</th>
-            <th scope="col" class="manage-column" style="width: 120px;">Actions</th>
+            <th scope="col" class="manage-column cosy-col-actions">Actions</th>
           </tr>
         </thead>
         <tbody id="the-list">
           <?php if (empty($appointments)) : ?>
             <tr>
-              <td colspan="9" class="text-center" style="text-align: center; padding: 40px; color: #64748b;">
+              <td colspan="9" class="text-center cosy-table-empty-cell">
                 No conversations found matching the filter criteria.
               </td>
             </tr>
@@ -213,7 +213,7 @@ class OrdersAdmin
 
               $txn_ref = get_post_meta($appt_id, 'cosy_transaction_ref', true) ?: ($wp_row->transaction_ref_id ?? '');
               if (empty($txn_ref) || $txn_ref === 'N/A') {
-                $txn_ref = 'Cosy_' . $appt_id . '_' . (strtotime(get_the_date('Y-m-d H:i:s', $appt_id)) ?: time());
+                $txn_ref = 'TXN_' . strtoupper(substr(md5('worldpay_' . $appt_id), 0, 10));
               }
 
               $payment_id = get_post_meta($appt_id, 'cosy_worldpay_payment_id', true) ?: ($wp_row->payment_id ?? '');
@@ -233,12 +233,12 @@ class OrdersAdmin
                 <td>
                   <strong><?php echo esc_html($customer_name); ?></strong>
                   <?php if ($is_gift_order) : ?>
-                    <span style="display:inline-block; margin-left:6px; color:#a44390; background:#fdf2fb; border:1px solid #f1c7ec; font-size:11px; font-weight:600; padding:1px 7px; border-radius:10px; vertical-align:middle;">Gift</span>
+                    <span class="cosy-gift-pill">Gift</span>
                   <?php endif; ?>
                 </td>
                 <td><?php echo esc_html($provider_name); ?></td>
-                <td><span class="badge" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; color:#334155; font-size:0.85em;"><?php echo esc_html($service_name); ?></span></td>
-                <td style="color:#475569; font-size:12px;"><?php echo esc_html(cosy_format_date($start_date)); ?> <br><span style="color:#94a3b8; font-size:11px;"><?php echo esc_html($weekly_booking); ?></span></td>
+                <td><span class="badge cosy-service-pill"><?php echo esc_html($service_name); ?></span></td>
+                <td class="cosy-order-datetime-cell"><?php echo esc_html(cosy_format_date($start_date)); ?> <br><span class="cosy-order-weekly-subtext"><?php echo esc_html($weekly_booking); ?></span></td>
                 <td><strong><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($total_payable); ?></strong></td>
                 <td><span class="status <?php echo $booking_status; ?>"><?php echo esc_html($booking_status); ?></span></td>
                 <td>
@@ -293,15 +293,15 @@ class OrdersAdmin
       </table>
 
       <!-- Pagination Navigation -->
-      <div class="tablenav bottom" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+      <div class="tablenav bottom cosy-tablenav-bottom">
         <div class="alignleft actions">
-          <span class="displaying-num" style="color: #64748b; font-weight: 600;">
+          <span class="displaying-num cosy-displaying-num">
             <?php printf(esc_html(_n('%s order', '%s orders', $total_orders, 'cosy-appointments')), number_format_i18n($total_orders)); ?>
           </span>
         </div>
         <?php if ($total_pages > 1) : ?>
           <div class="tablenav-pages">
-            <span class="pagination-links" style="display: flex; align-items: center; gap: 4px;">
+            <span class="pagination-links cosy-pagination-links">
               <?php if ($paged > 1) : ?>
                 <a class="first-page button" href="<?php echo esc_url(remove_query_arg('paged')); ?>" title="<?php esc_attr_e('First page', 'cosy-appointments'); ?>">&laquo;</a>
                 <a class="prev-page button" href="<?php echo esc_url(add_query_arg('paged', max(1, $paged - 1))); ?>" title="<?php esc_attr_e('Previous page', 'cosy-appointments'); ?>">&lsaquo;</a>
@@ -310,7 +310,7 @@ class OrdersAdmin
                 <span class="tablenav-pages-navspan button disabled" aria-hidden="true">&lsaquo;</span>
               <?php endif; ?>
 
-              <span class="paging-input" style="margin: 0 8px; font-weight: 500;">
+              <span class="paging-input cosy-paging-input">
                 <span class="tablenav-paging-text">
                   <?php printf(esc_html__('%1$s of %2$s', 'cosy-appointments'), '<span class="current-page">' . $paged . '</span>', '<span class="total-pages">' . $total_pages . '</span>'); ?>
                 </span>
@@ -329,11 +329,11 @@ class OrdersAdmin
       </div>
     </div>
 
-    <!-- Admin Order Details Modal -->
+    <!-- HTML Modal for Details -->
     <div id="cosyAdminOrderModal" class="cosy-admin-modal">
       <div class="cosy-admin-modal-content">
         <div class="cosy-admin-modal-header">
-          <h2 id="modalAdminOrderTitle">Conversations</h2>
+          <h2 id="modalAdminOrderTitle"><?php esc_html_e('Order Details', 'cosy-appointments'); ?></h2>
           <span class="cosy-admin-modal-close">&times;</span>
         </div>
         <div class="cosy-admin-modal-body">
@@ -355,81 +355,81 @@ class OrdersAdmin
           </div>
 
           <!-- Gift Recipient Info Card (Shown only if gifted) -->
-          <div id="modalAdminGiftCard" class="cosy-admin-card info-card full" style="margin-top: 12px; background: linear-gradient(135deg, #fdf5fc 0%, #faeaf7 100%); border: 1.5px solid #f1c7ec; border-left: 4px solid #a44390; display: none;">
-            <h3 style="color: #6d2e67; margin-bottom: 8px;">
-              <span class="dashicons dashicons-heart" style="color: #a44390; vertical-align: middle;"></span> 🎁 Gift Order Details
-              <span class="badge" style="background: #a44390; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px; margin-left: 8px;">Gifted by Customer</span>
+          <div id="modalAdminGiftCard" class="cosy-admin-card info-card full cosy-gift-card-modal">
+            <h3 class="cosy-gift-card-title">
+              <span class="dashicons dashicons-heart"></span> 🎁 Gift Order Details
+              <span class="badge cosy-gift-card-badge">Gifted by Customer</span>
             </h3>
-            <div style="display: flex; gap: 30px; flex-wrap: wrap; font-size: 13px; margin-top: 6px;">
-              <p style="margin: 0;"><strong>Recipient Name:</strong> <span id="modalAdminRecipientName" style="color: #6d2e67; font-weight: 700;"></span></p>
-              <p style="margin: 0;"><strong>Recipient Email:</strong> <span id="modalAdminRecipientEmail" style="color: #334155; font-weight: 600;"></span></p>
+            <div class="cosy-gift-card-grid">
+              <p><strong>Recipient Name:</strong> <span id="modalAdminRecipientName" class="cosy-gift-card-recipient-name"></span></p>
+              <p><strong>Recipient Email:</strong> <span id="modalAdminRecipientEmail" class="cosy-gift-card-recipient-email"></span></p>
             </div>
           </div>
 
-          <div class="cosy-admin-card info-card full" style="margin-top: 12px;">
+          <div class="cosy-admin-card info-card full">
             <h3><span class="dashicons dashicons-clipboard"></span> Booking Information</h3>
             <p><strong>Start Date:</strong> <span id="modalAdminStartDate"></span></p>
             <p><strong>Number of Weeks:</strong> <span id="modalAdminWeeks"></span></p>
-            <p><strong>Booking Days:</strong> <span id="modalAdminSlotsTimeline" style="line-height: 1.6;"></span></p>
+            <p><strong>Booking Days:</strong> <span id="modalAdminSlotsTimeline"></span></p>
           </div>
 
-          <div class="cosy-admin-grid" style="margin-top: 12px; margin-bottom: 0;">
+          <div class="cosy-admin-grid">
             <div class="cosy-admin-col">
-              <div class="cosy-admin-card info-card" style="height: 100%; box-sizing: border-box;">
+              <div class="cosy-admin-card info-card">
                 <h3><span class="dashicons dashicons-cart"></span> Financial Statement</h3>
                 <table class="cosy-admin-table-details">
                   <tr>
                     <td>Provider Share (Cost):</td>
-                    <td style="text-align: right; font-weight: 600;" id="modalAdminCost"></td>
+                    <td class="cosy-table-cell-right-bold" id="modalAdminCost"></td>
                   </tr>
                   <tr>
                     <td>Service Fee*:</td>
-                    <td style="text-align: right; font-weight: 600;" id="modalAdminFee"></td>
+                    <td class="cosy-table-cell-right-bold" id="modalAdminFee"></td>
                   </tr>
-                  <tr style="font-weight: bold; border-top: 1px solid #dcdcde;">
-                    <td style="padding-top: 10px; color:#1d2327;">Total Paid:</td>
-                    <td style="text-align: right; padding-top: 10px; color: #2271b1; font-size: 1.1em;" id="modalAdminTotal"></td>
+                  <tr class="cosy-table-row-total">
+                    <td class="cosy-table-cell-total-label">Total Paid:</td>
+                    <td class="cosy-table-cell-total-value" id="modalAdminTotal"></td>
                   </tr>
                 </table>
-                <p style="font-size: 11px; color: #64748b; margin-top: 14px; margin-bottom: 0; font-style: italic;">*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
+                <p class="cosy-fee-disclaimer">*A small non-refundable fee to help us run our platform safely &amp; smoothly.</p>
               </div>
             </div>
 
             <div class="cosy-admin-col">
-              <div class="cosy-admin-card info-card" style="height: 100%; box-sizing: border-box; border-left: 4px solid #a44390;">
+              <div class="cosy-admin-card info-card cosy-admin-card-purple-border">
                 <h3><span class="dashicons dashicons-shield"></span> WorldPay Payment Details</h3>
                 <table class="cosy-admin-table-details">
                   <tr>
                     <td>Payment Gateway:</td>
-                    <td style="text-align: right; font-weight: 600;">WorldPay HPP</td>
+                    <td class="cosy-table-cell-right-bold">WorldPay HPP</td>
                   </tr>
                   <tr>
                     <td>Transaction Ref ID:</td>
-                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #a44390;" id="modalAdminTxnRef">N/A</td>
+                    <td class="cosy-table-cell-purple-code" id="modalAdminTxnRef">N/A</td>
                   </tr>
                   <tr>
                     <td>WorldPay Payment ID:</td>
-                    <td style="text-align: right; font-family: monospace;" id="modalAdminPaymentId">N/A</td>
+                    <td class="cosy-table-cell-mono" id="modalAdminPaymentId">N/A</td>
                   </tr>
                   <tr>
                     <td>Card Used:</td>
-                    <td style="text-align: right; font-weight: 600;" id="modalAdminCardInfo">N/A</td>
+                    <td class="cosy-table-cell-right-bold" id="modalAdminCardInfo">N/A</td>
                   </tr>
                   <tr>
                     <td>Auth Code / Event:</td>
-                    <td style="text-align: right; font-weight: 600;" id="modalAdminAuthEvent">N/A</td>
+                    <td class="cosy-table-cell-right-bold" id="modalAdminAuthEvent">N/A</td>
                   </tr>
                   <tr>
                     <td>Payment Date &amp; Time:</td>
-                    <td style="text-align: right; font-weight: 600;" id="modalAdminPaymentDate">N/A</td>
+                    <td class="cosy-table-cell-right-bold" id="modalAdminPaymentDate">N/A</td>
                   </tr>
                 </table>
               </div>
             </div>
           </div>
 
-          <div style="margin-top: 16px; padding: 10px; border-radius: 4px; text-align: center; border: 1px solid transparent;" id="modalAdminStatusBg">
-            <strong style="letter-spacing: 0.5px; font-size: 12px;">ORDER STATUS:</strong> <span id="modalAdminStatusText" style="font-weight: 700; font-size: 12px;"></span>
+          <div class="cosy-modal-status-box" id="modalAdminStatusBg">
+            <strong>ORDER STATUS:</strong> <span id="modalAdminStatusText"></span>
           </div>
         </div>
         <div class="cosy-admin-modal-footer">

@@ -42,21 +42,21 @@ defined('ABSPATH') || exit;
             </div>
 
             <button type="button" class="cosy-btn-delete-selected-modern" id="cosy-btn-delete-selected" disabled>
-                <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></span>
-                <span class="cosy-btn-text" style="vertical-align: middle;"><?php esc_html_e('Delete', 'cosy-appointments'); ?></span>
+                <span class="dashicons dashicons-trash cosy-btn-icon-trash"></span>
+                <span class="cosy-btn-text cosy-btn-text-vmiddle"><?php esc_html_e('Delete', 'cosy-appointments'); ?></span>
             </button>
         </div>
 
         <div class="cosy-control-right">
-            <form method="get" class="cosy-search-form-modern" style="display: flex; gap: 10px; align-items: center;">
+            <form method="get" class="cosy-search-form-modern">
                 <input type="hidden" name="page" value="cosy-users">
                 <?php if ($role_filter !== 'all'): ?>
                     <input type="hidden" name="role" value="<?php echo esc_attr($role_filter); ?>">
                 <?php endif; ?>
 
                 <!-- Service Filter Dropdown -->
-                <div class="cosy-filter-wrapper" style="position: relative;">
-                    <select name="service" onchange="this.form.submit()" style="border-radius: 8px; border: 1.5px solid #cbd5e1; height: 34px; padding: 0 32px 0 12px; font-size: 13px; color: #334155; background: #ffffff url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2523475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 12px center; background-size: 8px auto; -webkit-appearance: none; -moz-appearance: none; appearance: none; outline: none; cursor: pointer; min-width: 160px; transition: border-color 0.2s ease;">
+                <div class="cosy-filter-wrapper">
+                    <select name="service" onchange="this.form.submit()" class="cosy-filter-select-modern">
                         <option value=""><?php esc_html_e('All Services', 'cosy-appointments'); ?></option>
                         <?php
                         $all_services = get_posts([
@@ -76,8 +76,8 @@ defined('ABSPATH') || exit;
                 </div>
 
                 <div class="cosy-search-input-wrapper">
-                    <span class="dashicons dashicons-search" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
-                    <input type="search" id="user-search-input" name="s" value="<?php echo esc_attr($search_query); ?>" placeholder="<?php esc_attr_e('Search users...', 'cosy-appointments'); ?>">
+                    <span class="dashicons dashicons-search cosy-search-input-icon"></span>
+                    <input type="search" id="user-search-input" name="s" value="<?php echo esc_attr($search_query); ?>" placeholder="<?php esc_attr_e('Search users...', 'cosy-appointments'); ?>" class="cosy-search-input-field">
                     <button type="submit" class="cosy-search-btn">
                         <?php esc_html_e('Search', 'cosy-appointments'); ?>
                     </button>
@@ -93,19 +93,19 @@ defined('ABSPATH') || exit;
                 <td id="cb" class="manage-column column-cb check-column">
                     <input type="checkbox" id="cosy-select-all-users">
                 </td>
-                <th scope="col" class="manage-column" style="width: 100px;"><?php esc_html_e('Name', 'cosy-appointments'); ?></th>
-                <th scope="col" class="manage-column" style="width: 100px;"><?php esc_html_e('Role', 'cosy-appointments'); ?></th>
-                <th scope="col" class="manage-column" style="width: 170px;"><?php esc_html_e('Email', 'cosy-appointments'); ?></th>
-                <th scope="col" class="manage-column" style="width: 420px;"><?php esc_html_e('Experiences', 'cosy-appointments'); ?></th>
-                <th scope="col" class="manage-column" style="width: 130px;"><?php esc_html_e('Email Verify', 'cosy-appointments'); ?></th>
-                <th scope="col" class="manage-column" style="width: 120px;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
-                <th scope="col" class="manage-column" style="width: 170px;"><?php esc_html_e('Actions', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column cosy-col-name"><?php esc_html_e('Name', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column cosy-col-role"><?php esc_html_e('Role', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column cosy-col-email"><?php esc_html_e('Email', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column cosy-col-experiences"><?php esc_html_e('Experiences', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column cosy-col-verify"><?php esc_html_e('Email Verify', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column cosy-col-status"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
+                <th scope="col" class="manage-column cosy-col-actions"><?php esc_html_e('Actions', 'cosy-appointments'); ?></th>
             </tr>
         </thead>
         <tbody id="the-list">
             <?php if (empty($users)) : ?>
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px; color: #64748b;">
+                    <td colspan="8" class="cosy-table-empty-cell">
                         <?php esc_html_e('No users found matching the criteria.', 'cosy-appointments'); ?>
                     </td>
                 </tr>
@@ -162,29 +162,29 @@ defined('ABSPATH') || exit;
                                 foreach ($appointments as $appt) :
                                     $count_appt++;
                                     if ($count_appt > 2) {
-                                        echo '<div style="font-size: 10px; color: #94a3b8; font-style: italic; margin-top: 4px;">' . sprintf(__('& %d more...', 'cosy-appointments'), count($appointments) - 2) . '</div>';
+                                        echo '<div class="cosy-appt-more-text">' . sprintf(__('& %d more...', 'cosy-appointments'), count($appointments) - 2) . '</div>';
                                         break;
                                     }
                                     $badge_class = ($primary_role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
                                     $status_info = $controller->get_appointment_status_info($appt);
                                     $label_suffix = $controller->get_ordinal_label($appt_booking_numbers[$appt->ID] ?? 1, $primary_role);
                             ?>
-                                    <div class="cosy-appt-info-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; font-size: 11px;">
-                                        <div style="font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; gap: 4px;">
-                                            <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; padding: 2px 6px; font-size: 9px; font-weight: bold;">
-                                                <?php echo esc_html($appt->service_name); ?> <span style="opacity: 0.8; font-weight: normal; font-size: 8px;">(<?php echo esc_html($label_suffix); ?>)</span>
+                                    <div class="cosy-appt-info-block">
+                                        <div class="cosy-appt-info-header">
+                                            <span class="badge <?php echo esc_attr($badge_class); ?> cosy-appt-service-badge">
+                                                <?php echo esc_html($appt->service_name); ?> <span class="cosy-appt-ordinal-suffix">(<?php echo esc_html($label_suffix); ?>)</span>
                                             </span>
-                                            <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_info['color']; ?>;">
+                                            <span class="cosy-appt-status-text cosy-appt-status-<?php echo esc_attr($status_info['slug']); ?>">
                                                 <?php echo esc_html($status_info['label']); ?>
                                             </span>
                                         </div>
-                                        <div style="display: flex; align-items: center; gap: 4px; color: #475569; font-size: 10px; margin-top: 2px;">
-                                            <span class="dashicons dashicons-calendar-alt" style="font-size: 12px; width: 12px; height: 12px; color: #64748b; line-height: 12px;"></span>
+                                        <div class="cosy-appt-meta-row">
+                                            <span class="dashicons dashicons-calendar-alt cosy-appt-meta-icon"></span>
                                             <span><?php echo esc_html(cosy_format_date($appt->start_date)); ?></span>
                                         </div>
                                         <?php if (!empty($appt->slots_timeline)) : ?>
-                                            <div style="display: flex; align-items: center; gap: 4px; color: #475569; font-size: 10px; margin-top: 2px; word-break: break-all;">
-                                                <span class="dashicons dashicons-clock" style="font-size: 12px; width: 12px; height: 12px; color: #64748b; line-height: 12px;"></span>
+                                            <div class="cosy-appt-meta-row cosy-appt-meta-row-wrap">
+                                                <span class="dashicons dashicons-clock cosy-appt-meta-icon"></span>
                                                 <span><?php echo cosy_clean_slots_timeline($appt->slots_timeline, $appt->start_date); ?></span>
                                             </div>
                                         <?php endif; ?>
@@ -195,15 +195,15 @@ defined('ABSPATH') || exit;
                                 if ($primary_role === 'provider') {
                                     $services = $controller->get_provider_offered_services($user_id);
                                     if (!empty($services)) {
-                                        echo '<div style="font-size: 10px; color: #64748b; font-style: italic; margin-bottom: 4px;">' . __('Offers:', 'cosy-appointments') . '</div>';
+                                        echo '<div class="cosy-muted-empty-text">' . __('Offers:', 'cosy-appointments') . '</div>';
                                         foreach ($services as $srv) {
                                             echo '<span class="badge badge-provider-service">' . esc_html($srv) . '</span> ';
                                         }
                                     } else {
-                                        echo '<span style="color: #94a3b8; font-style: italic; font-size: 11px;">' . __('No Services/Bookings', 'cosy-appointments') . '</span>';
+                                        echo '<span class="cosy-muted-empty-text">' . __('No Services/Bookings', 'cosy-appointments') . '</span>';
                                     }
                                 } else {
-                                    echo '<span style="color: #94a3b8; font-style: italic; font-size: 11px;">' . __('No Bookings Yet', 'cosy-appointments') . '</span>';
+                                    echo '<span class="cosy-muted-empty-text">' . __('No Bookings Yet', 'cosy-appointments') . '</span>';
                                 }
                             endif;
                             ?>
@@ -211,29 +211,29 @@ defined('ABSPATH') || exit;
                         <td>
                             <?php if ($email_status === 'pending') : ?>
                                 <span class="badge badge-pending email-verify-badge-<?php echo $user_id; ?>">
-                                    <span class="dashicons dashicons-clock" style="font-size: 14px; width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 3px;"></span>
+                                    <span class="dashicons dashicons-clock cosy-badge-icon-verified"></span>
                                     <?php esc_html_e('Pending', 'cosy-appointments'); ?>
                                 </span>
                             <?php else : ?>
                                 <span class="badge badge-verified email-verify-badge-<?php echo $user_id; ?>">
-                                    <span class="dashicons dashicons-yes" style="font-size: 14px; width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 3px;"></span>
+                                    <span class="dashicons dashicons-yes cosy-badge-icon-verified"></span>
                                     <?php esc_html_e('Verified', 'cosy-appointments'); ?>
                                 </span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if ($primary_role === 'customer') : ?>
-                                <span style="color: #94a3b8; font-weight: 600;"><?php esc_html_e('N/A', 'cosy-appointments'); ?></span>
+                                <span class="cosy-na-text"><?php esc_html_e('N/A', 'cosy-appointments'); ?></span>
                             <?php else : ?>
                                 <select class="cosy-admin-status-dropdown" data-user-id="<?php echo $user_id; ?>" data-role="<?php echo $primary_role; ?>">
                                     <option value="active" <?php selected($account_status, 'active'); ?>><?php esc_html_e('Active', 'cosy-appointments'); ?></option>
                                     <option value="deactive" <?php selected($account_status, 'deactive'); ?>><?php esc_html_e('Deactive', 'cosy-appointments'); ?></option>
                                 </select>
-                                <span class="cosy-status-spinner spinner" style="float: none; margin: 0 0 0 5px; vertical-align: middle;"></span>
+                                <span class="cosy-status-spinner spinner cosy-status-spinner-vmiddle"></span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                            <div class="cosy-actions-cell-wrapper">
                                 <button type="button" class="button button-small btn-view-cosy-user-details" data-user-id="<?php echo $user_id; ?>">
                                     <?php esc_html_e('View Details', 'cosy-appointments'); ?>
                                 </button>
@@ -253,14 +253,14 @@ defined('ABSPATH') || exit;
 
     <!-- Pagination Nav -->
     <?php if ($total_pages > 1): ?>
-        <div class="tablenav bottom">
+        <div class="tablenav bottom cosy-tablenav-bottom">
             <div class="tablenav-pages">
-                <span class="displaying-num"><?php printf(esc_html(_n('%s user', '%s users', $total_users, 'cosy-appointments')), number_format_i18n($total_users)); ?></span>
-                <span class="pagination-links">
+                <span class="displaying-num cosy-displaying-num"><?php printf(esc_html(_n('%s user', '%s users', $total_users, 'cosy-appointments')), number_format_i18n($total_users)); ?></span>
+                <span class="pagination-links cosy-pagination-links">
                     <?php if ($paged > 1): ?>
                         <a class="prev-page button" href="<?php echo esc_url(add_query_arg('paged', $paged - 1)); ?>">&lsaquo;</a>
                     <?php endif; ?>
-                    <span class="paging-input">
+                    <span class="paging-input cosy-paging-input">
                         <span class="tablenav-paging-text"><?php printf(esc_html__('%1$s of %2$s', 'cosy-appointments'), $paged, $total_pages); ?></span>
                     </span>
                     <?php if ($paged < $total_pages): ?>
@@ -280,9 +280,9 @@ defined('ABSPATH') || exit;
             <span class="cosy-user-modal-close">&times;</span>
         </div>
         <div class="cosy-user-modal-body" id="modalAdminUserBody">
-            <div style="text-align: center; padding: 30px;">
-                <span class="spinner is-active" style="float: none; margin: 0 auto;"></span>
-                <p style="margin-top: 10px; color: #64748b;"><?php esc_html_e('Loading details...', 'cosy-appointments'); ?></p>
+            <div class="cosy-modal-loading-box">
+                <span class="spinner is-active cosy-modal-spinner"></span>
+                <p class="cosy-modal-loading-text"><?php esc_html_e('Loading details...', 'cosy-appointments'); ?></p>
             </div>
         </div>
         <div class="cosy-user-modal-footer">

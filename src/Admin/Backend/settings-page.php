@@ -63,13 +63,13 @@ defined('ABSPATH') || exit;
 
                 <!-- Tab Content Card -->
                 <div class="col-md-9">
-                    <div class="tab-content bg-light bg-opacity-50 p-4 rounded-4 border border-secondary-subtle" id="v-pills-tabContent" style="min-height: 300px;">
+                    <div class="tab-content bg-light bg-opacity-50 p-4 rounded-4 border border-secondary-subtle cosy-settings-tab-content" id="v-pills-tabContent">
 
                         <!-- WorldPay Settings Tab -->
                         <div class="tab-pane fade show active" id="v-pills-worldpay" role="tabpanel" aria-labelledby="v-pills-worldpay-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-globe fs-2 text-primary" style="color: #0b4a8f !important;"></i>
+                                    <i class="fa-solid fa-globe fs-2 cosy-settings-icon-purple"></i>
                                     WorldPay Configuration
                                 </h3>
                                 <div class="d-flex align-items-center m-0">
@@ -122,7 +122,7 @@ defined('ABSPATH') || exit;
                         <div class="tab-pane fade" id="v-pills-aisearch" role="tabpanel" aria-labelledby="v-pills-aisearch-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-brain fs-2 text-primary" style="color: #a44390 !important;"></i>
+                                    <i class="fa-solid fa-brain fs-2 cosy-settings-icon-purple"></i>
                                     AI Search Engine Configuration
                                 </h3>
                             </div>
@@ -168,7 +168,7 @@ defined('ABSPATH') || exit;
                         <div class="tab-pane fade" id="v-pills-branding" role="tabpanel" aria-labelledby="v-pills-branding-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-image fs-2 text-primary" style="color: #a44390 !important;"></i>
+                                    <i class="fa-solid fa-image fs-2 cosy-settings-icon-purple"></i>
                                     Registration &amp; Login Page Images
                                 </h3>
                             </div>
@@ -178,14 +178,14 @@ defined('ABSPATH') || exit;
                                     <div class="input-group mb-2">
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-image"></i></span>
                                         <input type="text" class="form-control border-start-0 py-2 cosy-img-input" name="cosy_registration_image_url" id="cosy_registration_image_url" value="<?php echo esc_attr(get_option('cosy_registration_image_url')); ?>" placeholder="Select or upload image from Media Library">
-                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn" data-target="#cosy_registration_image_url" data-preview="#cosy_reg_preview" style="color: #a44390; border: 1.5px solid #a44390; background: #ffffff;">
-                                            <i class="fa-solid fa-folder-open me-1" style="color: #a44390;"></i> Choose Image
+                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn cosy-settings-media-btn" data-target="#cosy_registration_image_url" data-preview="#cosy_reg_preview">
+                                            <i class="fa-solid fa-folder-open me-1 cosy-settings-icon-purple"></i> Choose Image
                                         </button>
                                     </div>
                                     <div class="form-text text-muted">Select or upload the right-side banner image for the Customer Registration page (/user-registration/).</div>
                                     <?php $reg_preview = get_option('cosy_registration_image_url'); ?>
                                     <div id="cosy_reg_preview" class="mt-2 <?php echo empty($reg_preview) ? 'd-none' : ''; ?>">
-                                        <img src="<?php echo esc_url($reg_preview); ?>" style="max-height: 120px; border-radius: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                                        <img src="<?php echo esc_url($reg_preview); ?>" class="cosy-settings-media-preview-img">
                                     </div>
                                 </div>
 
@@ -194,14 +194,14 @@ defined('ABSPATH') || exit;
                                     <div class="input-group mb-2">
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-image"></i></span>
                                         <input type="text" class="form-control border-start-0 py-2 cosy-img-input" name="cosy_login_image_url" id="cosy_login_image_url" value="<?php echo esc_attr(get_option('cosy_login_image_url')); ?>" placeholder="Select or upload image from Media Library">
-                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn" data-target="#cosy_login_image_url" data-preview="#cosy_login_preview" style="color: #a44390; border: 1.5px solid #a44390; background: #ffffff;">
-                                            <i class="fa-solid fa-folder-open me-1" style="color: #a44390;"></i> Choose Image
+                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn cosy-settings-media-btn" data-target="#cosy_login_image_url" data-preview="#cosy_login_preview">
+                                            <i class="fa-solid fa-folder-open me-1 cosy-settings-icon-purple"></i> Choose Image
                                         </button>
                                     </div>
                                     <div class="form-text text-muted">Select or upload the right-side banner image for the Customer Login page (/login/).</div>
                                     <?php $login_preview = get_option('cosy_login_image_url'); ?>
                                     <div id="cosy_login_preview" class="mt-2 <?php echo empty($login_preview) ? 'd-none' : ''; ?>">
-                                        <img src="<?php echo esc_url($login_preview); ?>" style="max-height: 120px; border-radius: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                                        <img src="<?php echo esc_url($login_preview); ?>" class="cosy-settings-media-preview-img">
                                     </div>
                                 </div>
                             </div>
@@ -211,7 +211,7 @@ defined('ABSPATH') || exit;
                         <div class="tab-pane fade" id="v-pills-signature" role="tabpanel" aria-labelledby="v-pills-signature-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-signature fs-2 text-primary" style="color: #a44390 !important;"></i>
+                                    <i class="fa-solid fa-signature fs-2 cosy-settings-icon-purple"></i>
                                     Email Signature Configuration
                                 </h3>
                                 <div class="d-flex align-items-center m-0">
@@ -230,14 +230,14 @@ defined('ABSPATH') || exit;
                                     <div class="input-group mb-2">
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-image"></i></span>
                                         <input type="text" class="form-control border-start-0 py-2 cosy-img-input" name="cosy_sig_logo_url" id="cosy_sig_logo_url" value="<?php echo esc_attr(get_option('cosy_sig_logo_url')); ?>" placeholder="Select or upload your company logo">
-                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn" data-target="#cosy_sig_logo_url" data-preview="#cosy_sig_logo_preview" style="color: #a44390; border: 1.5px solid #a44390; background: #ffffff;">
-                                            <i class="fa-solid fa-folder-open me-1" style="color: #a44390;"></i> Choose Logo
+                                        <button type="button" class="btn px-3 fw-semibold cosy-media-select-btn cosy-settings-media-btn" data-target="#cosy_sig_logo_url" data-preview="#cosy_sig_logo_preview">
+                                            <i class="fa-solid fa-folder-open me-1 cosy-settings-icon-purple"></i> Choose Logo
                                         </button>
                                     </div>
                                     <div class="form-text text-muted">Upload your CosyChats company logo. Recommended: PNG with transparent background, max 200px wide.</div>
                                     <?php $sig_logo = get_option('cosy_sig_logo_url'); ?>
                                     <div id="cosy_sig_logo_preview" class="mt-2 <?php echo empty($sig_logo) ? 'd-none' : ''; ?>">
-                                        <img src="<?php echo esc_url($sig_logo); ?>" style="max-height: 80px; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05); padding: 6px; background: #fff;">
+                                        <img src="<?php echo esc_url($sig_logo); ?>" class="cosy-settings-logo-preview-img">
                                     </div>
                                 </div>
 
@@ -297,7 +297,7 @@ defined('ABSPATH') || exit;
 
                                 <!-- Social Media Links -->
                                 <div class="col-12 mt-2">
-                                    <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-share-nodes me-2" style="color: #a44390;"></i>Social Media Links</h6>
+                                    <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-share-nodes me-2 cosy-settings-icon-purple"></i>Social Media Links</h6>
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label for="cosy_sig_facebook" class="form-label fw-bold text-secondary">Facebook URL</label>
@@ -346,8 +346,8 @@ defined('ABSPATH') || exit;
 
                                 <!-- Live Signature Preview -->
                                 <div class="col-12 mt-3">
-                                    <div class="border rounded-3 p-3" style="background: #fdfafd;">
-                                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-eye me-2" style="color: #a44390;"></i>Signature Preview</h6>
+                                    <div class="border rounded-3 p-3 cosy-sig-preview-card">
+                                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-eye me-2 cosy-settings-icon-purple"></i>Signature Preview</h6>
                                         <?php
                                         $sig_logo    = get_option('cosy_sig_logo_url');
                                         $sig_name    = get_option('cosy_sig_name', 'The CosyChats Team');
@@ -363,55 +363,55 @@ defined('ABSPATH') || exit;
                                         $sig_tk      = get_option('cosy_sig_tiktok');
                                         $sig_yt      = get_option('cosy_sig_youtube');
                                         ?>
-                                        <div style="background:#ffffff; border:1px solid #f1e4ef; border-radius:12px; padding:20px; max-width:540px; font-family:'Segoe UI',Arial,sans-serif;">
+                                        <div class="cosy-sig-box">
                                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                                                 <tr>
                                                     <?php if (!empty($sig_logo)) : ?>
-                                                    <td style="width:110px; vertical-align:middle; padding-right:16px;">
-                                                        <img src="<?php echo esc_url($sig_logo); ?>" alt="Logo" style="max-width:100px; height:auto; display:block;">
+                                                    <td class="cosy-sig-logo-td">
+                                                        <img src="<?php echo esc_url($sig_logo); ?>" alt="Logo" class="cosy-sig-logo-img">
                                                     </td>
-                                                    <td style="width:2px; vertical-align:middle; padding:0 16px 0 0;">
-                                                        <div style="width:2px; height:80px; background:linear-gradient(180deg,#a44390,#6d2e67);"></div>
+                                                    <td class="cosy-sig-divider-td">
+                                                        <div class="cosy-sig-divider-line"></div>
                                                     </td>
                                                     <?php endif; ?>
-                                                    <td style="vertical-align:middle;">
+                                                    <td class="cosy-sig-details-td">
                                                         <?php if (!empty($sig_name)) : ?>
-                                                        <p style="margin:0 0 2px 0; font-size:15px; font-weight:700; color:#a44390;"><?php echo esc_html($sig_name); ?></p>
+                                                        <p class="cosy-sig-name-p"><?php echo esc_html($sig_name); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_title)) : ?>
-                                                        <p style="margin:0 0 8px 0; font-size:12px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;"><?php echo esc_html($sig_title); ?></p>
+                                                        <p class="cosy-sig-title-p"><?php echo esc_html($sig_title); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_phone)) : ?>
-                                                        <p style="margin:0 0 3px 0; font-size:12px; color:#334155;">📞 <?php echo esc_html($sig_phone); ?></p>
+                                                        <p class="cosy-sig-contact-p">📞 <?php echo esc_html($sig_phone); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_email)) : ?>
-                                                        <p style="margin:0 0 3px 0; font-size:12px; color:#334155;">✉️ <?php echo esc_html($sig_email); ?></p>
+                                                        <p class="cosy-sig-contact-p">✉️ <?php echo esc_html($sig_email); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_website)) : ?>
-                                                        <p style="margin:0 0 3px 0; font-size:12px; color:#334155;">🌐 <?php echo esc_html($sig_website); ?></p>
+                                                        <p class="cosy-sig-contact-p">🌐 <?php echo esc_html($sig_website); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_address)) : ?>
-                                                        <p style="margin:0 0 8px 0; font-size:12px; color:#334155;">📍 <?php echo esc_html($sig_address); ?></p>
+                                                        <p class="cosy-sig-contact-p-last">📍 <?php echo esc_html($sig_address); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_fb) || !empty($sig_tw) || !empty($sig_ig) || !empty($sig_tk) || !empty($sig_yt) || !empty($sig_li)) : ?>
-                                                        <p style="margin:6px 0 0 0; line-height:1; display:flex; align-items:center; gap:8px;">
+                                                        <p class="cosy-sig-social-row">
                                                             <?php if (!empty($sig_fb)) : ?>
-                                                            <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/facebook.png" width="26" height="26" alt="Facebook" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
+                                                            <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/facebook.png" width="26" height="26" alt="Facebook" class="cosy-sig-social-icon"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_tw)) : ?>
-                                                            <a href="<?php echo esc_url($sig_tw); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/X.png" width="26" height="26" alt="X" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
+                                                            <a href="<?php echo esc_url($sig_tw); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/X.png" width="26" height="26" alt="X" class="cosy-sig-social-icon"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_ig)) : ?>
-                                                            <a href="<?php echo esc_url($sig_ig); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/instagram.png" width="26" height="26" alt="Instagram" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
+                                                            <a href="<?php echo esc_url($sig_ig); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/instagram.png" width="26" height="26" alt="Instagram" class="cosy-sig-social-icon"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_tk)) : ?>
-                                                            <a href="<?php echo esc_url($sig_tk); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/tiktok.png" width="26" height="26" alt="TikTok" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
+                                                            <a href="<?php echo esc_url($sig_tk); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/tiktok.png" width="26" height="26" alt="TikTok" class="cosy-sig-social-icon"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_yt)) : ?>
-                                                            <a href="<?php echo esc_url($sig_yt); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/youtube.png" width="26" height="26" alt="YouTube" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
+                                                            <a href="<?php echo esc_url($sig_yt); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/youtube.png" width="26" height="26" alt="YouTube" class="cosy-sig-social-icon"></a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($sig_li)) : ?>
-                                                            <a href="<?php echo esc_url($sig_li); ?>" target="_blank" style="display:inline-block; text-decoration:none;"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/Linkedin.png" width="26" height="26" alt="LinkedIn" style="display:inline-block; vertical-align:middle; width:26px; height:26px; border:0;"></a>
+                                                            <a href="<?php echo esc_url($sig_li); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/Linkedin.png" width="26" height="26" alt="LinkedIn" class="cosy-sig-social-icon"></a>
                                                             <?php endif; ?>
                                                         </p>
                                                         <?php endif; ?>
@@ -429,7 +429,7 @@ defined('ABSPATH') || exit;
                         <div class="tab-pane fade" id="v-pills-smtp" role="tabpanel" aria-labelledby="v-pills-smtp-tab">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-envelope-open-text fs-2" style="color: #a44390 !important;"></i>
+                                    <i class="fa-solid fa-envelope-open-text fs-2 cosy-settings-icon-purple"></i>
                                     <?php _e('SMTP Email Delivery Settings', 'cosy-appointments'); ?>
                                 </h3>
                                 <div class="d-flex align-items-center m-0">
@@ -441,8 +441,8 @@ defined('ABSPATH') || exit;
                                 </div>
                             </div>
 
-                            <div class="alert alert-info border-0 rounded-3 p-3 mb-4 d-flex align-items-center" style="background: #fdf2fb; border-left: 4px solid #a44390 !important; color: #6d2e67;">
-                                <i class="fa-solid fa-circle-info fs-4 me-3 text-primary" style="color: #a44390 !important;"></i>
+                            <div class="alert alert-info border-0 rounded-3 p-3 mb-4 d-flex align-items-center cosy-settings-alert-info">
+                                <i class="fa-solid fa-circle-info fs-4 me-3 cosy-settings-icon-purple"></i>
                                 <div>
                                     <strong><?php _e('Dynamic SMTP Delivery:', 'cosy-appointments'); ?></strong>
                                     <?php _e('All system emails (Booking Confirmations, Status Updates, Reviews, Password Resets) will use these credentials automatically.', 'cosy-appointments'); ?>
@@ -506,7 +506,7 @@ defined('ABSPATH') || exit;
                                     <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
                                         <input type="password" class="form-control border-start-0 border-end-0 py-2" name="cosy_smtp_pass" id="cosy_smtp_pass" value="<?php echo esc_attr(get_option('cosy_smtp_pass', 'suln klpu wrwp bsvy')); ?>" placeholder="App Password">
-                                        <button type="button" class="btn btn-outline-secondary border-start-0" id="btn-toggle-smtp-pass" style="border-color: #dee2e6;">
+                                        <button type="button" class="btn btn-outline-secondary border-start-0 cosy-smtp-toggle-pass-btn" id="btn-toggle-smtp-pass">
                                             <i class="fa-solid fa-eye" id="eye-smtp-pass"></i>
                                         </button>
                                     </div>
@@ -533,10 +533,10 @@ defined('ABSPATH') || exit;
                             </div>
                                                                 
                             <!-- Live SMTP Test Email Card -->
-                            <div class="card border border-0 shadow-sm mt-4 rounded-4" style="background: #ffffff; border: 1px solid #f1e4ef !important;">
+                            <div class="card border border-0 shadow-sm mt-4 rounded-4 cosy-smtp-test-card">
                                 <div class="card-body p-4">
                                     <div class="d-flex align-items-center gap-2 mb-2">
-                                        <i class="fa-solid fa-vial-circle-check fs-4" style="color: #a44390;"></i>
+                                        <i class="fa-solid fa-vial-circle-check fs-4 cosy-settings-icon-purple"></i>
                                         <h5 class="fw-bold text-dark m-0"><?php _e('Send Test Email', 'cosy-appointments'); ?></h5>
                                     </div>
                                     <p class="text-muted small mb-3"><?php _e('Verify your SMTP settings immediately by dispatching a test email. Remember to click "Save Configurations" first if you changed any credentials above.', 'cosy-appointments'); ?></p>
@@ -552,7 +552,7 @@ defined('ABSPATH') || exit;
                                             </button>
                                         </div>
                                     </div>
-                                    <div id="smtp-test-result" class="mt-3" style="display: none;"></div>
+                                    <div id="smtp-test-result" class="mt-3 cosy-smtp-test-result"></div>
                                 </div>
                             </div>
                         </div>
@@ -561,7 +561,7 @@ defined('ABSPATH') || exit;
 
                     <!-- Action Buttons Card Footer -->
                     <div class="d-flex align-items-center justify-content-end gap-3 mt-4">
-                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2 py-2.5 px-4 rounded-3 border-0 fw-semibold text-white shadow-sm" style="background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important; transition: all 0.2s ease;">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2 py-2.5 px-4 rounded-3 border-0 fw-semibold text-white shadow-sm cosy-settings-submit-btn">
                             <i class="fa-solid fa-circle-check fs-5"></i>
                             Save Configurations
                         </button>

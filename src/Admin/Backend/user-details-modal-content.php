@@ -70,7 +70,7 @@ defined('ABSPATH') || exit;
         <?php if (!empty($video_status)): ?>
             <div class="cosy-detail-row">
                 <div class="cosy-detail-label"><?php esc_html_e('Intro Video Status:', 'cosy-appointments'); ?></div>
-                <div class="cosy-detail-val" style="text-transform: uppercase; font-weight: bold;"><?php echo esc_html($video_status); ?></div>
+                <div class="cosy-detail-val cosy-detail-val-uppercase"><?php echo esc_html($video_status); ?></div>
             </div>
         <?php endif; ?>
         <?php if (!empty($description)): ?>
@@ -100,7 +100,7 @@ defined('ABSPATH') || exit;
 <?php endif; ?>
 
 <!-- Bookings & Appointments Section -->
-<div class="cosy-detail-section" style="margin-top: 15px;">
+<div class="cosy-detail-section cosy-detail-section-spaced">
     <h3><span class="dashicons dashicons-calendar-alt"></span> <?php echo $role === 'provider' ? esc_html__('Provider Appointments & Bookings', 'cosy-appointments') : esc_html__('Customer Appointments & Bookings', 'cosy-appointments'); ?></h3>
     <?php
     $appointments = $controller->get_user_appointments($user_id, $role);
@@ -118,35 +118,35 @@ defined('ABSPATH') || exit;
         </div>
 
         <div class="cosy-modal-appt-list-wrapper">
-            <div class="cosy-modal-appt-list" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="cosy-modal-appt-list">
                 <?php foreach ($appointments as $appt) :
                     $status_info = $controller->get_appointment_status_info($appt, true);
                     $label_suffix = $controller->get_ordinal_label($appt_booking_numbers[$appt->ID] ?? 1, $role);
                     $badge_class = ($role === 'provider') ? 'badge-provider-service' : 'badge-customer-service';
                 ?>
-                    <div class="cosy-modal-appt-card" data-status="<?php echo esc_attr($status_info['slug']); ?>" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
-                                <span class="badge <?php echo esc_attr($badge_class); ?>" style="margin: 0; font-size: 10px; font-weight: bold;">
-                                    <?php echo esc_html($appt->service_name); ?> <span style="opacity: 0.8; font-weight: normal; font-size: 8px;">(<?php echo esc_html($label_suffix); ?>)</span>
+                    <div class="cosy-modal-appt-card" data-status="<?php echo esc_attr($status_info['slug']); ?>">
+                        <div class="cosy-modal-appt-card-left">
+                            <div class="cosy-modal-appt-header">
+                                <span class="badge <?php echo esc_attr($badge_class); ?> cosy-modal-appt-badge">
+                                    <?php echo esc_html($appt->service_name); ?> <span class="cosy-appt-ordinal-suffix">(<?php echo esc_html($label_suffix); ?>)</span>
                                 </span>
-                                <span style="font-size: 11px; font-weight: 700; color: #1e293b;"><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($appt->total_payable ?: '0'); ?></span>
+                                <span class="cosy-modal-appt-total"><?php echo esc_html(cosy_get_currency_symbol()); ?><?php echo esc_html($appt->total_payable ?: '0'); ?></span>
                             </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 12px; color: #64748b; font-size: 11px;">
-                                <span style="display: flex; align-items: center; gap: 4px;">
-                                    <span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
+                            <div class="cosy-modal-appt-meta-list">
+                                <span class="cosy-modal-appt-meta-item">
+                                    <span class="dashicons dashicons-calendar-alt cosy-modal-appt-meta-icon"></span>
                                     <span><?php echo esc_html(cosy_format_date($appt->start_date)); ?></span>
                                 </span>
                                 <?php if (!empty($appt->slots_timeline)) : ?>
-                                    <span style="display: flex; align-items: center; gap: 4px;">
-                                        <span class="dashicons dashicons-clock" style="font-size: 14px; width: 14px; height: 14px; color: #94a3b8; line-height: 14px;"></span>
+                                    <span class="cosy-modal-appt-meta-item">
+                                        <span class="dashicons dashicons-clock cosy-modal-appt-meta-icon"></span>
                                         <span><?php echo cosy_clean_slots_timeline($appt->slots_timeline, $appt->start_date); ?></span>
                                     </span>
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div style="text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
-                            <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: <?php echo $status_info['color']; ?>; background-color: <?php echo $status_info['bg']; ?>; border: 1px solid <?php echo $status_info['color']; ?>33;">
+                        <div class="cosy-modal-appt-card-right">
+                            <span class="cosy-modal-appt-status-badge cosy-modal-status-<?php echo esc_attr($status_info['slug']); ?>">
                                 <?php echo esc_html($status_info['label']); ?>
                             </span>
                         </div>
@@ -159,18 +159,19 @@ defined('ABSPATH') || exit;
         if ($role === 'provider') {
             $services = $controller->get_provider_offered_services($user_id);
             if (!empty($services)) {
-                echo '<div style="margin-top: 10px;">';
-                echo '<p style="font-size: 12px; color: #64748b; margin-bottom: 6px;">' . esc_html__('This provider currently has no active bookings but offers the following services:', 'cosy-appointments') . '</p>';
+                echo '<div class="cosy-detail-section-spaced">';
+                echo '<p class="cosy-logs-section-sub">' . esc_html__('This provider currently has no active bookings but offers the following services:', 'cosy-appointments') . '</p>';
                 foreach ($services as $srv) {
                     echo '<span class="badge badge-provider-service">' . esc_html($srv) . '</span> ';
                 }
                 echo '</div>';
             } else {
-                echo '<p style="color: #94a3b8; font-style: italic; font-size: 12px; margin-top: 10px;">' . esc_html__('No offered services or active bookings found.', 'cosy-appointments') . '</p>';
+                echo '<p class="cosy-muted-empty-text cosy-detail-section-spaced">' . esc_html__('No offered services or active bookings found.', 'cosy-appointments') . '</p>';
             }
         } else {
-            echo '<p style="color: #94a3b8; font-style: italic; font-size: 12px; margin-top: 10px;">' . esc_html__('No active bookings found for this customer.', 'cosy-appointments') . '</p>';
+            echo '<p class="cosy-muted-empty-text cosy-detail-section-spaced">' . esc_html__('No active bookings found for this customer.', 'cosy-appointments') . '</p>';
         }
     endif;
     ?>
 </div>
+

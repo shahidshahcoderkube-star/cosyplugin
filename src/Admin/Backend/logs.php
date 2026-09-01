@@ -90,12 +90,12 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
     <!-- Header Controls -->
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div class="d-flex align-items-center">
-            <div class="bg-primary bg-gradient text-white rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px; background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;">
+            <div class="text-white rounded-3 p-3 me-3 d-flex align-items-center justify-content-center cosy-logs-header-icon">
                 <i class="fa-solid fa-list-check fs-4"></i>
             </div>
             <div>
-                <h1 class="wp-heading-inline m-0 fs-2 fw-bold text-dark" style="font-family: 'Outfit', sans-serif;"><?php _e('Activity Logs', 'cosy-appointments'); ?></h1>
-                <p class="text-muted m-0 mt-1" style="font-family: 'Plus Jakarta Sans', sans-serif;"><?php _e('Monitor system events, provider edits, and booking actions in real-time.', 'cosy-appointments'); ?></p>
+                <h1 class="wp-heading-inline m-0 fs-2 fw-bold text-dark cosy-logs-heading-title"><?php _e('Activity Logs', 'cosy-appointments'); ?></h1>
+                <p class="text-muted m-0 mt-1 cosy-logs-heading-sub"><?php _e('Monitor system events, provider edits, and booking actions in real-time.', 'cosy-appointments'); ?></p>
             </div>
         </div>
         
@@ -112,11 +112,11 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
 
     <!-- Logging Config Panel -->
     <div class="bg-white rounded-4 border border-secondary-subtle shadow-sm p-4 mb-4">
-        <h3 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 16px;">
-            <i class="fa-solid fa-sliders text-primary" style="color: #a44390 !important; font-size: 18px;"></i>
+        <h3 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 cosy-logs-section-title">
+            <i class="fa-solid fa-sliders text-primary cosy-logs-section-icon"></i>
             <?php _e('Log Settings by Section', 'cosy-appointments'); ?>
         </h3>
-        <p class="text-muted mb-4" style="font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif;">
+        <p class="text-muted mb-4 cosy-logs-section-sub">
             <?php _e('Enable or disable activity tracking for specific sections of the plugin. Active sections will record actions to the log table below.', 'cosy-appointments'); ?>
         </p>
         
@@ -138,16 +138,16 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
             ?>
                 <div class="col-md-3 col-sm-6">
                     <div class="cosy-page-logger-toggle-container d-flex align-items-center justify-content-between p-3 bg-light rounded-3 border border-secondary-subtle">
-                        <span class="fw-semibold text-secondary" style="font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif;"><?php echo esc_html($sec_label); ?></span>
+                        <span class="fw-semibold text-secondary cosy-logs-sec-label"><?php echo esc_html($sec_label); ?></span>
                         <div class="d-flex align-items-center gap-2">
                             <label class="cosy-switch">
                                 <input type="checkbox" class="cosy-page-log-toggle" data-page="<?php echo esc_attr($sec_key); ?>" data-nonce="<?php echo esc_attr($toggle_nonce); ?>" value="1" <?php checked($is_enabled, true); ?>>
                                 <span class="cosy-slider round"></span>
                             </label>
-                            <span class="cosy-log-status-lbl fw-bold text-uppercase" style="font-size: 10px; font-family: 'Plus Jakarta Sans', sans-serif; color: <?php echo $is_enabled ? '#10b981' : '#64748b'; ?>;">
+                            <span class="cosy-log-status-lbl fw-bold text-uppercase <?php echo $is_enabled ? 'cosy-log-status-enabled' : 'cosy-log-status-disabled'; ?>">
                                 <?php echo $is_enabled ? __('Active', 'cosy-appointments') : __('Paused', 'cosy-appointments'); ?>
                             </span>
-                            <span class="spinner cosy-log-toggle-spinner" style="float: none; margin: 0; display: none; vertical-align: middle;"></span>
+                            <span class="spinner cosy-log-toggle-spinner"></span>
                         </div>
                     </div>
                 </div>
@@ -160,7 +160,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <!-- Card 1: Total Logs -->
         <div class="col-md-3 col-sm-6">
             <div class="cosy-kpi-card">
-                <div class="cosy-kpi-icon text-primary bg-primary-subtle" style="color: #a44390 !important; background-color: rgba(164, 67, 144, 0.1) !important;">
+                <div class="cosy-kpi-icon text-primary bg-primary-subtle cosy-kpi-icon-purple">
                     <i class="fa-solid fa-database"></i>
                 </div>
                 <div class="cosy-kpi-info">
@@ -173,7 +173,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <!-- Card 2: Today's Logs -->
         <div class="col-md-3 col-sm-6">
             <div class="cosy-kpi-card">
-                <div class="cosy-kpi-icon text-success bg-success-subtle" style="color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important;">
+                <div class="cosy-kpi-icon text-success bg-success-subtle cosy-kpi-icon-green">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
                 <div class="cosy-kpi-info">
@@ -186,7 +186,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <!-- Card 3: Provider Logs -->
         <div class="col-md-3 col-sm-6">
             <div class="cosy-kpi-card">
-                <div class="cosy-kpi-icon text-info bg-info-subtle" style="color: #06b6d4 !important; background-color: rgba(6, 182, 212, 0.1) !important;">
+                <div class="cosy-kpi-icon text-info bg-info-subtle cosy-kpi-icon-cyan">
                     <i class="fa-solid fa-user-tie"></i>
                 </div>
                 <div class="cosy-kpi-info">
@@ -199,7 +199,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <!-- Card 4: Customer Logs -->
         <div class="col-md-3 col-sm-6">
             <div class="cosy-kpi-card">
-                <div class="cosy-kpi-icon text-warning bg-warning-subtle" style="color: #f59e0b !important; background-color: rgba(245, 158, 11, 0.1) !important;">
+                <div class="cosy-kpi-icon text-warning bg-warning-subtle cosy-kpi-icon-amber">
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <div class="cosy-kpi-info">
@@ -211,14 +211,14 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
     </div>
 
     <!-- Premium Filters Bar -->
-    <div class="cosy-control-bar" style="margin-top: 0; margin-bottom: 24px;">
+    <div class="cosy-control-bar">
         <div class="cosy-control-left">
-            <form method="get" class="cosy-filter-form-modern" style="margin: 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <form method="get" class="cosy-filter-form-modern">
                 <input type="hidden" name="page" value="cosy-logs">
                 
                 <!-- Filter by Role -->
                 <div class="cosy-select-wrapper">
-                    <span class="dashicons dashicons-admin-users" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
+                    <span class="dashicons dashicons-admin-users cosy-search-input-icon"></span>
                     <select name="filter_role" id="filter-role">
                         <option value=""><?php esc_html_e('All Roles', 'cosy-appointments'); ?></option>
                         <option value="admin" <?php selected($filter_role, 'admin'); ?>><?php esc_html_e('Admin', 'cosy-appointments'); ?></option>
@@ -230,7 +230,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
 
                 <!-- Filter by Page -->
                 <div class="cosy-select-wrapper">
-                    <span class="dashicons dashicons-media-text" style="color: #94a3b8; margin-left: 10px; margin-right: 2px;"></span>
+                    <span class="dashicons dashicons-media-text cosy-search-input-icon"></span>
                     <select name="filter_page" id="filter-page">
                         <option value=""><?php esc_html_e('All Sections', 'cosy-appointments'); ?></option>
                         <option value="dashboard" <?php selected($filter_page, 'dashboard'); ?>><?php esc_html_e('Dashboard', 'cosy-appointments'); ?></option>
@@ -245,17 +245,17 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
                 </div>
 
                 <!-- Text Search -->
-                <div class="cosy-select-wrapper" style="padding-right: 8px;">
-                    <span class="dashicons dashicons-search" style="color: #94a3b8; margin-left: 10px; margin-right: 6px;"></span>
-                    <input type="text" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Search logs...', 'cosy-appointments'); ?>" style="border: none; outline: none; font-size: 13px; font-weight: 600; color: #475569; width: 200px; height: 100%;">
+                <div class="cosy-select-wrapper cosy-logs-search-wrapper">
+                    <span class="dashicons dashicons-search cosy-search-input-icon"></span>
+                    <input type="text" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Search logs...', 'cosy-appointments'); ?>" class="cosy-logs-search-input">
                 </div>
 
-                <button type="submit" class="cosy-filter-btn" style="height: 34px;">
+                <button type="submit" class="cosy-filter-btn">
                     <?php esc_html_e('Filter Logs', 'cosy-appointments'); ?>
                 </button>
                 
                 <?php if (!empty($filter_role) || !empty($filter_page) || !empty($search)) : ?>
-                    <a href="admin.php?page=cosy-logs" class="btn btn-link text-decoration-none fw-semibold text-secondary p-0 ms-2" style="font-size: 13px;"><?php esc_html_e('Reset Filters', 'cosy-appointments'); ?></a>
+                    <a href="admin.php?page=cosy-logs" class="btn btn-link text-decoration-none fw-semibold text-secondary p-0 ms-2 cosy-logs-sec-label"><?php esc_html_e('Reset Filters', 'cosy-appointments'); ?></a>
                 <?php endif; ?>
             </form>
         </div>
@@ -266,19 +266,19 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
         <table class="wp-list-table widefat fixed striped table-view-list cosy-orders-table m-0 border-0 shadow-none">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 70px; text-align: center;"><?php _e('No.', 'cosy-appointments'); ?></th>
-                    <th scope="col" style="width: 170px;"><?php _e('Date & Time', 'cosy-appointments'); ?></th>
-                    <th scope="col" style="width: 180px;"><?php _e('User', 'cosy-appointments'); ?></th>
-                    <th scope="col" style="width: 140px;"><?php _e('Section', 'cosy-appointments'); ?></th>
-                    <th scope="col" style="width: 150px;"><?php _e('Action', 'cosy-appointments'); ?></th>
+                    <th scope="col" class="cosy-col-log-num"><?php _e('No.', 'cosy-appointments'); ?></th>
+                    <th scope="col" class="cosy-col-log-date"><?php _e('Date & Time', 'cosy-appointments'); ?></th>
+                    <th scope="col" class="cosy-col-log-user"><?php _e('User', 'cosy-appointments'); ?></th>
+                    <th scope="col" class="cosy-col-log-section"><?php _e('Section', 'cosy-appointments'); ?></th>
+                    <th scope="col" class="cosy-col-log-action"><?php _e('Action', 'cosy-appointments'); ?></th>
                     <th scope="col"><?php _e('Activity Description', 'cosy-appointments'); ?></th>
-                    <th scope="col" style="width: 140px;"><?php _e('IP Address', 'cosy-appointments'); ?></th>
+                    <th scope="col" class="cosy-col-log-ip"><?php _e('IP Address', 'cosy-appointments'); ?></th>
                 </tr>
             </thead>
             <tbody id="the-list">
                 <?php if (empty($logs)) : ?>
                     <tr>
-                        <td colspan="7" class="text-center py-5 text-muted" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                        <td colspan="7" class="text-center py-5 text-muted cosy-logs-heading-sub">
                             <i class="fa-solid fa-folder-open fs-2 mb-3 d-block text-secondary opacity-50"></i>
                             <?php _e('No activity logs found matching the filter criteria.', 'cosy-appointments'); ?>
                         </td>
@@ -291,12 +291,12 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
                         $page_clean = str_replace('_', ' ', $log->page);
                     ?>
                         <tr>
-                            <td style="text-align: center; color: #94a3b8; font-weight: bold;"><?php echo $counter++; ?></td>
-                            <td class="text-secondary" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px;">
+                            <td class="cosy-log-counter-cell"><?php echo $counter++; ?></td>
+                            <td class="text-secondary cosy-log-date-cell">
                                 <?php echo date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($log->timestamp)); ?>
                             </td>
                             <td>
-                                <strong class="text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif;"><?php echo esc_html($log->user_name); ?></strong>
+                                <strong class="text-dark cosy-log-user-strong"><?php echo esc_html($log->user_name); ?></strong>
                                 <div class="mt-1">
                                     <span class="cosy-log-badge <?php echo $badge_class; ?>">
                                         <?php echo esc_html($log->role); ?>
@@ -309,14 +309,14 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
                                 </span>
                             </td>
                             <td>
-                                <code style="font-size: 11px; font-weight: bold; color: #a44390; background-color: rgba(164, 67, 144, 0.05); padding: 2px 6px; border-radius: 4px;">
+                                <code class="cosy-log-code-badge">
                                     <?php echo esc_html($log->action); ?>
                                 </code>
                             </td>
-                            <td class="text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; line-height: 1.4;">
+                            <td class="text-dark cosy-log-details-cell">
                                 <?php echo esc_html($log->description); ?>
                             </td>
-                            <td style="font-family: monospace; font-size: 12px; color: #64748b;">
+                            <td class="cosy-log-ip-cell">
                                 <?php echo esc_html($log->ip_address ?: 'N/A'); ?>
                             </td>
                         </tr>
@@ -329,7 +329,7 @@ $clear_nonce = wp_create_nonce('cosy_clear_logs_nonce');
     <!-- Pagination -->
     <?php if ($total_pages > 1) : ?>
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <span class="text-muted" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px;">
+            <span class="text-muted cosy-log-pagination-num">
                 Showing <?php echo count($logs); ?> of <?php echo $total_filtered; ?> entries
             </span>
             <div class="tablenav bottom m-0 border-0 p-0 shadow-none">

@@ -1,5 +1,29 @@
+/**
+ * =========================================================================
+ * COSY APPOINTMENTS — ADMIN MASTER STYLESHEET (admin.css)
+ * =========================================================================
+ * 
+ * TABLE OF CONTENTS:
+ * -------------------------------------------------------------------------
+ * 01. GLOBAL SYSTEM & UNIFIED CONTROLS (Control bar, Filters, Action buttons)
+ * 02. PAGE: ORDERS MANAGEMENT & DETAILS MODAL (OrdersAdmin.php)
+ * 03. PAGE: USERS MANAGEMENT & DETAILS MODAL (users-page.php, modal-content.php)
+ * 04. PAGE: MEDIA APPROVAL & VIDEO PREVIEWS (media-approve.php, MediaApprove.php)
+ * 05. PAGE: REVIEWS MANAGEMENT & THREAD TIMELINES (reviews-page.php, reviews-template.php)
+ * 06. PAGE: ACTIVITY LOGS & LOGGER SWITCHES (logs.php, ActivityLogger.php)
+ * 07. PAGE: GLOBAL SETTINGS & EMAIL SIGNATURE (settings-page.php)
+ * 08. COMPONENT: SWEETALERT CONFIRM DIALOGS & TOASTS (cosy-sweetalert.js)
+ * 09. PAGE: PLUGIN DOCUMENTATION VIEW (documentation.php)
+ * =========================================================================
+ */
+
+/* =========================================================================
+   01. GLOBAL SYSTEM & UNIFIED CONTROLS
+   Shared across all Cosy Appointments admin screens
+   ========================================================================= */
+
 .widefat a {
-    color: #2271b1 !important;
+    color: #2271b1;
 }
 
 .cosy-verify-dropdown {
@@ -9,9 +33,7 @@
     cursor: pointer;
 }
 
-/* Premium Admin Layout General & Orders Style Definitions */
-
-/* Modern Control Bar & Layouts */
+/* Modern Unified Control Bar */
 .cosy-control-bar {
     display: flex;
     justify-content: space-between;
@@ -36,7 +58,7 @@
     align-items: center;
 }
 
-/* Modern Select & Filter Form elements */
+/* Modern Select & Filter Form Elements */
 .cosy-select-wrapper {
     display: flex;
     align-items: center;
@@ -90,32 +112,32 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: transparent !important;
-    border: 1.5px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    color: #475569 !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    padding: 0 16px !important;
-    height: 34px !important;
-    line-height: 32px !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
-    transition: all 0.2s ease !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
+    background: transparent;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    color: #475569;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 0 16px;
+    height: 34px;
+    line-height: 32px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin: 0;
+    box-sizing: border-box;
 }
 
 .cosy-reset-btn:hover,
 .cosy-reset-btn:focus {
-    background: transparent !important;
-    border-color: #94a3b8 !important;
-    color: #0f172a !important;
-    text-decoration: none !important;
-    box-shadow: none !important;
+    background: transparent;
+    border-color: #94a3b8;
+    color: #0f172a;
+    text-decoration: none;
+    box-shadow: none;
 }
 
-/* Modern Pill-Style Tabs */
+/* Modern Pill-Style Role Tabs */
 .cosy-role-tabs {
     display: flex;
     background-color: #f1f5f9;
@@ -151,7 +173,7 @@
     color: #ffffff;
 }
 
-/* Premium Delete Selected Button */
+/* Premium Delete Selected Bulk Button */
 .cosy-btn-delete-selected-modern {
     background: #ffffff;
     border: 1.5px solid #ef4444;
@@ -181,122 +203,324 @@
     opacity: 0.65;
 }
 
+.cosy-btn-icon-trash {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.cosy-btn-text-vmiddle {
+    vertical-align: middle;
+}
+
+/* Modern Search & Filter Form Helpers */
+.cosy-search-form-modern {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+.cosy-filter-form-modern {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+.cosy-filter-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.cosy-filter-select-modern,
+.cosy-users-admin select.cosy-filter-select-modern,
+.cosy-orders select.cosy-filter-select-modern {
+    border-radius: 8px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    line-height: 32px !important;
+    padding: 0 32px 0 12px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    background: #ffffff url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2523475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 12px center !important;
+    background-size: 8px auto !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    outline: none !important;
+    cursor: pointer !important;
+    min-width: 160px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    transition: border-color 0.2s ease;
+}
+
+.cosy-filter-select-modern:focus,
+.cosy-users-admin select.cosy-filter-select-modern:focus {
+    border-color: #a44390 !important;
+    box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1) !important;
+}
+
+.cosy-search-input-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background-color: #ffffff !important;
+    transition: border-color 0.2s ease !important;
+    height: 34px !important;
+    box-sizing: border-box !important;
+}
+
+.cosy-search-input-wrapper:focus-within {
+    border-color: #a44390 !important;
+    box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1) !important;
+}
+
+.cosy-search-input-wrapper input[type="search"],
+.cosy-search-input-wrapper input.cosy-search-input-field {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 8px !important;
+    font-size: 13px !important;
+    color: #334155 !important;
+    width: 200px !important;
+    min-width: 180px !important;
+    background: transparent !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    line-height: 32px !important;
+    box-sizing: border-box !important;
+}
+
+.cosy-search-input-icon {
+    color: #94a3b8 !important;
+    margin-left: 10px !important;
+    margin-right: 2px !important;
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.cosy-search-btn {
+    background: #f1f5f9 !important;
+    border: none !important;
+    border-left: 1.5px solid #cbd5e1 !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 0 16px !important;
+    height: 34px !important;
+    line-height: 34px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.cosy-search-btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
 /* ============================================================
    COSY UNIFIED ADMIN TABLES (Orders, Users, Reviews, Media, Logs)
    ============================================================ */
-.cosy-orders-table,
-.cosy-users-table,
-.cosy-media-table,
+.wrap table.cosy-orders-table,
+.wrap table.cosy-users-table,
+.wrap table.cosy-media-table,
 .cosy-users-admin table.wp-list-table {
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01) !important;
-    border-collapse: separate !important;
-    border-spacing: 0 !important;
-    background: #ffffff !important;
-    width: 100% !important;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    width: 100%;
 }
 
-.cosy-orders-table thead th,
-.cosy-orders-table thead td,
-.cosy-orders-table tfoot th,
-.cosy-orders-table tfoot td,
-.cosy-users-table thead th,
-.cosy-users-table thead td,
-.cosy-users-table tfoot th,
-.cosy-users-table tfoot td,
+.wrap table.cosy-orders-table thead th,
+.wrap table.cosy-orders-table thead td,
+.wrap table.cosy-orders-table tfoot th,
+.wrap table.cosy-orders-table tfoot td,
+.wrap table.cosy-users-table thead th,
+.wrap table.cosy-users-table thead td,
+.wrap table.cosy-users-table tfoot th,
+.wrap table.cosy-users-table tfoot td,
 .cosy-users-admin table.wp-list-table thead th,
 .cosy-users-admin table.wp-list-table thead td,
 .cosy-users-admin table.wp-list-table tfoot th,
 .cosy-users-admin table.wp-list-table tfoot td {
-    background-color: #f8fafc !important;
-    color: #475569 !important;
-    font-weight: 700 !important;
-    font-size: 13px !important;
-    padding: 14px 12px !important;
-    border-bottom: 2px solid #e2e8f0 !important;
-    border-top: none !important;
-    vertical-align: middle !important;
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 14px 12px;
+    border-bottom: 2px solid #e2e8f0;
+    border-top: none;
+    vertical-align: middle;
 }
 
 /* Unified Checkbox Column & Alignment */
-.cosy-orders-table thead .check-column,
-.cosy-orders-table tfoot .check-column,
-.cosy-orders-table tbody .check-column,
-.cosy-users-table thead .check-column,
-.cosy-users-table tfoot .check-column,
-.cosy-users-table tbody .check-column,
+.wrap table.cosy-orders-table thead .check-column,
+.wrap table.cosy-orders-table tfoot .check-column,
+.wrap table.cosy-orders-table tbody .check-column,
+.wrap table.cosy-users-table thead .check-column,
+.wrap table.cosy-users-table tfoot .check-column,
+.wrap table.cosy-users-table tbody .check-column,
+.wrap table.cosy-media-table thead .check-column,
+.wrap table.cosy-media-table tfoot .check-column,
+.wrap table.cosy-media-table tbody .check-column,
 .cosy-users-admin table.wp-list-table thead .check-column,
 .cosy-users-admin table.wp-list-table tfoot .check-column,
-.cosy-users-admin table.wp-list-table tbody .check-column {
-    padding: 14px 0 14px 16px !important;
-    vertical-align: middle !important;
-    text-align: left !important;
-    width: 42px !important;
-    min-width: 42px !important;
-    max-width: 42px !important;
-    box-sizing: border-box !important;
+.cosy-users-admin table.wp-list-table tbody .check-column,
+.wrap table.wp-list-table thead .check-column,
+.wrap table.wp-list-table tfoot .check-column,
+.wrap table.wp-list-table tbody .check-column {
+    padding: 14px 0 14px 16px;
+    vertical-align: middle;
+    text-align: left;
+    width: 42px;
+    min-width: 42px;
+    max-width: 42px;
+    box-sizing: border-box;
 }
 
-/* Unified Checkbox Input Element */
-.cosy-orders-table .check-column input[type="checkbox"],
-.cosy-users-table .check-column input[type="checkbox"],
-.cosy-users-admin table.wp-list-table .check-column input[type="checkbox"] {
-    display: inline-block !important;
+/* Unified Checkbox Input Element (Unchecked & Checked States) */
+.wrap table.cosy-orders-table .check-column input[type="checkbox"],
+.wrap table.cosy-users-table .check-column input[type="checkbox"],
+.wrap table.cosy-media-table .check-column input[type="checkbox"],
+.cosy-users-admin table.wp-list-table .check-column input[type="checkbox"],
+.wrap table.wp-list-table .check-column input[type="checkbox"],
+input.cosy-order-checkbox,
+input.cosy-user-checkbox,
+input.cosy-media-checkbox,
+input.cosy-review-checkbox {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     margin: 0 !important;
     vertical-align: middle !important;
-    width: 16px !important;
-    height: 16px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
     position: relative !important;
     top: 0 !important;
     border: 1.5px solid #cbd5e1 !important;
-    border-radius: 4px !important;
+    border-radius: 5px !important;
     cursor: pointer !important;
     box-shadow: none !important;
     outline: none !important;
     background-color: #ffffff !important;
+    transition: all 0.15s ease-in-out !important;
+    box-sizing: border-box !important;
 }
 
-.cosy-orders-table tbody tr,
-.cosy-users-table tbody tr,
+.wrap table.cosy-orders-table .check-column input[type="checkbox"]:hover,
+.wrap table.cosy-users-table .check-column input[type="checkbox"]:hover,
+.wrap table.cosy-media-table .check-column input[type="checkbox"]:hover,
+.cosy-users-admin table.wp-list-table .check-column input[type="checkbox"]:hover,
+.wrap table.wp-list-table .check-column input[type="checkbox"]:hover,
+input.cosy-order-checkbox:hover,
+input.cosy-user-checkbox:hover,
+input.cosy-media-checkbox:hover,
+input.cosy-review-checkbox:hover {
+    border-color: #a44390 !important;
+}
+
+.wrap table.cosy-orders-table .check-column input[type="checkbox"]:checked,
+.wrap table.cosy-users-table .check-column input[type="checkbox"]:checked,
+.wrap table.cosy-media-table .check-column input[type="checkbox"]:checked,
+.cosy-users-admin table.wp-list-table .check-column input[type="checkbox"]:checked,
+.wrap table.wp-list-table .check-column input[type="checkbox"]:checked,
+input.cosy-order-checkbox:checked,
+input.cosy-user-checkbox:checked,
+input.cosy-media-checkbox:checked,
+input.cosy-review-checkbox:checked {
+    background-color: #a44390 !important;
+    border-color: #a44390 !important;
+}
+
+.wrap table.cosy-orders-table .check-column input[type="checkbox"]:checked::before,
+.wrap table.cosy-users-table .check-column input[type="checkbox"]:checked::before,
+.wrap table.cosy-media-table .check-column input[type="checkbox"]:checked::before,
+.cosy-users-admin table.wp-list-table .check-column input[type="checkbox"]:checked::before,
+.wrap table.wp-list-table .check-column input[type="checkbox"]:checked::before,
+input.cosy-order-checkbox:checked::before,
+input.cosy-user-checkbox:checked::before,
+input.cosy-media-checkbox:checked::before,
+input.cosy-review-checkbox:checked::before {
+    content: '' !important;
+    display: block !important;
+    width: 5px !important;
+    height: 9px !important;
+    border: solid #ffffff !important;
+    border-width: 0 2px 2px 0 !important;
+    transform: rotate(45deg) translate(-1px, -1px) !important;
+    margin: 0 !important;
+    float: none !important;
+}
+
+.wrap table.cosy-orders-table tbody tr,
+.wrap table.cosy-users-table tbody tr,
 .cosy-users-admin table.wp-list-table tbody tr {
-    transition: background-color 0.15s ease !important;
+    transition: background-color 0.15s ease;
 }
 
-.cosy-orders-table tbody tr:hover,
-.cosy-users-table tbody tr:hover,
+.wrap table.cosy-orders-table tbody tr:hover,
+.wrap table.cosy-users-table tbody tr:hover,
 .cosy-users-admin table.wp-list-table tbody tr:hover {
-    background-color: #f8fafc !important;
+    background-color: #f8fafc;
 }
 
 /* Unified Data Cells */
-.cosy-orders-table tbody td,
-.cosy-orders-table tbody th,
-.cosy-users-table tbody td,
-.cosy-users-table tbody th,
+.wrap table.cosy-orders-table tbody td,
+.wrap table.cosy-orders-table tbody th,
+.wrap table.cosy-users-table tbody td,
+.wrap table.cosy-users-table tbody th,
 .cosy-users-admin table.wp-list-table tbody td,
 .cosy-users-admin table.wp-list-table tbody th {
-    padding: 14px 12px !important;
-    vertical-align: middle !important;
-    border-bottom: 1px solid #f1f5f9 !important;
-    font-size: 13px !important;
-    line-height: 1.5 !important;
-    color: #334155 !important;
+    padding: 14px 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #334155;
 }
 
-.cosy-orders-table tbody tr:last-child td,
-.cosy-orders-table tbody tr:last-child th,
-.cosy-users-table tbody tr:last-child td,
-.cosy-users-table tbody tr:last-child th,
+.wrap table.cosy-orders-table tbody tr:last-child td,
+.wrap table.cosy-orders-table tbody tr:last-child th,
+.wrap table.cosy-users-table tbody tr:last-child td,
+.wrap table.cosy-users-table tbody tr:last-child th,
 .cosy-users-admin table.wp-list-table tbody tr:last-child td,
 .cosy-users-admin table.wp-list-table tbody tr:last-child th {
-    border-bottom: none !important;
+    border-bottom: none;
 }
 
 /* Universal Badge Styling */
 .cosy-users-admin span.status,
-.cosy-users-admin span.badge {
+.cosy-users-admin span.badge,
+.cosy-badge {
     display: inline-block;
     padding: 4px 10px;
     font-size: 11px;
@@ -310,7 +534,8 @@
 }
 
 .cosy-users-admin span.status.pending,
-.cosy-users-admin span.badge-pending {
+.cosy-users-admin span.badge-pending,
+.cosy-badge-pending {
     background-color: #fef9c3 !important;
     color: #854d0e !important;
     border: 1px solid #fef08a !important;
@@ -319,7 +544,8 @@
 .cosy-users-admin span.status.completed,
 .cosy-users-admin span.status.confirmed,
 .cosy-users-admin span.status.approved,
-.cosy-users-admin span.badge-approved {
+.cosy-users-admin span.badge-approved,
+.cosy-badge-approved {
     background-color: #dcfce7 !important;
     color: #166534 !important;
     border: 1px solid #bbf7d0 !important;
@@ -327,17 +553,28 @@
 
 .cosy-users-admin span.status.cancelled,
 .cosy-users-admin span.status.rejected,
-.cosy-users-admin span.badge-rejected {
+.cosy-users-admin span.badge-rejected,
+.cosy-badge-rejected {
     background-color: #fee2e2 !important;
     color: #991b1b !important;
     border: 1px solid #fecaca !important;
 }
 
-/* Unified Admin Table Action Buttons (Orders & Users View Details) */
+.cosy-badge-deleted {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+/* Unified Admin Table Action Buttons (Orders, Users, Reviews, Media) */
 .btn-view-admin-order-details,
 .btn-view-cosy-user-details,
 .cosy-btn-resend-verification,
-.cosy-admin-action-btn {
+.cosy-admin-action-btn,
+.cosy-users-admin .btn-view-cosy-user-details,
+.wrap .btn-view-cosy-user-details,
+.wp-core-ui .button.btn-view-cosy-user-details,
+.wp-core-ui .button.btn-view-admin-order-details {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -347,8 +584,8 @@
     font-size: 12px !important;
     font-weight: 600 !important;
     border-radius: 6px !important;
-    border: 1.5px solid #2271b1 !important;
-    color: #2271b1 !important;
+    border: 1.5px solid #a44390 !important;
+    color: #a44390 !important;
     background: #ffffff !important;
     cursor: pointer !important;
     text-decoration: none !important;
@@ -360,14 +597,244 @@
 .btn-view-admin-order-details:hover,
 .btn-view-cosy-user-details:hover,
 .cosy-btn-resend-verification:hover,
-.cosy-admin-action-btn:hover {
-    background: #2271b1 !important;
+.cosy-admin-action-btn:hover,
+.cosy-users-admin .btn-view-cosy-user-details:hover,
+.wrap .btn-view-cosy-user-details:hover,
+.wp-core-ui .button.btn-view-cosy-user-details:hover,
+.wp-core-ui .button.btn-view-admin-order-details:hover {
+    background: #a44390 !important;
     color: #ffffff !important;
-    border-color: #2271b1 !important;
-    box-shadow: 0 2px 8px rgba(34, 113, 177, 0.25) !important;
+    border-color: #a44390 !important;
+    box-shadow: 0 2px 8px rgba(164, 67, 144, 0.25) !important;
 }
 
-/* Premium Orders Detail Modal */
+/* Shared Table Columns & Cell Helpers */
+.cosy-col-id { width: 80px; }
+.cosy-col-name { width: 140px; }
+.cosy-col-role { width: 100px; }
+.cosy-col-email { width: 170px; }
+.cosy-col-experiences { width: 380px; }
+.cosy-col-verify { width: 130px; }
+.cosy-col-status { width: 120px; }
+.cosy-col-actions { width: 170px; }
+.cosy-col-datetime { width: 22%; }
+.cosy-col-media { width: 240px; }
+.cosy-col-phone { width: 150px; }
+.cosy-col-uploaded-on { width: 180px; }
+
+.cosy-table-empty-cell {
+    text-align: center;
+    padding: 40px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.cosy-muted-empty-text {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 11px;
+}
+
+.cosy-na-text {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.cosy-actions-cell-wrapper {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.cosy-status-spinner-vmiddle {
+    float: none;
+    margin: 0 0 0 5px;
+    vertical-align: middle;
+}
+
+.cosy-badge-icon-verified {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    vertical-align: text-bottom;
+    margin-right: 3px;
+}
+
+.cosy-verify-spinner {
+    float: none;
+    margin: 0 0 0 5px;
+}
+
+/* Shared Pagination Bar Styling */
+.cosy-tablenav-bottom {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cosy-displaying-num {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.cosy-pagination-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cosy-paging-input {
+    margin: 0 8px;
+    font-weight: 500;
+}
+
+/* Custom CSS Switch Toggle */
+.cosy-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+    vertical-align: middle;
+    margin: 0;
+}
+
+.cosy-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+    margin: 0;
+}
+
+.cosy-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .3s;
+    border: none;
+    box-shadow: none;
+}
+
+.cosy-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.cosy-switch input:checked+.cosy-slider {
+    background-color: #a44390;
+}
+
+.cosy-switch input:checked+.cosy-slider:before {
+    transform: translateX(24px);
+}
+
+.cosy-slider.round {
+    border-radius: 24px;
+}
+
+/* Custom Toast Alerts */
+.cosy-admin-alert {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    animation: cosyAlertFadeIn 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.cosy-admin-alert-success {
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border-color: #bbf7d0;
+}
+
+.cosy-admin-alert-danger {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.cosy-admin-alert-icon {
+    font-size: 18px;
+    margin-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes cosyAlertFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* -------------------------------------------------------------------------
+   END: 01. GLOBAL SYSTEM & UNIFIED CONTROLS
+   ------------------------------------------------------------------------- */
+
+
+/* =========================================================================
+   02. PAGE: ORDERS MANAGEMENT & ORDER DETAILS MODAL
+   Backend Screen: admin.php?page=cosy-orders (OrdersAdmin.php)
+   ================================================================--------- */
+
+.cosy-gift-pill {
+    display: inline-block;
+    margin-left: 6px;
+    color: #a44390;
+    background: #fdf2fb;
+    border: 1px solid #f1c7ec;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 10px;
+    vertical-align: middle;
+}
+
+.cosy-service-pill {
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.cosy-order-datetime-cell {
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.cosy-order-weekly-subtext {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+/* Order Details Modal Container */
 .cosy-admin-modal {
     display: none;
     position: fixed;
@@ -393,18 +860,6 @@
     border: 1px solid #e2e8f0;
 }
 
-@keyframes cosyModalFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 .cosy-admin-modal-header {
     background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
     color: #ffffff;
@@ -415,10 +870,10 @@
 }
 
 .cosy-admin-modal-header h2 {
-    color: #ffffff !important;
-    margin: 0 !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
+    color: #ffffff;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
 }
 
 .cosy-admin-modal-close {
@@ -461,11 +916,11 @@
 }
 
 .cosy-admin-card h3 {
-    margin-top: 0 !important;
-    margin-bottom: 12px !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    color: #1e293b !important;
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -478,8 +933,8 @@
 }
 
 .cosy-admin-card p {
-    margin: 8px 0 !important;
-    font-size: 13px !important;
+    margin: 8px 0;
+    font-size: 13px;
     color: #475569;
 }
 
@@ -523,12 +978,765 @@
     color: #0f172a;
 }
 
-/* Media Approvals Styling */
+/* Gift Card specific modal boxes */
+.cosy-gift-card-modal {
+    margin-top: 12px;
+    background: linear-gradient(135deg, #fdf5fc 0%, #faeaf7 100%);
+    border: 1.5px solid #f1c7ec;
+    border-left: 4px solid #a44390;
+    display: none;
+}
+
+.cosy-gift-card-title {
+    color: #6d2e67;
+    margin-bottom: 8px;
+}
+
+.cosy-gift-card-badge {
+    background: #a44390;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+}
+
+.cosy-gift-card-grid {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.cosy-gift-card-recipient-name {
+    color: #6d2e67;
+    font-weight: 700;
+}
+
+.cosy-gift-card-recipient-email {
+    color: #334155;
+    font-weight: 600;
+}
+
+.cosy-admin-card-purple-border {
+    border-left: 4px solid #a44390;
+}
+
+.cosy-table-cell-right-bold {
+    text-align: right;
+    font-weight: 600;
+}
+
+.cosy-table-cell-purple-code {
+    text-align: right;
+    font-family: monospace;
+    font-weight: 700;
+    color: #a44390;
+}
+
+.cosy-table-cell-mono {
+    text-align: right;
+    font-family: monospace;
+}
+
+.cosy-table-row-total {
+    font-weight: bold;
+    border-top: 1px solid #dcdcde;
+}
+
+.cosy-table-cell-total-label {
+    padding-top: 10px;
+    color: #1d2327;
+}
+
+.cosy-table-cell-total-value {
+    text-align: right;
+    padding-top: 10px;
+    color: #2271b1;
+    font-size: 1.1em;
+}
+
+.cosy-fee-disclaimer {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 14px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+
+.cosy-modal-status-box {
+    margin-top: 16px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.cosy-modal-loading-box {
+    text-align: center;
+    padding: 30px;
+}
+
+.cosy-modal-spinner {
+    float: none;
+    margin: 0 auto;
+}
+
+.cosy-modal-loading-text {
+    margin-top: 10px;
+    color: #64748b;
+}
+
+/* -------------------------------------------------------------------------
+   END: 02. PAGE: ORDERS MANAGEMENT & ORDER DETAILS MODAL
+   ------------------------------------------------------------------------- */
+
+
+/* =========================================================================
+   03. PAGE: USERS MANAGEMENT & USER DETAILS MODAL
+   Backend Screen: admin.php?page=cosy-users (users-page.php, modal-content.php)
+   ========================================================================= */
+
+.cosy-users-admin .badge-provider {
+    background-color: #f3e8ff;
+    color: #6b21a8;
+    border: 1px solid #e9d5ff;
+}
+
+.cosy-users-admin .badge-customer {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.cosy-users-admin .badge-other {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.cosy-users-admin .badge-verified {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.badge-provider-service {
+    background-color: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    text-transform: none;
+    font-size: 10px;
+    border-radius: 4px;
+    padding: 3px 7px;
+    margin: 2px;
+    display: inline-block;
+}
+
+.badge-customer-service {
+    background-color: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+    text-transform: none;
+    font-size: 10px;
+    border-radius: 4px;
+    padding: 3px 7px;
+    margin: 2px;
+    display: inline-block;
+}
+
+.cosy-users-admin select.cosy-admin-status-dropdown {
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 12px;
+    padding: 2px 24px 2px 8px;
+    height: 28px;
+}
+
+/* Appointment Info Block (Inside Users Table) */
+.cosy-appt-info-block {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 6px 8px;
+    margin-bottom: 5px;
+    font-size: 11px;
+}
+
+.cosy-appt-info-header {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.cosy-appt-service-badge {
+    margin: 0;
+    padding: 2px 6px;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+.cosy-appt-ordinal-suffix {
+    opacity: 0.8;
+    font-weight: normal;
+    font-size: 8px;
+}
+
+.cosy-appt-status-text {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.cosy-appt-status-upcoming {
+    color: #3b82f6;
+}
+
+.cosy-appt-status-in-progress {
+    color: #8b5cf6;
+}
+
+.cosy-appt-status-completed {
+    color: #10b981;
+}
+
+.cosy-appt-status-cancelled {
+    color: #ef4444;
+}
+
+.cosy-appt-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #475569;
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+.cosy-appt-meta-row-wrap {
+    word-break: break-all;
+}
+
+.cosy-appt-meta-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+    color: #64748b;
+    line-height: 12px;
+}
+
+.cosy-appt-more-text {
+    font-size: 10px;
+    color: #94a3b8;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* User Details AJAX Modal */
+.cosy-user-modal {
+    display: none;
+    position: fixed;
+    z-index: 99999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease;
+}
+
+.cosy-user-modal-content * {
+    box-sizing: border-box;
+}
+
+.cosy-user-modal-content {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #ffffff;
+    margin: 8% auto;
+    width: 90%;
+    max-width: 750px;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+    animation: cosyModalFadeIn 0.3s ease;
+}
+
+.cosy-user-modal-content .dashicons {
+    font-family: dashicons;
+}
+
+.cosy-user-modal-header {
+    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
+    color: #ffffff;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cosy-user-modal-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+.cosy-user-modal-close {
+    font-size: 28px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.cosy-user-modal-close:hover {
+    color: #ffffff;
+}
+
+.cosy-user-modal-body {
+    padding: 24px;
+    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cosy-detail-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.cosy-detail-section.section-primary {
+    background: #fdf2f8;
+    border: 1px solid #fbcfe8;
+}
+
+.cosy-detail-section h3 {
+    margin: 0 0 14px 0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 10px;
+}
+
+.cosy-detail-section.section-primary h3 {
+    color: #a44390;
+    border-bottom-color: #fbcfe8;
+}
+
+.cosy-detail-section h3 .dashicons {
+    color: #a44390;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+}
+
+.cosy-detail-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 13px;
+}
+
+.cosy-detail-section.section-primary .cosy-detail-row {
+    border-bottom-color: rgba(164, 67, 144, 0.05);
+}
+
+.cosy-detail-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.cosy-detail-row:first-of-type {
+    padding-top: 0;
+}
+
+.cosy-detail-label {
+    width: 150px;
+    font-weight: 600;
+    color: #64748b;
+    font-size: 12.5px;
+}
+
+.cosy-detail-val {
+    flex: 1;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.cosy-detail-section.section-primary .cosy-detail-val {
+    color: #0f172a;
+}
+
+.cosy-edit-appt-link {
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.cosy-edit-appt-link:hover {
+    color: #6d2e67;
+    opacity: 0.9;
+}
+
+.cosy-user-modal-footer {
+    padding: 16px 24px;
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.cosy-modal-btn-close {
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    color: #475569;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.cosy-modal-btn-close:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+/* Modal Filter Tabs */
+.cosy-modal-filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+
+.cosy-modal-tab {
+    background: none;
+    border: none;
+    box-shadow: none;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    padding: 6px 12px;
+    transition: all 0.2s ease;
+    border-radius: 4px 4px 0 0;
+    margin: 0;
+}
+
+.cosy-modal-tab:hover {
+    color: #0f172a;
+    background-color: #f1f5f9;
+}
+
+.cosy-modal-tab.active {
+    color: #a44390;
+    border-bottom: 2px solid #a44390;
+    font-weight: 700;
+    background: transparent;
+}
+
+.cosy-modal-tab.active:hover {
+    background: transparent;
+}
+
+.cosy-modal-appt-list-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.cosy-modal-appt-list-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cosy-modal-appt-list-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.cosy-modal-appt-list-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.cosy-modal-appt-list-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.cosy-detail-val-uppercase {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.cosy-detail-section-spaced {
+    margin-top: 15px;
+}
+
+.cosy-modal-appt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cosy-modal-appt-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.cosy-modal-appt-card-left {
+    flex: 1;
+}
+
+.cosy-modal-appt-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.cosy-modal-appt-badge {
+    margin: 0;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.cosy-modal-appt-total {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.cosy-modal-appt-meta-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.cosy-modal-appt-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cosy-modal-appt-meta-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: #94a3b8;
+    line-height: 14px;
+}
+
+.cosy-modal-appt-card-right {
+    text-align: right;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.cosy-modal-appt-status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.cosy-modal-status-upcoming {
+    color: #3b82f6;
+    background-color: #eff6ff;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.cosy-modal-status-in-progress {
+    color: #8b5cf6;
+    background-color: #f5f3ff;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.cosy-modal-status-completed {
+    color: #10b981;
+    background-color: #ecfdf5;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.cosy-modal-status-cancelled {
+    color: #ef4444;
+    background-color: #fef2f2;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* -------------------------------------------------------------------------
+   END: 03. PAGE: USERS MANAGEMENT & USER DETAILS MODAL
+   ------------------------------------------------------------------------- */
+
+
+/* =========================================================================
+   04. PAGE: MEDIA APPROVAL & VIDEO PREVIEWS
+   Backend Screen: admin.php?page=cosy-media-approve (media-approve.php)
+   ========================================================================= */
+
+.cosy-media-video-preview {
+    max-height: 130px;
+    display: block;
+    border-radius: 8px;
+    width: 100%;
+}
+
 .cosy-media-table video {
     border-radius: 8px;
     border: 1px solid #cbd5e1;
     outline: none;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cosy-media-config-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    margin-top: 20px;
+    margin-bottom: 25px;
+    border: 1px solid #e2e8f0;
+}
+
+.cosy-media-config-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.cosy-media-config-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cosy-media-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #a44390;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cosy-media-config-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.cosy-media-config-subtext {
+    margin: 3px 0 0 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.2;
+}
+
+.cosy-media-config-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cosy-media-config-label {
+    font-weight: 600;
+    color: #475569;
+    font-size: 13px;
+    margin: 0;
+}
+
+.cosy-media-size-input {
+    width: 80px !important;
+    padding: 6px 12px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    height: 35px !important;
+    box-shadow: none !important;
+    outline: none !important;
+    margin: 0 !important;
+}
+
+/* Save Limit Primary Button */
+.wp-core-ui .button-primary.cosy-media-save-btn,
+.cosy-media-save-btn {
+    background: #a44390 !important;
+    border-color: #a44390 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    padding: 0 16px !important;
+    height: 35px !important;
+    line-height: 33px !important;
+    box-shadow: 0 2px 4px rgba(164, 67, 144, 0.2) !important;
+    text-shadow: none !important;
+}
+
+.wp-core-ui .button-primary.cosy-media-save-btn:hover,
+.wp-core-ui .button-primary.cosy-media-save-btn:focus,
+.cosy-media-save-btn:hover,
+.cosy-media-save-btn:focus {
+    background: #8b3378 !important;
+    border-color: #8b3378 !important;
+    color: #ffffff !important;
+}
+
+.cosy-media-actions-wrapper {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.cosy-media-table-container {
+    margin-top: 15px;
 }
 
 .cosy-btn-approve {
@@ -572,146 +1780,422 @@
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
-/* Cozy Badge Styles */
-.cosy-badge {
+/* -------------------------------------------------------------------------
+   END: 04. PAGE: MEDIA APPROVAL & VIDEO PREVIEWS
+   ------------------------------------------------------------------------- */
+
+
+/* =========================================================================
+   05. PAGE: REVIEWS MANAGEMENT & THREAD TIMELINES
+   Backend Screen: admin.php?page=cosy-reviews (reviews-page.php)
+   ========================================================================= */
+
+.cosy-col-rating { width: 90px; }
+.cosy-col-review-reply { width: 30%; }
+
+.cosy-admin-rating-badge {
+    background: #fdf5fc;
+    color: #a44390;
+    border: 1px solid rgba(164, 67, 144, 0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
     display: inline-block;
-    padding: 4px 10px;
-    font-size: 11px;
+    white-space: nowrap;
+}
+
+.cosy-admin-review-cell {
+    color: #475569;
+    font-size: 12px;
+    vertical-align: top;
+    max-width: 420px;
+}
+
+.cosy-admin-review-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.cosy-admin-review-text {
+    font-size: 12px;
+    color: #1e293b;
     font-weight: 600;
     line-height: 1.4;
-    border-radius: 50px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    text-align: center;
-    border: 1px solid transparent;
+    margin-bottom: 6px;
+    word-break: break-word;
 }
 
-.cosy-badge-approved {
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+.cosy-admin-review-quote {
+    color: #a44390;
+    font-size: 14px;
+    font-weight: 800;
 }
 
-.cosy-badge-rejected {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+/* Reply Thread Timeline */
+.cosy-admin-thread-timeline {
+    border-left: 2px solid #cbd5e1;
+    padding-left: 10px;
+    margin-left: 4px;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-.cosy-badge-pending {
-    background-color: #fef9c3;
-    color: #854d0e;
-    border: 1px solid #fef08a;
+.cosy-admin-thread-item {
+    font-size: 11px;
+    line-height: 1.4;
+    word-break: break-word;
 }
 
-.cosy-badge-deleted {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: 1px solid #cbd5e1;
-}
-
-/* Custom Premium Alert Toast */
-.cosy-admin-alert {
+.cosy-admin-thread-header {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 20px;
-    animation: cosyAlertFadeIn 0.3s ease;
-    border: 1px solid transparent;
+    gap: 6px;
+    margin-bottom: 2px;
+    flex-wrap: wrap;
 }
 
-.cosy-admin-alert-success {
-    background-color: #f0fdf4;
-    color: #16a34a;
-    border-color: #bbf7d0;
+.cosy-admin-thread-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
-.cosy-admin-alert-danger {
-    background-color: #fef2f2;
-    color: #dc2626;
-    border-color: #fecaca;
+.cosy-badge-lvl-1 {
+    background: #fdf5fc;
+    color: #6d2e67;
+    border: 1px solid #f1e4ef;
 }
 
-.cosy-admin-alert-icon {
+.cosy-badge-lvl-2 {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #dbeafe;
+}
+
+.cosy-badge-lvl-3 {
+    background: #f0fdf4;
+    color: #065f46;
+    border: 1px solid #dcfce7;
+}
+
+.cosy-admin-thread-sender {
+    color: #1e293b;
+    font-size: 11px;
+}
+
+.cosy-admin-thread-body {
+    color: #475569;
+    font-size: 11px;
+    padding-left: 2px;
+}
+
+/* Reviews Status Buttons */
+.wp-core-ui .button.cosy-btn-approve-review,
+.wp-core-ui .button-small.cosy-btn-approve-review,
+.cosy-btn-approve-review {
+    color: #16a34a !important;
+    border-color: #bbf7d0 !important;
+    background: #f0fdf4 !important;
+    padding: 3px 8px !important;
+    height: 30px !important;
+    line-height: 22px !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wp-core-ui .button.cosy-btn-approve-review:hover,
+.wp-core-ui .button-small.cosy-btn-approve-review:hover,
+.cosy-btn-approve-review:hover {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    border-color: #16a34a !important;
+}
+
+.wp-core-ui .button.cosy-btn-reject-review,
+.wp-core-ui .button-small.cosy-btn-reject-review,
+.cosy-btn-reject-review {
+    color: #d97706 !important;
+    border-color: #fef08a !important;
+    background: #fefce8 !important;
+    padding: 3px 8px !important;
+    height: 30px !important;
+    line-height: 22px !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wp-core-ui .button.cosy-btn-reject-review:hover,
+.wp-core-ui .button-small.cosy-btn-reject-review:hover,
+.cosy-btn-reject-review:hover {
+    background: #d97706 !important;
+    color: #ffffff !important;
+    border-color: #d97706 !important;
+}
+
+.wp-core-ui .button.cosy-btn-delete-review,
+.wp-core-ui .button-small.cosy-btn-delete-review,
+.cosy-btn-delete-review {
+    color: #dc2626 !important;
+    border-color: #fecaca !important;
+    background: #fef2f2 !important;
+    padding: 3px 8px !important;
+    height: 30px !important;
+    line-height: 22px !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wp-core-ui .button.cosy-btn-delete-review:hover,
+.wp-core-ui .button-small.cosy-btn-delete-review:hover,
+.cosy-btn-delete-review:hover {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #dc2626 !important;
+}
+
+.cosy-review-action-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    vertical-align: middle !important;
+}
+
+/* -------------------------------------------------------------------------
+   END: 05. PAGE: REVIEWS MANAGEMENT & THREAD TIMELINES
+   ------------------------------------------------------------------------- */
+
+
+/* =========================================================================
+   06. PAGE: ACTIVITY LOGS & LOGGER SWITCHES
+   Backend Screen: admin.php?page=cosy-activity-logs (logs.php)
+   ========================================================================= */
+
+.cosy-logs-header-icon {
+    width: 54px !important;
+    height: 54px !important;
+    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;
+    border-radius: 10px !important;
+}
+
+.cosy-logs-heading-title {
+    font-family: 'Outfit', sans-serif;
+}
+
+.cosy-logs-heading-sub {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.cosy-logs-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+}
+
+.cosy-logs-section-icon {
+    color: #a44390;
     font-size: 18px;
-    margin-right: 10px;
-    display: inline-flex;
+}
+
+.cosy-logs-section-sub {
+    font-size: 13px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.cosy-logs-sec-label {
+    font-size: 13px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.cosy-log-status-enabled {
+    color: #10b981;
+}
+
+.cosy-log-status-disabled {
+    color: #64748b;
+}
+
+.cosy-log-status-lbl {
+    font-size: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.cosy-log-toggle-spinner {
+    float: none;
+    margin: 0;
+    display: none;
+    vertical-align: middle;
+}
+
+/* KPI Cards & Icons */
+.cosy-kpi-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cosy-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.cosy-kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 20px;
 }
 
-@keyframes cosyAlertFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.cosy-kpi-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Custom CSS Switch Toggle */
-.cosy-switch {
-    position: relative;
-    display: inline-block;
-    width: 42px;
-    height: 20px;
-    vertical-align: middle;
-    margin: 0 !important;
+.cosy-kpi-info .kpi-number {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
 }
 
-.cosy-switch input {
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    margin: 0 !important;
+.cosy-kpi-icon-purple {
+    color: #a44390;
+    background-color: rgba(164, 67, 144, 0.1);
 }
 
-.cosy-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #cbd5e1 !important;
-    transition: .3s;
+.cosy-kpi-icon-green {
+    color: #10b981;
+    background-color: rgba(164, 67, 144, 0.1);
+}
+
+.cosy-kpi-icon-cyan {
+    color: #06b6d4;
+    background-color: rgba(6, 182, 212, 0.1);
+}
+
+.cosy-kpi-icon-amber {
+    color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.1);
+}
+
+.cosy-logs-search-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background-color: #ffffff !important;
+    height: 34px !important;
+    box-sizing: border-box !important;
+    padding-right: 8px !important;
+}
+
+.cosy-logs-search-wrapper:focus-within {
+    border-color: #a44390 !important;
+    box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1) !important;
+}
+
+.cosy-logs-search-wrapper input[type="text"],
+.cosy-logs-search-wrapper input.cosy-logs-search-input,
+.wrap .cosy-logs-search-wrapper input[type="text"],
+.wp-core-ui .cosy-logs-search-wrapper input[type="text"],
+.cosy-users-admin .cosy-logs-search-wrapper input[type="text"] {
     border: none !important;
+    outline: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    width: 200px !important;
+    min-width: 180px !important;
+    height: 100% !important;
+    min-height: 30px !important;
+    line-height: 30px !important;
     box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 8px 0 4px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
 }
 
-.cosy-slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white !important;
-    transition: .3s;
-    border-radius: 50% !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+/* Logs Table Columns */
+.cosy-col-log-num { width: 70px; text-align: center; }
+.cosy-col-log-date { width: 170px; }
+.cosy-col-log-user { width: 180px; }
+.cosy-col-log-section { width: 140px; }
+.cosy-col-log-action { width: 150px; }
+.cosy-col-log-ip { width: 140px; }
+
+.cosy-log-counter-cell {
+    text-align: center;
+    color: #94a3b8;
+    font-weight: bold;
 }
 
-.cosy-switch input:checked+.cosy-slider {
-    background-color: #10b981 !important;
+.cosy-log-date-cell {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12.5px;
 }
 
-.cosy-switch input:checked+.cosy-slider:before {
-    transform: translateX(22px) !important;
+.cosy-log-user-strong {
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.cosy-slider.round {
-    border-radius: 20px !important;
+.cosy-log-code-badge {
+    font-size: 11px;
+    font-weight: bold;
+    color: #a44390;
+    background-color: rgba(164, 67, 144, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
-/* Logging status header toggle styling */
+.cosy-log-details-cell {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.cosy-log-ip-cell {
+    font-family: monospace;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.cosy-log-pagination-num {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+}
+
+/* Page Logger Header Toggle Containers */
 .cosy-page-logger-toggle-container {
     padding: 6px 12px;
     background: #f8fafc;
@@ -720,7 +2204,6 @@
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
-/* Badge styles for log roles & pages */
 .cosy-log-badge {
     display: inline-block;
     padding: 3px 8px;
@@ -767,96 +2250,49 @@
     text-transform: capitalize;
 }
 
-/* Premium KPI log page styling */
-.cosy-kpi-card {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.cosy-kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-}
-
-.cosy-kpi-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-}
-
-.cosy-kpi-info h4 {
-    margin: 0 0 4px 0 !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    color: #64748b !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.cosy-kpi-info .kpi-number {
-    font-size: 24px;
-    font-weight: 800;
-    color: #0f172a;
-    line-height: 1;
-}
-
-/* Dashboard header toggle adjustment */
 .cdb-page-header .cosy-page-logger-toggle-container {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
-    box-shadow: none !important;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: none;
     float: right;
     margin-top: -12px;
 }
 
 .cdb-page-header .cosy-page-logger-toggle-container span {
-    color: #ffffff !important;
+    color: #ffffff;
 }
 
 .cdb-page-header .cosy-page-logger-toggle-container .cosy-log-status-lbl {
-    color: #10b981 !important;
+    color: #10b981;
 }
 
 .cdb-page-header .cosy-page-logger-toggle-container input:not(:checked)~span.cosy-log-status-lbl {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(255, 255, 255, 0.7);
 }
 
-/* Documentation header toggle adjustment */
 .cdoc-header .cosy-page-logger-toggle-container {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
-    box-shadow: none !important;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: none;
     float: right;
     margin-top: 14px;
 }
 
 .cdoc-header .cosy-page-logger-toggle-container span {
-    color: #ffffff !important;
+    color: #ffffff;
 }
 
 .cdoc-header .cosy-page-logger-toggle-container .cosy-log-status-lbl {
-    color: #10b981 !important;
+    color: #10b981;
 }
 
 .cdoc-header .cosy-page-logger-toggle-container input:not(:checked)~span.cosy-log-status-lbl {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(255, 255, 255, 0.7);
 }
 
-/* CPT views list logger toggle alignment */
 .subsubsub {
     display: block;
-    float: none !important;
+    float: none;
     clear: both;
     width: 100%;
     overflow: hidden;
@@ -874,34 +2310,339 @@
     margin-bottom: 0;
 }
 
-/* Central Clear Logs Button */
+/* Clear Logs Button */
 .cosy-btn-clear {
-    background: #ffffff !important;
-    border: 1.5px solid #ef4444 !important;
-    color: #ef4444 !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    border-radius: 8px !important;
-    padding: 8px 16px !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    text-decoration: none !important;
-    box-shadow: none !important;
-    line-height: 1.2 !important;
+    background: #ffffff;
+    border: 1.5px solid #ef4444;
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 13px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: none;
+    line-height: 1.2;
 }
 
 .cosy-btn-clear:hover {
-    background: #ef4444 !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
+/* -------------------------------------------------------------------------
+   END: 06. PAGE: ACTIVITY LOGS & LOGGER SWITCHES
+   ------------------------------------------------------------------------- */
+
+
 /* =========================================================================
-   COSY SWEET ALERT — Custom Confirm Dialog & Toast Notifications
+   07. PAGE: GLOBAL SETTINGS & EMAIL SIGNATURE
+   Backend Screen: admin.php?page=cosy-payment-settings (settings-page.php)
+   ========================================================================= */
+
+.cosy-settings-header-icon {
+    width: 54px;
+    height: 54px;
+    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%);
+}
+
+.cosy-settings-tab-content {
+    min-height: 300px;
+}
+
+.cosy-settings-icon-navy {
+    color: #0b4a8f !important;
+}
+
+.cosy-settings-icon-purple {
+    color: #a44390 !important;
+}
+
+.cosy-settings-media-btn {
+    color: #a44390 !important;
+    border: 1.5px solid #a44390 !important;
+    background: #ffffff !important;
+}
+
+.cosy-settings-media-btn:hover {
+    background: #fdf5fc !important;
+    color: #8f357b !important;
+    border-color: #8f357b !important;
+}
+
+.cosy-settings-media-preview-img {
+    max-height: 120px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.cosy-settings-logo-preview-img {
+    max-height: 80px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    padding: 6px;
+    background: #fff;
+}
+
+/* Email Signature Preview Box */
+.cosy-sig-preview-card {
+    background: #fdfafd;
+}
+
+.cosy-sig-box {
+    background: #ffffff;
+    border: 1px solid #f1e4ef;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 540px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.cosy-sig-logo-td {
+    width: 110px;
+    vertical-align: middle;
+    padding-right: 16px;
+}
+
+.cosy-sig-logo-img {
+    max-width: 100px;
+    height: auto;
+    display: block;
+}
+
+.cosy-sig-divider-td {
+    width: 2px;
+    vertical-align: middle;
+    padding: 0 16px 0 0;
+}
+
+.cosy-sig-divider-line {
+    width: 2px;
+    height: 80px;
+    background: linear-gradient(180deg, #a44390, #6d2e67);
+}
+
+.cosy-sig-details-td {
+    vertical-align: middle;
+}
+
+.cosy-sig-name-p {
+    margin: 0 0 2px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #a44390;
+}
+
+.cosy-sig-title-p {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cosy-sig-contact-p {
+    margin: 0 0 3px 0;
+    font-size: 12px;
+    color: #334155;
+}
+
+.cosy-sig-contact-p-last {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    color: #334155;
+}
+
+.cosy-sig-social-row {
+    margin: 6px 0 0 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cosy-sig-social-link {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.cosy-sig-social-icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 26px;
+    height: 26px;
+    border: 0;
+}
+
+.cosy-settings-alert-info {
+    background: #fdf2fb !important;
+    border-left: 4px solid #a44390 !important;
+    color: #6d2e67 !important;
+}
+
+.cosy-smtp-toggle-pass-btn {
+    border-color: #dee2e6;
+}
+
+.cosy-smtp-test-card {
+    background: #ffffff !important;
+    border: 1px solid #f1e4ef !important;
+}
+
+.cosy-smtp-test-result {
+    display: none;
+}
+
+.cosy-settings-submit-btn {
+    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;
+    transition: all 0.2s ease !important;
+}
+
+.cosy-settings-submit-btn:hover {
+    background: linear-gradient(135deg, #8f357b 0%, #6d2e67 100%) !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.25) !important;
+}
+
+/* Settings Form Controls & Tabs */
+.cosy-settings-wrap .nav-pills .nav-link {
+    color: #64748b;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease-in-out;
+}
+
+.cosy-settings-wrap .nav-pills .nav-link.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;
+    border-color: #8f357b !important;
+    box-shadow: 0 4px 6px -1px rgba(164, 67, 144, 0.15), 0 2px 4px -1px rgba(164, 67, 144, 0.1);
+}
+
+.cosy-settings-wrap .nav-pills .nav-link:hover:not(.active) {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    border-color: #cbd5e1;
+}
+
+.cosy-settings-wrap .input-group {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #ffffff;
+    transition: all 0.2s ease-in-out;
+}
+
+.cosy-settings-wrap .input-group:focus-within {
+    border-color: #a44390;
+    box-shadow: 0 0 0 0.25rem rgba(164, 67, 144, 0.15);
+}
+
+.cosy-settings-wrap .input-group-text {
+    border: none;
+    background-color: transparent;
+    color: #64748b;
+    padding-right: 0;
+}
+
+.cosy-settings-wrap .form-control {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    padding-left: 12px;
+}
+
+.cosy-settings-wrap .form-select {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    padding-left: 12px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    background-repeat: no-repeat;
+    padding-right: 2.5rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    max-width: 100%;
+    height: auto;
+    font-weight: 500;
+}
+
+.cosy-settings-wrap .form-control:focus,
+.cosy-settings-wrap .form-select:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.cosy-settings-wrap .w-20 {
+    width: 24px;
+    text-align: center;
+}
+
+.cosy-settings-wrap button[type="submit"]:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(164, 67, 144, 0.25);
+}
+
+/* SMTP Test Button & Controls */
+.cosy-settings-wrap .btn-cosy-smtp-test {
+    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%);
+    border: 1px solid #8f357b;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.25);
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.cosy-settings-wrap .btn-cosy-smtp-test:hover,
+.cosy-settings-wrap .btn-cosy-smtp-test:focus,
+.cosy-settings-wrap .btn-cosy-smtp-test:active {
+    background: linear-gradient(135deg, #8f357b 0%, #6d2e67 100%);
+    border-color: #6d2e67;
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(164, 67, 144, 0.4);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.cosy-settings-wrap .btn-cosy-smtp-test:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.cosy-settings-wrap #btn-toggle-smtp-pass:hover,
+.cosy-settings-wrap #btn-toggle-smtp-pass:focus {
+    background-color: #fdf2fb;
+    color: #a44390;
+    border-color: #dee2e6;
+}
+
+.cosy-settings-wrap #cosy_test_smtp_recipient:focus {
+    border-color: #a44390;
+    box-shadow: 0 0 0 0.2rem rgba(164, 67, 144, 0.2);
+}
+
+/* -------------------------------------------------------------------------
+   END: 07. PAGE: GLOBAL SETTINGS & EMAIL SIGNATURE
+   ------------------------------------------------------------------------- */
+
+
+/* =========================================================================
+   08. COMPONENT: SWEETALERT CONFIRM DIALOGS & TOAST NOTIFICATIONS
+   Script: cosy-sweetalert.js
    ========================================================================= */
 
 /* Overlay backdrop */
@@ -1004,33 +2745,32 @@
 }
 
 .cosy-sweet-btn-cancel {
-    background: #ef4444 !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .cosy-sweet-btn-cancel:hover {
-    background: #dc2626 !important;
-    color: #ffffff !important;
+    background: #dc2626;
+    color: #ffffff;
 }
 
 .cosy-sweet-btn-confirm,
 .cosy-sweet-btn-confirm.info-btn {
-    background: #22c55e !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3) !important;
+    background: #22c55e;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
 .cosy-sweet-btn-confirm:hover,
 .cosy-sweet-btn-confirm.info-btn:hover {
-    background: #16a34a !important;
-    color: #ffffff !important;
-    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4) !important;
+    background: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
     transform: translateY(-1px);
 }
 
-
-/* Toast notification (top-right) */
+/* Toast notification container (top-right) */
 #cosy-sweet-toast-container {
     position: fixed;
     top: 24px;
@@ -1098,7 +2838,6 @@
     from {
         opacity: 0;
     }
-
     to {
         opacity: 1;
     }
@@ -1109,7 +2848,6 @@
         opacity: 0;
         transform: scale(0.88) translateY(20px);
     }
-
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -1121,714 +2859,22 @@
         opacity: 0;
         transform: translateX(40px);
     }
-
     to {
         opacity: 1;
         transform: translateX(0);
     }
 }
 
+/* -------------------------------------------------------------------------
+   END: 08. COMPONENT: SWEETALERT CONFIRM DIALOGS & TOAST NOTIFICATIONS
+   ------------------------------------------------------------------------- */
+
+
 /* =========================================================================
-   COSY USERS ADMIN — Unified Users Page Style Definitions
+   09. PAGE: PLUGIN DOCUMENTATION VIEW
+   Backend Screen: admin.php?page=cosy-appointments-docs (documentation.php)
    ========================================================================= */
 
-/* Premium Control Bar Styles */
-.cosy-control-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #ffffff;
-    padding: 12px 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    border: 1px solid #e2e8f0;
-    margin-bottom: 20px;
-    margin-top: 15px;
-}
-
-.cosy-control-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.cosy-control-right {
-    display: flex;
-    align-items: center;
-}
-
-.cosy-role-tabs {
-    display: flex;
-    background-color: #f1f5f9;
-    padding: 4px;
-    border-radius: 8px;
-}
-
-.cosy-tab-pill {
-    display: inline-block;
-    padding: 6px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #475569;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    border: none;
-}
-
-.cosy-tab-pill:hover {
-    color: #0f172a;
-    background-color: #e2e8f0;
-}
-
-.cosy-tab-pill.active {
-    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
-    color: #ffffff;
-    box-shadow: 0 2px 6px rgba(164, 67, 144, 0.2);
-}
-
-.cosy-tab-pill.active:hover {
-    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
-    color: #ffffff;
-}
-
-.cosy-btn-delete-selected-modern {
-    background: #ffffff;
-    border: 1.5px solid #ef4444;
-    color: #ef4444;
-    padding: 0 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    height: 34px;
-    outline: none;
-}
-
-.cosy-btn-delete-selected-modern:hover:not(:disabled) {
-    background: #ef4444;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
-}
-
-.cosy-btn-delete-selected-modern:disabled {
-    border-color: #cbd5e1;
-    color: #94a3b8;
-    cursor: not-allowed;
-    opacity: 0.65;
-}
-
-.cosy-search-form-modern {
-    margin: 0;
-}
-
-.cosy-search-input-wrapper {
-    display: flex;
-    align-items: center;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #ffffff;
-    transition: border-color 0.2s ease;
-    height: 34px;
-}
-
-.cosy-search-input-wrapper:focus-within {
-    border-color: #a44390;
-    box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1);
-}
-
-.cosy-search-input-wrapper input[type="search"] {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    margin: 0 !important;
-    padding: 6px 12px 6px 6px !important;
-    font-size: 13px !important;
-    color: #334155 !important;
-    width: 200px !important;
-    background: transparent !important;
-    height: auto !important;
-}
-
-.cosy-search-btn {
-    background: #f1f5f9;
-    border: none;
-    border-left: 1.5px solid #cbd5e1;
-    color: #475569;
-    font-weight: 600;
-    font-size: 13px;
-    padding: 0 16px;
-    height: 34px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin: 0;
-}
-
-.cosy-search-btn:hover {
-    background: #e2e8f0;
-    color: #0f172a;
-}
-
-/* Service filter select styling */
-.cosy-filter-wrapper select:focus {
-    border-color: #a44390 !important;
-    box-shadow: 0 0 0 2px rgba(164, 67, 144, 0.1) !important;
-}
-
-/* Modernized Table styling */
-.cosy-users-table {
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01) !important;
-    border-collapse: separate !important;
-    border-spacing: 0 !important;
-    background: #ffffff;
-}
-
-.cosy-users-table thead th {
-    background-color: #f8fafc !important;
-    color: #475569 !important;
-    font-weight: 700 !important;
-    font-size: 13px !important;
-    padding: 14px 10px !important;
-    border-bottom: 2px solid #e2e8f0 !important;
-}
-
-.cosy-users-table tbody tr {
-    transition: background-color 0.15s ease;
-}
-
-.cosy-users-table tbody tr:hover {
-    background-color: #f8fafc !important;
-}
-
-.cosy-users-table tbody td,
-.cosy-users-table tbody th {
-    padding: 14px 10px !important;
-    vertical-align: middle !important;
-    border-bottom: 1px solid #f1f5f9 !important;
-}
-
-.cosy-users-table tbody tr:last-child td,
-.cosy-users-table tbody tr:last-child th {
-    border-bottom: none !important;
-}
-
-.cosy-users-admin .badge {
-    display: inline-block;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.4;
-    border-radius: 50px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.cosy-users-admin .badge-provider {
-    background-color: #f3e8ff;
-    color: #6b21a8;
-    border: 1px solid #e9d5ff;
-}
-
-.cosy-users-admin .badge-customer {
-    background-color: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
-}
-
-.cosy-users-admin .badge-other {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-}
-
-.cosy-users-admin .badge-verified {
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
-}
-
-.cosy-users-admin .badge-pending {
-    background-color: #fef9c3;
-    color: #854d0e;
-    border: 1px solid #fef08a;
-}
-
-.badge-provider-service {
-    background-color: #ecfdf5 !important;
-    color: #047857 !important;
-    border: 1px solid #a7f3d0 !important;
-    text-transform: none !important;
-    font-size: 10px !important;
-    border-radius: 4px !important;
-    padding: 3px 7px !important;
-    margin: 2px !important;
-    display: inline-block !important;
-}
-
-.badge-customer-service {
-    background-color: #fff7ed !important;
-    color: #c2410c !important;
-    border: 1px solid #ffedd5 !important;
-    text-transform: none !important;
-    font-size: 10px !important;
-    border-radius: 4px !important;
-    padding: 3px 7px !important;
-    margin: 2px !important;
-    display: inline-block !important;
-}
-
-.cosy-users-admin select.cosy-admin-status-dropdown {
-    border-radius: 6px;
-    border: 1px solid #cbd5e1;
-    font-size: 12px;
-    padding: 2px 24px 2px 8px;
-    height: 28px;
-}
-
-/* Premium Details Modal */
-.cosy-user-modal {
-    display: none;
-    position: fixed;
-    z-index: 99999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(15, 23, 42, 0.4);
-    backdrop-filter: blur(4px);
-    transition: opacity 0.3s ease;
-}
-
-.cosy-user-modal-content * {
-    box-sizing: border-box;
-}
-
-.cosy-user-modal-content {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.cosy-user-modal-content .dashicons {
-    font-family: dashicons !important;
-}
-
-.cosy-user-modal-content {
-    background-color: #ffffff;
-    margin: 8% auto;
-    width: 90%;
-    max-width: 750px;
-    border-radius: 16px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f1f5f9;
-    overflow: hidden;
-    animation: cosyModalFadeIn 0.3s ease;
-}
-
-.cosy-user-modal-header {
-    background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%);
-    color: #ffffff;
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.cosy-user-modal-header h2 {
-    margin: 0;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 700;
-    font-family: 'Outfit', sans-serif;
-    letter-spacing: -0.01em;
-}
-
-.cosy-user-modal-close {
-    font-size: 28px;
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.8);
-    cursor: pointer;
-    line-height: 1;
-}
-
-.cosy-user-modal-close:hover {
-    color: #ffffff;
-}
-
-.cosy-user-modal-body {
-    padding: 24px;
-    background-color: #f8fafc;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.cosy-detail-section {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 18px 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.cosy-detail-section.section-primary {
-    background: #fdf2f8;
-    border: 1px solid #fbcfe8;
-}
-
-.cosy-detail-section h3 {
-    margin: 0 0 14px 0 !important;
-    font-family: 'Outfit', sans-serif !important;
-    font-size: 0.95rem !important;
-    font-weight: 700 !important;
-    color: #1e293b !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 10px;
-}
-
-.cosy-detail-section.section-primary h3 {
-    color: #a44390 !important;
-    border-bottom-color: #fbcfe8;
-}
-
-.cosy-detail-section h3 .dashicons {
-    color: #a44390;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-}
-
-.cosy-detail-row {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #f8fafc;
-    font-size: 13px;
-}
-
-.cosy-detail-section.section-primary .cosy-detail-row {
-    border-bottom-color: rgba(164, 67, 144, 0.05);
-}
-
-.cosy-detail-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.cosy-detail-row:first-of-type {
-    padding-top: 0;
-}
-
-.cosy-detail-label {
-    width: 150px;
-    font-weight: 600;
-    color: #64748b;
-    font-size: 12.5px;
-}
-
-.cosy-detail-val {
-    flex: 1;
-    color: #1e293b;
-    font-weight: 600;
-}
-
-.cosy-detail-section.section-primary .cosy-detail-val {
-    color: #0f172a;
-}
-
-.cosy-edit-appt-link {
-    transition: color 0.2s ease, opacity 0.2s ease;
-}
-
-.cosy-edit-appt-link:hover {
-    color: #6d2e67 !important;
-    opacity: 0.9;
-}
-
-.cosy-user-modal-footer {
-    padding: 16px 24px;
-    background-color: #ffffff;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.cosy-modal-btn-close {
-    background: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-family: 'Outfit', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
-    color: #475569;
-    transition: all 0.2s ease;
-    outline: none;
-}
-
-.cosy-modal-btn-close:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-    border-color: #94a3b8;
-}
-
-/* Modal Filter Tabs */
-.cosy-modal-filter-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 10px;
-}
-
-.cosy-modal-tab {
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    color: #64748b !important;
-    cursor: pointer !important;
-    padding: 6px 12px !important;
-    transition: all 0.2s ease !important;
-    border-radius: 4px 4px 0 0 !important;
-    margin: 0 !important;
-}
-
-.cosy-modal-tab:hover {
-    color: #0f172a !important;
-    background-color: #f1f5f9 !important;
-}
-
-.cosy-modal-tab.active {
-    color: #a44390 !important;
-    border-bottom: 2px solid #a44390 !important;
-    font-weight: 700 !important;
-    background: transparent !important;
-}
-
-.cosy-modal-tab.active:hover {
-    background: transparent !important;
-}
-
-/* Scrollable container for modal booking cards */
-.cosy-modal-appt-list-wrapper {
-    max-height: 300px;
-    overflow-y: auto;
-    padding-right: 6px;
-}
-
-/* Custom Scrollbar for premium feel */
-.cosy-modal-appt-list-wrapper::-webkit-scrollbar {
-    width: 6px;
-}
-
-.cosy-modal-appt-list-wrapper::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 10px;
-}
-
-.cosy-modal-appt-list-wrapper::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-
-.cosy-modal-appt-list-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
-/* Global Settings Page Overrides */
-.cosy-settings-wrap .nav-pills .nav-link {
-    color: #64748b !important;
-    background-color: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    transition: all 0.2s ease-in-out;
-}
-
-.cosy-settings-wrap .nav-pills .nav-link.active {
-    color: #ffffff !important;
-    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;
-    border-color: #8f357b !important;
-    box-shadow: 0 4px 6px -1px rgba(164, 67, 144, 0.15), 0 2px 4px -1px rgba(164, 67, 144, 0.1) !important;
-}
-
-.cosy-settings-wrap .nav-pills .nav-link:hover:not(.active) {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
-    border-color: #cbd5e1 !important;
-}
-
-.cosy-settings-wrap .input-group {
-    border: 1px solid #dee2e6 !important;
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    background-color: #ffffff !important;
-    transition: all 0.2s ease-in-out !important;
-}
-
-.cosy-settings-wrap .input-group:focus-within {
-    border-color: #a44390 !important;
-    box-shadow: 0 0 0 0.25rem rgba(164, 67, 144, 0.15) !important;
-}
-
-.cosy-settings-wrap .input-group-text {
-    border: none !important;
-    background-color: transparent !important;
-    color: #64748b !important;
-    padding-right: 0 !important;
-}
-
-.cosy-settings-wrap .form-control {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    padding-left: 12px !important;
-}
-
-.cosy-settings-wrap .form-select {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    padding-left: 12px !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
-    background-position: right 0.75rem center !important;
-    background-size: 16px 12px !important;
-    background-repeat: no-repeat !important;
-    padding-right: 2.5rem !important;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    max-width: 100% !important;
-    height: auto !important;
-    font-weight: 500 !important;
-}
-
-.cosy-settings-wrap .form-control:focus,
-.cosy-settings-wrap .form-select:focus {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.cosy-settings-wrap .w-20 {
-    width: 24px;
-    text-align: center;
-}
-
-.cosy-settings-wrap button[type="submit"]:hover {
-    opacity: 0.95;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 12px rgba(164, 67, 144, 0.25) !important;
-}
-
-/* SMTP Test Button & Controls */
-.cosy-settings-wrap .btn-cosy-smtp-test {
-    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;
-    border: 1px solid #8f357b !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.25) !important;
-    transition: all 0.25s ease !important;
-    cursor: pointer;
-}
-
-.cosy-settings-wrap .btn-cosy-smtp-test:hover,
-.cosy-settings-wrap .btn-cosy-smtp-test:focus,
-.cosy-settings-wrap .btn-cosy-smtp-test:active {
-    background: linear-gradient(135deg, #8f357b 0%, #6d2e67 100%) !important;
-    border-color: #6d2e67 !important;
-    color: #ffffff !important;
-    box-shadow: 0 6px 18px rgba(164, 67, 144, 0.4) !important;
-    transform: translateY(-1px);
-    outline: none !important;
-}
-
-.cosy-settings-wrap .btn-cosy-smtp-test:disabled {
-    opacity: 0.75 !important;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.cosy-settings-wrap #btn-toggle-smtp-pass:hover,
-.cosy-settings-wrap #btn-toggle-smtp-pass:focus {
-    background-color: #fdf2fb !important;
-    color: #a44390 !important;
-    border-color: #dee2e6 !important;
-}
-
-.cosy-settings-wrap #cosy_test_smtp_recipient:focus {
-    border-color: #a44390 !important;
-    box-shadow: 0 0 0 0.2rem rgba(164, 67, 144, 0.2) !important;
-}
-
-.cosy-switch {
-    position: relative;
-    display: inline-block;
-    width: 48px;
-    height: 24px;
-    vertical-align: middle;
-    margin: 0 !important;
-}
-
-.cosy-switch input {
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    margin: 0 !important;
-}
-
-.cosy-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #cbd5e1 !important;
-    transition: .3s;
-    border: none !important;
-    box-shadow: none !important;
-}
-
-.cosy-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white !important;
-    transition: .3s;
-    border-radius: 50% !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
-}
-
-.cosy-switch input:checked+.cosy-slider {
-    background-color: #a44390 !important;
-}
-
-.cosy-switch input:checked+.cosy-slider:before {
-    transform: translateX(24px) !important;
-}
-
-.cosy-slider.round {
-    border-radius: 24px !important;
-}
-
-/* Documentation View Styles */
 .cdoc-wrap * {
     box-sizing: border-box;
     margin: 0;
@@ -1964,7 +3010,6 @@
         opacity: 0;
         transform: translateY(12px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -2288,3 +3333,7 @@
     color: #6d2e67;
     font-weight: 600;
 }
+
+/* -------------------------------------------------------------------------
+   END: 09. PAGE: PLUGIN DOCUMENTATION VIEW
+   ------------------------------------------------------------------------- */

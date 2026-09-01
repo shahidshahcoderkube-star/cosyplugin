@@ -85,7 +85,7 @@ class Class_Provider_Verification
             $html .= sprintf('<option value="%s" %s>%s</option>', esc_attr($val_opt), $selected, esc_html($label));
         }
         $html .= '</select>';
-        $html .= '<span class="cosy-verify-spinner spinner" style="float: none; margin: 0 0 0 5px;"></span>';
+        $html .= '<span class="cosy-verify-spinner spinner"></span>';
 
         return $html;
     }
