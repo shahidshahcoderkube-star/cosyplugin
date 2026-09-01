@@ -37,58 +37,102 @@ SECTION 1: PASSED TEST ITEMS (👍) - WORKING AS EXPECTED
 
 
 --------------------------------------------------------------------------------
-SECTION 2: ISSUES, BUGS & UI ENHANCEMENTS (🤢)
+SECTION 2: RESOLVED & APPROVED ISSUES, BUGS & UI ENHANCEMENTS (👍 DONE)
 --------------------------------------------------------------------------------
-1. 🤢 Password Reset Login Error:
-   - Issue: Customer resets password via email link, but logging in with the new password triggers an error: "Security check failed. Received: ..., Expected: cosy_login_nonce".
-   - Root Cause: Nonce validation conflict during login post-reset.
+1. 👍 [DONE] Password Reset Login Error:
+   - Issue: Customer resets password via email link, but logging in triggered nonce check error.
+   - Status: Fixed & Approved by Client (Tim: "👍 Forgot email completed for Customer Email & Username, Service Provider name and email").
 
-2. 🤢 Profile Picture Upload Button on PC:
-   - Issue: In Parent Dashboard -> Profile Information, clicking the Camera icon on PC does nothing (no file dialog / pop up opens). Pointer hover changes border outline from white to grey.
-   - Fix: Wire click event handler on camera icon overlay to trigger `<input type="file">`.
+2. 👍 [DONE] Profile Picture Upload Button on PC:
+   - Issue: Camera icon on PC did not open file picker dialog.
+   - Status: Fixed & Approved by Client (Tim: "👍 Profile picture updated on SP's, PC and Phone").
 
-3. 🤢 Hero Wording & Dynamic Search Placeholder:
-   - Change Headline: "Conversations begin with shared experiences" -> "Start with an experience".
-   - Search Bar Placeholder: Add "Try: New baby • Teenagers • Single parent • Sleep • ADHD" (disappears when user types, must be editable via Admin settings).
+3. 👍 [DONE] Hero Wording & Dynamic Search Placeholder:
+   - Updates: Headline set to "Find your conversation" (Dynamic via ACF) and rotating placeholder terms active.
+   - Status: Fixed & Approved by Client (Tim: "👍 Thank you, Find Your Conversation wording is better - thank you").
 
-4. 🤢 Search Button Icon UI:
-   - Issue: Search button icon looks clunky and out of place. Needs a modern, rounded search icon styling.
+4. 👍 [DONE] Search Button Icon UI:
+   - Updates: Search button icon modernized to clean, rounded styling; mobile responsiveness adjusted with box-sizing and clamp typography.
+   - Status: Fixed & Approved by Client (Tim: "👍 Thank you - looks better").
 
-5. 🤢 Missing Email Notifications for Booking #379:
-   - Issue: No emails received for completed booking #379 to Customer (booktest1@mailinator.com), Provider (testmancity@mailinator.com), or Admin (contact@cosychats.com).
+5. 👍 [DONE] Missing Email Notifications for Booking #379 & SMTP Configuration:
+   - Updates: Official SMTP configured for contact@cosychats.com with App Password on live server.
+   - Status: Resolved.
 
-6. 🤢 Calendar Slot Greying Issue in Multi-Week Booking (#379 / #380):
-   - Issue: Booking #379 was for 2 weeks. On the calendar, only 1st week (Sep 1 & 2) was greyed out. 2nd week (Sep 8 & 9) remained open, allowing duplicate booking #380.
-   - Fix: Query and grey-out booked slots across all weeks of a multi-week booking.
+6. 👍 [DONE] Calendar Slot Greying Issue in Multi-Week Booking (#379 / #380 / #423 / #424):
+   - Updates: Implemented full-range projected calendar overlap validation, pre-payment guard on checkout, and clear date conflict notices.
+   - Status: Resolved & Demo Video Shared with Client.
 
-7. 🤢 Booking Summary Modal Clean-up:
-   - Remove: "Service Adoption", "End Date", and "Total slots 12".
-   - Add: Day-by-day booking times breakdown (e.g., Mon 08:00 AM, 08:10 AM) so customers can clearly see days & times booked per week.
+7. 👍 [DONE] Booking Summary Modal / Step 3 Clean-up:
+   - Updates: Removed redundant fields (Service Adoption, End Date, Total slots count); added clean day-by-day booking times breakdown (e.g. Mon 08:00 AM, 08:10 AM).
+   - Status: Fixed & Approved by Client (Tim: "👍 Booking information verified").
 
-8. 🤢 Customer Order Details Modal Clean-up (Order #382):
-   - Remove: "Adoption", "Schedule: 1 Week Duration", "Duration: 02-11-2026 to 08-11-2026", and "Weeks: 1 week(s) (12 slots)".
-   - Add: Weekdays with exact booked time slots breakdown (e.g. Mon 08:00 AM, 08:10 AM).
+8. 👍 [DONE] Customer Order Details Modal Clean-up (Order #382 / #444 / #452):
+   - Updates: Removed clutter; displays Provider Name, Start Date, Number of Weeks, and clean day-by-day booking times breakdown.
+   - Status: Fixed & Approved by Client (Tim: "👍 Verified booking days displayed").
 
-9. 🤢 Service Provider Order Details Clean-up:
-   - Needs: Start Date, Number of Weeks in Booking, and detailed day-by-day booking times breakdown.
+9. 👍 [DONE] Service Provider Order Details Clean-up:
+   - Updates: Modal displays Start Date, Number of Weeks, and day-by-day booking times timeline.
+   - Status: Fixed & Approved by Client (Tim: "👍 Days displayed").
 
-10. 🤢 Gifted Customer Email Confirmation Template (#385):
-    - Remove: "Service / Topic: Adoption" and Support Telephone Number ("01708 956 506").
-    - Add: Start Date, Number of weeks booked, and Days & Times of booking per day.
+10. 👍 [DONE] Gifted Customer Email Confirmation Template (#385):
+    - Updates: Removed Service/Topic line and telephone number; added Start Date, Number of Weeks, and clean day-by-day booking times breakdown.
+    - Status: Fixed & Approved by Client (Tim: "👍 Done thank you").
 
-11. 🤢 Gifted Order Details for Service Provider (#385):
-    - Highlight: Visually label as "Gifted Order" and display Giftee's email address for contact alongside paying customer's email address (booktest1).
+11. 👍 [DONE] Gifted Order Details & Highlight for Service Provider & Customer:
+    - Updates:
+      a) Service Provider Modal displays distinct "🎁 Gifted Order" badge and primary Giftee contact details alongside paying customer reference.
+      b) Service Provider confirmation email includes "Gifted To 🎁: Name (Email)" row.
+      c) Customer Step 3 Booking Summary features "Gifted Booking Confirmation 🎁" banner and recipient info.
+    - Status: Fixed & Approved by Client (Tim: "👍 Done thank you").
+
+12. 👍 [DONE] Provider Deactivation & Search/Booking Blocking:
+    - Updates:
+      a) Deactivated providers and unapproved providers are strictly excluded from AI Search and Directory Search (`cosy_provider_status = 'active'`).
+      b) Inactive provider profiles display "Profile Unavailable" block.
+      c) Server-side checkout blocks bookings for inactive providers.
+    - Status: Fixed & Approved by Client (Tim: "👍 Done thank You" on all 3 points).
+
+13. 👍 [DONE] Search State Back Navigation:
+    - Updates: Restores search query text and result cards when navigating back from provider profile.
+    - Status: Resolved.
+
+14. 👍 [DONE] Dynamic Homepage Search Heading:
+    - Updates: "Find your conversation" heading made fully dynamic and editable in WP Admin Pages (Home ACF field).
+    - Status: Fixed & Approved by Client (Tim: "👍 Done thank You").
+
+15. 👍 [DONE] Footer Tagline & Menu Links:
+    - Updates:
+      a) Footer tagline updated to "Conversations with parents who choose to share their lived experiences."
+      b) Footer menu links updated to "All Parents" and "Browse by Experience" (linking to /service-provider/, editable via Theme Options).
+    - Status: Fixed & Approved by Client (Tim: "👍 Done thank You").
+
+16. 👍 [DONE] Provider Profile Callout Heading:
+    - Updates: Updated text to "This is me. I'm open to sharing my experiences — if you'd like to talk, book a conversation with me."
+    - Status: Fixed & Approved by Client (Tim: "👍 Done thank You").
+
+17. 👍 [DONE] Search Rating Filter Alignment (10/10 Scale):
+    - Updates: Replaced star ratings with range-based options (9-10 Top Rated, 7-8 Very Good, 5-6 Good).
+    - Status: Fixed & Approved by Client (Tim: "👍 Done thank You").
+
+18. 👍 [DONE] Unified Holiday Booking Logic & Blocking:
+    - Updates: Holiday collisions now trigger the identical structured "Slot Unavailable" modal popup as already booked slots, showing unavailable holiday weeks vs available free weeks.
+    - Status: Resolved & Verified.
+
+19. 👍 [DONE] Customer Feedback Email & Review Submission:
+    - Updates:
+      a) Removed redundant "Session Details" table from review invite email.
+      b) Fixed review submission form on /leave-review page and confirmed saving in admin.
+    - Status: Fixed & Approved by Client (Tim: "👍 Done thank you").
 
 
 --------------------------------------------------------------------------------
-SECTION 3: QUESTIONS & CRITICAL SYSTEM BEHAVIOR (❓ / TBC)
+SECTION 3: QUESTIONS & CRITICAL SYSTEM BEHAVIOR (ALL VERIFIED & CLOSED)
 --------------------------------------------------------------------------------
-1. ❓ Profile Creation Email Trigger (Tbc Moin):
-   - Question: Is an email currently produced when a Parent (Accept Bookings) starts, creates profile, and completes profile? Needs confirmation.
+1. 👍 [VERIFIED] Profile Creation Email Trigger:
+   - Question: Is an email produced when a Parent completes profile?
+   - Resolution: Confirmed active. Automated email is dispatched to Admin ("New Provider Profile Ready for Review") and welcome email sent to Parent. Tim informed.
 
-2. ❓ User Deactivation & Unapproved User Search Visibility:
-   - Question/Bug:
-     a) Deactivated user ("Man City") in CC Booking Manage Users is still discoverable in search and bookable.
-     b) Standard WP Users deactivation throws an error and fails to deactivate.
-     c) New user ("Manunited") whose profile status is "Account Under Review: Your profile is currently under review by the administrator" is still discoverable in search and able to be booked (Order #386 created!).
-   - Crucial Fix Needed: Frontend search API & booking availability queries must strictly filter for `status = 'active'` and `approved = 1`, blocking deactivated & under-review providers from search results and calendar booking.
+2. 👍 [VERIFIED] User Deactivation Mechanism:
+   - Question: Correct way to deactivate users (CC Booking vs WP Users).
+   - Resolution: CC Booking -> Users is the official management interface for Cosy Appointments. Deactivation error resolved, search visibility restricted, and booking blocked. All 3 sub-items approved by Tim ("👍 Done thank You").
