@@ -25,6 +25,7 @@ class SettingsAdmin
         $loader->add_action('admin_menu', $this, 'add_settings_page');
         $loader->add_action('admin_init', $this, 'register_settings');
         $loader->add_action('admin_enqueue_scripts', $this, 'enqueue_settings_assets');
+        $loader->add_action('wp_ajax_cosy_test_smtp_email', $this, 'ajax_send_test_email');
     }
 
     /**
@@ -193,11 +194,70 @@ class SettingsAdmin
         register_setting('cosy_payment_settings', 'cosy_worldpay_charge', [
             'sanitize_callback' => [$this, 'sanitize_charge']
         ]);
+
+        // Dynamic SMTP Configuration Settings
+        register_setting('cosy_payment_settings', 'cosy_smtp_enabled', [
+            'sanitize_callback' => 'absint'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_smtp_host', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_smtp_port', [
+            'sanitize_callback' => 'absint'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_smtp_encryption', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_smtp_auth', [
+            'sanitize_callback' => 'absint'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_smtp_user', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_smtp_pass', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_smtp_from_name', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_payment_settings', 'cosy_smtp_from_email', [
+            'sanitize_callback' => 'sanitize_email'
+        ]);
     }
 
     public function sanitize_charge($value)
     {
         return empty($value) ? '0.00' : number_format((float)$value, 2, '.', '');
+    }
+
+    /**
+     * AJAX HANDLER FOR SENDING TEST SMTP EMAIL
+     */
+    public function ajax_send_test_email(): void
+    {
+        check_ajax_referer('cosy_test_smtp_nonce', 'security');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Permission denied.', 'cosy-appointments')]);
+        }
+
+        $test_to = sanitize_email($_POST['test_email'] ?? '');
+        if (!is_email($test_to)) {
+            wp_send_json_error(['message' => __('Please enter a valid email address.', 'cosy-appointments')]);
+        }
+
+        $subject = sprintf(__('CosyChats SMTP Test - %s', 'cosy-appointments'), date('d M Y, H:i'));
+        $heading = __('SMTP Configuration Test Successful!', 'cosy-appointments');
+        $content = "<p>" . __('This is a test email sent from your CosyChats CC Booking settings to verify your SMTP configuration.', 'cosy-appointments') . "</p><p>" . sprintf(__('Dispatched at %s via dynamic SMTP credentials.', 'cosy-appointments'), date('Y-m-d H:i:s')) . "</p>";
+
+        $sent = cosy_send_html_email($test_to, $subject, $heading, $content);
+
+        if ($sent) {
+            \Cosy\Appointments\Common\LogManager::log('email', 'test_email_sent', "SMTP Test email successfully sent to {$test_to}");
+            wp_send_json_success(['message' => sprintf(__('Test email sent successfully to %s!', 'cosy-appointments'), $test_to)]);
+        } else {
+            \Cosy\Appointments\Common\LogManager::log('email', 'test_email_failed', "SMTP Test email failed to {$test_to}");
+            wp_send_json_error(['message' => __('Failed to send test email. Please check your SMTP host, port, credentials, and error log.', 'cosy-appointments')]);
+        }
     }
 
     public function render_settings(): void

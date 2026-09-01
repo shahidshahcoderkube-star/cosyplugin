@@ -284,28 +284,75 @@ class Admin
     public function log_admin_settings_update($option, $old_value, $value): void
     {
         $cosy_settings_options = [
+            // WorldPay Settings Tab
             'cosy_worldpay_test_mode',
             'cosy_worldpay_inst_id',
             'cosy_worldpay_token',
             'cosy_worldpay_password',
             'cosy_worldpay_client_key',
             'cosy_worldpay_charge',
+            'cosy_default_payment_gateway',
+            'cosy_worldpay_enabled',
             'cosy_charge_type',
             'cosy_provider_percentage',
             'cosy_fixed_charge',
-            'cosy_worldpay_enabled'
+
+            // AI Search Engine Tab
+            'cosy_ai_provider',
+            'cosy_ai_api_key',
+
+            // Page Images Tab (Branding)
+            'cosy_registration_image_url',
+            'cosy_login_image_url',
+
+            // Email Signature Tab
+            'cosy_sig_enabled',
+            'cosy_sig_logo_url',
+            'cosy_sig_name',
+            'cosy_sig_title',
+            'cosy_sig_phone',
+            'cosy_sig_email',
+            'cosy_sig_website',
+            'cosy_sig_address',
+            'cosy_sig_linkedin',
+            'cosy_sig_facebook',
+            'cosy_sig_instagram',
+            'cosy_sig_twitter',
+            'cosy_sig_tiktok',
+            'cosy_sig_youtube',
+
+            // SMTP Settings Tab
+            'cosy_smtp_enabled',
+            'cosy_smtp_host',
+            'cosy_smtp_port',
+            'cosy_smtp_encryption',
+            'cosy_smtp_auth',
+            'cosy_smtp_user',
+            'cosy_smtp_pass',
+            'cosy_smtp_from_name',
+            'cosy_smtp_from_email',
         ];
+
         if (in_array($option, $cosy_settings_options)) {
-            // Avoid logging exact secret/token values
+            // Avoid logging exact secret/token/password values
+            $sensitive_options = [
+                'cosy_worldpay_token',
+                'cosy_worldpay_password',
+                'cosy_worldpay_client_key',
+                'cosy_ai_api_key',
+                'cosy_smtp_pass',
+            ];
+
             $logged_val = $value;
-            if (in_array($option, ['cosy_worldpay_token', 'cosy_worldpay_password']) && !empty($value)) {
+            if (in_array($option, $sensitive_options) && !empty($value)) {
                 $logged_val = '***HIDDEN***';
             }
+
             if ($old_value !== $value) {
                 \Cosy\Appointments\Common\LogManager::log(
                     'settings',
                     'setting_updated',
-                    sprintf(__('Admin updated payment setting "%s" to "%s".', 'cosy-appointments'), $option, is_array($logged_val) ? json_encode($logged_val) : $logged_val)
+                    sprintf(__('Admin updated setting "%s" to "%s".', 'cosy-appointments'), $option, is_array($logged_val) ? json_encode($logged_val) : (string)$logged_val)
                 );
             }
         }

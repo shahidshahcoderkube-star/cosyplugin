@@ -114,30 +114,32 @@ class Assets
 
         wp_enqueue_style(
             'cosy-admin-style',
-            COSY_APPT_URL . 'src/Admin/assets/admin.css',
+            COSY_APPT_URL . 'src/Admin/Assets/css/admin.css',
             [],
             COSY_APPT_VER . '-' . time()
         );
 
         wp_enqueue_script(
             'cosy-admin-script',
-            COSY_APPT_URL . 'src/Admin/assets/admin.js',
+            COSY_APPT_URL . 'src/Admin/Assets/js/admin.js',
             ['jquery'],
             COSY_APPT_VER . '-' . time(),
             true
         );
 
         wp_localize_script('cosy-admin-script', 'cosyAdmin', [
+            'ajaxUrl'        => admin_url('admin-ajax.php'),
             'currencySymbol' => cosy_get_currency_symbol(),
             'currencyCode'   => cosy_get_currency_code(),
             'nonce'          => wp_create_nonce('cosy_admin_nonce'),
+            'testSmtpNonce'  => wp_create_nonce('cosy_test_smtp_nonce'),
         ]);
 
         // Enqueue dedicated Dashboard Admin CSS & JS ONLY on the main booking dashboard page
         if ($hook === 'toplevel_page_cosy-booking-dashboard') {
             wp_enqueue_style(
                 'cosy-dashboard-admin-style',
-                COSY_APPT_URL . 'src/Admin/assets/dashboard-admin.css',
+                COSY_APPT_URL . 'src/Admin/Assets/css/dashboard-admin.css',
                 [],
                 COSY_APPT_VER
             );
@@ -152,7 +154,7 @@ class Assets
 
             wp_enqueue_script(
                 'cosy-dashboard-admin-script',
-                COSY_APPT_URL . 'src/Admin/assets/dashboard-admin.js',
+                COSY_APPT_URL . 'src/Admin/Assets/js/dashboard-admin.js',
                 ['cosy-chartjs'],
                 COSY_APPT_VER,
                 true
@@ -166,14 +168,14 @@ class Assets
         if ($is_email_page) {
             wp_enqueue_style(
                 'cosy-email-templates-admin-style',
-                COSY_APPT_URL . 'src/Admin/assets/email-templates-admin.css',
+                COSY_APPT_URL . 'src/Admin/Assets/css/email-templates-admin.css',
                 [],
                 COSY_APPT_VER . '-' . time()
             );
 
             wp_enqueue_script(
                 'cosy-email-templates-admin-script',
-                COSY_APPT_URL . 'src/Admin/assets/email-templates-admin.js',
+                COSY_APPT_URL . 'src/Admin/Assets/js/email-templates-admin.js',
                 ['jquery'],
                 COSY_APPT_VER . '-' . time(),
                 true

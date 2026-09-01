@@ -38,7 +38,7 @@ defined('ABSPATH') || exit;
                     <div class="nav flex-column nav-pills me-3 gap-2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         <button class="nav-link active d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-worldpay-tab" data-bs-toggle="pill" data-bs-target="#v-pills-worldpay" type="button" role="tab" aria-controls="v-pills-worldpay" aria-selected="true">
                             <i class="fa-solid fa-globe fs-4 w-20"></i>
-                            <span class="fw-bold">WorldPay (Priority)</span>
+                            <span class="fw-bold">WorldPay</span>
                         </button>
 
                         <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-aisearch-tab" data-bs-toggle="pill" data-bs-target="#v-pills-aisearch" type="button" role="tab" aria-controls="v-pills-aisearch" aria-selected="false">
@@ -53,6 +53,10 @@ defined('ABSPATH') || exit;
                             <i class="fa-solid fa-signature fs-4 w-20"></i>
                             <span class="fw-bold">Email Signature</span>
                         </button>
+                        <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-smtp-tab" data-bs-toggle="pill" data-bs-target="#v-pills-smtp" type="button" role="tab" aria-controls="v-pills-smtp" aria-selected="false">
+                            <i class="fa-solid fa-envelope-open-text fs-4 w-20"></i>
+                            <span class="fw-bold">SMTP Settings</span>
+                        </button>
                     </div>
                 </div>
 
@@ -66,7 +70,7 @@ defined('ABSPATH') || exit;
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
                                     <i class="fa-solid fa-globe fs-2 text-primary" style="color: #0b4a8f !important;"></i>
-                                    WorldPay Configuration (Priority Gateway)
+                                    WorldPay Configuration
                                 </h3>
                                 <div class="d-flex align-items-center m-0">
                                     <label class="cosy-switch">
@@ -421,8 +425,139 @@ defined('ABSPATH') || exit;
                             </div>
                         </div>
 
-                    </div>
+                        <!-- SMTP Settings Tab -->
+                        <div class="tab-pane fade" id="v-pills-smtp" role="tabpanel" aria-labelledby="v-pills-smtp-tab">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-envelope-open-text fs-2" style="color: #a44390 !important;"></i>
+                                    <?php _e('SMTP Email Delivery Settings', 'cosy-appointments'); ?>
+                                </h3>
+                                <div class="d-flex align-items-center m-0">
+                                    <label class="cosy-switch">
+                                        <input type="checkbox" name="cosy_smtp_enabled" id="cosy_smtp_enabled" value="1" <?php checked(1, get_option('cosy_smtp_enabled', 1)); ?>>
+                                        <span class="cosy-slider round"></span>
+                                    </label>
+                                    <span class="fw-semibold text-secondary ms-2"><?php _e('Enable Dynamic SMTP', 'cosy-appointments'); ?></span>
+                                </div>
+                            </div>
 
+                            <div class="alert alert-info border-0 rounded-3 p-3 mb-4 d-flex align-items-center" style="background: #fdf2fb; border-left: 4px solid #a44390 !important; color: #6d2e67;">
+                                <i class="fa-solid fa-circle-info fs-4 me-3 text-primary" style="color: #a44390 !important;"></i>
+                                <div>
+                                    <strong><?php _e('Dynamic SMTP Delivery:', 'cosy-appointments'); ?></strong>
+                                    <?php _e('All system emails (Booking Confirmations, Status Updates, Reviews, Password Resets) will use these credentials automatically.', 'cosy-appointments'); ?>
+                                </div>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-8">
+                                    <label for="cosy_smtp_host" class="form-label fw-bold text-secondary"><?php _e('SMTP Host / Server', 'cosy-appointments'); ?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-server"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_smtp_host" id="cosy_smtp_host" value="<?php echo esc_attr(get_option('cosy_smtp_host', 'smtp.gmail.com')); ?>" placeholder="e.g. smtp.gmail.com">
+                                    </div>
+                                    <div class="form-text text-muted mt-1"><?php _e('Your outgoing mail server hostname (e.g. smtp.gmail.com).', 'cosy-appointments'); ?></div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="cosy_smtp_port" class="form-label fw-bold text-secondary"><?php _e('SMTP Port', 'cosy-appointments'); ?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-network-wired"></i></span>
+                                        <input type="number" class="form-control border-start-0 py-2" name="cosy_smtp_port" id="cosy_smtp_port" value="<?php echo esc_attr(get_option('cosy_smtp_port', 587)); ?>" placeholder="587">
+                                    </div>
+                                    <div class="form-text text-muted mt-1"><?php _e('Common ports: 587 (TLS), 465 (SSL), 25 (Non-secure).', 'cosy-appointments'); ?></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="cosy_smtp_encryption" class="form-label fw-bold text-secondary"><?php _e('Encryption Type', 'cosy-appointments'); ?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-shield-halved"></i></span>
+                                        <select class="form-select border-start-0 py-2" name="cosy_smtp_encryption" id="cosy_smtp_encryption">
+                                            <?php $enc = get_option('cosy_smtp_encryption', 'tls'); ?>
+                                            <option value="tls" <?php selected($enc, 'tls'); ?>><?php _e('TLS (Recommended for Port 587)', 'cosy-appointments'); ?></option>
+                                            <option value="ssl" <?php selected($enc, 'ssl'); ?>><?php _e('SSL (Port 465)', 'cosy-appointments'); ?></option>
+                                            <option value="none" <?php selected($enc, 'none'); ?>><?php _e('None (Unencrypted)', 'cosy-appointments'); ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="cosy_smtp_auth" class="form-label fw-bold text-secondary"><?php _e('Authentication', 'cosy-appointments'); ?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
+                                        <select class="form-select border-start-0 py-2" name="cosy_smtp_auth" id="cosy_smtp_auth">
+                                            <option value="1" <?php selected(1, get_option('cosy_smtp_auth', 1)); ?>><?php _e('Yes - Authentication Required (Default)', 'cosy-appointments'); ?></option>
+                                            <option value="0" <?php selected(0, get_option('cosy_smtp_auth', 1)); ?>><?php _e('No - Anonymous / No Auth', 'cosy-appointments'); ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="cosy_smtp_user" class="form-label fw-bold text-secondary"><?php _e('SMTP Username / Email', 'cosy-appointments'); ?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_smtp_user" id="cosy_smtp_user" value="<?php echo esc_attr(get_option('cosy_smtp_user', 'contact@cosychats.com')); ?>" placeholder="e.g. contact@cosychats.com">
+                                    </div>
+                                    <div class="form-text text-muted mt-1"><?php _e('Your outgoing SMTP login email address.', 'cosy-appointments'); ?></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="cosy_smtp_pass" class="form-label fw-bold text-secondary"><?php _e('SMTP Password / App Password', 'cosy-appointments'); ?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
+                                        <input type="password" class="form-control border-start-0 border-end-0 py-2" name="cosy_smtp_pass" id="cosy_smtp_pass" value="<?php echo esc_attr(get_option('cosy_smtp_pass', 'suln klpu wrwp bsvy')); ?>" placeholder="App Password">
+                                        <button type="button" class="btn btn-outline-secondary border-start-0" id="btn-toggle-smtp-pass" style="border-color: #dee2e6;">
+                                            <i class="fa-solid fa-eye" id="eye-smtp-pass"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text text-muted mt-1"><?php _e('For Gmail/Google Workspace, enter your 16-character App Password.', 'cosy-appointments'); ?></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="cosy_smtp_from_name" class="form-label fw-bold text-secondary"><?php _e('From Name', 'cosy-appointments'); ?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-badge"></i></span>
+                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_smtp_from_name" id="cosy_smtp_from_name" value="<?php echo esc_attr(get_option('cosy_smtp_from_name', 'CosyChats')); ?>" placeholder="CosyChats">
+                                    </div>
+                                    <div class="form-text text-muted mt-1"><?php _e('The sender name displayed in email inboxes.', 'cosy-appointments'); ?></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="cosy_smtp_from_email" class="form-label fw-bold text-secondary"><?php _e('From Email Address', 'cosy-appointments'); ?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-envelope"></i></span>
+                                        <input type="email" class="form-control border-start-0 py-2" name="cosy_smtp_from_email" id="cosy_smtp_from_email" value="<?php echo esc_attr(get_option('cosy_smtp_from_email', 'contact@cosychats.com')); ?>" placeholder="<?php _e('Enter Email Address', 'cosy-appointments'); ?>">
+                                    </div>
+                                    <div class="form-text text-muted mt-1"><?php _e('The sender email address (matches SMTP account).', 'cosy-appointments'); ?></div>
+                                </div>
+                            </div>
+                                                                
+                            <!-- Live SMTP Test Email Card -->
+                            <div class="card border border-0 shadow-sm mt-4 rounded-4" style="background: #ffffff; border: 1px solid #f1e4ef !important;">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="fa-solid fa-vial-circle-check fs-4" style="color: #a44390;"></i>
+                                        <h5 class="fw-bold text-dark m-0"><?php _e('Send Test Email', 'cosy-appointments'); ?></h5>
+                                    </div>
+                                    <p class="text-muted small mb-3"><?php _e('Verify your SMTP settings immediately by dispatching a test email. Remember to click "Save Configurations" first if you changed any credentials above.', 'cosy-appointments'); ?></p>
+                                    
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-md-7">
+                                            <input type="email" id="cosy_test_smtp_recipient" class="form-control py-2" placeholder="Enter recipient email..." value="<?php echo esc_attr(get_option('admin_email')); ?>">
+                                        </div>
+                                        <div class="col-md-5">
+                                            <button type="button" id="btn-send-smtp-test" class="btn btn-cosy-smtp-test w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 text-white">
+                                                <i class="fa-solid fa-paper-plane"></i>
+                                                <span id="btn-test-text"><?php _e('Send Test Email', 'cosy-appointments'); ?></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="smtp-test-result" class="mt-3" style="display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
 
                     <!-- Action Buttons Card Footer -->
                     <div class="d-flex align-items-center justify-content-end gap-3 mt-4">
@@ -437,3 +572,4 @@ defined('ABSPATH') || exit;
         </form>
     </div>
 </div>
+

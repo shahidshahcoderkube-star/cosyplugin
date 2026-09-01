@@ -222,50 +222,64 @@ if (!function_exists('cosy_send_html_email')) {
         </body>
         </html>";
 
+        // Load dynamic SMTP options from CC Booking -> Settings
+        $smtp_enabled    = (bool) get_option('cosy_smtp_enabled', 1);
+        $smtp_host       = get_option('cosy_smtp_host', 'smtp.gmail.com');
+        $smtp_port       = (int) get_option('cosy_smtp_port', 587);
+        $smtp_encryption = get_option('cosy_smtp_encryption', 'tls');
+        $smtp_auth       = (bool) get_option('cosy_smtp_auth', 1);
+        $smtp_user       = get_option('cosy_smtp_user', 'contact@cosychats.com');
+        $smtp_pass       = get_option('cosy_smtp_pass', 'suln klpu wrwp bsvy');
+        $from_name       = get_option('cosy_smtp_from_name', '');
+        $from_email      = get_option('cosy_smtp_from_email', '');
+
         // Build proper headers for spam prevention
-        $site_name   = get_bloginfo('name');
+        $site_name = !empty($from_name) ? $from_name : get_bloginfo('name');
         if (empty($site_name) || strtolower($site_name) === 'cosyplugin' || strtolower($site_name) === 'wordpress') {
             $site_name = 'CosyChats';
         }
-        // Configure Gmail SMTP settings
-        $smtp_user = 'contact@cosychats.com';
-        $smtp_pass = 'suln klpu wrwp bsvy';
+        $sender_email = !empty($from_email) ? $from_email : $smtp_user;
 
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
-            "From: {$site_name} <{$smtp_user}>",
-            "Reply-To: {$smtp_user}",
+            "From: {$site_name} <{$sender_email}>",
+            "Reply-To: {$sender_email}",
         ];
 
-        // Configure PHPMailer to use Gmail SMTP
-        $smtp_handler = function ($phpmailer) use ($smtp_user, $smtp_pass, $site_name) {
-            $phpmailer->isSMTP();
-            $phpmailer->Host       = 'smtp.gmail.com';
-            $phpmailer->SMTPAuth   = true;
-            $phpmailer->Port       = 587;
-            $phpmailer->SMTPSecure = 'tls';
-            $phpmailer->Username   = $smtp_user;
-            $phpmailer->Password   = $smtp_pass;
-            $phpmailer->From       = $smtp_user;
-            $phpmailer->FromName   = $site_name;
-            $phpmailer->Sender     = $smtp_user;
-        };
-        add_action('phpmailer_init', $smtp_handler, 999999);
+        $smtp_handler   = null;
+        $wp_smtp_filter = null;
 
-        // Filter WP Mail SMTP internal options if WP Mail SMTP plugin has an expired Google OAuth connection
-        $wp_smtp_filter = function ($value, $group, $key) use ($smtp_user, $smtp_pass, $site_name) {
-            if ($group === 'mail' && $key === 'mailer') return 'smtp';
-            if ($group === 'smtp' && $key === 'host') return 'smtp.gmail.com';
-            if ($group === 'smtp' && $key === 'port') return 587;
-            if ($group === 'smtp' && $key === 'encryption') return 'tls';
-            if ($group === 'smtp' && $key === 'auth') return true;
-            if ($group === 'smtp' && $key === 'user') return $smtp_user;
-            if ($group === 'smtp' && $key === 'pass') return $smtp_pass;
-            if ($group === 'mail' && $key === 'from_email') return $smtp_user;
-            if ($group === 'mail' && $key === 'from_name') return $site_name;
-            return $value;
-        };
-        add_filter('wp_mail_smtp_options_get', $wp_smtp_filter, 999999, 3);
+        // Configure PHPMailer to use configured SMTP settings dynamically
+        if ($smtp_enabled && !empty($smtp_host)) {
+            $smtp_handler = function ($phpmailer) use ($smtp_host, $smtp_port, $smtp_encryption, $smtp_auth, $smtp_user, $smtp_pass, $site_name, $sender_email) {
+                $phpmailer->isSMTP();
+                $phpmailer->Host       = $smtp_host;
+                $phpmailer->SMTPAuth   = $smtp_auth;
+                $phpmailer->Port       = $smtp_port;
+                $phpmailer->SMTPSecure = ($smtp_encryption === 'none') ? '' : $smtp_encryption;
+                $phpmailer->Username   = $smtp_user;
+                $phpmailer->Password   = $smtp_pass;
+                $phpmailer->From       = $sender_email;
+                $phpmailer->FromName   = $site_name;
+                $phpmailer->Sender     = $sender_email;
+            };
+            add_action('phpmailer_init', $smtp_handler, 999999);
+
+            // Filter WP Mail SMTP internal options dynamically
+            $wp_smtp_filter = function ($value, $group, $key) use ($smtp_host, $smtp_port, $smtp_encryption, $smtp_auth, $smtp_user, $smtp_pass, $site_name, $sender_email) {
+                if ($group === 'mail' && $key === 'mailer') return 'smtp';
+                if ($group === 'smtp' && $key === 'host') return $smtp_host;
+                if ($group === 'smtp' && $key === 'port') return $smtp_port;
+                if ($group === 'smtp' && $key === 'encryption') return ($smtp_encryption === 'none') ? '' : $smtp_encryption;
+                if ($group === 'smtp' && $key === 'auth') return $smtp_auth;
+                if ($group === 'smtp' && $key === 'user') return $smtp_user;
+                if ($group === 'smtp' && $key === 'pass') return $smtp_pass;
+                if ($group === 'mail' && $key === 'from_email') return $sender_email;
+                if ($group === 'mail' && $key === 'from_name') return $site_name;
+                return $value;
+            };
+            add_filter('wp_mail_smtp_options_get', $wp_smtp_filter, 999999, 3);
+        }
 
         // Set content type to HTML
         $html_email_filter = function () {
@@ -275,8 +289,12 @@ if (!function_exists('cosy_send_html_email')) {
 
         $result = wp_mail($to, $subject, $message, $headers);
 
-        remove_action('phpmailer_init', $smtp_handler, 999999);
-        remove_filter('wp_mail_smtp_options_get', $wp_smtp_filter, 999999);
+        if ($smtp_handler) {
+            remove_action('phpmailer_init', $smtp_handler, 999999);
+        }
+        if ($wp_smtp_filter) {
+            remove_filter('wp_mail_smtp_options_get', $wp_smtp_filter, 999999);
+        }
         remove_filter('wp_mail_content_type', $html_email_filter);
 
         return $result;

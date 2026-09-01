@@ -1044,6 +1044,61 @@ jQuery(document).ready(function ($) {
                     localStorage.setItem('cosy_active_settings_tab', targetId);
                 }
             });
+
+            // Toggle SMTP Password Visibility
+            $(document).on('click', '#btn-toggle-smtp-pass', function () {
+                const passInput = $('#cosy_smtp_pass');
+                const eyeIcon = $('#eye-smtp-pass');
+                if (passInput.length) {
+                    if (passInput.attr('type') === 'password') {
+                        passInput.attr('type', 'text');
+                        eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+                    } else {
+                        passInput.attr('type', 'password');
+                        eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                    }
+                }
+            });
+
+            // Dispatch Test SMTP Email
+            $(document).on('click', '#btn-send-smtp-test', function () {
+                const btn = $(this);
+                const testInput = $('#cosy_test_smtp_recipient');
+                const resultBox = $('#smtp-test-result');
+                const btnText = $('#btn-test-text');
+                const email = $.trim(testInput.val());
+
+                if (!email) {
+                    resultBox.show().attr('class', 'alert alert-danger p-2 small').text('Please enter an email address.');
+                    return;
+                }
+
+                btn.prop('disabled', true);
+                btnText.text('Sending...');
+                resultBox.hide();
+
+                const ajaxUrl = (window.cosyAdmin && window.cosyAdmin.ajaxUrl) ? window.cosyAdmin.ajaxUrl : (window.ajaxurl || 'admin-ajax.php');
+                const nonce = (window.cosyAdmin && window.cosyAdmin.testSmtpNonce) ? window.cosyAdmin.testSmtpNonce : '';
+
+                $.post(ajaxUrl, {
+                    action: 'cosy_test_smtp_email',
+                    security: nonce,
+                    test_email: email
+                }).done(function (res) {
+                    btn.prop('disabled', false);
+                    btnText.text('Send Test Email');
+                    resultBox.show();
+                    if (res && res.success) {
+                        resultBox.attr('class', 'alert alert-success p-2 small').text(res.data.message || 'Test email sent successfully!');
+                    } else {
+                        resultBox.attr('class', 'alert alert-danger p-2 small').text((res && res.data && res.data.message) ? res.data.message : 'Failed to send test email.');
+                    }
+                }).fail(function () {
+                    btn.prop('disabled', false);
+                    btnText.text('Send Test Email');
+                    resultBox.show().attr('class', 'alert alert-danger p-2 small').text('Network or server error while sending test email.');
+                });
+            });
         },
 
         restoreTabState: function () {

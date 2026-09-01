@@ -1594,6 +1594,45 @@
     box-shadow: 0 6px 12px rgba(164, 67, 144, 0.25) !important;
 }
 
+/* SMTP Test Button & Controls */
+.cosy-settings-wrap .btn-cosy-smtp-test {
+    background: linear-gradient(135deg, #a44390 0%, #8f357b 100%) !important;
+    border: 1px solid #8f357b !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(164, 67, 144, 0.25) !important;
+    transition: all 0.25s ease !important;
+    cursor: pointer;
+}
+
+.cosy-settings-wrap .btn-cosy-smtp-test:hover,
+.cosy-settings-wrap .btn-cosy-smtp-test:focus,
+.cosy-settings-wrap .btn-cosy-smtp-test:active {
+    background: linear-gradient(135deg, #8f357b 0%, #6d2e67 100%) !important;
+    border-color: #6d2e67 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(164, 67, 144, 0.4) !important;
+    transform: translateY(-1px);
+    outline: none !important;
+}
+
+.cosy-settings-wrap .btn-cosy-smtp-test:disabled {
+    opacity: 0.75 !important;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.cosy-settings-wrap #btn-toggle-smtp-pass:hover,
+.cosy-settings-wrap #btn-toggle-smtp-pass:focus {
+    background-color: #fdf2fb !important;
+    color: #a44390 !important;
+    border-color: #dee2e6 !important;
+}
+
+.cosy-settings-wrap #cosy_test_smtp_recipient:focus {
+    border-color: #a44390 !important;
+    box-shadow: 0 0 0 0.2rem rgba(164, 67, 144, 0.2) !important;
+}
+
 .cosy-switch {
     position: relative;
     display: inline-block;

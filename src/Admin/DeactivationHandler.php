@@ -57,7 +57,7 @@ class DeactivationHandler
         // Custom deactivation protection script
         wp_enqueue_script(
             'cosy-deactivation-script',
-            COSY_APPT_URL . 'src/Admin/assets/deactivation.js',
+            COSY_APPT_URL . 'src/Admin/Assets/js/deactivation.js',
             ['jquery', 'cosy-sweetalert2'],
             COSY_APPT_VER,
             true
@@ -192,7 +192,9 @@ class DeactivationHandler
 
         $headers = array('Content-Type: text/html; charset=UTF-8');
 
-        $mail_sent = wp_mail($admin_email, $subject, $message, $headers);
+        $mail_sent = function_exists('cosy_send_html_email') 
+            ? cosy_send_html_email($admin_email, $subject, $message) 
+            : wp_mail($admin_email, $subject, $message, $headers);
 
         if ($mail_sent) {
             \Cosy\Appointments\Common\LogManager::log(

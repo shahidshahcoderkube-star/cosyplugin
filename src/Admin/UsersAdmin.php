@@ -16,8 +16,8 @@ use WP_User_Query;
  *  - users-page.php                  → Main page layout
  *  - user-details-modal-content.php  → AJAX modal content
  *
- * JavaScript is in src/Admin/assets/users-admin.js
- * CSS is in src/Admin/assets/admin.css
+ * JavaScript is in src/Admin/Assets/js/users-admin.js
+ * CSS is in src/Admin/Assets/css/admin.css
  */
 class UsersAdmin
 {
@@ -77,7 +77,7 @@ class UsersAdmin
 
         wp_enqueue_script(
             'cosy-users-admin-script',
-            COSY_APPT_URL . 'src/Admin/assets/users-admin.js',
+            COSY_APPT_URL . 'src/Admin/Assets/js/users-admin.js',
             ['jquery', 'cosy-admin-script'],
             COSY_APPT_VER . '-' . time(),
             true

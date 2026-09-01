@@ -425,7 +425,7 @@ if (!defined('ABSPATH')) {
                 </table>
 
                 <div class="cdoc-media-container">
-                    <img src="<?php echo esc_url(COSY_APPT_URL . 'src/Admin/assets/manage_overview.png'); ?>" alt="Booking Dashboard Overview" class="cdoc-doc-image">
+                    <img src="<?php echo esc_url(COSY_APPT_URL . 'src/Admin/Assets/manage_overview.png'); ?>" alt="Booking Dashboard Overview" class="cdoc-doc-image">
                     <span class="cdoc-media-caption">Figure 1: Booking Dashboard Overview with live KPIs and Line Graphs</span>
                 </div>
 
@@ -441,7 +441,7 @@ if (!defined('ABSPATH')) {
                 </div>
 
                 <div class="cdoc-media-container">
-                    <img src="<?php echo esc_url(COSY_APPT_URL . 'src/Admin/assets/manage_users.png'); ?>" alt="Users Management View" class="cdoc-doc-image">
+                    <img src="<?php echo esc_url(COSY_APPT_URL . 'src/Admin/Assets/manage_users.png'); ?>" alt="Users Management View" class="cdoc-doc-image">
                     <span class="cdoc-media-caption">Figure 2: Users Management view listing registered accounts</span>
                 </div>
 
@@ -456,13 +456,13 @@ if (!defined('ABSPATH')) {
                 <div style="display: flex; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 280px;">
                         <div class="cdoc-media-container" style="margin: 0; padding: 10px; height: 100%;">
-                            <img src="<?php echo esc_url(COSY_APPT_URL . 'src/Admin/assets/customer_appointments.png'); ?>" alt="Customer Appointments & Bookings View" class="cdoc-doc-image">
+                            <img src="<?php echo esc_url(COSY_APPT_URL . 'src/Admin/Assets/customer_appointments.png'); ?>" alt="Customer Appointments & Bookings View" class="cdoc-doc-image">
                             <span class="cdoc-media-caption">Figure 2a: Customer Appointments list (with no "Manage" button)</span>
                         </div>
                     </div>
                     <div style="flex: 1; min-width: 280px;">
                         <div class="cdoc-media-container" style="margin: 0; padding: 10px; height: 100%;">
-                            <img src="<?php echo esc_url(COSY_APPT_URL . 'src/Admin/assets/provider_appointments.png'); ?>" alt="Provider Appointments & Bookings View" class="cdoc-doc-image">
+                            <img src="<?php echo esc_url(COSY_APPT_URL . 'src/Admin/Assets/provider_appointments.png'); ?>" alt="Provider Appointments & Bookings View" class="cdoc-doc-image">
                             <span class="cdoc-media-caption">Figure 2b: Provider Appointments list (with color-coded sessions)</span>
                         </div>
                     </div>
