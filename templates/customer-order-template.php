@@ -35,18 +35,18 @@ if ($current_user->exists()) {
 
 	<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
 		<div class="table-responsive">
-			<table class="table table-hover align-middle mb-0" style="border-collapse: separate; min-width: 850px;">
+			<table class="table table-hover align-middle mb-0" style="border-collapse: separate; min-width: 1000px;">
 				<thead class="table-light">
 					<tr style="border-bottom: 2px solid #edf2f7;">
-						<th class="ps-4 py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Order ID', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Provider', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Weekly Booking', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Payment Status', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Total Price', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Date Booked', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
+						<th class="ps-4 py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 155px; width: 155px;"><?php esc_html_e('Order ID', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 130px;"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 120px;"><?php esc_html_e('Provider', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 140px;"><?php esc_html_e('Weekly Booking', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 130px;"><?php esc_html_e('Payment Status', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 110px;"><?php esc_html_e('Total Price', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 120px;"><?php esc_html_e('Date Booked', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 110px;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap text-center" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 90px;"><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -71,11 +71,11 @@ if ($current_user->exists()) {
 							$recipient_email = get_post_meta($appt->ID, 'cosy_recipient_email', true);
 						?>
 							<tr style="border-bottom: 1px solid #edf2f7; transition: all 0.2s;">
-								<td class="ps-4 py-3 fw-bold text-dark text-nowrap" style="font-size: 0.9rem; white-space: nowrap;">
-									<span class="d-inline-flex align-items-center gap-1" style="white-space: nowrap;">
-										#<?php echo esc_html($appt->ID); ?>
+								<td class="ps-4 py-3 fw-bold text-dark text-nowrap" style="font-size: 0.9rem; white-space: nowrap; min-width: 155px; width: 155px;">
+									<span class="d-inline-flex align-items-center gap-2" style="white-space: nowrap;">
+										<span>#<?php echo esc_html($appt->ID); ?></span>
 										<?php if (!empty($is_gift)): ?>
-											<span class="badge" style="background: #a44390; color: #fff; font-size: 0.7rem; font-weight: 700; border-radius: 12px; padding: 3px 8px; vertical-align: middle; white-space: nowrap;" title="<?php esc_attr_e('Gifted Booking', 'cosy-appointments'); ?>">🎁 Gift</span>
+											<span class="badge" style="background: #a44390; color: #fff; font-size: 0.72rem; font-weight: 700; border-radius: 12px; padding: 4px 8px; vertical-align: middle; white-space: nowrap; letter-spacing: 0.2px;" title="<?php esc_attr_e('Gifted Booking', 'cosy-appointments'); ?>">🎁 Gift</span>
 										<?php endif; ?>
 									</span>
 								</td>
