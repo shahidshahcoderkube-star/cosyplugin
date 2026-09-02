@@ -30,7 +30,7 @@ defined('ABSPATH') || exit;
         </div>
 
         <form method="post" action="options.php">
-            <?php settings_fields('cosy_payment_settings'); ?>
+            <?php settings_fields('cosy_settings'); ?>
 
             <div class="row">
                 <!-- Navigation Sidebar -->

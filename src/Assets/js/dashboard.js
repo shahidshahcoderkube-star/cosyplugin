@@ -385,8 +385,10 @@ jQuery(document).ready(function ($) {
      * and status update actions for provider appointments.
      */
     const CosyOrders = {
+        searchTimer: null,
+
         init() {
-            $(document).on('keyup', '#orderSearchInput', this.search);
+            $(document).on('input keyup', '#orderSearchInput', this.search);
             $(document).on('change', '#orderStatusFilter', this.filter);
             $(document).on('click', '#exportOrdersBtn', this.export);
             $(document).on('click', '.btn-view-order-details', this.viewDetails);
@@ -394,14 +396,17 @@ jQuery(document).ready(function ($) {
         },
 
         /**
-         * Keyup Search: Filters the table rows instantly matching user inputs against 
-         * pre-compiled searchable row attributes.
+         * Debounced Search: Filters table rows smoothly with a 200ms delay to prevent typing stutter.
          */
         search() {
-            var value = $(this).val().toLowerCase().trim();
-            $('#providerOrdersTable tbody tr.order-table-row').filter(function () {
-                $(this).toggle($(this).attr('data-search').indexOf(value) > -1);
-            });
+            clearTimeout(CosyOrders.searchTimer);
+            var $input = $(this);
+            CosyOrders.searchTimer = setTimeout(function () {
+                var value = $input.val().toLowerCase().trim();
+                $('#providerOrdersTable tbody tr.order-table-row').filter(function () {
+                    $(this).toggle($(this).attr('data-search').indexOf(value) > -1);
+                });
+            }, 200);
         },
 
         /**

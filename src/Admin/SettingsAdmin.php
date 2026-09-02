@@ -106,62 +106,62 @@ class SettingsAdmin
     public function register_settings(): void
     {
         // AI Search Settings
-        register_setting('cosy_payment_settings', 'cosy_ai_provider', [
+        register_setting('cosy_settings', 'cosy_ai_provider', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_ai_api_key', [
+        register_setting('cosy_settings', 'cosy_ai_api_key', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
 
         // Branding & Page Image Settings
-        register_setting('cosy_payment_settings', 'cosy_registration_image_url', [
+        register_setting('cosy_settings', 'cosy_registration_image_url', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_login_image_url', [
+        register_setting('cosy_settings', 'cosy_login_image_url', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
 
         // Email Signature Settings
-        register_setting('cosy_payment_settings', 'cosy_sig_logo_url', [
+        register_setting('cosy_settings', 'cosy_sig_logo_url', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_name', [
+        register_setting('cosy_settings', 'cosy_sig_name', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_title', [
+        register_setting('cosy_settings', 'cosy_sig_title', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_phone', [
+        register_setting('cosy_settings', 'cosy_sig_phone', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_email', [
+        register_setting('cosy_settings', 'cosy_sig_email', [
             'sanitize_callback' => 'sanitize_email'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_website', [
+        register_setting('cosy_settings', 'cosy_sig_website', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_address', [
+        register_setting('cosy_settings', 'cosy_sig_address', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_linkedin', [
+        register_setting('cosy_settings', 'cosy_sig_linkedin', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_facebook', [
+        register_setting('cosy_settings', 'cosy_sig_facebook', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_instagram', [
+        register_setting('cosy_settings', 'cosy_sig_instagram', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_twitter', [
+        register_setting('cosy_settings', 'cosy_sig_twitter', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_tiktok', [
+        register_setting('cosy_settings', 'cosy_sig_tiktok', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_youtube', [
+        register_setting('cosy_settings', 'cosy_sig_youtube', [
             'sanitize_callback' => 'esc_url_raw'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_sig_enabled', [
+        register_setting('cosy_settings', 'cosy_sig_enabled', [
             'sanitize_callback' => 'absint'
         ]);
 
@@ -171,56 +171,56 @@ class SettingsAdmin
         ]);
 
         // Active Gateway Selection
-        register_setting('cosy_payment_settings', 'cosy_default_payment_gateway', [
+        register_setting('cosy_settings', 'cosy_default_payment_gateway', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
 
         // WorldPay Settings
-        register_setting('cosy_payment_settings', 'cosy_worldpay_inst_id', [
+        register_setting('cosy_settings', 'cosy_worldpay_inst_id', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_worldpay_token', [
+        register_setting('cosy_settings', 'cosy_worldpay_token', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_worldpay_password', [
+        register_setting('cosy_settings', 'cosy_worldpay_password', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_worldpay_client_key', [
+        register_setting('cosy_settings', 'cosy_worldpay_client_key', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_worldpay_test_mode', [
+        register_setting('cosy_settings', 'cosy_worldpay_test_mode', [
             'sanitize_callback' => 'absint'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_worldpay_charge', [
+        register_setting('cosy_settings', 'cosy_worldpay_charge', [
             'sanitize_callback' => [$this, 'sanitize_charge']
         ]);
 
         // Dynamic SMTP Configuration Settings
-        register_setting('cosy_payment_settings', 'cosy_smtp_enabled', [
+        register_setting('cosy_settings', 'cosy_smtp_enabled', [
             'sanitize_callback' => 'absint'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_smtp_host', [
+        register_setting('cosy_settings', 'cosy_smtp_host', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_smtp_port', [
+        register_setting('cosy_settings', 'cosy_smtp_port', [
             'sanitize_callback' => 'absint'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_smtp_encryption', [
+        register_setting('cosy_settings', 'cosy_smtp_encryption', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_smtp_auth', [
+        register_setting('cosy_settings', 'cosy_smtp_auth', [
             'sanitize_callback' => 'absint'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_smtp_user', [
+        register_setting('cosy_settings', 'cosy_smtp_user', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_smtp_pass', [
+        register_setting('cosy_settings', 'cosy_smtp_pass', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_smtp_from_name', [
+        register_setting('cosy_settings', 'cosy_smtp_from_name', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
-        register_setting('cosy_payment_settings', 'cosy_smtp_from_email', [
+        register_setting('cosy_settings', 'cosy_smtp_from_email', [
             'sanitize_callback' => 'sanitize_email'
         ]);
     }

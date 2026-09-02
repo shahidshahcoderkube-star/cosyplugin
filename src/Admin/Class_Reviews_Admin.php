@@ -77,7 +77,7 @@ class Class_Reviews_Admin
 
         $providers = get_users(['role' => 'provider']);
 
-        include COSY_APPT_PATH . 'templates/admin/reviews-admin-template.php';
+        include COSY_APPT_PATH . 'src/Admin/Backend/reviews-page.php';
     }
 
     /**
