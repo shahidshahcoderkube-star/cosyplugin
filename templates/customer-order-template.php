@@ -105,7 +105,7 @@ if ($current_user->exists()) {
 										</span>
 									<?php endif; ?>
 								</td>
-								<td class="py-3">
+								<td class="py-3 text-center text-nowrap">
 									<button class="btn btn-sm btn-light btn-view-customer-order-details border"
 										data-id="<?php echo esc_attr($appt->ID); ?>"
 										data-service="<?php echo esc_attr($service); ?>"
