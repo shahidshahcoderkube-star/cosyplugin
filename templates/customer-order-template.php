@@ -155,9 +155,9 @@ ob_start();
             <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-comments" style="color: #a44390;"></i> <?php esc_html_e('Booking Information', 'cosy-appointments'); ?></h6>
             
             <div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
-                <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Provider:</span>
-                    <span id="modalCustProviderName" class="text-dark fw-semibold"></span>
+                <div class="d-flex justify-content-between align-items-baseline gap-2">
+                    <span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Provider:</span>
+                    <span id="modalCustProviderName" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
                 </div>
                 <div id="modalCustGiftRow" class="d-none flex-column gap-2" style="background: #fdf2fb; padding: 10px 14px; border-radius: 8px; border-left: 3px solid #a44390;">
                     <div class="fw-bold d-flex align-items-center gap-1" style="color: #a44390; font-size: 0.88rem;">
@@ -172,17 +172,17 @@ ob_start();
                         <span id="modalCustRecipientEmail" class="text-dark fw-semibold text-end" style="word-break: break-all; overflow-wrap: anywhere;"></span>
                     </div>
                 </div>
-                <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Start Date:</span>
-                    <span id="modalCustStartDate" class="text-dark fw-semibold"></span>
+                <div class="d-flex justify-content-between align-items-baseline gap-2">
+                    <span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Start Date:</span>
+                    <span id="modalCustStartDate" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
                 </div>
-                <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Number of Weeks:</span>
-                    <span id="modalCustWeeks" class="text-dark fw-semibold"></span>
+                <div class="d-flex justify-content-between align-items-baseline gap-2">
+                    <span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Number of Weeks:</span>
+                    <span id="modalCustWeeks" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
                 </div>
-                <div class="d-flex align-items-baseline gap-1">
-                    <span class="text-muted" style="min-width: 130px; font-weight: 500;">Booking Days:</span>
-                    <span id="modalCustSlotsTimeline" class="text-dark fw-semibold" style="word-break: break-word; line-height: 1.6;"></span>
+                <div class="d-flex justify-content-between align-items-baseline gap-2">
+                    <span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Booking Days:</span>
+                    <span id="modalCustSlotsTimeline" class="text-dark fw-semibold text-end" style="word-break: break-word; line-height: 1.5; max-width: 70%;"></span>
                 </div>
             </div>
         </div>
