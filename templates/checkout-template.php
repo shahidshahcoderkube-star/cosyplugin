@@ -79,18 +79,18 @@ if ($step === 'schedule' || !empty($start_date_param)) {
                         <h6 class="fw-bold mb-1 text-muted" style="font-size: 0.95rem;">' . esc_html($day_name . ' (' . $formatted_day_date . ')') . '</h6>
                         <p class="small text-danger mb-0">🚫 Holiday / Unavailable</p>
                     </div>
-                    <button type="button" disabled class="btn btn-sm px-3 py-2 fw-semibold text-muted bg-white border" style="border-radius: 12px; font-size: 0.82rem; cursor: not-allowed;">
+                    <button type="button" disabled class="btn btn-sm px-3 py-2 fw-semibold text-muted bg-white border flex-shrink-0 text-nowrap" style="border-radius: 12px; font-size: 0.82rem; cursor: not-allowed; white-space: nowrap;">
                         Unavailable
                     </button>
                 </div>';
         } else {
             $slots_rows_html .= '
-                <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-white shadow-sm" style="border-color: #f1f5f9 !important;">
-                    <div class="text-start">
+                <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-white shadow-sm gap-2" style="border-color: #f1f5f9 !important;">
+                    <div class="text-start" style="min-width: 0;">
                         <h6 class="fw-bold mb-1" style="color: #1e293b; font-size: 0.95rem;">' . esc_html($day_name . ' (' . $formatted_day_date . ')') . '</h6>
                         <p class="small text-muted mb-0" id="duration-' . esc_attr($safe_id_key) . '">0 minutes Call Duration</p>
                     </div>
-                    <button type="button" id="btn-time-' . esc_attr($safe_id_key) . '" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm btn-open-time-modal" data-date="' . esc_attr($date_str) . '" style="background: #a44390; border-radius: 12px; font-size: 0.82rem;">
+                    <button type="button" id="btn-time-' . esc_attr($safe_id_key) . '" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm btn-open-time-modal flex-shrink-0 text-nowrap" data-date="' . esc_attr($date_str) . '" style="background: #a44390; border-radius: 12px; font-size: 0.82rem; white-space: nowrap; min-width: 96px;">
                         Select Time
                     </button>
                 </div>';

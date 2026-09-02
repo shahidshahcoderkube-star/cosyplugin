@@ -27,7 +27,7 @@ if ($current_user->exists()) {
 			</div>
 			<p class="text-muted mb-0" style="margin-left: 58px; font-size: 0.95rem; font-weight: 500;"><?php esc_html_e('Manage and track your appointment bookings and secure payments.', 'cosy-appointments'); ?></p>
 		</div>
-		<a href="<?php echo esc_url(cosy_get_page_url('service-provider')); ?>" class="btn px-4 text-white fw-bold shadow-sm mt-3 mt-md-0"
+		<a href="<?php echo esc_url(cosy_get_page_url('service-provider')); ?>" class="btn px-4 text-white fw-bold shadow-sm mt-3 mt-md-0 ms-auto"
 			style="background: linear-gradient(135deg, #a44390, #6d2e67); border-radius: 10px; border: none; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; height: 44px;">
 			<i class="fas fa-plus me-2"></i> <?php esc_html_e('Book Another Service', 'cosy-appointments'); ?>
 		</a>

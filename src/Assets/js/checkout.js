@@ -38,7 +38,7 @@ jQuery(document).ready(function ($) {
     const providerNameParam = localStorage.getItem('cosy_selected_provider_name') || 'Verified Parent';
 
     const rawServiceName = urlParams.get('service_name') || urlParams.get('service_category') || urlParams.get('service') || localStorage.getItem('cosy_selected_service_name') || 'Parent Conversation';
-    
+
     /**
      * FORMAT SERVICE NAME NICE
      * 
@@ -182,24 +182,24 @@ jQuery(document).ready(function ($) {
 
             if (isHoliday) {
                 slotsRowsHtml += `
-                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-light opacity-75 shadow-sm" style="border-color: #f1f5f9 !important;">
-                        <div class="text-start">
+                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-light opacity-75 shadow-sm gap-2" style="border-color: #f1f5f9 !important;">
+                        <div class="text-start" style="min-width: 0;">
                             <h6 class="fw-bold mb-1 text-muted" style="font-size: 0.95rem;">${dayName} (${formattedDayDate})</h6>
                             <p class="small text-danger mb-0">🚫 Holiday / Unavailable</p>
                         </div>
-                        <button type="button" disabled class="btn btn-sm px-3 py-2 fw-semibold text-muted bg-white border" style="border-radius: 12px; font-size: 0.82rem; cursor: not-allowed;">
+                        <button type="button" disabled class="btn btn-sm px-3 py-2 fw-semibold text-muted bg-white border flex-shrink-0 text-nowrap" style="border-radius: 12px; font-size: 0.82rem; cursor: not-allowed; white-space: nowrap;">
                             Unavailable
                         </button>
                     </div>
                 `;
             } else {
                 slotsRowsHtml += `
-                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-white shadow-sm" style="border-color: #f1f5f9 !important;">
-                        <div class="text-start">
+                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-white shadow-sm gap-2" style="border-color: #f1f5f9 !important;">
+                        <div class="text-start" style="min-width: 0;">
                             <h6 class="fw-bold mb-1" style="color: #1e293b; font-size: 0.95rem;">${dayName} (${formattedDayDate})</h6>
                             <p class="small text-muted mb-0" id="duration-${safeIdKey}">${selectedDuration} minutes Call Duration</p>
                         </div>
-                        <button type="button" id="btn-time-${safeIdKey}" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm btn-open-time-modal" data-date="${dateStr}" style="background: #a44390; border-radius: 12px; font-size: 0.82rem;">
+                        <button type="button" id="btn-time-${safeIdKey}" class="btn btn-sm px-3 py-2 fw-bold text-white shadow-sm btn-open-time-modal flex-shrink-0 text-nowrap" data-date="${dateStr}" style="background: #a44390; border-radius: 12px; font-size: 0.82rem; white-space: nowrap; min-width: 96px;">
                             ${selectedDuration > 0 ? 'Edit Time' : 'Select Time'}
                         </button>
                     </div>
@@ -490,127 +490,128 @@ jQuery(document).ready(function ($) {
         }
 
         container.innerHTML = `
-            <div class="cosy-checkout-header mb-4 d-flex align-items-center justify-content-between">
-                <button id="btnBackToSchedule" class="btn border-0 fw-bold px-0 py-2 d-inline-flex align-items-center gap-2" style="background: transparent !important; color: #a44390; box-shadow: none; border-radius: 0; font-size: 0.95rem; line-height: 1;">
-                    <i class="fas fa-arrow-left" style="color: #a44390 !important; font-size: 0.95rem;"></i> <span>Back to Schedule</span>
-                </button>
-                <h1 class="cosy-checkout-title h4 fw-bold mb-0 d-inline-flex align-items-center gap-2" style="color: #a44390; font-size: 1.25rem;">
-                    <i class="fas fa-file-alt" style="color: #a44390;"></i> <span>Booking Summary</span>
-                </h1>
-            </div>
+            <div class="cosy-checkout-summary-wrap mx-auto" style="max-width: 680px; width: 100%;">
+                <div class="cosy-checkout-header mb-3 mb-md-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <button id="btnBackToSchedule" class="btn border-0 fw-bold px-0 py-1 d-inline-flex align-items-center gap-2" style="background: transparent !important; color: #a44390; box-shadow: none; border-radius: 0; font-size: clamp(0.85rem, 3.5vw, 0.95rem); line-height: 1;">
+                        <i class="fas fa-arrow-left" style="color: #a44390 !important; font-size: 0.9rem;"></i> <span>Back to Schedule</span>
+                    </button>
+                    <h1 class="cosy-checkout-title h5 fw-bold mb-0 d-inline-flex align-items-center gap-2" style="color: #a44390; font-size: clamp(0.98rem, 4vw, 1.25rem);">
+                        <i class="fas fa-file-alt" style="color: #a44390;"></i> <span>Booking Summary</span>
+                    </h1>
+                </div>
 
-            ${isGiftBooking ? `
-            <!-- Gifted Booking Banner -->
-            <div class="cosy-bento-panel mb-4 p-3 rounded-4 shadow-sm d-flex align-items-center gap-3" style="background: linear-gradient(135deg, #fdf5fc 0%, #f9e8f6 100%); border: 1.5px solid #f1c7ec;">
-                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 46px; height: 46px; background: #a44390; color: #ffffff; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(164, 67, 144, 0.25);">
-                    <i class="fas fa-gift"></i>
-                </div>
-                <div>
-                    <div class="fw-bold d-flex align-items-center gap-2" style="color: #6d2e67; font-size: 1rem;">
-                        <span>Gifted Booking Confirmation</span>
-                        <span class="badge rounded-pill px-2.5 py-1" style="background: #a44390; color: #fff; font-size: 0.72rem; font-weight: 600;">Gift a Conversation 🎁</span>
-                    </div>
-                    <div class="mt-1" style="font-size: 0.88rem; color: #334155;">
-                        This conversation is gifted for: <strong class="text-dark">${recipientNameClean}</strong>
-                    </div>
-                    ${recipientEmailClean ? `
-                    <div class="small text-muted mt-0.5" style="font-size: 0.82rem;">
-                        <i class="fas fa-envelope me-1" style="color: #a44390;"></i> Recipient Email: <a href="mailto:${recipientEmailClean}" style="color: #a44390; text-decoration: none; font-weight: 600;">${recipientEmailClean}</a>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-            ` : ''}
-
-            <!-- Bento Card 1: Service Information -->
-            <div class="cosy-bento-panel mb-4 rounded-4 shadow-sm overflow-hidden" style="background: #fff; border: 1px solid #f3e8fc;">
-                <div class="py-3 px-4" style="background: #fdf5fc; border-bottom: 1px solid #f9e8f6;">
-                    <span style="background: #a44390; width: 5px; height: 18px; border-radius: 3px; display: inline-block; margin-right: 10px; vertical-align: middle;"></span>
-                    <h6 class="d-inline-block fw-bold mb-0" style="color: #7a2267; font-size: 1.05rem;">Service Information :</h6>
-                </div>
-                <div class="p-0">
-                    <table class="cosy-checkout-table w-100 mb-0" style="border-collapse: collapse;">
-                        <tbody>
-                            <tr style="background: #ffffff;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Provider</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${booking.providerName}</td>
-                            </tr>
-                            ${isGiftBooking ? `
-                            <tr style="background: #fcf4fa; border-left: 4px solid #a44390;">
-                                <td class="ps-4 pe-2 py-3 fw-bold" style="width: 32%; font-size: 0.92rem; color: #a44390;">Recipient Name 🎁</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #a44390; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem; color: #6d2e67;">${recipientNameClean}</td>
-                            </tr>
+                ${isGiftBooking ? `
+                <!-- Gifted Booking Banner -->
+                <div class="cosy-bento-panel mb-3 mb-md-4 p-3 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #fdf5fc 0%, #f9e8f6 100%); border: 1.5px solid #f1c7ec;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 42px; height: 42px; background: #a44390; color: #ffffff; font-size: 1.15rem; box-shadow: 0 4px 10px rgba(164, 67, 144, 0.25);">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <div class="fw-bold d-flex align-items-center flex-wrap gap-2" style="color: #6d2e67; font-size: 0.92rem; line-height: 1.3;">
+                                <span>Gifted Booking</span>
+                                <span class="badge rounded-pill px-2.5 py-1 ms-1" style="background: #a44390; color: #fff; font-size: 0.72rem; font-weight: 600;">🎁 Gift</span>
+                            </div>
+                            <div class="mt-1" style="font-size: 0.84rem; color: #334155; line-height: 1.4;">
+                                <span class="text-muted">Gift for:</span> <strong class="text-dark">${recipientNameClean}</strong>
+                            </div>
                             ${recipientEmailClean ? `
-                            <tr style="background: #fdfafc; border-left: 4px solid #a44390;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Recipient Email</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${recipientEmailClean}</td>
-                            </tr>
+                            <div class="small text-muted mt-0.5" style="font-size: 0.8rem; word-break: break-all; overflow-wrap: anywhere; line-height: 1.4;">
+                                <i class="fas fa-envelope me-1" style="color: #a44390;"></i> <a href="mailto:${recipientEmailClean}" style="color: #a44390; text-decoration: none; font-weight: 600;">${recipientEmailClean}</a>
+                            </div>
                             ` : ''}
-                            ` : ''}
-                            <tr style="background: #ffffff;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Start Date</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${displayStartDate}</td>
-                            </tr>
-                            <tr style="background: #ffffff;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Booking Duration</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${booking.weeklyBooking || '1 Week Duration'}</td>
-                            </tr>
-                            <tr style="background: #fdfafc;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem; vertical-align: top;">Booking Days</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem; vertical-align: top;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.6;">${formattedBookingDaysBreakdown}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Bento Card 2: Costing Information -->
-            <div class="cosy-bento-panel mb-4 rounded-4 shadow-sm overflow-hidden" style="background: #fff; border: 1px solid #f3e8fc;">
-                <div class="py-3 px-4" style="background: #fdf5fc; border-bottom: 1px solid #f9e8f6;">
-                    <span style="background: #a44390; width: 5px; height: 18px; border-radius: 3px; display: inline-block; margin-right: 10px; vertical-align: middle;"></span>
-                    <h6 class="d-inline-block fw-bold mb-0" style="color: #7a2267; font-size: 1.05rem;">Costing Information :</h6>
-                </div>
-                <div class="p-0">
-                    <table class="cosy-checkout-table w-100 mb-0" style="border-collapse: collapse;">
-                        <tbody>
-                            <tr style="background: #ffffff;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Service Cost</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${currencySymbol} ${booking.serviceCost}</td>
-                            </tr>
-                            <tr style="background: #fdfafc;">
-                                <td class="ps-4 pe-2 py-3 fw-semibold text-secondary" style="width: 32%; font-size: 0.92rem;">Service Fee *</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #c084fc; font-size: 0.92rem;">:</td>
-                                <td class="pe-4 py-3 fw-bold text-dark" style="font-size: 0.95rem;">${currencySymbol} ${booking.serviceFee}</td>
-                            </tr>
-                            <tr style="background: #ffffff; border-top: 1.5px dashed #f3e8fc;">
-                                <td class="ps-4 pe-2 py-3 fw-bold text-dark" style="width: 32%; font-size: 1rem;">Total Payable Amount</td>
-                                <td class="pe-2 py-3 text-center" style="width: 5%; color: #a44390; font-size: 1rem; font-weight: 700;">:</td>
-                                <td class="pe-4 py-3 fw-bold h5 mb-0" style="color: #a44390 !important;">${currencySymbol} ${booking.totalPayable}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="px-4 py-3" style="background: #faf5fa; border-top: 1px solid #f5e6f3;">
-                        <p class="small text-muted mb-0" style="font-size: 0.78rem; line-height: 1.4;">
-                            * Service Charge – helps us provide and continually improve the CosyChats platform, including secure bookings, payment processing and customer support.
-                        </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+                ` : ''}
 
-            <!-- Pay Now Button -->
-            <?php
-            // Dynamic gateway label
-            ?>
-            <button id="cosyPayNowBtn" class="btn w-100 py-3 fw-bold text-white shadow-sm" style="background: #a44390; border-radius: 14px; font-size: 1.1rem;">
-                Pay Now via WorldPay <i class="fas fa-lock ms-2"></i>
-            </button>
+                <!-- Bento Card 1: Service Information -->
+                <div class="cosy-bento-panel mb-3 mb-md-4 rounded-4 shadow-sm overflow-hidden" style="background: #fff; border: 1px solid #f3e8fc;">
+                    <div class="py-2.5 px-3 py-md-3 px-md-4" style="background: #fdf5fc; border-bottom: 1px solid #f9e8f6;">
+                        <span style="background: #a44390; width: 4px; height: 16px; border-radius: 3px; display: inline-block; margin-right: 8px; vertical-align: middle;"></span>
+                        <h6 class="d-inline-block fw-bold mb-0" style="color: #7a2267; font-size: 0.98rem;">Service Information :</h6>
+                    </div>
+                    <div class="p-0">
+                        <table class="cosy-checkout-table w-100 mb-0" style="border-collapse: collapse;">
+                            <tbody>
+                                <tr style="background: #ffffff;">
+                                    <td class="label-col fw-semibold text-secondary">Provider</td>
+                                    <td class="separator-col text-center">:</td>
+                                    <td class="value-col fw-bold text-dark">${booking.providerName}</td>
+                                </tr>
+                                ${isGiftBooking ? `
+                                <tr style="background: #fcf4fa; border-left: 4px solid #a44390;">
+                                    <td class="label-col fw-bold" style="color: #a44390;">Name 🎁</td>
+                                    <td class="separator-col text-center" style="color: #a44390;">:</td>
+                                    <td class="value-col fw-bold text-dark" style="color: #6d2e67;">${recipientNameClean}</td>
+                                </tr>
+                                ${recipientEmailClean ? `
+                                <tr style="background: #fdfafc; border-left: 4px solid #a44390;">
+                                    <td class="label-col fw-semibold text-secondary">Email</td>
+                                    <td class="separator-col text-center">:</td>
+                                    <td class="value-col fw-bold text-dark" style="word-break: break-all; overflow-wrap: anywhere;">${recipientEmailClean}</td>
+                                </tr>
+                                ` : ''}
+                                ` : ''}
+                                <tr style="background: #ffffff;">
+                                    <td class="label-col fw-semibold text-secondary">Start Date</td>
+                                    <td class="separator-col text-center">:</td>
+                                    <td class="value-col fw-bold text-dark">${displayStartDate}</td>
+                                </tr>
+                                <tr style="background: #ffffff;">
+                                    <td class="label-col fw-semibold text-secondary">Duration</td>
+                                    <td class="separator-col text-center">:</td>
+                                    <td class="value-col fw-bold text-dark">${booking.weeklyBooking || '1 Week Duration'}</td>
+                                </tr>
+                                <tr style="background: #fdfafc;">
+                                    <td class="label-col fw-semibold text-secondary" style="vertical-align: top;">Booking Days</td>
+                                    <td class="separator-col text-center" style="vertical-align: top;">:</td>
+                                    <td class="value-col fw-bold text-dark" style="line-height: 1.6; word-break: break-word;">${formattedBookingDaysBreakdown}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bento Card 2: Costing Information -->
+                <div class="cosy-bento-panel mb-3 mb-md-4 rounded-4 shadow-sm overflow-hidden" style="background: #fff; border: 1px solid #f3e8fc;">
+                    <div class="py-2.5 px-3 py-md-3 px-md-4" style="background: #fdf5fc; border-bottom: 1px solid #f9e8f6;">
+                        <span style="background: #a44390; width: 4px; height: 16px; border-radius: 3px; display: inline-block; margin-right: 8px; vertical-align: middle;"></span>
+                        <h6 class="d-inline-block fw-bold mb-0" style="color: #7a2267; font-size: 0.98rem;">Costing Information :</h6>
+                    </div>
+                    <div class="p-0">
+                        <table class="cosy-checkout-table w-100 mb-0" style="border-collapse: collapse;">
+                            <tbody>
+                                <tr style="background: #ffffff;">
+                                    <td class="label-col fw-semibold text-secondary">Service Cost</td>
+                                    <td class="separator-col text-center">:</td>
+                                    <td class="value-col fw-bold text-dark">${currencySymbol} ${booking.serviceCost}</td>
+                                </tr>
+                                <tr style="background: #fdfafc;">
+                                    <td class="label-col fw-semibold text-secondary">Service Fee *</td>
+                                    <td class="separator-col text-center">:</td>
+                                    <td class="value-col fw-bold text-dark">${currencySymbol} ${booking.serviceFee}</td>
+                                </tr>
+                                <tr style="background: #ffffff; border-top: 1.5px dashed #f3e8fc;">
+                                    <td class="label-col fw-bold text-dark" style="font-size: 0.95rem;">Total Payable</td>
+                                    <td class="separator-col text-center fw-bold" style="color: #a44390;">:</td>
+                                    <td class="value-col fw-bold mb-0" style="color: #a44390 !important; font-size: 1.15rem;">${currencySymbol} ${booking.totalPayable}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="px-3 py-2.5 px-md-4 py-md-3" style="background: #faf5fa; border-top: 1px solid #f5e6f3;">
+                            <p class="small text-muted mb-0" style="font-size: 0.76rem; line-height: 1.4;">
+                                * Service Charge – helps us provide and continually improve the CosyChats platform, including secure bookings, payment processing and customer support.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pay Now Button -->
+                <button id="cosyPayNowBtn" class="btn w-100 py-3 fw-bold text-white shadow-sm" style="background: #a44390; border-radius: 14px; font-size: 1.05rem;">
+                    Pay Now via WorldPay <i class="fas fa-lock ms-2"></i>
+                </button>
+            </div>
         `;
     }
 
@@ -1127,7 +1128,7 @@ jQuery(document).ready(function ($) {
     $(document).on('click', '#cosyCheckoutBackBtn', function (e) {
         e.preventDefault();
         localStorage.removeItem('cosy_pending_booking');
-        
+
         // If coming from profile page, use history.back() to keep history stack clean
         if (document.referrer && (document.referrer.includes('/author/') || document.referrer.includes('provider-profile') || document.referrer.includes('/service-details/'))) {
             window.history.back();
@@ -1137,7 +1138,7 @@ jQuery(document).ready(function ($) {
         const targetUrl = (window.providerProfileUrl && window.providerProfileUrl.length > 5)
             ? window.providerProfileUrl
             : (localStorage.getItem('cosy_selected_provider_url') || (window.cosyCheckout && window.cosyCheckout.providerUrl));
-        
+
         if (targetUrl && targetUrl.length > 5) {
             window.location.href = targetUrl;
         } else {

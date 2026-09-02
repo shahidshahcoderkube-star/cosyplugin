@@ -2619,33 +2619,48 @@ body .swal2-icon {
 }
 
 .cosy-checkout-table td {
-    padding: 16px 24px;
-    font-size: 0.95rem;
+    padding: 13px 18px;
+    font-size: 0.92rem;
     color: var(--cosy-text-slate);
     vertical-align: middle;
 }
 
 .cosy-checkout-table td.label-col {
-    width: 32%;
+    width: 38%;
     font-weight: 600;
     color: var(--cosy-text-slate);
+    word-break: break-word;
 }
 
 .cosy-checkout-table td.separator-col {
-    width: 5%;
+    width: 20px;
     text-align: center;
     color: #c25ca9;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 .cosy-checkout-table td.value-col {
-    width: 63%;
+    width: 56%;
     font-weight: 600;
     color: var(--cosy-text-dark);
+    word-break: break-word;
 }
 
 /* Striped rows inside tables to match screenshot exactly */
 .cosy-checkout-table tr:nth-child(odd) td {
     background-color: #fdfafc;
+}
+
+/* Call Schedule Slot Modal Trigger Button */
+.btn-open-time-modal {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    min-width: 96px !important;
+    text-align: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /* Pricing specific typography */
@@ -3617,6 +3632,60 @@ body {
         border-radius: 20px !important;
         overflow: hidden !important;
         border: none !important;
+    }
+
+    /* Checkout Booking Summary Responsive Rules (<= 480px / 382px) */
+    .cosy-checkout-header {
+        margin-bottom: 14px !important;
+    }
+
+    .cosy-checkout-header #btnBackToSchedule {
+        font-size: 0.84rem !important;
+        padding: 0 !important;
+    }
+
+    .cosy-checkout-header .cosy-checkout-title {
+        font-size: 1.05rem !important;
+    }
+
+    .cosy-bento-panel {
+        border-radius: 14px !important;
+        margin-bottom: 14px !important;
+    }
+
+    .cosy-checkout-table td {
+        padding: 9px 6px !important;
+        font-size: 0.84rem !important;
+    }
+
+    .cosy-checkout-table td.label-col {
+        width: 32% !important;
+        min-width: 75px !important;
+        font-size: 0.82rem !important;
+        padding-left: 10px !important;
+        white-space: nowrap !important;
+    }
+
+    .cosy-checkout-table td.separator-col {
+        width: 14px !important;
+        font-size: 0.82rem !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        text-align: center !important;
+    }
+
+    .cosy-checkout-table td.value-col {
+        width: 62% !important;
+        font-size: 0.85rem !important;
+        padding-right: 10px !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #cosyPayNowBtn {
+        padding: 12px 14px !important;
+        font-size: 0.98rem !important;
+        border-radius: 12px !important;
     }
 
     /* Universal Dashboard Card Section Headings Mobile Fix */
