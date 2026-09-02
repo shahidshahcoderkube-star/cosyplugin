@@ -35,7 +35,7 @@ if ($current_user->exists()) {
 
 	<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
 		<div class="table-responsive">
-			<table class="table table-hover align-middle mb-0" style="border-collapse: separate;">
+			<table class="table table-hover align-middle mb-0" style="border-collapse: separate; min-width: 850px;">
 				<thead class="table-light">
 					<tr style="border-bottom: 2px solid #edf2f7;">
 						<th class="ps-4 py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Order ID', 'cosy-appointments'); ?></th>
