@@ -159,9 +159,18 @@ ob_start();
                     <span class="text-muted" style="min-width: 130px; font-weight: 500;">Provider:</span>
                     <span id="modalCustProviderName" class="text-dark fw-semibold"></span>
                 </div>
-                <div id="modalCustGiftRow" class="d-none align-items-baseline gap-1" style="background: #fdf2fb; padding: 6px 10px; border-radius: 6px; border-left: 3px solid #a44390;">
-                    <span class="fw-bold" style="min-width: 130px; color: #a44390;">Gift Recipient 🎁:</span>
-                    <span id="modalCustRecipientInfo" class="text-dark fw-semibold"></span>
+                <div id="modalCustGiftRow" class="d-none flex-column gap-2" style="background: #fdf2fb; padding: 10px 14px; border-radius: 8px; border-left: 3px solid #a44390;">
+                    <div class="fw-bold d-flex align-items-center gap-1" style="color: #a44390; font-size: 0.88rem;">
+                        <span>Gift Recipient</span> <span>🎁</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-baseline gap-2">
+                        <span class="text-muted" style="font-size: 0.85rem; font-weight: 500; flex-shrink: 0;">Name:</span>
+                        <span id="modalCustRecipientName" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-baseline gap-2">
+                        <span class="text-muted" style="font-size: 0.85rem; font-weight: 500; flex-shrink: 0;">Email:</span>
+                        <span id="modalCustRecipientEmail" class="text-dark fw-semibold text-end" style="word-break: break-all; overflow-wrap: anywhere;"></span>
+                    </div>
                 </div>
                 <div class="d-flex align-items-baseline gap-1">
                     <span class="text-muted" style="min-width: 130px; font-weight: 500;">Start Date:</span>

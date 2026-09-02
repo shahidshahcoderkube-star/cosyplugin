@@ -247,6 +247,8 @@ jQuery(document).ready(function ($) {
 
         if (isGift === '1' || (recipientEmail && recipientEmail.trim() !== '')) {
             $('#customerOrderDetailsModalLabel').html('Order Details - #' + id + ' <span class="badge ms-2" style="background: #ffffff; color: #a44390; font-size: 0.8rem; font-weight: 700; vertical-align: middle; padding: 5px 12px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.18);"><i class="fas fa-gift me-1"></i> Gifted Order</span>');
+            $('#modalCustRecipientName').text(recipientName || 'Gift Recipient');
+            $('#modalCustRecipientEmail').text(recipientEmail || '-');
             $('#modalCustRecipientInfo').text((recipientName || 'Gift Recipient') + (recipientEmail ? ' (' + recipientEmail + ')' : ''));
             $('#modalCustGiftRow').removeClass('d-none').addClass('d-flex');
         } else {

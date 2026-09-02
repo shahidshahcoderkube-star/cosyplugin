@@ -1147,7 +1147,9 @@ label.error {
     border-radius: 20px !important;
     border: none !important;
     background: #ffffff !important;
-    overflow: visible !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3) !important;
 }
 
@@ -2310,6 +2312,34 @@ body .swal2-icon {
 
 .order-empty-icon {
     color: #cbd5e1;
+}
+
+/* Modal Field Wrapping Safeguards */
+#modalCustRecipientName,
+#modalCustProviderName,
+#modalCustStartDate,
+#modalCustWeeks {
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+}
+
+#modalCustRecipientEmail,
+#modalCustRecipientInfo {
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+}
+
+#modalCustGiftRow {
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+}
+
+#modalCustSlotsTimeline {
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
 }
 
 /* --- Provider Invoices Dashboard Styles --- */
@@ -3570,7 +3600,6 @@ body {
     }
 
     /* Modals & Details Popups */
-    .cosy-modal-content,
     .order-details-modal,
     .popup-content {
         width: 94% !important;
@@ -3580,6 +3609,14 @@ body {
         max-height: 90vh !important;
         overflow-y: auto !important;
         box-sizing: border-box !important;
+    }
+
+    .cosy-modal-content {
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 20px !important;
+        overflow: hidden !important;
+        border: none !important;
     }
 
     /* Universal Dashboard Card Section Headings Mobile Fix */
