@@ -292,11 +292,14 @@ class Dashboard
                     );
                 }
 
-                // Log video upload
+                $prov_user = get_userdata($user_id);
+                $prov_name = $prov_user ? $prov_user->display_name : "Provider #{$user_id}";
+
+                // Log video upload under media_approve section
                 \Cosy\Appointments\Common\LogManager::log(
-                    'dashboard',
+                    'media_approve',
                     'video_uploaded',
-                    __('Provider uploaded a new video for admin approval.', 'cosy-appointments'),
+                    sprintf(__('Provider "%s" uploaded a new introductory video for admin approval.', 'cosy-appointments'), $prov_name),
                     $user_id
                 );
 
@@ -350,11 +353,14 @@ class Dashboard
             )
         );
 
-        // Log video deletion
+        $prov_user = get_userdata($user_id);
+        $prov_name = $prov_user ? $prov_user->display_name : "Provider #{$user_id}";
+
+        // Log video deletion under media_approve section
         \Cosy\Appointments\Common\LogManager::log(
-            'dashboard',
+            'media_approve',
             'video_deleted',
-            __('Provider deleted their introductory video.', 'cosy-appointments'),
+            sprintf(__('Provider "%s" deleted their introductory video.', 'cosy-appointments'), $prov_name),
             $user_id
         );
 
@@ -1002,10 +1008,11 @@ class Dashboard
         }
 
         if ($inserted !== false) {
+            $cust_name_log = !empty($review->customer_name) ? $review->customer_name : 'Customer';
             \Cosy\Appointments\Common\LogManager::log(
                 'reviews',
                 'PROVIDER_REPLY',
-                sprintf(__('Provider #%d posted Level %d response for Review #%d.', 'cosy-appointments'), $user_id, $target_level, $review_id),
+                sprintf(__('Provider "%s" (ID: %d) posted Level %d reply to Review #%d (Customer: %s).', 'cosy-appointments'), $prov_name, $user_id, $target_level, $review_id, $cust_name_log),
                 $user_id
             );
 
@@ -1122,10 +1129,13 @@ class Dashboard
         );
 
         if ($inserted) {
+            $provider_user = get_userdata($review->provider_id);
+            $provider_name = $provider_user ? ($provider_user->first_name ?: $provider_user->display_name) : 'Provider';
+
             \Cosy\Appointments\Common\LogManager::log(
                 'reviews',
                 'CUSTOMER_REPLY',
-                sprintf(__('Customer #%d posted Level 2 follow-up response for Review #%d.', 'cosy-appointments'), $user_id, $review_id),
+                sprintf(__('Customer "%s" (ID: %d) posted Level 2 follow-up reply for Review #%d (Provider: %s).', 'cosy-appointments'), $cust_name, $user_id, $review_id, $provider_name),
                 $user_id
             );
 
@@ -1321,13 +1331,21 @@ class Dashboard
         );
 
         $provider_user = get_userdata($token_row->provider_id);
+        $prov_name     = $provider_user ? ($provider_user->display_name ?: $provider_user->first_name) : "Provider #{$token_row->provider_id}";
         $provider_slug = $provider_user ? $provider_user->user_nicename : '';
         $redirect_url  = !empty($provider_slug) ? site_url("/author/{$provider_slug}/") : site_url('/');
+
+        // Log token review submission under reviews section
+        \Cosy\Appointments\Common\LogManager::log(
+            'reviews',
+            'SUBMIT_REVIEW_TOKEN',
+            sprintf(__('Customer "%s" submitted a token-verified review (Rating: %d/10) for Provider "%s" (#%d).', 'cosy-appointments'), $customer_name, $rating, $prov_name, $token_row->provider_id),
+            $token_row->customer_id ?: null
+        );
 
         // Send Email notification to Admin about new pending review
         $admin_email = get_option('admin_email');
         if (!empty($admin_email) && function_exists('cosy_send_html_email') && $provider_user) {
-            $prov_name = $provider_user->display_name ?: $provider_user->first_name;
             $tpl = \Cosy\Appointments\Email\EmailTemplates::get_admin_new_review_template(
                 $prov_name,
                 $customer_name,

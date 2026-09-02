@@ -34,6 +34,8 @@ if (!defined('ABSPATH')) {
                 <li><a class="cdoc-nav-link" data-tab="pages"><i class="fas fa-file-alt"></i> Pages & Shortcodes</a></li>
                 <li><a class="cdoc-nav-link" data-tab="workflow"><i class="fas fa-sitemap"></i> How It Works</a></li>
                 <li><a class="cdoc-nav-link" data-tab="bookings-explained"><i class="fas fa-book-open"></i> Bookings Explained</a></li>
+                <li><a class="cdoc-nav-link" data-tab="email-templates"><i class="fas fa-envelope-open-text"></i> Email Templates & SMTP</a></li>
+                <li><a class="cdoc-nav-link" data-tab="reviews-lifecycle"><i class="fas fa-comments"></i> Reviews & Moderation</a></li>
                 <li><a class="cdoc-nav-link" data-tab="worldpay"><i class="fas fa-credit-card"></i> WorldPay Setup</a></li>
                 <li><a class="cdoc-nav-link" data-tab="users-management"><i class="fas fa-users-cog"></i> Users Management</a></li>
                 <li><a class="cdoc-nav-link" data-tab="fees-media"><i class="fas fa-sliders-h"></i> Fees & Media Limits</a></li>
@@ -126,42 +128,52 @@ if (!defined('ABSPATH')) {
                     </div>
                     <div class="cdoc-card">
                         <div class="cdoc-card-icon"><i class="fas fa-star"></i></div>
-                        <h3>Ratings & Reviews</h3>
-                        <p>After a completed appointment, customers can leave a star rating and written review for the provider. Reviews are displayed on the provider's public profile.</p>
+                        <h3>3-Level Reviews Lifecycle</h3>
+                        <p>Customers submit ratings & reviews via secure single-use email invitation tokens. Supports a 3-level conversation thread (Provider Reply ➔ Customer Follow-up ➔ Provider Closing Response).</p>
                         <div style="margin-top:10px">
-                            <span class="cdoc-tag">5-Star Rating</span>
-                            <span class="cdoc-tag">Written Review</span>
-                            <span class="cdoc-tag">Pending / Published</span>
+                            <span class="cdoc-tag">Token Links</span>
+                            <span class="cdoc-tag">3-Level Replies</span>
+                            <span class="cdoc-tag">Admin Moderation</span>
+                        </div>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-gift"></i></div>
+                        <h3>Gift Bookings System</h3>
+                        <p>Customers can book an appointment on behalf of someone else. The platform dispatches dedicated gift notification emails to the recipient with all session instructions.</p>
+                        <div style="margin-top:10px">
+                            <span class="cdoc-tag">Gift Checkout</span>
+                            <span class="cdoc-tag">Recipient Alerts</span>
+                            <span class="cdoc-tag">Admin Badges</span>
                         </div>
                     </div>
                     <div class="cdoc-card">
                         <div class="cdoc-card-icon"><i class="fas fa-filter"></i></div>
-                        <h3>Provider Filtering</h3>
-                        <p>Customers can filter providers by service category or search by name. Filtering is powered by AJAX, so results update instantly without reloading the page.</p>
+                        <h3>Provider Filtering & AI Search</h3>
+                        <p>Customers can filter providers by category, search by name, or use natural language AI Vector search powered by OpenAI embeddings to find their ideal provider.</p>
                         <div style="margin-top:10px">
-                            <span class="cdoc-tag">Category Filter</span>
-                            <span class="cdoc-tag">Search</span>
-                            <span class="cdoc-tag">AJAX-Powered</span>
+                            <span class="cdoc-tag">AJAX Filter</span>
+                            <span class="cdoc-tag">AI Semantic Search</span>
+                            <span class="cdoc-tag">Instant Cache</span>
                         </div>
                     </div>
                     <div class="cdoc-card">
-                        <div class="cdoc-card-icon"><i class="fas fa-envelope"></i></div>
-                        <h3>Email Notifications</h3>
-                        <p>Once a booking is confirmed and payment is processed, both the customer and the provider automatically receive a confirmation email with appointment details.</p>
+                        <div class="cdoc-card-icon"><i class="fas fa-envelope-open-text"></i></div>
+                        <h3>Email Templates & SMTP</h3>
+                        <p>Visual split-screen WYSIWYG editor with live HTML preview, merge tags, protected system tables, test email dispatcher, and dynamic SMTP credentials manager.</p>
                         <div style="margin-top:10px">
-                            <span class="cdoc-tag">Customer Email</span>
-                            <span class="cdoc-tag">Provider Email</span>
-                            <span class="cdoc-tag">Booking Details</span>
+                            <span class="cdoc-tag">WYSIWYG Editor</span>
+                            <span class="cdoc-tag">Live Preview</span>
+                            <span class="cdoc-tag">Dynamic SMTP</span>
                         </div>
                     </div>
                     <div class="cdoc-card">
                         <div class="cdoc-card-icon"><i class="fas fa-cog"></i></div>
-                        <h3>Settings Panel</h3>
-                        <p>Administrators can configure payment gateway credentials, currency, and test/live mode settings from the dedicated Settings page in the admin panel.</p>
+                        <h3>Central Settings Hub</h3>
+                        <p>Administrators can configure WorldPay credentials, platform commission fees, video size limits, custom branding, and toggle audit logging per module.</p>
                         <div style="margin-top:10px">
-                            <span class="cdoc-tag">WorldPay Keys</span>
-                            <span class="cdoc-tag">Currency</span>
-                            <span class="cdoc-tag">Live / Sandbox</span>
+                            <span class="cdoc-tag">WorldPay HPP</span>
+                            <span class="cdoc-tag">Service Fees</span>
+                            <span class="cdoc-tag">Audit Logs</span>
                         </div>
                     </div>
                 </div>
@@ -480,20 +492,22 @@ if (!defined('ABSPATH')) {
                     </div>
                 </div>
 
-                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">3️⃣ Orders Management (OrdersAdmin.php)</h3>
-                <p>Treats bookings as discrete financial and service Orders, giving administrators order status controls and granular transaction details:
+                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">3️⃣ Orders Management & 🎁 Gift Bookings (OrdersAdmin.php)</h3>
+                <p>Treats bookings as discrete financial and service Orders, giving administrators order status controls, granular transaction details, and gift recipient insights:
                     <br>• <strong>Order ID:</strong> Formatted with a hash indicator (e.g. <code>#123</code>).
                     <br>• <strong>Cost Breakdown:</strong> Shows the provider's base fee, the net platform service fee, and the gross total paid.
+                    <br>• <strong>Gift Bookings:</strong> When a customer books on behalf of someone else (<code>cosy_is_gift = 1</code>), the system records the recipient's name and email address. A dedicated <em>Gift Order Details</em> card is displayed in the Admin Order modal, and the recipient automatically receives a branded confirmation email with session instructions.
                 </p>
 
                 <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">4️⃣ End-to-End Booking Data Flow</h3>
                 <p>The booking lifecycle coordinates actions across all user roles, ensuring real-time notification alerts, data logs, and updates:</p>
                 <div style="background: #faf5fb; border: 1px solid #eedced; border-radius: 12px; padding: 20px; font-family: 'Plus Jakarta Sans', sans-serif; margin-bottom: 25px;">
                     <div style="display: flex; flex-direction: column; gap: 12px;">
-                        <div><strong style="color: #a44390;">Step 1: Booking Initiation</strong> — Customer selects a service, calendar date, time slot, and enters checkout. An unpaid draft appointment is created.</div>
+                        <div><strong style="color: #a44390;">Step 1: Booking Initiation</strong> — Customer selects a service, calendar date, time slot, specifies if it's a gift (optional recipient info), and enters checkout. An unpaid draft appointment is created.</div>
                         <div><strong style="color: #a44390;">Step 2: Payment Confirmation</strong> — WorldPay processes payment. The draft booking shifts to published, updating payment state to Paid.</div>
-                        <div><strong style="color: #a44390;">Step 3: Multi-Recipient Notifications</strong> — Customer receives booking confirmation receipt. The provider and site administrator receive transaction alerts.</div>
+                        <div><strong style="color: #a44390;">Step 3: Multi-Recipient Notifications</strong> — Customer receives booking confirmation receipt. If gifted, the recipient receives a dedicated gift booking alert. The provider and site administrator receive transaction alerts.</div>
                         <div><strong style="color: #a44390;">Step 4: Provider Dashboard Action</strong> — Provider confirms/completes/cancels the appointment. The customer receives status emails and activity is logged.</div>
+                        <div><strong style="color: #a44390;">Step 5: Review Invitation</strong> — Upon appointment completion, the customer receives an automated email with a secure single-use token link to submit a review.</div>
                     </div>
                 </div>
 
@@ -511,6 +525,10 @@ if (!defined('ABSPATH')) {
                         <tr>
                             <td style="padding: 12px; font-family: monospace;">cosy_customer_id / cosy_provider_id</td>
                             <td style="padding: 12px;">WP User IDs mapping the customer and service provider to the appointment.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-family: monospace;">cosy_is_gift / cosy_recipient_email</td>
+                            <td style="padding: 12px;">Tracks whether the booking is a gift and stores the recipient's name and email.</td>
                         </tr>
                         <tr>
                             <td style="padding: 12px; font-family: monospace;">cosy_start_date / cosy_end_date</td>
@@ -534,7 +552,19 @@ if (!defined('ABSPATH')) {
                         </tr>
                         <tr>
                             <td style="padding: 12px; font-family: monospace;">wp_provider_services</td>
-                            <td style="padding: 12px;">Custom table linking providers to services.</td>
+                            <td style="padding: 12px;">Custom table linking providers to services and pricing.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-family: monospace;">wp_cosy_provider_reviews</td>
+                            <td style="padding: 12px;">Custom table storing star ratings, customer reviews, and status (pending, approved, rejected).</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-family: monospace;">wp_cosy_review_replies</td>
+                            <td style="padding: 12px;">Custom table storing 3-level threaded conversation replies between providers and customers.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-family: monospace;">wp_cosy_review_tokens</td>
+                            <td style="padding: 12px;">Custom table tracking single-use invitation tokens generated for customer reviews.</td>
                         </tr>
                         <tr>
                             <td style="padding: 12px; font-family: monospace;">wp_cosy_activity_logs</td>
@@ -550,6 +580,172 @@ if (!defined('ABSPATH')) {
                 <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">🔒 Security & Media Approval Workflows</h3>
                 <p>• <strong>OTP Deactivation Guard:</strong> Unauthorized deactivation attempts are blocked. When triggered, a secure 6-digit One-Time Password is sent to the site admin's email and deactivation is locked until verified.
                     <br>• <strong>Media Verification:</strong> Provider introductory video uploads are held in pending status until reviewed by the admin. Approved media displays on provider pages, while rejected media is permanently deleted from storage.
+            </div>
+
+            <!-- EMAIL TEMPLATES & SMTP -->
+            <div id="cdoc-email-templates" class="cdoc-pane">
+                <h2 class="cdoc-section-title">Email Templates Manager & Dynamic SMTP Setup</h2>
+                <p class="cdoc-section-sub">Cosy Appointments includes a powerful split-screen Visual Email Templates Manager and Dynamic SMTP Configuration system located under <strong>CC Booking → Emails</strong> and <strong>CC Booking → Settings</strong>.</p>
+
+                <div class="cdoc-alert">
+                    <h4>📧 Fully Customizable Transactional Emails with Live Sync</h4>
+                    <p>Administrators can customize the subject line, heading banner, intro text, and outro text for all 9 automated system emails. The editor features real-time live preview synchronization, brand signature protection, and live test email dispatching.</p>
+                </div>
+
+                <div class="cdoc-grid">
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-desktop"></i></div>
+                        <h3>Interactive Live Preview</h3>
+                        <p>Split-screen layout updates the right-hand email preview in real-time as you type in the WYSIWYG editor on the left with zero page reloads.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-tags"></i></div>
+                        <h3>Dynamic Merge Tags</h3>
+                        <p>One-click copy tags like <code>{customer_name}</code>, <code>{provider_name}</code>, <code>{service_name}</code>, <code>{order_id}</code>, and <code>{total_payable}</code> populate live data.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-shield-halved"></i></div>
+                        <h3>Protected System Tables</h3>
+                        <p>Order financial breakdowns, time slot badges, and brand signatures are rendered dynamically and protected from accidental template deletion.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-paper-plane"></i></div>
+                        <h3>Instant Test Mail & Reset</h3>
+                        <p>Send a real test email with sample data to your admin inbox instantly, or restore original factory defaults anytime with one click.</p>
+                    </div>
+                </div>
+
+                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">📋 Standardized System Email Templates</h3>
+                <table class="wp-list-table widefat fixed striped" style="margin-bottom: 25px; border: 1px solid #eedced; border-radius: 8px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: #faf5fb;">
+                            <th style="font-weight: 700; width: 30%; padding: 12px;">Template Name</th>
+                            <th style="font-weight: 700; width: 25%; padding: 12px;">Recipient</th>
+                            <th style="font-weight: 700; padding: 12px;">Trigger / Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Customer Booking Confirmation</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">Customer</span></td>
+                            <td style="padding: 12px;">Dispatched immediately after WorldPay checkout payment is confirmed.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Provider Booking Notification</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">Provider</span></td>
+                            <td style="padding: 12px;">Alerts provider when a customer books and pays for their service.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Order Status Update</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">Customer</span></td>
+                            <td style="padding: 12px;">Sent when appointment is marked as Confirmed, Completed, or Cancelled.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Booking Cancellation Alert</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">Customer / Provider</span></td>
+                            <td style="padding: 12px;">Dispatched if an appointment is cancelled by either party or admin.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Customer Review Invitation</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">Customer</span></td>
+                            <td style="padding: 12px;">Delivers a secure single-use review link after an appointment is completed.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Customer Email Verification</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">Customer</span></td>
+                            <td style="padding: 12px;">Sent on customer registration with an account activation link.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Provider Email Verification</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">Provider</span></td>
+                            <td style="padding: 12px;">Sent on provider registration with identity verification instructions.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Password Reset Request</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">All Users</span></td>
+                            <td style="padding: 12px;">Delivers secure temporary password reset URL upon forgot password request.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Gift Recipient Booking Alert</td>
+                            <td style="padding: 12px;"><span class="cdoc-tag">Recipient</span></td>
+                            <td style="padding: 12px;">Sent to the gift recipient with details on their gifted parent conversation.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">⚙️ Dynamic SMTP Configuration (CC Booking → Settings)</h3>
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num"><i class="fas fa-server"></i></div>
+                    <div class="cdoc-step-body">
+                        <h4>Configure Custom SMTP Server</h4>
+                        <p>Under <strong>CC Booking → Settings → SMTP Configuration</strong>, you can specify custom SMTP credentials to ensure 100% email deliverability into inboxes:
+                            <br>• <strong>SMTP Host & Port:</strong> e.g. <code>smtp.gmail.com</code> (Port 587 or 465).
+                            <br>• <strong>Encryption:</strong> TLS or SSL.
+                            <br>• <strong>Authentication:</strong> Username (email) and App Password.
+                            <br>• <strong>Custom From Name & Email:</strong> Set official sender name (e.g. <em>CosyChats Support</em>) and reply-to address.
+                            <br>• <strong>Send SMTP Test:</strong> Verify connection directly with one-click test mail.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REVIEWS LIFECYCLE & 3-LEVEL REPLIES -->
+            <div id="cdoc-reviews-lifecycle" class="cdoc-pane">
+                <h2 class="cdoc-section-title">Reviews Moderation & 3-Level Threaded Lifecycle</h2>
+                <p class="cdoc-section-sub">Cosy Appointments includes a complete multi-level review and moderation ecosystem ensuring authentic parent feedback and structured public responses.</p>
+
+                <div class="cdoc-alert">
+                    <h4>⭐ Verified Token-Based Review Submissions</h4>
+                    <p>To prevent fake reviews, only customers with confirmed appointments receive unique single-use review tokens (<code>/cosy-leave-review?token=...</code>). Once submitted, the token is automatically invalidated to prevent duplicate entries.</p>
+                </div>
+
+                <div class="cdoc-grid">
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-user-check"></i></div>
+                        <h3>Admin Moderation Panel</h3>
+                        <p>Navigate to <strong>CC Booking → Reviews</strong> to view all customer reviews with star ratings. Administrators can <strong>Approve</strong>, <strong>Reject</strong>, or <strong>Delete</strong> reviews with instant email alerts.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-comments"></i></div>
+                        <h3>3-Level Threaded Replies</h3>
+                        <p>Structured 3-tier conversation lifecycle between Provider and Customer allows resolving feedback publicly while maintaining professionalism.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-key"></i></div>
+                        <h3>Single-Use Token Security</h3>
+                        <p>Tokens are tracked in <code>wp_cosy_review_tokens</code> and mapped directly to customer ID and provider ID for foolproof verification.</p>
+                    </div>
+                    <div class="cdoc-card">
+                        <div class="cdoc-card-icon"><i class="fas fa-bolt"></i></div>
+                        <h3>Transient Cache Invalidation</h3>
+                        <p>Whenever a review is approved, rejected, or replied to, directory cache transients are automatically cleared for instant public visibility.</p>
+                    </div>
+                </div>
+
+                <h3 class="fw-bold text-dark mt-4 mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.15rem;">🔄 The 3-Level Conversation Lifecycle Explained</h3>
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">1</div>
+                    <div class="cdoc-step-body">
+                        <h4>Level 1: Provider Public Reply</h4>
+                        <p>When an admin approves a review, the provider can post an initial public response directly from their Provider Dashboard (Customer Reviews tab). The customer automatically receives an email notification with the provider's reply.</p>
+                    </div>
+                </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">2</div>
+                    <div class="cdoc-step-body">
+                        <h4>Level 2: Customer Follow-Up Response</h4>
+                        <p>If the customer wants to add further context or thank the provider, they can post a Level 2 follow-up reply in their review thread. The provider receives an email notification about the customer's follow-up.</p>
+                    </div>
+                </div>
+
+                <div class="cdoc-step">
+                    <div class="cdoc-step-num">3</div>
+                    <div class="cdoc-step-body">
+                        <h4>Level 3: Provider Final Closing Response</h4>
+                        <p>The provider can post a Level 3 final closing message. When submitted, the system compiles the full transcript of all 3 levels and emails the complete conversation history to the customer.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- AI VECTOR SEARCH -->
@@ -623,8 +819,16 @@ if (!defined('ABSPATH')) {
                 <div class="cdoc-step">
                     <div class="cdoc-step-num">1</div>
                     <div class="cdoc-step-body">
-                        <h4>Viewing Activity Audit Logs</h4>
-                        <p>Navigate to <strong>CC Booking → Logs</strong> to view a table of logged actions. Each entry records the date/timestamp, user name, role (Admin, Provider, Customer, Guest), IP address, and a detailed description of the action taken.</p>
+                        <h4>Comprehensive Activity Audit Logging</h4>
+                        <p>Navigate to <strong>CC Booking → Logs</strong> to view a real-time table of logged actions across the entire platform. Every entry records the timestamp, user ID, user display name, user role (Admin, Provider, Customer, Guest), IP address, and a rich descriptive message.
+                            <br><br><strong>Logged Activity Categories:</strong>
+                            <br>• <strong>Authentication & Security:</strong> Successful user logins, failed login attempts (invalid credentials), blocked unverified accounts, blocked deactivated accounts, password reset requests & failures.
+                            <br>• <strong>Bookings & Payments:</strong> Checkout sessions initiated, WorldPay webhooks received/processed, payment completions, payment failures, and status updates (Confirmed, Completed, Cancelled).
+                            <br>• <strong>Experiences & Services:</strong> Admin service creations, updates, and trashing, plus Provider REST API service additions and edits.
+                            <br>• <strong>Media Approvals:</strong> Provider introductory video uploads, video deletions, and admin approvals/rejections.
+                            <br>• <strong>Reviews & Ratings:</strong> Customer review submissions, single-use token review submissions, 3-level threaded replies (Provider & Customer), and admin review moderation.
+                            <br>• <strong>System & Settings:</strong> Setting modifications (with sensitive secrets masked), log section toggle switches, and automated 30-day cron cleanups.
+                        </p>
                     </div>
                 </div>
 

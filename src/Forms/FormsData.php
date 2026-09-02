@@ -345,9 +345,36 @@ class FormsData
 
         if (is_wp_error($user)) {
             $error_code = $user->get_error_code();
-            if ($error_code === 'email_not_verified' || $error_code === 'account_deactivated') {
+            $attempted_login = $creds['user_login'];
+
+            if ($error_code === 'email_not_verified') {
+                $matched_user = get_user_by('login', $attempted_login) ?: get_user_by('email', $attempted_login);
+                $matched_id   = $matched_user ? $matched_user->ID : null;
+
+                \Cosy\Appointments\Common\LogManager::log(
+                    'users',
+                    'login_blocked_unverified',
+                    sprintf(__('Blocked login attempt for unverified user "%s".', 'cosy-appointments'), $attempted_login),
+                    $matched_id
+                );
+                $this->send_response(false, $user->get_error_message());
+            } elseif ($error_code === 'account_deactivated') {
+                $matched_user = get_user_by('login', $attempted_login) ?: get_user_by('email', $attempted_login);
+                $matched_id   = $matched_user ? $matched_user->ID : null;
+
+                \Cosy\Appointments\Common\LogManager::log(
+                    'users',
+                    'login_blocked_deactivated',
+                    sprintf(__('Blocked login attempt for deactivated user "%s".', 'cosy-appointments'), $attempted_login),
+                    $matched_id
+                );
                 $this->send_response(false, $user->get_error_message());
             } else {
+                \Cosy\Appointments\Common\LogManager::log(
+                    'users',
+                    'login_failed',
+                    sprintf(__('Failed login attempt for username/email "%s" (Invalid credentials).', 'cosy-appointments'), $attempted_login)
+                );
                 $this->send_response(false, __('Invalid username or password.', 'cosy-appointments'));
             }
         } else {
@@ -399,6 +426,11 @@ class FormsData
         // Check if user exists
         $user = get_user_by('email', $email);
         if (!$user) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'users',
+                'forgot_password_failed',
+                sprintf(__('Password reset attempted for non-existent email: "%s".', 'cosy-appointments'), $email)
+            );
             $this->send_response(false, __('No account found with this email.', 'cosy-appointments'));
             return;
         }
@@ -422,8 +454,20 @@ class FormsData
         $mail_sent = cosy_send_html_email($email, $tpl['subject'], $tpl['heading'], $tpl['content']);
 
         if ($mail_sent) {
+            \Cosy\Appointments\Common\LogManager::log(
+                'users',
+                'forgot_password_requested',
+                sprintf(__('Password reset link generated and emailed to user "%s" (%s).', 'cosy-appointments'), $user->display_name ?: $user->user_login, $email),
+                $user->ID
+            );
             $this->send_response(true, __('A password reset link has been sent to your email.', 'cosy-appointments'));
         } else {
+            \Cosy\Appointments\Common\LogManager::log(
+                'users',
+                'forgot_password_email_failed',
+                sprintf(__('Failed to dispatch password reset email to "%s".', 'cosy-appointments'), $email),
+                $user->ID
+            );
             $this->send_response(false, __('Failed to send password reset email.', 'cosy-appointments'));
         }
     }
