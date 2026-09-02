@@ -38,15 +38,15 @@ if ($current_user->exists()) {
 			<table class="table table-hover align-middle mb-0" style="border-collapse: separate;">
 				<thead class="table-light">
 					<tr style="border-bottom: 2px solid #edf2f7;">
-						<th class="ps-4 py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Order ID', 'cosy-appointments'); ?></th>
-						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
-						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Provider', 'cosy-appointments'); ?></th>
-						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Weekly Booking', 'cosy-appointments'); ?></th>
-						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Payment Status', 'cosy-appointments'); ?></th>
-						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Total Price', 'cosy-appointments'); ?></th>
-						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Date Booked', 'cosy-appointments'); ?></th>
-						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
-						<th class="py-3" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase;"><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
+						<th class="ps-4 py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Order ID', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Provider', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Weekly Booking', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Payment Status', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Total Price', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Date Booked', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
+						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap;"><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -71,11 +71,13 @@ if ($current_user->exists()) {
 							$recipient_email = get_post_meta($appt->ID, 'cosy_recipient_email', true);
 						?>
 							<tr style="border-bottom: 1px solid #edf2f7; transition: all 0.2s;">
-								<td class="ps-4 py-3 fw-bold text-dark" style="font-size: 0.9rem;">
-									#<?php echo esc_html($appt->ID); ?>
-									<?php if (!empty($is_gift)): ?>
-										<span class="badge ms-1" style="background: #a44390; color: #fff; font-size: 0.7rem; vertical-align: middle; border-radius: 12px; padding: 3px 8px;" title="<?php esc_attr_e('Gifted Booking', 'cosy-appointments'); ?>">🎁 Gift</span>
-									<?php endif; ?>
+								<td class="ps-4 py-3 fw-bold text-dark text-nowrap" style="font-size: 0.9rem; white-space: nowrap;">
+									<span class="d-inline-flex align-items-center gap-1" style="white-space: nowrap;">
+										#<?php echo esc_html($appt->ID); ?>
+										<?php if (!empty($is_gift)): ?>
+											<span class="badge" style="background: #a44390; color: #fff; font-size: 0.7rem; font-weight: 700; border-radius: 12px; padding: 3px 8px; vertical-align: middle; white-space: nowrap;" title="<?php esc_attr_e('Gifted Booking', 'cosy-appointments'); ?>">🎁 Gift</span>
+										<?php endif; ?>
+									</span>
 								</td>
 								<td class="py-3 fw-semibold text-dark" style="font-size: 0.9rem;"><?php echo esc_html($service); ?></td>
 								<td class="py-3" style="font-size: 0.9rem; color: #475569;"><?php echo esc_html($provider); ?></td>
@@ -149,64 +151,64 @@ if ($current_user->exists()) {
 ob_start();
 ?>
 <div class="row g-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-    <!-- Booking & Service Details -->
-    <div class="col-md-12">
-        <div class="p-3 rounded-4 bg-light" style="border: 1px solid #e2e8f0;">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-comments" style="color: #a44390;"></i> <?php esc_html_e('Booking Information', 'cosy-appointments'); ?></h6>
-            
-            <div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
-                <div class="d-flex justify-content-between align-items-baseline gap-2">
-                    <span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Provider:</span>
-                    <span id="modalCustProviderName" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
-                </div>
-                <div id="modalCustGiftRow" class="d-none flex-column gap-2" style="background: #fdf2fb; padding: 10px 14px; border-radius: 8px; border-left: 3px solid #a44390;">
-                    <div class="fw-bold d-flex align-items-center gap-1" style="color: #a44390; font-size: 0.88rem;">
-                        <span>Gift Recipient</span> <span>🎁</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-baseline gap-2">
-                        <span class="text-muted" style="font-size: 0.85rem; font-weight: 500; flex-shrink: 0;">Name:</span>
-                        <span id="modalCustRecipientName" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-baseline gap-2">
-                        <span class="text-muted" style="font-size: 0.85rem; font-weight: 500; flex-shrink: 0;">Email:</span>
-                        <span id="modalCustRecipientEmail" class="text-dark fw-semibold text-end" style="word-break: break-all; overflow-wrap: anywhere;"></span>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-baseline gap-2">
-                    <span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Start Date:</span>
-                    <span id="modalCustStartDate" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
-                </div>
-                <div class="d-flex justify-content-between align-items-baseline gap-2">
-                    <span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Number of Weeks:</span>
-                    <span id="modalCustWeeks" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
-                </div>
-                <div class="d-flex justify-content-between align-items-baseline gap-2">
-                    <span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Booking Days:</span>
-                    <span id="modalCustSlotsTimeline" class="text-dark fw-semibold text-end" style="word-break: break-word; line-height: 1.5; max-width: 70%;"></span>
-                </div>
-            </div>
-        </div>
-    </div>
+	<!-- Booking & Service Details -->
+	<div class="col-md-12">
+		<div class="p-3 rounded-4 bg-light" style="border: 1px solid #e2e8f0;">
+			<h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-comments" style="color: #a44390;"></i> <?php esc_html_e('Booking Information', 'cosy-appointments'); ?></h6>
 
-    <!-- Financial Statement -->
-    <div class="col-md-12">
-        <div class="p-3 rounded-4 border bg-white" style="border-color: rgba(164, 67, 144, 0.2) !important;">
-            <h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-receipt" style="color: #a44390;"></i> <?php esc_html_e('Payment Summary', 'cosy-appointments'); ?></h6>
-            <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
-                <span>Service Cost:</span>
-                <strong id="modalCustCost" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
-            </div>
-            <div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
-                <span>Service Fee*:</span>
-                <strong id="modalCustFee" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
-            </div>
-            <div class="d-flex justify-content-between border-top pt-2 mt-2" style="font-size: 0.95rem;">
-                <span class="fw-bold text-dark">Total Paid:</span>
-                <strong id="modalCustTotal" style="color: #a44390; font-size: 1.15rem; font-weight: 800;"></strong>
-            </div>
-            <p class="mb-0 mt-2 text-muted" style="font-size: 0.78rem; font-style: italic;">* <?php esc_html_e('Service Charge – helps us provide and continually improve the CosyChats platform, including secure bookings, payment processing and customer support.', 'cosy-appointments'); ?></p>
-        </div>
-    </div>
+			<div class="d-flex flex-column gap-2" style="font-size: 0.88rem; color: #475569;">
+				<div class="d-flex justify-content-between align-items-baseline gap-2">
+					<span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Provider:</span>
+					<span id="modalCustProviderName" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
+				</div>
+				<div id="modalCustGiftRow" class="d-none flex-column gap-2" style="background: #fdf2fb; padding: 10px 14px; border-radius: 8px; border-left: 3px solid #a44390;">
+					<div class="fw-bold d-flex align-items-center gap-1" style="color: #a44390; font-size: 0.88rem;">
+						<span>Gift Recipient</span> <span>🎁</span>
+					</div>
+					<div class="d-flex justify-content-between align-items-baseline gap-2">
+						<span class="text-muted" style="font-size: 0.85rem; font-weight: 500; flex-shrink: 0;">Name:</span>
+						<span id="modalCustRecipientName" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
+					</div>
+					<div class="d-flex justify-content-between align-items-baseline gap-2">
+						<span class="text-muted" style="font-size: 0.85rem; font-weight: 500; flex-shrink: 0;">Email:</span>
+						<span id="modalCustRecipientEmail" class="text-dark fw-semibold text-end" style="word-break: break-all; overflow-wrap: anywhere;"></span>
+					</div>
+				</div>
+				<div class="d-flex justify-content-between align-items-baseline gap-2">
+					<span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Start Date:</span>
+					<span id="modalCustStartDate" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
+				</div>
+				<div class="d-flex justify-content-between align-items-baseline gap-2">
+					<span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Number of Weeks:</span>
+					<span id="modalCustWeeks" class="text-dark fw-semibold text-end" style="word-break: break-word;"></span>
+				</div>
+				<div class="d-flex justify-content-between gap-2">
+					<span class="text-muted" style="font-weight: 500; flex-shrink: 0;">Booking Days:</span>
+					<span id="modalCustSlotsTimeline" class="text-dark fw-semibold text-end" style="word-break: break-word; line-height: 1.5; max-width: 70%;"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Financial Statement -->
+	<div class="col-md-12">
+		<div class="p-3 rounded-4 border bg-white" style="border-color: rgba(164, 67, 144, 0.2) !important;">
+			<h6 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 12px !important;"><i class="fas fa-receipt" style="color: #a44390;"></i> <?php esc_html_e('Payment Summary', 'cosy-appointments'); ?></h6>
+			<div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
+				<span>Service Cost:</span>
+				<strong id="modalCustCost" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
+			</div>
+			<div class="d-flex justify-content-between mb-2 small text-muted" style="font-size: 0.88rem;">
+				<span>Service Fee*:</span>
+				<strong id="modalCustFee" class="text-dark fw-bold" style="font-size: 0.95rem;"></strong>
+			</div>
+			<div class="d-flex justify-content-between border-top pt-2 mt-2" style="font-size: 0.95rem;">
+				<span class="fw-bold text-dark">Total Paid:</span>
+				<strong id="modalCustTotal" style="color: #a44390; font-size: 1.15rem; font-weight: 800;"></strong>
+			</div>
+			<p class="mb-0 mt-2 text-muted" style="font-size: 0.78rem; font-style: italic;">* <?php esc_html_e('Service Charge – helps us provide and continually improve the CosyChats platform, including secure bookings, payment processing and customer support.', 'cosy-appointments'); ?></p>
+		</div>
+	</div>
 </div>
 
 <div class="mt-4 p-3 rounded-4 border text-center" id="modalCustStatusBg" style="border-radius: 12px;">
