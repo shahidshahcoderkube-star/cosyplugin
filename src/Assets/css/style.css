@@ -848,6 +848,7 @@ label.error {
     #cosy-sidebar {
         padding: 20px 14px !important;
     }
+
     .cosy-tab {
         padding: 12px 14px !important;
         gap: 10px !important;
@@ -855,10 +856,12 @@ label.error {
         border-radius: 10px !important;
         margin-bottom: 8px !important;
     }
+
     .cosy-tab i {
         font-size: 1.05rem !important;
         width: 20px !important;
     }
+
     .cosy-tab:hover {
         transform: translateX(4px);
     }
@@ -1142,26 +1145,32 @@ label.error {
         padding: 12px 14px !important;
         gap: 8px !important;
     }
+
     .cosy-holidays-card .holiday-icon-box {
         width: 34px !important;
         height: 34px !important;
         border-radius: 10px !important;
     }
+
     .cosy-holidays-card .holiday-date {
         font-size: 0.88rem !important;
     }
+
     .cosy-holidays-card .holiday-reason {
         font-size: 0.8rem !important;
         max-width: 140px !important;
     }
+
     .cosy-holidays-card .holiday-badge {
         padding: 4px 8px !important;
         font-size: 0.72rem !important;
     }
+
     .cosy-delete-holiday-btn {
         width: 30px !important;
         height: 30px !important;
     }
+
     .cosy-delete-holiday-btn i {
         font-size: 0.75rem !important;
     }
@@ -1704,22 +1713,49 @@ body .swal2-icon {
 
 .cosy-video-card .remove-video {
     background: var(--cosy-white) !important;
-    color: var(--cosy-danger) !important;
-    border: none !important;
-    width: 32px;
-    height: 32px;
+    color: #dc2626 !important;
+    border: 1px solid rgba(220, 38, 38, 0.15) !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
     border-radius: 50% !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
-    transition: all 0.2s ease;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    cursor: pointer !important;
+    outline: none !important;
+    text-decoration: none !important;
+    z-index: 5;
+}
+
+.cosy-video-card .remove-video i {
+    font-size: 16px !important;
+    color: #dc2626 !important;
+    display: block !important;
+    transition: transform 0.25s ease, color 0.25s ease !important;
+    line-height: 1 !important;
 }
 
 .cosy-video-card .remove-video:hover {
-    transform: scale(1.1);
-    background: var(--cosy-danger) !important;
-    color: var(--cosy-white) !important;
+    transform: scale(1.1) !important;
+    background: rgba(220, 38, 38, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45) !important;
+}
+
+.cosy-video-card .remove-video:hover i {
+    color: #ffffff !important;
+    transform: rotate(90deg) !important;
+}
+
+.cosy-video-card .remove-video:active {
+    transform: scale(0.95) !important;
 }
 
 .cosy-video-card .custom-btn {
@@ -3101,31 +3137,39 @@ label.error,
     .cosy-reviews-card .card-body {
         padding: 16px 12px !important;
     }
+
     .reviews-list .card .card-body {
         padding: 14px 12px !important;
     }
+
     .reviews-list .cosy-review-avatar {
         width: 36px !important;
         height: 36px !important;
         min-width: 36px !important;
         font-size: 0.95rem !important;
     }
+
     .reviews-list .gap-3 {
         gap: 10px !important;
     }
+
     .cosy-thread-customer-box {
         margin-left: 0 !important;
     }
+
     .cosy-thread-provider-box,
     .cosy-thread-customer-box {
         padding: 8px 10px !important;
     }
+
     .cosy-thread-sender-name {
         font-size: 0.78rem !important;
     }
+
     .cosy-thread-date {
         font-size: 0.68rem !important;
     }
+
     .cosy-thread-body-provider,
     .cosy-thread-body-customer {
         font-size: 0.82rem !important;
@@ -4056,7 +4100,7 @@ body {
         text-align: center !important;
     }
 
-    .cosy-gradient-bg > .d-flex {
+    .cosy-gradient-bg>.d-flex {
         flex-direction: column !important;
         justify-content: center !important;
         align-items: center !important;
