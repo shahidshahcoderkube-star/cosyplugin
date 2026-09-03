@@ -63,20 +63,22 @@ jQuery(document).ready(function ($) {
          * Used to instantly insert a row into the DOM after a successful AJAX addition.
          */
         buildHolidayRow(date, displayDate, reason) {
-            return '<div class="holiday-item" id="holiday-' + date + '">' +
-                '<div class="holiday-info">' +
-                '<i class="fas fa-calendar-day"></i>' +
-                '<div>' +
-                '<span class="holiday-date">' + displayDate + '</span>' +
-                '<span class="mx-2 text-muted">|</span>' +
-                '<span class="holiday-reason text-muted small">' + escHtml(reason) + '</span>' +
+            return '<div class="holiday-item d-flex justify-content-between align-items-center gap-2 p-3 rounded-4 mb-3" id="holiday-' + date + '">' +
+                '<div class="d-flex align-items-center gap-2 gap-sm-3 min-w-0">' +
+                '<div class="holiday-icon-box d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px; border-radius: 12px; background: rgba(164, 67, 144, 0.08); color: #a44390;">' +
+                '<i class="fas fa-calendar-day" style="font-size: 1rem;"></i>' +
+                '</div>' +
+                '<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-1 gap-sm-2 min-w-0">' +
+                '<span class="holiday-date fw-bold text-dark text-nowrap" style="font-size: 0.95rem;">' + displayDate + '</span>' +
+                '<span class="text-muted d-none d-sm-inline" style="opacity: 0.5;">•</span>' +
+                '<span class="holiday-reason text-muted small text-truncate" style="font-size: 0.85rem; max-width: 250px;">' + escHtml(reason) + '</span>' +
                 '</div>' +
                 '</div>' +
-                '<div class="d-flex align-items-center gap-3">' +
+                '<div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">' +
+                '<span class="badge holiday-badge px-3 py-2 rounded-3" style="background: rgba(164, 67, 144, 0.1); color: #a44390; font-weight: 600; font-size: 0.75rem;">Holiday</span>' +
                 '<button class="cosy-delete-holiday-btn" data-date="' + date + '" title="Remove Holiday">' +
-                '<i class="fas fa-trash-alt" style="font-size:0.85rem;"></i>' +
+                '<i class="fas fa-trash-alt" style="font-size: 0.85rem;"></i>' +
                 '</button>' +
-                '<span class="badge holiday-badge">Holiday</span>' +
                 '</div>' +
                 '</div>';
         },
@@ -434,8 +436,8 @@ jQuery(document).ready(function ($) {
 
             $('#providerOrdersTable tbody tr.order-table-row').each(function () {
                 if ($(this).is(':visible')) {
-                    var id = $(this).find('td:nth-child(1)').text().replace('#', '');
-                    var customer = $(this).find('td:nth-child(2)').text().trim();
+                    var id = ($(this).find('td:nth-child(1) span:first-child').text() || $(this).find('td:nth-child(1)').text()).replace('#', '').trim();
+                    var customer = $(this).find('.order-customer-name').text().trim() || $(this).find('td:nth-child(2)').text().trim();
                     var service = $(this).find('td:nth-child(3)').text().trim();
                     var date = $(this).find('td:nth-child(4)').text().trim();
                     var status = $(this).attr('data-status').toUpperCase();

@@ -1046,14 +1046,15 @@ label.error {
 
 .cosy-holidays-card .holiday-item {
     background: #f8fafc;
-    border: 1.5px solid #f1f5f9;
-    border-radius: 15px;
-    padding: 15px 20px;
+    border: 1.5px solid #edf2f7;
+    border-radius: 16px;
+    padding: 14px 18px;
     margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    gap: 12px;
+    transition: all 0.2s ease;
 }
 
 .cosy-holidays-card .holiday-item:hover {
@@ -1065,15 +1066,20 @@ label.error {
     display: flex;
     align-items: center;
     gap: 12px;
-}
-
-.cosy-holidays-card .holiday-info i {
-    color: var(--cosy-brand-purple);
+    min-width: 0;
 }
 
 .cosy-holidays-card .holiday-date {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--cosy-text-dark);
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.cosy-holidays-card .holiday-reason {
+    color: var(--cosy-text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 .cosy-holidays-card .holiday-badge {
@@ -1083,6 +1089,7 @@ label.error {
     border-radius: 8px !important;
     font-weight: 600;
     font-size: 0.78rem;
+    white-space: nowrap;
 }
 
 /* Delete button */
@@ -1097,6 +1104,7 @@ label.error {
     background: rgba(239, 68, 68, 0.07);
     color: var(--cosy-danger);
     cursor: pointer;
+    flex-shrink: 0;
     transition: background 0.2s ease, border-color 0.2s ease;
 }
 
@@ -1105,20 +1113,45 @@ label.error {
     border-color: rgba(239, 68, 68, 0.3);
 }
 
-/* --- Add Holiday Button --- */
-.cosy-holidays-card .custom-btn {
-    background: var(--cosy-brand-purple) !important;
-    border: none !important;
-    border-radius: 12px !important;
-    padding: 12px 40px !important;
-    font-weight: 600;
-    color: #fff !important;
-    transition: all 0.3s ease;
+@media (max-width: 576px) {
+    .cosy-holidays-card .holiday-item {
+        padding: 12px 14px !important;
+        gap: 8px !important;
+    }
+    .cosy-holidays-card .holiday-icon-box {
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 10px !important;
+    }
+    .cosy-holidays-card .holiday-date {
+        font-size: 0.88rem !important;
+    }
+    .cosy-holidays-card .holiday-reason {
+        font-size: 0.8rem !important;
+        max-width: 140px !important;
+    }
+    .cosy-holidays-card .holiday-badge {
+        padding: 4px 8px !important;
+        font-size: 0.72rem !important;
+    }
+    .cosy-delete-holiday-btn {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    .cosy-delete-holiday-btn i {
+        font-size: 0.75rem !important;
+    }
 }
 
-.cosy-holidays-card .custom-btn:hover {
-    background: #833573 !important;
-    box-shadow: 0 6px 15px rgba(164, 67, 144, 0.25) !important;
+/* --- Add Holiday Button --- */
+.cosy-holidays-card .custom-btn {
+    background: var(--cosy-gradient) !important;
+    border: none !important;
+    border-radius: var(--cosy-border-radius) !important;
+    padding: 12px 40px !important;
+    font-weight: 600;
+    color: var(--cosy-white) !important;
+    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
 }
 
 /* --- Empty State --- */
@@ -1154,7 +1187,7 @@ label.error {
 }
 
 .cosy-modal-header {
-    background: linear-gradient(135deg, var(--cosy-brand-purple) 0%, #c05a9e 100%) !important;
+    background: var(--cosy-gradient) !important;
     color: #ffffff !important;
     border-radius: 20px 20px 0 0 !important;
     padding: 20px 25px !important;
@@ -1198,33 +1231,32 @@ label.error {
     box-shadow: none !important;
 }
 
-.save-holiday-btn {
-    background: linear-gradient(135deg, var(--cosy-brand-purple) 0%, #c05a9e 100%) !important;
+.save-holiday-btn,
+.save-holiday-btn:hover,
+.save-holiday-btn:focus,
+.save-holiday-btn:active {
+    background: var(--cosy-gradient) !important;
     color: #ffffff !important;
     border: none !important;
     border-radius: 12px !important;
     padding: 12px 40px !important;
     font-weight: 700 !important;
     font-size: 0.95rem !important;
-    box-shadow: 0 6px 15px rgba(164, 67, 144, 0.2) !important;
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-}
-
-.save-holiday-btn:hover {
-    box-shadow: 0 10px 25px rgba(164, 67, 144, 0.3) !important;
-    opacity: 0.92;
+    outline: none !important;
 }
 
 .save-holiday-btn:disabled {
-    opacity: 0.8 !important;
+    opacity: 0.7 !important;
     cursor: not-allowed !important;
     color: #ffffff !important;
-    background: linear-gradient(135deg, var(--cosy-brand-purple) 0%, #c05a9e 100%) !important;
+    background: var(--cosy-gradient) !important;
+    box-shadow: none !important;
 }
 
 /* Ensure SweetAlert appears above modals with high z-index and has premium styling */
@@ -1925,9 +1957,12 @@ body .swal2-icon {
     background: var(--cosy-gradient) !important;
     border: none !important;
     border-radius: var(--cosy-border-radius) !important;
-    padding: 10px 25px !important;
+    padding: 11px 25px !important;
+    min-height: 46px;
+    font-size: 0.92rem;
     font-weight: 600;
     color: var(--cosy-white) !important;
+    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
 }
 
 .cosy-orders-card .pagination .page-link {
@@ -2125,17 +2160,23 @@ body .swal2-icon {
     color: var(--cosy-text-slate);
 }
 
-.cosy-orders-export-btn {
-    background: var(--cosy-brand-dark) !important;
+.cosy-orders-export-btn,
+.cosy-orders-export-btn:hover,
+.cosy-orders-export-btn:focus,
+.cosy-orders-export-btn:active {
+    background: var(--cosy-gradient) !important;
     border: none !important;
     height: 46px;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    font-weight: 600;
     color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(155, 69, 147, 0.2) !important;
+    outline: none !important;
 }
 
-.cosy-orders-export-btn:hover {
-    background: #582453 !important;
-    color: #ffffff !important;
+#providerOrdersTable {
+    border-collapse: separate;
+    min-width: 880px;
 }
 
 #providerOrdersTable,
@@ -2146,16 +2187,41 @@ body .swal2-icon {
 }
 
 #providerOrdersTable thead tr {
-    border-bottom: 2px solid #f1f5f9;
-    font-size: 0.8rem;
+    border-bottom: 2px solid #edf2f7;
+    font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--cosy-text-muted);
+    color: #475569;
+}
+
+.cosy-orders-card .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.cosy-orders-card .table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.cosy-orders-card .table-responsive::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 4px;
+}
+
+.cosy-orders-card .table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.cosy-orders-card .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .order-table-row {
-    border-bottom: 1px solid #f8fafc;
-    transition: background 0.2s;
+    border-bottom: 1px solid #edf2f7;
+    transition: all 0.2s;
 }
 
 .order-table-row:hover {
