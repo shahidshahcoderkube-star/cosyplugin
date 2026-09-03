@@ -2,7 +2,7 @@
     <?php wp_nonce_field('cosy_dashboard_nonce', 'cosy_dashboard_nonce_field'); ?>
     <div class="row mx-0">
         <!-- Sidebar -->
-        <div class="col-12 col-md-3 bg-white p-4 shadow-sm" id="cosy-sidebar"
+        <div class="col-12 col-md-4 col-lg-3 bg-white p-3 p-lg-4 shadow-sm" id="cosy-sidebar"
             style="min-height:100vh; border-right: 1px solid #f1f5f9;">
             <div class="sidebar-header mb-4 pb-3 text-center" style="border-bottom: 1.5px solid #f8fafc;">
                 <div class="d-inline-flex align-items-center justify-content-center p-2 mb-2"
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Content Area -->
-        <div class="col-12 col-md-9 p-3 p-md-4" style="background:#f9f9f9;">
+        <div class="col-12 col-md-8 col-lg-9 p-3 p-lg-4" style="background:#f9f9f9;">
             <?php
             $user_id = get_current_user_id();
             $provider_status = get_user_meta($user_id, 'cosy_provider_status', true);

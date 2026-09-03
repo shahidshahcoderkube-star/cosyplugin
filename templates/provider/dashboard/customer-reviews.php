@@ -92,27 +92,27 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                 <div class="cosy-review-avatar rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-uppercase" style="width: 42px; height: 42px; background: #fdf5fc; color: #a44390; border: 1.5px solid rgba(164, 67, 144, 0.2); font-size: 1.1rem;">
                                     <?php echo esc_html(substr($r['customer_name'], 0, 1)); ?>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
-                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <div class="flex-grow-1 min-w-0" style="min-width: 0;">
+                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+                                        <div class="d-flex align-items-center gap-2 flex-wrap min-w-0">
                                             <h6 class="mb-0 fw-bold" style="font-size: 0.95rem; color: #0f172a;">
                                                 <?php echo esc_html($r['customer_name']); ?>
                                             </h6>
                                             <?php if ($is_pending): ?>
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.68rem; font-weight: 700; border-radius: 12px; padding: 4px 9px;"><i class="fas fa-clock me-1"></i> <?php esc_html_e('Pending Admin Approval', 'cosy-appointments'); ?></span>
+                                                <span class="badge bg-warning text-dark text-nowrap" style="font-size: 0.68rem; font-weight: 700; border-radius: 12px; padding: 4px 9px;"><i class="fas fa-clock me-1"></i> <?php esc_html_e('Pending Admin Approval', 'cosy-appointments'); ?></span>
                                             <?php elseif ($is_rejected): ?>
-                                                <span class="badge bg-danger text-white" style="font-size: 0.68rem; font-weight: 700; border-radius: 12px; padding: 4px 9px;"><i class="fas fa-times-circle me-1"></i> <?php esc_html_e('Rejected', 'cosy-appointments'); ?></span>
+                                                <span class="badge bg-danger text-white text-nowrap" style="font-size: 0.68rem; font-weight: 700; border-radius: 12px; padding: 4px 9px;"><i class="fas fa-times-circle me-1"></i> <?php esc_html_e('Rejected', 'cosy-appointments'); ?></span>
                                             <?php else: ?>
-                                                <span class="badge bg-success text-white" style="font-size: 0.68rem; font-weight: 700; border-radius: 12px; padding: 4px 9px;"><i class="fas fa-check-circle me-1"></i> <?php esc_html_e('Approved & Live', 'cosy-appointments'); ?></span>
+                                                <span class="badge bg-success text-white text-nowrap" style="font-size: 0.68rem; font-weight: 700; border-radius: 12px; padding: 4px 9px;"><i class="fas fa-check-circle me-1"></i> <?php esc_html_e('Approved & Live', 'cosy-appointments'); ?></span>
                                             <?php endif; ?>
                                         </div>
-                                        <span class="badge fw-bold" style="background: #fdf5fc; color: #a44390; border: 1px solid rgba(164, 67, 144, 0.2); font-size: 0.8rem; padding: 4px 10px; border-radius: 6px;">
+                                        <span class="badge fw-bold text-nowrap flex-shrink-0" style="background: #fdf5fc; color: #a44390; border: 1px solid rgba(164, 67, 144, 0.2); font-size: 0.8rem; padding: 4px 10px; border-radius: 6px;">
                                             <?php echo intval($r['rating']); ?> / 10
                                         </span>
                                     </div>
                                     <small class="text-muted d-block mb-2" style="font-size: 0.75rem;"><?php echo date('d M Y - h:i A', strtotime($r['created_at'])); ?></small>
                                     
-                                    <p class="mb-0 text-dark small" style="font-size: 0.9rem; line-height: 1.5; color: #334155;">
+                                    <p class="mb-3 text-dark small" style="font-size: 0.9rem; line-height: 1.5; color: #334155; word-break: break-word;">
                                         <?php echo esc_html($r['review']); ?>
                                     </p>
 
@@ -151,11 +151,11 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                             <!-- Level 1: Initial Provider Reply -->
                                             <?php if ($has_level1) : ?>
                                                 <div class="provider-reply-box cosy-thread-provider-box">
-                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-1 mb-1">
                                                         <strong class="cosy-thread-sender-name">
                                                             <i class="fas fa-reply me-1 cosy-thread-sender-icon-provider"></i> <?php esc_html_e('Your Public Reply:', 'cosy-appointments'); ?>
                                                         </strong>
-                                                        <div class="d-flex align-items-center gap-2">
+                                                        <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
                                                             <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($level1_date)); ?></small>
                                                             <?php if (!$has_level2) : ?>
                                                                 <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none btn-edit-reply" data-id="<?php echo esc_attr($r['id']); ?>" style="color: #a44390; font-size: 0.78rem; font-weight: 600;">
@@ -173,11 +173,11 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                             <!-- Level 2: Customer Follow-up -->
                                             <?php if ($has_level2) : ?>
                                                 <div class="customer-followup-box cosy-thread-customer-box">
-                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-1 mb-1">
                                                         <strong class="cosy-thread-sender-name">
                                                             <i class="fas fa-comment-dots me-1 cosy-thread-sender-icon-customer"></i> <?php echo esc_html($level2_sender); ?>
                                                         </strong>
-                                                        <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($level2_date)); ?></small>
+                                                        <small class="cosy-thread-date flex-shrink-0 ms-auto"><?php echo date('d M Y - h:i A', strtotime($level2_date)); ?></small>
                                                     </div>
                                                     <p class="cosy-thread-body-customer mb-0">
                                                         <?php echo esc_html($level2_text); ?>
@@ -188,11 +188,11 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                             <!-- Level 3: Provider Final Closing Response -->
                                             <?php if ($has_level3) : ?>
                                                 <div class="provider-closing-box cosy-thread-provider-box">
-                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-1 mb-1">
                                                         <strong class="cosy-thread-sender-name">
                                                             <i class="fas fa-check-circle me-1 cosy-thread-sender-icon-provider"></i> <?php esc_html_e('Your Final Response:', 'cosy-appointments'); ?>
                                                         </strong>
-                                                        <small class="cosy-thread-date"><?php echo date('d M Y - h:i A', strtotime($level3_date)); ?></small>
+                                                        <small class="cosy-thread-date flex-shrink-0 ms-auto"><?php echo date('d M Y - h:i A', strtotime($level3_date)); ?></small>
                                                     </div>
                                                     <p class="cosy-thread-body-provider mb-0">
                                                         <?php echo esc_html($level3_text); ?>
@@ -211,7 +211,7 @@ $audit_alerts = get_user_meta($current_provider_id, 'cosy_review_audit_alerts', 
                                                         <i class="fas fa-comment-dots me-1"></i> <?php esc_html_e('Post Final Response (Level 3)', 'cosy-appointments'); ?>
                                                     </button>
                                                 <?php elseif ($has_level3) : ?>
-                                                    <span class="badge bg-secondary p-2" style="font-size: 0.72rem; border-radius: 10px;">
+                                                    <span class="badge bg-secondary p-2 d-inline-flex align-items-center gap-1 text-wrap" style="font-size: 0.72rem; border-radius: 10px; max-width: 100%; text-align: left;">
                                                         <i class="fas fa-lock me-1"></i> <?php esc_html_e('Thread Closed (3-Level Cap Reached)', 'cosy-appointments'); ?>
                                                     </span>
                                                 <?php endif; ?>
