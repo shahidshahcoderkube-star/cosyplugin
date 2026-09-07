@@ -24,6 +24,9 @@ var CosyApp = (function ($) {
         if (typeof message === "object" && message !== null) {
             message = message.message || JSON.stringify(message);
         }
+        if (typeof message === "undefined" || message === null || message === "") {
+            message = type === 'success' ? 'Operation completed successfully.' : 'An unexpected error occurred. Please try again.';
+        }
 
         var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
         var bg = type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
@@ -179,18 +182,21 @@ var CosyApp = (function ($) {
 
                             let msgBox = $form.find(".cosy-message");
 
-                            if (response.success) {
+                            if (response && response.success) {
 
                                 if (typeof response.data === "string" && response.data.startsWith("http")) {
                                     window.location.href = response.data;
                                     return;
                                 }
 
-                                msgBox.html(cosyAlert("success", response.data));
+                                msgBox.html(cosyAlert("success", response.data || "Registration successful!"));
                                 formEl.reset();
 
                             } else {
-                                msgBox.html(cosyAlert("danger", response.data));
+                                let errorMsg = (response && typeof response === "object" && response.data)
+                                    ? response.data
+                                    : (typeof response === "string" && response.trim() ? response : "Registration failed. Please try again.");
+                                msgBox.html(cosyAlert("danger", errorMsg));
                             }
                         },
 

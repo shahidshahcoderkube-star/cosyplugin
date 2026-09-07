@@ -2,6 +2,8 @@
 
 namespace Cosy\Appointments\Common;
 
+use Cosy\Appointments\Email\EmailTemplates;
+
 /**
  * Trait GlobalCommonFunctions
  * 
