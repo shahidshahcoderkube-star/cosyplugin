@@ -255,12 +255,14 @@ jQuery(document).ready(function ($) {
                     <div id="anotherPersonFields" class="mt-3 p-3 rounded-4" style="display: none; background: #fdf5fc; border: 1px solid #fbcfe8;">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold text-muted mb-1">Recipient Name</label>
+                                <label class="form-label small fw-bold text-muted mb-1" for="recipientName">Recipient Name <span class="text-danger">*</span></label>
                                 <input type="text" id="recipientName" class="form-control form-control-sm" placeholder="e.g. Sarah Smith" style="border-radius: 8px;">
+                                <div class="invalid-feedback small" id="recipientNameError" style="display: none; color: #dc2626; font-size: 0.8rem; margin-top: 4px;">Please enter the recipient's name.</div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold text-muted mb-1">Recipient Email</label>
+                                <label class="form-label small fw-bold text-muted mb-1" for="recipientEmail">Recipient Email <span class="text-danger">*</span></label>
                                 <input type="email" id="recipientEmail" class="form-control form-control-sm" placeholder="e.g. sarah@example.com" style="border-radius: 8px;">
+                                <div class="invalid-feedback small" id="recipientEmailError" style="display: none; color: #dc2626; font-size: 0.8rem; margin-top: 4px;">Please enter a valid recipient email address.</div>
                             </div>
                         </div>
                     </div>
@@ -621,8 +623,29 @@ jQuery(document).ready(function ($) {
     $(document).on('change', '#chkBookAnother', function () {
         if (this.checked) {
             $('#anotherPersonFields').slideDown(200);
+            setTimeout(function () {
+                $('#recipientName').focus();
+            }, 220);
         } else {
             $('#anotherPersonFields').slideUp(200);
+            $('#recipientName, #recipientEmail').removeClass('is-invalid').css('border-color', '');
+            $('#recipientNameError, #recipientEmailError').hide();
+        }
+    });
+
+    // Real-time error clearance on input
+    $(document).on('input', '#recipientName', function () {
+        if ($(this).val().trim()) {
+            $(this).removeClass('is-invalid').css('border-color', '');
+            $('#recipientNameError').hide();
+        }
+    });
+
+    $(document).on('input', '#recipientEmail', function () {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test($(this).val().trim())) {
+            $(this).removeClass('is-invalid').css('border-color', '');
+            $('#recipientEmailError').hide();
         }
     });
 
@@ -971,6 +994,40 @@ jQuery(document).ready(function ($) {
             return;
         }
 
+        // Validate Gift Recipient fields if "Book for another person" is checked
+        const isGiftChecked = $('#chkBookAnother').is(':checked');
+        const recipientNameVal = ($('#recipientName').val() || '').trim();
+        const recipientEmailVal = ($('#recipientEmail').val() || '').trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        $('#recipientName, #recipientEmail').removeClass('is-invalid').css('border-color', '');
+        $('#recipientNameError, #recipientEmailError').hide();
+
+        if (isGiftChecked) {
+            let hasGiftError = false;
+
+            if (!recipientNameVal) {
+                $('#recipientName').addClass('is-invalid').css('border-color', '#dc2626');
+                $('#recipientNameError').show();
+                hasGiftError = true;
+            }
+
+            if (!recipientEmailVal || !emailRegex.test(recipientEmailVal)) {
+                $('#recipientEmail').addClass('is-invalid').css('border-color', '#dc2626');
+                $('#recipientEmailError').show();
+                hasGiftError = true;
+            }
+
+            if (hasGiftError) {
+                if (!recipientNameVal) {
+                    $('#recipientName').focus();
+                } else {
+                    $('#recipientEmail').focus();
+                }
+                return;
+            }
+        }
+
         const unitPrice = getUnitPrice();
         const weeks = parseInt($('#selDurationWeeks').val()) || 1;
         const totalActiveSlots = calculateTotalActiveSlotsAcrossWeeks(weeks);
@@ -1072,9 +1129,9 @@ jQuery(document).ready(function ($) {
             serviceCost: serviceCost,
             serviceFee: serviceFee,
             totalPayable: totalPayable,
-            isGift: $('#chkBookAnother').is(':checked'),
-            recipientName: $('#recipientName').val() || '',
-            recipientEmail: $('#recipientEmail').val() || '',
+            isGift: isGiftChecked,
+            recipientName: isGiftChecked ? recipientNameVal : '',
+            recipientEmail: isGiftChecked ? recipientEmailVal : '',
             slots: selectedSlotsByDay,
             weekDays: computedWeekDays || existingPending.weekDays || '',
             slotsTimeline: computedSlotsTimeline || existingPending.slotsTimeline || ''

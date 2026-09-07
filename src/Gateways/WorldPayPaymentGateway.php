@@ -117,6 +117,12 @@ class WorldPayPaymentGateway
         $recipient_name     = isset($_POST['recipientName']) ? sanitize_text_field($_POST['recipientName']) : '';
         $recipient_email    = isset($_POST['recipientEmail']) ? sanitize_email($_POST['recipientEmail']) : '';
 
+        // Validation: If gift booking is chosen, recipient name and valid email are mandatory
+        if ($is_gift && (empty($recipient_name) || empty($recipient_email) || !is_email($recipient_email))) {
+            wp_send_json_error(['message' => __('Please provide both a recipient name and a valid recipient email address for gifted bookings.', 'cosy-appointments')]);
+            return;
+        }
+
         // Fallback calculation if End Date, Week Days, or Slots Timeline are missing
         if (empty($end_date) && !empty($start_date)) {
             $s_time = strtotime($start_date);
