@@ -23,6 +23,11 @@ class Database
      */
     public function run_db_migrations(): void
     {
+        $installed_ver = get_option('cosy_db_version');
+        if ($installed_ver === COSY_APPT_VER) {
+            return;
+        }
+
         $this->create_services_table();
         $this->create_bookings_table();
         $this->create_worldpay_payments_table();
@@ -400,12 +405,31 @@ class Database
 
         dbDelta($sql);
 
-        // Ensure columns exist on existing installs
-        $wpdb->query("ALTER TABLE `$table_name` ADD COLUMN IF NOT EXISTS `payment_id` VARCHAR(255) NOT NULL DEFAULT '' AFTER `customer_email`");
-        $wpdb->query("ALTER TABLE `$table_name` ADD COLUMN IF NOT EXISTS `last_event` VARCHAR(100) NOT NULL DEFAULT '' AFTER `payment_status`");
-        $wpdb->query("ALTER TABLE `$table_name` ADD COLUMN IF NOT EXISTS `auth_code` VARCHAR(50) NOT NULL DEFAULT '' AFTER `last_event`");
-        $wpdb->query("ALTER TABLE `$table_name` ADD COLUMN IF NOT EXISTS `card_brand` VARCHAR(50) NOT NULL DEFAULT '' AFTER `auth_code`");
-        $wpdb->query("ALTER TABLE `$table_name` ADD COLUMN IF NOT EXISTS `card_funding_type` VARCHAR(50) NOT NULL DEFAULT '' AFTER `card_last4`");
+        // Ensure columns exist on existing installs (compatible with all MySQL and MariaDB versions)
+        $payment_id_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'payment_id'");
+        if (empty($payment_id_check)) {
+            $wpdb->query("ALTER TABLE `$table_name` ADD `payment_id` VARCHAR(255) NOT NULL DEFAULT '' AFTER `customer_email`");
+        }
+
+        $last_event_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'last_event'");
+        if (empty($last_event_check)) {
+            $wpdb->query("ALTER TABLE `$table_name` ADD `last_event` VARCHAR(100) NOT NULL DEFAULT '' AFTER `payment_status`");
+        }
+
+        $auth_code_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'auth_code'");
+        if (empty($auth_code_check)) {
+            $wpdb->query("ALTER TABLE `$table_name` ADD `auth_code` VARCHAR(50) NOT NULL DEFAULT '' AFTER `last_event`");
+        }
+
+        $card_brand_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'card_brand'");
+        if (empty($card_brand_check)) {
+            $wpdb->query("ALTER TABLE `$table_name` ADD `card_brand` VARCHAR(50) NOT NULL DEFAULT '' AFTER `auth_code`");
+        }
+
+        $card_funding_type_check = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'card_funding_type'");
+        if (empty($card_funding_type_check)) {
+            $wpdb->query("ALTER TABLE `$table_name` ADD `card_funding_type` VARCHAR(50) NOT NULL DEFAULT '' AFTER `card_last4`");
+        }
     }
 
     /**
