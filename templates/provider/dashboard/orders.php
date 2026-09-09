@@ -50,7 +50,6 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                         <tr style="border-bottom: 2px solid #edf2f7;">
                             <th class="ps-4 py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 155px; width: 155px;"><?php esc_html_e('#Order ID', 'cosy-appointments'); ?></th>
                             <th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 170px;"><?php esc_html_e('Customer', 'cosy-appointments'); ?></th>
-                            <th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 130px;"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
                             <th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 125px;"><?php esc_html_e('Date', 'cosy-appointments'); ?></th>
                             <th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 130px;"><?php esc_html_e('Status', 'cosy-appointments'); ?></th>
                             <th class="py-3 text-nowrap text-center pe-4" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 135px;"><?php esc_html_e('Action', 'cosy-appointments'); ?></th>
@@ -59,7 +58,7 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                     <tbody>
                         <?php if (empty($appointments)) : ?>
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted" style="font-size: 0.95rem;">
+                                <td colspan="5" class="text-center py-5 text-muted" style="font-size: 0.95rem;">
                                     <i class="fas fa-calendar-times mb-3 d-block" style="font-size: 2.2rem; color: #cbd5e1;"></i>
                                     <h6 class="fw-bold mb-1 text-dark" style="font-size: 1rem;"><?php esc_html_e('No Orders Found', 'cosy-appointments'); ?></h6>
                                     <p class="small text-muted mb-0"><?php esc_html_e('Newly booked orders will appear automatically here.', 'cosy-appointments'); ?></p>
@@ -126,9 +125,6 @@ $appointments = \Cosy\Appointments\Frontend\Dashboard::get_provider_appointments
                                             <div class="rounded-circle bg-light d-flex align-items-center justify-content-center order-customer-avatar flex-shrink-0"><?php echo esc_html($initials); ?></div>
                                             <span class="fw-semibold order-customer-name text-dark" style="font-size: 0.9rem;"><?php echo esc_html($customer_name); ?></span>
                                         </div>
-                                    </td>
-                                    <td class="py-3 text-nowrap" style="min-width: 130px;">
-                                        <span class="badge bg-light text-dark border-0 px-3 py-2 rounded-3 order-service-badge" style="font-size: 0.8rem; font-weight: 600;"><?php echo esc_html($service_name); ?></span>
                                     </td>
                                     <td class="py-3 text-muted text-nowrap order-date-cell" style="font-size: 0.85rem; min-width: 125px;">
                                         <?php echo esc_html(cosy_format_date($start_date)); ?>

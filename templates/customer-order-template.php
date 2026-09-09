@@ -39,7 +39,6 @@ if ($current_user->exists()) {
 				<thead class="table-light">
 					<tr style="border-bottom: 2px solid #edf2f7;">
 						<th class="ps-4 py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 155px; width: 155px;"><?php esc_html_e('Order ID', 'cosy-appointments'); ?></th>
-						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 130px;"><?php esc_html_e('Service', 'cosy-appointments'); ?></th>
 						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 120px;"><?php esc_html_e('Provider', 'cosy-appointments'); ?></th>
 						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 140px;"><?php esc_html_e('Weekly Booking', 'cosy-appointments'); ?></th>
 						<th class="py-3 text-nowrap" style="font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; white-space: nowrap; min-width: 130px;"><?php esc_html_e('Payment Status', 'cosy-appointments'); ?></th>
@@ -79,7 +78,6 @@ if ($current_user->exists()) {
 										<?php endif; ?>
 									</span>
 								</td>
-								<td class="py-3 fw-semibold text-dark" style="font-size: 0.9rem;"><?php echo esc_html($service); ?></td>
 								<td class="py-3" style="font-size: 0.9rem; color: #475569;"><?php echo esc_html($provider); ?></td>
 								<td class="py-3" style="font-size: 0.85rem; color: #64748b;"><?php echo esc_html($weekly_booking); ?></td>
 								<td class="py-3">
@@ -135,7 +133,7 @@ if ($current_user->exists()) {
 						<?php endforeach; ?>
 					<?php else: ?>
 						<tr>
-							<td colspan="9" class="text-center py-5 text-muted" style="font-size: 0.95rem;">
+							<td colspan="8" class="text-center py-5 text-muted" style="font-size: 0.95rem;">
 								<i class="fas fa-calendar-times mb-3 d-block" style="font-size: 2rem; color: #cbd5e1;"></i>
 								<?php esc_html_e('No bookings or orders found.', 'cosy-appointments'); ?>
 							</td>

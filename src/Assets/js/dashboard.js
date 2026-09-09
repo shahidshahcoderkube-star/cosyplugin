@@ -432,16 +432,15 @@ jQuery(document).ready(function ($) {
         export(e) {
             e.preventDefault();
             var csvContent = 'data:text/csv;charset=utf-8,';
-            csvContent += 'Order ID,Customer,Service,Date,Status\n';
+            csvContent += 'Order ID,Customer,Date,Status\n';
 
             $('#providerOrdersTable tbody tr.order-table-row').each(function () {
                 if ($(this).is(':visible')) {
                     var id = ($(this).find('td:nth-child(1) span:first-child').text() || $(this).find('td:nth-child(1)').text()).replace('#', '').trim();
                     var customer = $(this).find('.order-customer-name').text().trim() || $(this).find('td:nth-child(2)').text().trim();
-                    var service = $(this).find('td:nth-child(3)').text().trim();
-                    var date = $(this).find('td:nth-child(4)').text().trim();
+                    var date = $(this).find('.order-date-cell').text().trim() || $(this).find('td:nth-child(3)').text().trim();
                     var status = $(this).attr('data-status').toUpperCase();
-                    csvContent += '"' + id + '","' + customer + '","' + service + '","' + date + '","' + status + '"\n';
+                    csvContent += '"' + id + '","' + customer + '","' + date + '","' + status + '"\n';
                 }
             });
 
