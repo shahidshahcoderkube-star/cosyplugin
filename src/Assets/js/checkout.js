@@ -163,6 +163,7 @@ jQuery(document).ready(function ($) {
             const dateISO = `${cellYear}-${cellMonth}-${cellDayStr}`;
 
             const isHoliday = window.providerHolidays && window.providerHolidays.includes(dateISO);
+            const isFullyBooked = Array.isArray(window.providerFullyBookedDates) && window.providerFullyBookedDates.includes(dateISO);
             let isDayOff = false;
             if (window.providerAvailability && typeof window.providerAvailability === 'object') {
                 const dayConfig = window.providerAvailability[dayName];
@@ -186,6 +187,18 @@ jQuery(document).ready(function ($) {
                         <div class="text-start" style="min-width: 0;">
                             <h6 class="fw-bold mb-1 text-muted" style="font-size: 0.95rem;">${dayName} (${formattedDayDate})</h6>
                             <p class="small text-danger mb-0">🚫 Holiday / Unavailable</p>
+                        </div>
+                        <button type="button" disabled class="btn btn-sm px-3 py-2 fw-semibold text-muted bg-white border flex-shrink-0 text-nowrap" style="border-radius: 12px; font-size: 0.82rem; cursor: not-allowed; white-space: nowrap;">
+                            Unavailable
+                        </button>
+                    </div>
+                `;
+            } else if (isFullyBooked) {
+                slotsRowsHtml += `
+                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 border bg-light opacity-75 shadow-sm gap-2" style="border-color: #f1f5f9 !important;">
+                        <div class="text-start" style="min-width: 0;">
+                            <h6 class="fw-bold mb-1 text-muted" style="font-size: 0.95rem;">${dayName} (${formattedDayDate})</h6>
+                            <p class="small text-danger mb-0">🚫 Fully Booked / Unavailable</p>
                         </div>
                         <button type="button" disabled class="btn btn-sm px-3 py-2 fw-semibold text-muted bg-white border flex-shrink-0 text-nowrap" style="border-radius: 12px; font-size: 0.82rem; cursor: not-allowed; white-space: nowrap;">
                             Unavailable

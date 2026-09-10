@@ -69,11 +69,13 @@ if (!empty($provider_data['ID'])) {
 $availability = [];
 $holiday_dates = [];
 $holiday_reasons = [];
+$fully_booked_dates = [];
 if (!empty($provider_data['ID'])) {
-    $availability_data = $common->get_provider_availability_data($provider_data['ID']);
-    $availability      = $availability_data['availability'];
-    $holiday_dates     = $availability_data['holiday_dates'];
-    $holiday_reasons   = $availability_data['holiday_reasons'] ?? [];
+    $availability_data  = $common->get_provider_availability_data($provider_data['ID']);
+    $availability       = $availability_data['availability'];
+    $holiday_dates      = $availability_data['holiday_dates'];
+    $holiday_reasons    = $availability_data['holiday_reasons'] ?? [];
+    $fully_booked_dates = $common->get_provider_fully_booked_dates($provider_data['ID']);
 }
 
 // Initialize selected service object and parse service parameter from URL
@@ -135,6 +137,7 @@ $profile_js_data = sprintf(
     'window.providerAvailability = %s; ' .
     'window.providerHolidays = %s; ' .
     'window.providerHolidayReasons = %s; ' .
+    'window.providerFullyBookedDates = %s; ' .
     'window.currentUser = {isLoggedIn: %s, role: %s, name: %s, id: %s}; ' .
     'window.providerId = %s; ' .
     'window.providerName = %s; ' .
@@ -147,6 +150,7 @@ $profile_js_data = sprintf(
     wp_json_encode($availability),
     wp_json_encode($holiday_dates),
     wp_json_encode($holiday_reasons),
+    wp_json_encode($fully_booked_dates),
     $is_logged_in ? 'true' : 'false',
     wp_json_encode($user_role),
     wp_json_encode($current_user->display_name),

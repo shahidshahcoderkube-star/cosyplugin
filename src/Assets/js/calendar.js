@@ -82,6 +82,7 @@ function renderCalendar() {
         const dateString = `${cellYear}-${cellMonth}-${cellDayStr}`;
         const isHoliday = Array.isArray(window.providerHolidays) && window.providerHolidays.includes(dateString);
         const holidayReason = (window.providerHolidayReasons && window.providerHolidayReasons[dateString]) ? window.providerHolidayReasons[dateString] : 'Holiday';
+        const isFullyBooked = Array.isArray(window.providerFullyBookedDates) && window.providerFullyBookedDates.includes(dateString);
 
         // Check if provider has configured working hours for this day of the week
         const dayNamesMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -94,8 +95,8 @@ function renderCalendar() {
             }
         }
 
-        // Today, past days, holidays, and non-working days are unavailable
-        const isUnavailable = isPast || isToday || isHoliday || isDayOff;
+        // Today, past days, holidays, fully booked days, and non-working days are unavailable
+        const isUnavailable = isPast || isToday || isHoliday || isDayOff || isFullyBooked;
 
         let bg = '#ffffff';
         let color = '#a44390';
@@ -112,6 +113,13 @@ function renderCalendar() {
             boxShadow = 'none';
             textDecoration = 'line-through';
             titleAttr = `Unavailable (${holidayReason})`;
+        } else if (isFullyBooked) {
+            bg = '#f1f5f9';
+            color = '#94a3b8';
+            border = '1.5px solid #e2e8f0';
+            boxShadow = 'none';
+            textDecoration = 'line-through';
+            titleAttr = 'Fully Booked';
         } else if (isDayOff) {
             bg = '#f8fafc';
             color = '#cbd5e1';

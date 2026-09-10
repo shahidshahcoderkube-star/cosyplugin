@@ -764,6 +764,254 @@ trait GlobalCommonFunctions
     }
 
     /**
+     * get_provider_fully_booked_dates
+     * 
+     * Calculates future dates where all available appointment slots for the provider are fully booked.
+     * Used by the booking calendar to grey out fully booked dates as unavailable.
+     *
+     * @param int $provider_id
+     * @return array List of dates in 'Y-m-d' format that have 0 remaining slots.
+     */
+    public function get_provider_fully_booked_dates(int $provider_id): array
+    {
+        if (empty($provider_id)) {
+            return [];
+        }
+
+        $avail_data   = $this->get_provider_availability_data($provider_id);
+        $availability = $avail_data['availability'] ?? [];
+
+        // Precompute total slots for each day of week based on working hours
+        $day_total_slots = [];
+        $days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        foreach ($days_of_week as $day_name) {
+            $day_config = $availability[$day_name] ?? null;
+            if (empty($day_config) || (empty($day_config['start_time']) && empty($day_config['end_time']))) {
+                $day_total_slots[$day_name] = [];
+                continue;
+            }
+
+            $start_str     = $day_config['start_time'] ?? '09:00';
+            $end_str       = $day_config['end_time'] ?? '17:00';
+            $slot_duration = intval($day_config['slot_duration'] ?? 10) ?: 10;
+
+            $base_time  = '1970-01-01T';
+            $start_time = strtotime("{$base_time}{$start_str}:00");
+            $end_time   = strtotime("{$base_time}{$end_str}:00");
+            if ($end_time <= $start_time) {
+                $end_time = strtotime("+1 day", $end_time);
+            }
+
+            $break_start = null;
+            $break_end   = null;
+            if (!empty($day_config['break_start']) && !empty($day_config['break_end'])) {
+                $break_start = strtotime("{$base_time}{$day_config['break_start']}:00");
+                $break_end   = strtotime("{$base_time}{$day_config['break_end']}:00");
+                if ($break_start < $start_time) {
+                    $break_start = strtotime("+1 day", $break_start);
+                }
+                if ($break_end < $break_start) {
+                    $break_end = strtotime("+1 day", $break_end);
+                }
+            }
+
+            $slots = [];
+            $curr  = $start_time;
+            $guard = 500;
+            while ($curr < $end_time && $guard-- > 0) {
+                $slot_end = strtotime("+{$slot_duration} minutes", $curr);
+                if ($slot_end > $end_time) {
+                    break;
+                }
+
+                $in_break = false;
+                if ($break_start && $break_end) {
+                    if ($curr < $break_end && $slot_end > $break_start) {
+                        $in_break = true;
+                    }
+                }
+
+                if (!$in_break) {
+                    $slots[] = date('h:i A', $curr);
+                }
+                $curr = $slot_end;
+            }
+
+            $day_total_slots[$day_name] = $slots;
+        }
+
+        // Query active appointments for this provider
+        $args = [
+            'post_type'      => 'cosy_appointment',
+            'posts_per_page' => -1,
+            'post_status'    => ['publish', 'draft', 'pending', 'private'],
+            'meta_query'     => [
+                'relation' => 'AND',
+                [
+                    'key'     => 'cosy_provider_id',
+                    'value'   => $provider_id,
+                    'compare' => '='
+                ],
+                [
+                    'relation' => 'OR',
+                    [
+                        'key'     => 'cosy_booking_status',
+                        'value'   => 'cancelled',
+                        'compare' => '!='
+                    ],
+                    [
+                        'key'     => 'cosy_booking_status',
+                        'compare' => 'NOT EXISTS'
+                    ]
+                ]
+            ]
+        ];
+
+        $appts = get_posts($args);
+        if (empty($appts)) {
+            return [];
+        }
+
+        $normalize_time_safe = function ($t_raw) {
+            if (empty($t_raw)) return '';
+            $t = strtoupper(trim((string) $t_raw));
+            if (preg_match('/^(\d{1,2}):(\d{2})$/', $t, $m)) {
+                $h = intval($m[1]);
+                $min = $m[2];
+                $ap = $h >= 12 ? 'PM' : 'AM';
+                $h12 = $h % 12 ?: 12;
+                return sprintf('%02d:%s %s', $h12, $min, $ap);
+            }
+            if (preg_match('/^(\d{1,2}):(\d{2})\s*(AM|PM)$/', $t, $m)) {
+                $h = intval($m[1]);
+                $min = $m[2];
+                $ap = strtoupper($m[3]);
+                return sprintf('%02d:%s %s', $h, $min, $ap);
+            }
+            return $t;
+        };
+
+        $parse_date_safe = function ($date_raw) {
+            if (empty($date_raw)) return '';
+            $trimmed = trim((string)$date_raw);
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $trimmed)) {
+                return $trimmed;
+            }
+            $ts = strtotime($trimmed);
+            if ($ts) {
+                return date('Y-m-d', $ts);
+            }
+            $clean = str_replace('/', '-', $trimmed);
+            $ts = strtotime($clean);
+            if ($ts) {
+                return date('Y-m-d', $ts);
+            }
+            foreach (['d-m-Y', 'd/m/Y', 'm/d/Y', 'Y/m/d', 'D M d Y', 'l, F j, Y'] as $fmt) {
+                $dt = \DateTime::createFromFormat($fmt, $trimmed);
+                if ($dt) {
+                    return $dt->format('Y-m-d');
+                }
+            }
+            return '';
+        };
+
+        $booked_slots_by_date = [];
+
+        foreach ($appts as $appt) {
+            if ($appt->post_status === 'draft') {
+                $created = strtotime($appt->post_date);
+                if ($created && (time() - $created > 180)) {
+                    continue; // Skip abandoned checkout drafts older than 3 minutes
+                }
+            }
+
+            $num_weeks = max(1, intval(get_post_meta($appt->ID, 'cosy_number_of_weeks', true)));
+            $slots_meta = get_post_meta($appt->ID, 'cosy_slots', true);
+            if (empty($slots_meta)) {
+                continue;
+            }
+
+            $decoded = html_entity_decode($slots_meta);
+            $slots = json_decode($decoded, true);
+            if (!is_array($slots)) {
+                $slots = json_decode($slots_meta, true);
+            }
+            if (!is_array($slots)) {
+                continue;
+            }
+
+            foreach ($slots as $k => $v) {
+                // Case 1: Key-Value Dictionary {"23-11-2026": ["09:00 AM", ...]}
+                if (is_array($v) && !isset($v['date'])) {
+                    $base_formatted = $parse_date_safe($k);
+                    if (empty($base_formatted)) continue;
+                    $base_ts = strtotime($base_formatted);
+                    if (!$base_ts) continue;
+
+                    for ($w = 0; $w < $num_weeks; $w++) {
+                        $target_date = date('Y-m-d', strtotime("+{$w} week", $base_ts));
+                        foreach ($v as $time_val) {
+                            $norm_t = $normalize_time_safe($time_val);
+                            if ($norm_t) {
+                                $booked_slots_by_date[$target_date][] = $norm_t;
+                            }
+                        }
+                    }
+                }
+                // Case 2: Array of objects [{"date": "...", "time": "..."}]
+                elseif (is_array($v) || is_object($v)) {
+                    $slot_obj = (array) $v;
+                    if (isset($slot_obj['date'], $slot_obj['time'])) {
+                        $base_formatted = $parse_date_safe($slot_obj['date']);
+                        if (empty($base_formatted)) continue;
+                        $base_ts = strtotime($base_formatted);
+                        if (!$base_ts) continue;
+
+                        for ($w = 0; $w < $num_weeks; $w++) {
+                            $target_date = date('Y-m-d', strtotime("+{$w} week", $base_ts));
+                            $norm_t = $normalize_time_safe($slot_obj['time']);
+                            if ($norm_t) {
+                                $booked_slots_by_date[$target_date][] = $norm_t;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $fully_booked_dates = [];
+        $today_str = date('Y-m-d');
+
+        foreach ($booked_slots_by_date as $date_str => $booked_times) {
+            // Only evaluate today or future dates
+            if ($date_str < $today_str) {
+                continue;
+            }
+
+            $date_ts = strtotime($date_str);
+            if (!$date_ts) {
+                continue;
+            }
+
+            $day_name = date('l', $date_ts);
+            $total_slots = $day_total_slots[$day_name] ?? [];
+
+            // If day has working slots, compare
+            if (!empty($total_slots)) {
+                $unique_booked = array_unique($booked_times);
+                // Check if all available slots have been booked
+                $remaining = array_diff($total_slots, $unique_booked);
+                if (empty($remaining)) {
+                    $fully_booked_dates[] = $date_str;
+                }
+            }
+        }
+
+        return array_values(array_unique($fully_booked_dates));
+    }
+
+    /**
      * Sends/resends a verification email to a user.
      * Generates a verification token if one doesn't exist.
      *
