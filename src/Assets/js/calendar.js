@@ -316,8 +316,12 @@ function openTimeSlotModal(dateStr) {
         success: function (response) {
             grid.innerHTML = '';
             let bookedSlots = [];
-            if (response.success && Array.isArray(response.data)) {
-                bookedSlots = response.data;
+            if (response.success) {
+                if (Array.isArray(response.data)) {
+                    bookedSlots = response.data;
+                } else if (response.data && typeof response.data === 'object') {
+                    bookedSlots = response.data.booked_today || response.data.booked_slots || [];
+                }
             }
 
             const startStr = avail.start_time; // e.g. "09:00"
@@ -387,11 +391,29 @@ function openTimeSlotModal(dateStr) {
                         return normB === normDisplayTime || b === timeStr || b === displayTime;
                     });
 
+                    let slotStyle = '';
+                    let slotClass = '';
+                    let slotClick = `toggleTimeSlot('${timeStr}', this)`;
+                    let titleStr = '';
+
+                    if (isBooked && isSelected) {
+                        slotStyle = 'background:#fee2e2; color:#dc2626; border:2px dashed #ef4444; cursor:pointer;';
+                        slotClass = 'selected conflict-slot';
+                        titleStr = 'Slot has conflict across duration weeks — Click to deselect';
+                    } else if (isBooked) {
+                        slotStyle = 'background:#e2e8f0; color:#94a3b8; cursor:not-allowed;';
+                        slotClass = 'booked';
+                        slotClick = '';
+                        titleStr = 'Already Booked';
+                    } else if (isSelected) {
+                        slotClass = 'selected';
+                    }
+
                     grid.innerHTML += `
-                            <div class="time-block p-2 text-center small fw-bold ${isSelected ? 'selected' : ''} ${isBooked ? 'booked' : ''}" 
-                                 style="${isBooked ? 'background:#e2e8f0; color:#94a3b8; cursor:not-allowed;' : ''}"
-                                 onclick="${isBooked ? '' : `toggleTimeSlot('${timeStr}', this)`}"
-                                 title="${isBooked ? 'Already Booked' : ''}">
+                            <div class="time-block p-2 text-center small fw-bold ${slotClass}" 
+                                 style="${slotStyle}"
+                                 onclick="${slotClick}"
+                                 title="${titleStr}">
                                 ${displayTime}
                             </div>
                         `;

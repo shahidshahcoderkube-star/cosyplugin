@@ -943,10 +943,8 @@ class Frontend
 
         for ($w = 0; $w < $number_of_weeks; $w++) {
             $week_num = $w + 1;
-            $week_has_holiday = false;
-            $week_has_booked = false;
-            $holiday_reason_label = '';
-            $week_display_date = '';
+            $week_conflict_items = [];
+            $week_available_dates = [];
 
             foreach ($slots_by_base_date as $base_date => $req_times) {
                 if (empty($req_times)) {
@@ -959,45 +957,65 @@ class Frontend
                 }
 
                 $target_date = date('Y-m-d', strtotime("+{$w} week", $base_ts));
-                if (empty($week_display_date)) {
-                    $week_display_date = date('d M Y', strtotime($target_date));
-                }
+                $target_ts   = strtotime($target_date);
+                $formatted_target = date('d M Y', $target_ts);
+                $day_name_target  = date('l', $target_ts);
 
                 // Check 1: Provider Holiday collision
                 if (isset($holiday_map[$target_date])) {
-                    $week_has_holiday = true;
                     $has_holiday_collision = true;
                     $raw_reason = $holiday_map[$target_date];
                     $holiday_reason_label = (!empty($raw_reason) && $raw_reason !== 'Holiday') ? $raw_reason : 'Holiday';
-                }
+                    $week_conflict_items[] = [
+                        'date'       => $formatted_target,
+                        'day'        => $day_name_target,
+                        'is_holiday' => true,
+                        'is_booked'  => false,
+                        'reason'     => $holiday_reason_label,
+                    ];
+                } else {
+                    // Check 2: Already booked slots collision
+                    $booked_slots_for_target = self::get_booked_slots_for_dates($provider_id, [$target_date]);
+                    $collisions = array_intersect($req_times, $booked_slots_for_target);
 
-                // Check 2: Already booked slots collision
-                $booked_slots_for_target = self::get_booked_slots_for_dates($provider_id, [$target_date]);
-                $collisions = array_intersect($req_times, $booked_slots_for_target);
-
-                if (!empty($collisions)) {
-                    $week_has_booked = true;
-                    $has_booked_collision = true;
+                    if (!empty($collisions)) {
+                        $has_booked_collision = true;
+                        $week_conflict_items[] = [
+                            'date'       => $formatted_target,
+                            'day'        => $day_name_target,
+                            'is_holiday' => false,
+                            'is_booked'  => true,
+                            'reason'     => 'Already Booked',
+                        ];
+                    } else {
+                        $week_available_dates[] = $formatted_target;
+                    }
                 }
             }
 
-            if (empty($week_display_date)) {
-                $week_display_date = date('d M Y', strtotime("+{$w} week", $start_ts));
-            }
-
-            if ($week_has_holiday || $week_has_booked) {
+            if (!empty($week_conflict_items)) {
                 $has_collision = true;
-                $booked_weeks_details[] = [
-                    'num'        => $week_num,
-                    'date'       => $week_display_date,
-                    'is_holiday' => $week_has_holiday,
-                    'is_booked'  => $week_has_booked,
-                    'reason'     => $week_has_holiday ? $holiday_reason_label : 'Already Booked',
-                ];
+                // De-duplicate any duplicate dates in conflict list for this week
+                $seen_dates = [];
+                foreach ($week_conflict_items as $c_item) {
+                    if (in_array($c_item['date'], $seen_dates)) {
+                        continue;
+                    }
+                    $seen_dates[] = $c_item['date'];
+                    $booked_weeks_details[] = [
+                        'num'        => $week_num,
+                        'date'       => $c_item['date'],
+                        'day'        => $c_item['day'],
+                        'is_holiday' => $c_item['is_holiday'],
+                        'is_booked'  => $c_item['is_booked'],
+                        'reason'     => $c_item['reason'],
+                    ];
+                }
             } else {
+                $avail_display = !empty($week_available_dates) ? implode(', ', array_unique($week_available_dates)) : date('d M Y', strtotime("+{$w} week", $start_ts));
                 $available_weeks_details[] = [
                     'num'  => $week_num,
-                    'date' => $week_display_date
+                    'date' => $avail_display
                 ];
             }
         }
@@ -1034,7 +1052,7 @@ class Frontend
                     esc_attr($icon_class),
                     $bw['num'],
                     esc_html($tag_text),
-                    esc_html($bw['date'])
+                    esc_html(!empty($bw['day']) ? "{$bw['day']}, {$bw['date']}" : $bw['date'])
                 );
             }
 
@@ -1128,18 +1146,21 @@ class Frontend
         $start_formatted = $parse_date_safe($date_str);
         $start_ts = strtotime($start_formatted);
 
-        $requested_dates = [];
-        if ($start_ts) {
-            for ($w = 0; $w < $num_weeks; $w++) {
-                $requested_dates[] = date('Y-m-d', strtotime("+{$w} week", $start_ts));
+        $today_booked = self::get_booked_slots_for_dates($provider_id, [$start_formatted]);
+        $future_booked = [];
+        if ($num_weeks > 1 && $start_ts) {
+            $future_dates = [];
+            for ($w = 1; $w < $num_weeks; $w++) {
+                $future_dates[] = date('Y-m-d', strtotime("+{$w} week", $start_ts));
             }
-        } else {
-            $requested_dates[] = $date_str;
+            $future_booked = self::get_booked_slots_for_dates($provider_id, $future_dates);
         }
 
-        $booked_slots = self::get_booked_slots_for_dates($provider_id, $requested_dates);
-
-        wp_send_json_success($booked_slots);
+        wp_send_json_success([
+            'booked_today'  => $today_booked,
+            'booked_future' => $future_booked,
+            'booked_slots'  => array_values(array_unique(array_merge($today_booked, $future_booked)))
+        ]);
     }
 
     /**

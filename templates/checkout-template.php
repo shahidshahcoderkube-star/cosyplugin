@@ -193,7 +193,7 @@ wp_add_inline_script('cosy-checkout', sprintf(
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <div class="d-flex gap-4 mb-4 small fw-medium justify-content-center">
+                <div class="d-flex flex-wrap gap-3 mb-4 small fw-medium justify-content-center">
                     <span class="d-flex align-items-center gap-2">
                         <span style="width: 12px; height: 12px; background: #fff; border: 1.5px solid #edf2f7; border-radius: 3px;"></span>
                         <?php esc_html_e('Available', 'cosy-appointments'); ?>
@@ -205,6 +205,9 @@ wp_add_inline_script('cosy-checkout', sprintf(
                     <span class="d-flex align-items-center gap-2">
                         <span style="width: 12px; height: 12px; background: #e2e8f0; border-radius: 3px;"></span> <?php esc_html_e('Booked', 'cosy-appointments'); ?>
                     </span>
+                    <span class="d-flex align-items-center gap-2">
+                        <span style="width: 12px; height: 12px; background: #fee2e2; border: 1.5px dashed #ef4444; border-radius: 3px;"></span> <?php esc_html_e('Conflict (Click to remove)', 'cosy-appointments'); ?>
+                    </span>
                 </div>
                 <!-- Time blocks generated dynamically -->
                 <div id="timeGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 10px;"></div>
@@ -215,9 +218,14 @@ wp_add_inline_script('cosy-checkout', sprintf(
                         <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.72rem;"><?php esc_html_e('Total Duration', 'cosy-appointments'); ?></small>
                         <span id="modalTotalDuration" class="fw-bold" style="font-size: 1.1rem; color: #a44390;">0 <?php esc_html_e('minutes', 'cosy-appointments'); ?></span>
                     </div>
-                    <button type="button" class="btn px-4 py-2 fw-bold text-white shadow-sm" id="btnConfirmTimeSlotsModal" style="background: #a44390; border-radius: 12px; font-size: 0.9rem;">
-                        <?php esc_html_e('Confirm', 'cosy-appointments'); ?>
-                    </button>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger px-3 py-2 fw-semibold" id="btnClearTimeSlotsModal" style="border-radius: 12px; font-size: 0.82rem;">
+                            <i class="fas fa-trash-can me-1"></i> <?php esc_html_e('Clear Day', 'cosy-appointments'); ?>
+                        </button>
+                        <button type="button" class="btn px-4 py-2 fw-bold text-white shadow-sm" id="btnConfirmTimeSlotsModal" style="background: #a44390; border-radius: 12px; font-size: 0.9rem;">
+                            <?php esc_html_e('Confirm', 'cosy-appointments'); ?>
+                        </button>
+                    </div>
                 </div>  
             </div>
         </div>

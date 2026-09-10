@@ -760,9 +760,15 @@ jQuery(document).ready(function ($) {
                 num_weeks: parseInt($('#selDurationWeeks').val()) || 1
             },
             success: function (res) {
-                let bookedSlots = [];
-                if (res.success && Array.isArray(res.data)) {
-                    bookedSlots = res.data.map(normalizeTimeStr);
+                let bookedToday = [];
+                let bookedFuture = [];
+                if (res.success) {
+                    if (Array.isArray(res.data)) {
+                        bookedToday = res.data.map(normalizeTimeStr);
+                    } else if (res.data && typeof res.data === 'object') {
+                        bookedToday = (res.data.booked_today || []).map(normalizeTimeStr);
+                        bookedFuture = (res.data.booked_future || []).map(normalizeTimeStr);
+                    }
                 }
 
                 let slotsHtml = '';
@@ -782,7 +788,8 @@ jQuery(document).ready(function ($) {
                 times.forEach((t) => {
                     const normT = normalizeTimeStr(t);
                     const isSelected = activeSlots.includes(normT);
-                    const isBooked = bookedSlots.includes(normT);
+                    const isBookedToday = bookedToday.includes(normT);
+                    const isBookedFuture = bookedFuture.includes(normT);
 
                     let bg = '#ffffff';
                     let color = '#1e293b';
@@ -791,17 +798,37 @@ jQuery(document).ready(function ($) {
                     let cursor = 'pointer';
                     let titleAttr = '';
 
-                    if (isBooked) {
+                    if (isBookedToday) {
+                        // Genuinely booked on THIS specific date - Grey and unclickable
                         bg = '#e2e8f0';
                         color = '#94a3b8';
                         border = '1px solid #cbd5e1';
                         btnClass = 'booked-slot-btn';
                         cursor = 'not-allowed';
-                        titleAttr = 'title="Already Booked"';
+                        titleAttr = 'title="Already Booked on this date"';
+                    } else if (isSelected && isBookedFuture) {
+                        // User selected this slot, but it has conflict across future recurring weeks.
+                        // Keep it clickable with red dashed border so user can click to deselect!
+                        bg = '#fee2e2';
+                        color = '#dc2626';
+                        border = '2px dashed #ef4444';
+                        btnClass = 'select-slot-btn conflict-slot-btn';
+                        cursor = 'pointer';
+                        titleAttr = 'title="Slot has conflict across duration weeks — Click to deselect"';
                     } else if (isSelected) {
+                        // Normal selected slot
                         bg = '#a44390';
                         color = '#ffffff';
                         border = '1.5px solid #a44390';
+                        btnClass = 'select-slot-btn';
+                        cursor = 'pointer';
+                    } else {
+                        // Free and available on this date!
+                        bg = '#ffffff';
+                        color = '#1e293b';
+                        border = '1px solid #e2e8f0';
+                        btnClass = 'select-slot-btn';
+                        cursor = 'pointer';
                     }
 
                     slotsHtml += `
@@ -837,6 +864,32 @@ jQuery(document).ready(function ($) {
         });
     });
 
+    // Clear all slots for current day in modal
+    $(document).on('click', '#btnClearTimeSlotsModal', function (e) {
+        e.preventDefault();
+        if (currentModalDateStr) {
+            selectedSlotsByDay[currentModalDateStr] = [];
+            $('.time-block-item').each(function () {
+                // Do not touch slots that are genuinely booked on this day
+                if ($(this).hasClass('booked-slot-btn')) {
+                    return;
+                }
+                // Reset all other slots (including cleared conflict slots) to clean white available state
+                $(this).removeClass('conflict-slot-btn')
+                       .addClass('select-slot-btn')
+                       .css({ background: '#ffffff', color: '#1e293b', border: '1px solid #e2e8f0', cursor: 'pointer' });
+            });
+            $('#modalTotalDuration').text('0 minutes');
+            calculateLiveTotal();
+            const safeIdKey = currentModalDateStr.replace(/[^a-zA-Z0-9]/g, '-');
+            const durationTextEl = document.getElementById(`duration-${safeIdKey}`);
+            if (durationTextEl) {
+                durationTextEl.textContent = '0 minutes Call Duration';
+            }
+            $('#btn-time-' + safeIdKey).text('Select Time');
+        }
+    });
+
     // Select/Deselect time slots inside modal
     $(document).on('click', '.select-slot-btn', function () {
         const rawTimeVal = $(this).data('time');
@@ -851,7 +904,7 @@ jQuery(document).ready(function ($) {
         const index = selectedSlotsByDay[currentModalDateStr].indexOf(timeVal);
         if (index > -1) {
             selectedSlotsByDay[currentModalDateStr].splice(index, 1);
-            $(this).css({ background: '#ffffff', color: '#1e293b', border: '1px solid #e2e8f0' });
+            $(this).removeClass('conflict-slot-btn').css({ background: '#ffffff', color: '#1e293b', border: '1px solid #e2e8f0' });
         } else {
             selectedSlotsByDay[currentModalDateStr].push(timeVal);
             $(this).css({ background: '#a44390', color: '#ffffff', border: '1.5px solid #a44390' });
@@ -952,8 +1005,15 @@ jQuery(document).ready(function ($) {
 
     $(document).on('change', '#selDurationWeeks', function () {
         calculateLiveTotal();
-        if (typeof currentModalDateStr !== 'undefined' && currentModalDateStr) {
-            renderSlotsForDate(currentModalDateStr);
+        const weeks = parseInt($('#selDurationWeeks').val()) || 1;
+
+        // If time slot modal is open, reload slots for current day with new week duration
+        const modalEl = document.getElementById('timeSlotModal');
+        if (modalEl && modalEl.classList.contains('show') && currentModalDateStr) {
+            const $triggerBtn = $(`.btn-open-time-modal[data-date="${currentModalDateStr}"]`);
+            if ($triggerBtn.length) {
+                $triggerBtn.trigger('click');
+            }
         }
 
         // Instant validation check when duration changes if slots are already selected
