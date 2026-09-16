@@ -223,10 +223,11 @@ class Dashboard
     {
         $user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
 
-        // Check if user already has a pending video
+        // Check if user already has a pending video awaiting review
+        $pending_video  = get_user_meta($user_id, 'pending_introduction_video', true);
         $current_status = get_user_meta($user_id, 'video_status', true);
-        if ($current_status === 'pending') {
-            wp_send_json_error(['message' => 'Your previous video approval is still pending. You cannot upload a new video until it is reviewed.']);
+        if ($current_status === 'pending' || !empty($pending_video)) {
+            wp_send_json_error(['message' => __('Your previous video is still pending review. You cannot upload a new video until it is reviewed.', 'cosy-appointments')]);
         }
 
         if (!empty($_FILES['video_upload']['name'])) {
@@ -240,7 +241,6 @@ class Dashboard
                 wp_send_json_error(['message' => sprintf(__('Video size must not exceed %d MB', 'cosy-appointments'), $limit_mb)]);
             }
 
-
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');
             require_once(ABSPATH . 'wp-admin/includes/image.php');
@@ -249,14 +249,23 @@ class Dashboard
             if (!is_wp_error($attachment_id)) {
                 $video_url = wp_get_attachment_url($attachment_id);
 
-                // Save video URL
-                update_user_meta($user_id, 'introduction_video', $video_url);
+                // Check if user already has an existing approved video
+                $existing_approved_video = ($current_status === 'approved') ? get_user_meta($user_id, 'introduction_video', true) : '';
+
+                // Save newly uploaded video as pending_introduction_video
+                update_user_meta($user_id, 'pending_introduction_video', $video_url);
 
                 // Save current date/time
                 update_user_meta($user_id, 'video_uploaded_on', current_time('mysql'));
 
-                // Save status as pending
-                update_user_meta($user_id, 'video_status', 'pending');
+                if (empty($existing_approved_video)) {
+                    // Fresh upload: no approved video yet, so video_status is pending
+                    update_user_meta($user_id, 'video_status', 'pending');
+                    delete_user_meta($user_id, 'introduction_video');
+                } else {
+                    // Replacement upload: keep existing approved video live on frontend until admin approves!
+                    update_user_meta($user_id, 'video_status', 'approved');
+                }
 
                 // Sync with custom table for Admin Dashboard - Update existing or insert new to avoid duplicate rows per provider
                 global $wpdb;
@@ -335,10 +344,15 @@ class Dashboard
         }
 
         $video_url = get_user_meta($user_id, 'introduction_video', true);
-
         if ($video_url) {
             $this->delete_media_file_by_url($video_url);
             delete_user_meta($user_id, 'introduction_video');
+        }
+
+        $pending_video = get_user_meta($user_id, 'pending_introduction_video', true);
+        if ($pending_video) {
+            $this->delete_media_file_by_url($pending_video);
+            delete_user_meta($user_id, 'pending_introduction_video');
         }
 
         update_user_meta($user_id, 'video_status', 'deleted');

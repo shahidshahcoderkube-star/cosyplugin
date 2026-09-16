@@ -116,7 +116,9 @@ trait GlobalCommonFunctions
         $data['phone'] = get_user_meta($user_id, 'phone', true);
         $data['address'] = get_user_meta($user_id, 'address', true);
         $data['profile_image'] = get_user_meta($user_id, 'profile_image', true);
-        $data['video_url'] = get_user_meta($user_id, 'introduction_video', true);
+        $video_status = $this->get_provider_video_status($user_id);
+        $data['video_status'] = $video_status;
+        $data['video_url'] = ($video_status === 'approved') ? get_user_meta($user_id, 'introduction_video', true) : '';
 
         return $data;
     }
@@ -163,6 +165,7 @@ trait GlobalCommonFunctions
             'age_group',
             'profile_image',
             'introduction_video',
+            'pending_introduction_video',
             'video_status',
             'video_uploaded_on',
             'cosy_provider_holidays',
@@ -493,6 +496,8 @@ trait GlobalCommonFunctions
                 }
             }
 
+            $v_status = $this->get_provider_video_status($user_id);
+
             $data[] = [
                 'ID' => $provider->ID,
                 'username' => $provider->user_login,
@@ -513,7 +518,8 @@ trait GlobalCommonFunctions
                 'gender' => get_user_meta($user_id, 'gender', true),
                 'profile_image' => get_user_meta($user_id, 'profile_image', true),
                 'age_group' => get_user_meta($user_id, 'age_group', true),
-                'introduction_video' => get_user_meta($user_id, 'introduction_video', true),
+                'video_status' => $v_status,
+                'introduction_video' => ($v_status === 'approved') ? get_user_meta($user_id, 'introduction_video', true) : '',
                 'price' => isset($provider_prices[$user_id]) ? $provider_prices[$user_id]->price : '0.00',
                 'rating' => $avg_rating
             ];
@@ -600,6 +606,12 @@ trait GlobalCommonFunctions
         );
 
         $data['services'] = !empty($services_data) ? $services_data : [];
+
+        // Ensure public profile view only exposes introduction_video if approved by Admin
+        if (!empty($data['video_status']) && $data['video_status'] !== 'approved') {
+            $data['introduction_video'] = '';
+        }
+
         return $data;
     }
 
@@ -1061,6 +1073,18 @@ trait GlobalCommonFunctions
      */
     public function get_provider_video_status(int $user_id): string
     {
+        // 1. If provider already has an active approved video, they are approved for public viewing!
+        $live_video = get_user_meta($user_id, 'introduction_video', true);
+        if (!empty($live_video)) {
+            return 'approved';
+        }
+
+        // 2. If provider has a pending video awaiting admin review
+        $pending_video = get_user_meta($user_id, 'pending_introduction_video', true);
+        if (!empty($pending_video)) {
+            return 'pending';
+        }
+
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_media_approvals';
         
@@ -1073,19 +1097,7 @@ trait GlobalCommonFunctions
             $wpdb->prepare("SELECT status FROM $table_name WHERE user_id = %d ORDER BY id DESC LIMIT 1", $user_id)
         );
 
-        $status = $db_status ?: '';
-
-        if (empty($status)) {
-            delete_user_meta($user_id, 'introduction_video');
-            delete_user_meta($user_id, 'video_status');
-        } else {
-            $meta_status = get_user_meta($user_id, 'video_status', true);
-            if ($meta_status !== $status) {
-                update_user_meta($user_id, 'video_status', $status);
-            }
-        }
-
-        return $status;
+        return $db_status ?: (string) get_user_meta($user_id, 'video_status', true);
     }
 
     /**
@@ -1129,6 +1141,15 @@ trait GlobalCommonFunctions
 
         if ($attachment_id) {
             return (bool) wp_delete_attachment($attachment_id, true);
+        }
+
+        // 4. Physical fallback: delete file directly from disk if attachment record was not found
+        $uploads = wp_upload_dir();
+        if (!empty($uploads['baseurl']) && !empty($uploads['basedir']) && strpos($url, $uploads['baseurl']) !== false) {
+            $file_path = str_replace($uploads['baseurl'], $uploads['basedir'], $url);
+            if (file_exists($file_path)) {
+                return (bool) @unlink($file_path);
+            }
         }
 
         return false;

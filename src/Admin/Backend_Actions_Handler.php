@@ -81,12 +81,35 @@ class Backend_Actions_Handler
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_media_approvals';
 
+        $pending_video  = get_user_meta($user_id, 'pending_introduction_video', true);
+        $old_live_video = get_user_meta($user_id, 'introduction_video', true);
+
+        // If pending_video meta not set, fetch latest media_url from custom table
+        if (empty($pending_video)) {
+            $pending_video = $wpdb->get_var(
+                $wpdb->prepare("SELECT media_url FROM $table_name WHERE user_id = %d", $user_id)
+            );
+        }
+
+        // If replacing an older approved video with a new one, clean up the old file
+        if (!empty($old_live_video) && !empty($pending_video) && $old_live_video !== $pending_video) {
+            $this->delete_media_file_by_url($old_live_video);
+        }
+
+        $new_live_video = !empty($pending_video) ? $pending_video : $old_live_video;
+
+        // Promote to active live video
+        if (!empty($new_live_video)) {
+            update_user_meta($user_id, 'introduction_video', $new_live_video);
+            delete_user_meta($user_id, 'pending_introduction_video');
+        }
+
         // Update DB table status
         $wpdb->update(
             $table_name,
-            ['status' => 'approved', 'reviewed_at' => current_time('mysql')],
+            ['media_url' => $new_live_video, 'status' => 'approved', 'reviewed_at' => current_time('mysql')],
             ['user_id' => $user_id],
-            ['%s', '%s'],
+            ['%s', '%s', '%s'],
             ['%d']
         );
 
@@ -106,6 +129,11 @@ class Backend_Actions_Handler
             );
         }
 
+        // Flush cached directory transients so frontend reflects immediately
+        if (method_exists($this, 'cosy_clear_provider_transients')) {
+            $this->cosy_clear_provider_transients();
+        }
+
         wp_send_json_success([
             'message' => 'Video approved successfully!',
             'status' => 'approved'
@@ -120,7 +148,9 @@ class Backend_Actions_Handler
      * 
      * WHAT IT DOES:
      * 1. Verifies login, nonce token ('cosy_media_nonce'), and 'approve_cosy_media' capability via verify_admin_ajax_request().
-     * 2. Updates status to 'rejected', deletes physical video file from WP Media library, and resets user meta.
+     * 2. Checks current approval status:
+     *    - If video was approved (or no pending replacement): permanently deletes video file from uploads and sets status to 'rejected'.
+     *    - If provider had an active approved video and was reviewing a replacement: deletes replacement video file and keeps the active approved video.
      * 3. Dispatches rejection email with guidelines to provider and logs action to LogManager.
      */
     public function ajax_reject_video()
@@ -136,24 +166,97 @@ class Backend_Actions_Handler
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_media_approvals';
 
-        // Update DB table status
-        $wpdb->update(
-            $table_name,
-            ['status' => 'rejected', 'reviewed_at' => current_time('mysql')],
-            ['user_id' => $user_id],
-            ['%s', '%s'],
-            ['%d']
+        // Check the current status of this provider's media record
+        $record = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d ORDER BY id DESC LIMIT 1", $user_id)
         );
+        $current_table_status = $record ? $record->status : get_user_meta($user_id, 'video_status', true);
 
-        // Fetch the video URL to delete it from media library
-        $video_url = get_user_meta($user_id, 'introduction_video', true);
-        if ($video_url) {
-            $this->delete_media_file_by_url($video_url);
+        $pending_video  = get_user_meta($user_id, 'pending_introduction_video', true);
+        $old_live_video = get_user_meta($user_id, 'introduction_video', true);
+
+        // CASE 1: Video is currently APPROVED in the Media list (or there is no pending replacement upload)
+        // Admin clicked "Reject" on the live approved video -> permanently delete it and mark as rejected
+        if ($current_table_status === 'approved' || empty($pending_video)) {
+            if (!empty($old_live_video)) {
+                $this->delete_media_file_by_url($old_live_video);
+                delete_user_meta($user_id, 'introduction_video');
+            }
+            if (!empty($pending_video)) {
+                $this->delete_media_file_by_url($pending_video);
+                delete_user_meta($user_id, 'pending_introduction_video');
+            }
+
+            update_user_meta($user_id, 'video_status', 'rejected');
+            $wpdb->update(
+                $table_name,
+                [
+                    'media_url'   => '',
+                    'status'      => 'rejected',
+                    'reviewed_at' => current_time('mysql'),
+                ],
+                ['user_id' => $user_id],
+                ['%s', '%s', '%s'],
+                ['%d']
+            );
+
+            $response_message = __('Video rejected successfully!', 'cosy-appointments');
+            $response_status  = 'rejected';
+        }
+        // CASE 2: Status is 'pending' AND provider already has an approved live video (different from the pending one)
+        // Admin is reviewing and rejecting ONLY the replacement pending video; existing live approved video remains active.
+        elseif (!empty($pending_video) && !empty($old_live_video) && $old_live_video !== $pending_video) {
+            $this->delete_media_file_by_url($pending_video);
+            delete_user_meta($user_id, 'pending_introduction_video');
+
+            update_user_meta($user_id, 'video_status', 'approved');
+            $wpdb->update(
+                $table_name,
+                [
+                    'media_url'   => $old_live_video,
+                    'status'      => 'approved',
+                    'reviewed_at' => current_time('mysql'),
+                ],
+                ['user_id' => $user_id],
+                ['%s', '%s', '%s'],
+                ['%d']
+            );
+
+            $response_message = __('Replacement video rejected. Existing approved video remains active.', 'cosy-appointments');
+            $response_status  = 'approved';
+        }
+        // CASE 3: Fresh upload pending rejection (no previous approved video existed)
+        else {
+            if (!empty($pending_video)) {
+                $this->delete_media_file_by_url($pending_video);
+                delete_user_meta($user_id, 'pending_introduction_video');
+            }
+            if (!empty($old_live_video)) {
+                $this->delete_media_file_by_url($old_live_video);
+                delete_user_meta($user_id, 'introduction_video');
+            }
+
+            update_user_meta($user_id, 'video_status', 'rejected');
+            $wpdb->update(
+                $table_name,
+                [
+                    'media_url'   => '',
+                    'status'      => 'rejected',
+                    'reviewed_at' => current_time('mysql'),
+                ],
+                ['user_id' => $user_id],
+                ['%s', '%s', '%s'],
+                ['%d']
+            );
+
+            $response_message = __('Video rejected successfully!', 'cosy-appointments');
+            $response_status  = 'rejected';
         }
 
-        // Delete video + update status in meta
-        delete_user_meta($user_id, 'introduction_video');
-        update_user_meta($user_id, 'video_status', 'rejected');
+        // Flush cached directory transients so frontend reflects immediately
+        if (method_exists($this, 'cosy_clear_provider_transients')) {
+            $this->cosy_clear_provider_transients();
+        }
 
         // Send rejection email to provider
         $user = get_userdata($user_id);
@@ -169,13 +272,13 @@ class Backend_Actions_Handler
             \Cosy\Appointments\Common\LogManager::log(
                 'media_approve',
                 'video_rejected',
-                sprintf(__('Admin rejected/deleted introduction video for Provider "%s" (ID: %d).', 'cosy-appointments'), $user->display_name, $user_id)
+                sprintf(__('Admin rejected introduction video for Provider "%s" (ID: %d).', 'cosy-appointments'), $user->display_name, $user_id)
             );
         }
 
         wp_send_json_success([
-            'message' => 'Video rejected and deleted!',
-            'status' => 'rejected'
+            'message' => $response_message,
+            'status'  => $response_status,
         ]);
     }
 

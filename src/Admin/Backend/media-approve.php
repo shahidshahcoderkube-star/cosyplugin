@@ -88,6 +88,8 @@
                                 <video controls class="w-100 cosy-media-video-preview">
                                     <source src="<?php echo esc_url($media->media_url); ?>" type="video/mp4">
                                 </video>
+                            <?php } elseif ($status === 'rejected') { ?>
+                                <span class="cosy-muted-empty-text"><?php esc_html_e('Rejected', 'cosy-appointments'); ?></span>
                             <?php } else { ?>
                                 <span class="cosy-muted-empty-text"><?php esc_html_e('Deleted', 'cosy-appointments'); ?></span>
                             <?php } ?>

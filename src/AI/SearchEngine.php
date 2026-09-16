@@ -1278,7 +1278,8 @@ class SearchEngine
                 }
             }
 
-            $intro_video = get_user_meta($user_id, 'introduction_video', true) ?: '';
+            $video_status = get_user_meta($user_id, 'video_status', true) ?: '';
+            $intro_video  = ($video_status === 'approved') ? (get_user_meta($user_id, 'introduction_video', true) ?: '') : '';
 
             // Structured Facts for Debug Explanation (Point #16)
             $facts = get_user_meta($user_id, 'cosy_profile_facts', true) ?: [];
@@ -1298,6 +1299,7 @@ class SearchEngine
                 'service'            => $service_name,
                 'price'              => $price,
                 'introduction_video' => $intro_video,
+                'video_status'       => $video_status,
                 'profile_url'        => get_author_posts_url($user_id),
             ];
 

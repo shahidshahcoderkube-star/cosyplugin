@@ -54,7 +54,10 @@ if (empty($providers)): ?>
                 </div>
 
                 <div class="card-action-footer">
-                    <?php if (!empty($provider['introduction_video'])): ?>
+                    <?php 
+                    $is_video_approved = (!empty($provider['video_status'])) ? ($provider['video_status'] === 'approved') : true;
+                    if (!empty($provider['introduction_video']) && $is_video_approved): 
+                    ?>
                         <button class="btn-premium btn-intro-v2"
                             onclick="openVideo('<?php echo esc_url($provider['introduction_video']); ?>')">
                             <i class="fas fa-play-circle"></i> <?php esc_html_e('Intro', 'cosy-appointments'); ?>

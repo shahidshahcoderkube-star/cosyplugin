@@ -304,7 +304,7 @@ jQuery(document).ready(function ($) {
             const userId = $btn.data('id');
 
             CosyAlert.prompt({
-                title:       'Reject & Delete Media?',
+                title:       'Reject Video?',
                 message:     'Please enter the reason for rejecting this video (this will be sent to the provider via email):',
                 placeholder: 'Type rejection reason here...',
                 confirmText: 'Reject & Send Email',
@@ -332,11 +332,18 @@ jQuery(document).ready(function ($) {
                 },
                 success: function (res) {
                     if (res.success) {
-                        // Update UI to show video has been deleted and rejected
-                        row.find('td:nth-child(2)').html('<span class="text-muted">Deleted</span>');
-                        row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-rejected">Rejected</span>');
-                        row.find('td:nth-child(8)').html('<span class="text-muted">No Action</span>');
-                        CosyMediaAdmin.showAlert(res.data.message || 'Video rejected successfully!', 'danger');
+                        if (res.data && res.data.status === 'approved') {
+                            // Replacement video rejected; existing approved video remains active
+                            row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-approved">Approved</span>');
+                            row.find('.approve-media').remove();
+                            CosyMediaAdmin.showAlert(res.data.message || 'Replacement video rejected. Existing approved video remains active.', 'info');
+                        } else {
+                            // Video rejected
+                            row.find('td:nth-child(2)').html('<span class="cosy-muted-empty-text">Rejected</span>');
+                            row.find('td:nth-child(7)').html('<span class="cosy-badge cosy-badge-rejected">Rejected</span>');
+                            row.find('td:nth-child(8)').html('<span class="cosy-muted-empty-text">No Action</span>');
+                            CosyMediaAdmin.showAlert(res.data.message || 'Video rejected successfully!', 'danger');
+                        }
                     } else {
                         CosyMediaAdmin.showAlert(res.data.message || 'Error rejecting video.', 'danger');
                     }

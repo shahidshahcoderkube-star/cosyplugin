@@ -196,6 +196,15 @@ wp_add_inline_script('cosy-calendar', $profile_js_data, 'before');
                                         <?php echo esc_html($provider_data['first_name']); ?>
                                     </h2>
                                 <?php } ?>
+                                <?php if (!empty($provider_data['introduction_video']) && !empty($provider_data['video_status']) && $provider_data['video_status'] === 'approved'): ?>
+                                    <button type="button" class="btn btn-sm btn-intro-v2 text-white" 
+                                        onclick="openVideo('<?php echo esc_url($provider_data['introduction_video']); ?>')"
+                                        style="background: rgba(255,255,255,0.22); border: 1.5px solid rgba(255,255,255,0.45); border-radius: 20px; font-weight: 600; padding: 4px 14px; font-size: 0.82rem; backdrop-filter: blur(4px); transition: all 0.2s;"
+                                        onmouseover="this.style.background='rgba(255,255,255,0.35)'"
+                                        onmouseout="this.style.background='rgba(255,255,255,0.22)'">
+                                        <i class="fas fa-play-circle me-1"></i> <?php esc_html_e('Intro Video', 'cosy-appointments'); ?>
+                                    </button>
+                                <?php endif; ?>
                             </div>
                             <div class="d-flex flex-wrap align-items-center gap-3 opacity-75 small fw-medium text-white mt-1">
                                 <?php if (!empty($provider_data['gender'])): ?>
@@ -510,21 +519,16 @@ wp_add_inline_script('cosy-calendar', $profile_js_data, 'before');
 
 
 <!-- Video Popup Modal -->
-<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 bg-transparent">
-            <div class="modal-header border-0 p-0 mb-2 justify-content-end">
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="cosy-video-modal-ratio ratio ratio-16x9 shadow-lg">
-                    <iframe id="videoIframe" src="" title="Video Intro" frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-                </div>
-            </div>
-        </div>
+<div id="videoModal" class="modal" onclick="closeVideo()">
+    <div class="cosy-video-modal-content-v2" onclick="event.stopPropagation()">
+        <button type="button" class="close-modal" onclick="closeVideo()" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <iframe id="videoFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen style="display:none; border:none; width:100%; height:100%;"></iframe>
+        <video id="videoPlayer" controls width="100%" height="100%" src="" style="display:none; width:100%; height:100%; object-fit:contain; border-radius:20px; outline:none; background:#000;"></video>
     </div>
 </div>
 </main>
