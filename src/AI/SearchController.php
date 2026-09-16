@@ -105,7 +105,7 @@ class SearchController
         // If zero genuine matches were found, prepend client's required signpost notice
         if ($is_fallback) {
             $no_match_title    = $search_data['no_match_title'] ?? __("We couldn't find a parent matching your search.", 'cosy-appointments');
-            $no_match_subtitle = $search_data['no_match_subtitle'] ?? __("Try another search, or explore the different experiences shared by parents below.", 'cosy-appointments');
+            $no_match_subtitle = $search_data['no_match_subtitle'] ?? __("Try another search, or explore the parents below.", 'cosy-appointments');
 
             $html .= '<div class="cosy-no-match-notice">';
             $html .= '    <h3 class="cosy-no-match-title"><i class="fas fa-search cosy-no-match-inline-icon"></i> ' . esc_html($no_match_title) . '</h3>';

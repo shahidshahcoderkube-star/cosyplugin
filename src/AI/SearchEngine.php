@@ -189,22 +189,22 @@ class SearchEngine
         $clean_search_kws = array_unique($clean_search_kws);
 
         // Extract domain topic keywords
-        $modifier_words   = ['highest', 'highly', 'high', 'top', 'best', 'good', 'popular', 'great', 'rated', 'rating', 'ratings', 'reviewed', 'reviews', 'review', 'experience', 'experiences', 'experienced', 'expert', 'experts', 'specialist', 'specialists', 'trained', 'qualified', 'knowledgeable', 'proven', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'mom', 'moms', 'mother', 'mothers', 'mama', 'mamas', 'dad', 'dads', 'father', 'fathers', 'papa', 'papas', 'female', 'male', 'woman', 'women', 'man', 'men', 'girl', 'boy', 'profile', 'profiles', 'person', 'people', 'user', 'users', 'account', 'accounts', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'something', 'anything', 'everything', 'nothing', 'nice', 'cool', 'awesome', 'lovely', 'amazing', 'sweet', 'friendly', 'kind', 'helpful', 'caring', 'warm', 'gentle', 'under', 'max', 'only', 'cheap', 'cheapest', 'affordable', 'budget', 'low', 'cost', 'price', 'rate', 'rates', 'value', 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '40', '50', 'for', 'with', 'and', 'but', 'also', 'or', 'so', 'is', 'am', 'are', 'be', 'been', 'being', 'can', 'could', 'would', 'should', 'will', 'the', 'who', 'need', 'needs', 'needing', 'want', 'wants', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking', 'support', 'guidance', 'advisor', 'coaching', 'emergency', 'urgent', 'repair', 'fixing', 'fitting', 'fittings', 'service', 'services', 'talk', 'talks', 'talking', 'chat', 'chatting', 'call', 'meeting', 'session', 'consultation', 'conversation', 'kisi', 'se', 'bat', 'baat', 'karni', 'he', 'hai', 'chahiye', 'madad', 'listen', 'listening', 'listener', 'hear', 'somebody', 'anyone', 'anybody', 'today', 'tonight', 'tomorrow', 'weekend', 'soon', 'now', 'available', 'avail', 'availability', 'wk', 'week', 'weeks', 'day', 'days', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'this', 'that', 'these', 'those', 'between', 'over', 'above', 'more', 'less', 'than', 'from', 'therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'coach', 'mentor', 'second', 'hand', 'car', 'buy', 'not', 'sure', 'kind', 'just', 'what', 'which', 'where', 'when', 'why', 'feel', 'feeling', 'type', 'know', 'handle', 'anymore', 'okay', 'ok', 'much', 'mess', 'mind', 'really', 'bad', 'cant', 'cannot', 'dont', 'im'];
+        $modifier_words   = ['highest', 'highly', 'high', 'top', 'best', 'good', 'popular', 'great', 'rated', 'rating', 'ratings', 'reviewed', 'reviews', 'review', 'experience', 'experiences', 'experienced', 'expert', 'experts', 'specialist', 'specialists', 'trained', 'qualified', 'knowledgeable', 'proven', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'mom', 'moms', 'mother', 'mothers', 'mama', 'mamas', 'dad', 'dads', 'father', 'fathers', 'papa', 'papas', 'child', 'children', 'kid', 'kids', 'son', 'daughter', 'female', 'male', 'woman', 'women', 'man', 'men', 'girl', 'boy', 'profile', 'profiles', 'person', 'people', 'user', 'users', 'account', 'accounts', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'something', 'anything', 'everything', 'nothing', 'nice', 'cool', 'awesome', 'lovely', 'amazing', 'sweet', 'friendly', 'kind', 'helpful', 'caring', 'warm', 'gentle', 'under', 'max', 'only', 'cheap', 'cheapest', 'affordable', 'budget', 'low', 'cost', 'price', 'rate', 'rates', 'value', 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '40', '50', 'for', 'with', 'and', 'but', 'also', 'or', 'so', 'is', 'am', 'are', 'be', 'been', 'being', 'can', 'could', 'would', 'should', 'will', 'the', 'who', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking', 'support', 'guidance', 'advisor', 'coaching', 'emergency', 'urgent', 'repair', 'fixing', 'fitting', 'fittings', 'service', 'services', 'talk', 'talks', 'talking', 'chat', 'chatting', 'call', 'meeting', 'session', 'consultation', 'conversation', 'kisi', 'se', 'bat', 'baat', 'karni', 'he', 'hai', 'chahiye', 'madad', 'listen', 'listening', 'listener', 'hear', 'somebody', 'anyone', 'anybody', 'today', 'tonight', 'tomorrow', 'weekend', 'soon', 'now', 'available', 'avail', 'availability', 'wk', 'week', 'weeks', 'day', 'days', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'this', 'that', 'these', 'those', 'between', 'over', 'above', 'more', 'less', 'than', 'from', 'therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'coach', 'mentor', 'second', 'hand', 'car', 'buy', 'not', 'sure', 'kind', 'just', 'what', 'which', 'where', 'when', 'why', 'feel', 'feeling', 'type', 'know', 'handle', 'anymore', 'okay', 'ok', 'much', 'mess', 'mind', 'really', 'bad', 'cant', 'cannot', 'dont', 'im', 'problem', 'problems', 'issue', 'issues', 'trouble', 'troubles', 'struggle', 'struggles', 'single', 'solo', 'want', 'wants', 'wanted', 'wish', 'wishes', 'seek', 'seeking', 'find', 'finding', 'search', 'searching', 'hope', 'hoping', 'like', 'need', 'trying', 'try', 'connect', 'connecting', 'stage', 'stages', 'phase', 'phases', 'level', 'levels', 'type', 'types', 'kind', 'kinds', 'form', 'forms', 'way', 'ways'];
         $domain_query_kws = array_diff($clean_search_kws, $modifier_words);
 
         // 4.5. Check for Explicit Provider Name Matches in Query
         $name_matched_ids = [];
-        $query_words      = preg_split('/[\s,;.!?-]+/', strtolower($corrected_query), -1, PREG_SPLIT_NO_EMPTY);
+        $query_words      = preg_split('/[\s,;.!?\'"\-]+/', strtolower($corrected_query), -1, PREG_SPLIT_NO_EMPTY);
 
         $has_potential_name = false;
 
         $is_filter_intent = ($intent['target_role'] !== 'any') ||
-                            ($intent['target_age'] > 0) ||
-                            ($intent['min_price'] > 0) ||
-                            ($intent['max_price'] > 0) ||
-                            !empty($intent['availability']) ||
-                            preg_match('/\b(highest|top|best)\b.*?\b(rated|rating|ratings|stars|reviews)\b/i', $corrected_query) ||
-                            preg_match('/\b(?:5\s*star|five\s*star|high\s*rating)\b/i', $corrected_query);
+            ($intent['target_age'] > 0) ||
+            ($intent['min_price'] > 0) ||
+            ($intent['max_price'] > 0) ||
+            !empty($intent['availability']) ||
+            preg_match('/\b(highest|top|best)\b.*?\b(rated|rating|ratings|stars|reviews)\b/i', $corrected_query) ||
+            preg_match('/\b(?:5\s*star|five\s*star|high\s*rating)\b/i', $corrected_query);
 
         // Name searches are 1-3 word specific queries, not broad conversational / emotional phrases, and not explicit filter intents
         if (empty($intent['is_conversational_broad']) && !$is_filter_intent && count($query_words) <= 3) {
@@ -247,7 +247,7 @@ class SearchEngine
                 'has_match'         => false,
                 'is_fallback'       => true,
                 'no_match_title'    => __("We couldn't find a parent matching your search.", 'cosy-appointments'),
-                'no_match_subtitle' => __("Try another search, or explore the different experiences shared by parents below.", 'cosy-appointments'),
+                'no_match_subtitle' => __("Try another search, or explore the parents below.", 'cosy-appointments'),
             ];
         }
 
@@ -259,6 +259,12 @@ class SearchEngine
         $is_highest_rated_intent = preg_match('/\b(highest|top|best)\b.*?\b(rated|rating|ratings|stars|reviews)\b/i', $corrected_query) || preg_match('/\b(highest|top|best)\b/i', $corrected_query) || preg_match('/\b(?:5\s*star|five\s*star|high\s*rating)\b/i', $corrected_query);
 
         $clean_query = strtolower(trim($query_text));
+
+        $raw_query_words = preg_split('/[\s,;.!?\'"\-]+/', strtolower(trim($corrected_query)), -1, PREG_SPLIT_NO_EMPTY);
+        $content_query_words = array_values(array_filter($raw_query_words, function ($w) use ($modifier_words) {
+            return strlen($w) >= 3 && !in_array($w, $modifier_words, true) && !in_array($w, ['the', 'and', 'for', 'with', 'you', 'our', 'are', 'was', 'were', 'who', 'this', 'that', 'from', 'have', 'has', 'some', 'than', 'into', 'onto', 'down', 'been', 'each', 'make', 'just', 'much', 'about'], true);
+        }));
+        $is_multi_word_query = (count($content_query_words) >= 2);
 
         foreach ($active_provider_ids as $provider_id) {
             // Strict Provider Name Hard Filter: If query explicitly contains a provider's name, filter out unrelated providers
@@ -354,7 +360,7 @@ class SearchEngine
             if (!empty($intent['target_children_count']) && $intent['target_children_count'] > 0) {
                 $ccount = $intent['target_children_count'];
                 $has_count_match = preg_match('/\b' . $ccount . '\s+(?:children|child|kids|kid)\b/i', $p_text) ||
-                                   preg_match('/\b(?:mum|mother|dad|father|parent|raising)\s+of\s+' . $ccount . '\b/i', $p_text);
+                    preg_match('/\b(?:mum|mother|dad|father|parent|raising)\s+of\s+' . $ccount . '\b/i', $p_text);
                 if (!$has_count_match) {
                     continue;
                 }
@@ -364,9 +370,20 @@ class SearchEngine
             if (!empty($intent['target_experience_years']) && $intent['target_experience_years'] > 0) {
                 $req_years = $intent['target_experience_years'];
                 $word_counts = [
-                    1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four', 5 => 'five',
-                    6 => 'six', 7 => 'seven', 8 => 'eight', 9 => 'nine', 10 => 'ten',
-                    20 => 'twenty', 30 => 'thirty', 40 => 'forty', 50 => 'fifty'
+                    1 => 'one',
+                    2 => 'two',
+                    3 => 'three',
+                    4 => 'four',
+                    5 => 'five',
+                    6 => 'six',
+                    7 => 'seven',
+                    8 => 'eight',
+                    9 => 'nine',
+                    10 => 'ten',
+                    20 => 'twenty',
+                    30 => 'thirty',
+                    40 => 'forty',
+                    50 => 'fifty'
                 ];
                 $w_word = $word_counts[$req_years] ?? '';
 
@@ -415,12 +432,13 @@ class SearchEngine
                 }
             }
 
-            // Layer C: Dynamic Keyword Matches (+0.25 per matching keyword)
+            // Layer C: Dynamic Keyword Matches (+0.25 per matching keyword + Multi-Word Co-occurrence Bonus)
             $keyword_boost       = 0.0;
             $prov_has_kw         = false;
             $domain_query_kws    = array_diff($clean_search_kws, $modifier_words);
 
             if (!empty($p_text) && !empty($search_keywords)) {
+                $matched_domain_kw_count = 0;
                 foreach ($search_keywords as $kw) {
                     $kw_stem = (strlen($kw) > 3 && substr($kw, -1) === 's') ? substr($kw, 0, -1) : $kw;
                     if (strlen($kw) >= 2 && (strpos($p_text, $kw) !== false || strpos($p_text, $kw_stem) !== false)) {
@@ -428,8 +446,15 @@ class SearchEngine
                         $has_keyword_match = true;
                         if (in_array($kw, $domain_query_kws, true) || in_array($kw_stem, $domain_query_kws, true)) {
                             $prov_has_kw = true;
+                            $matched_domain_kw_count++;
                         }
                     }
+                }
+                // Multi-Word Query Bonus: Heavily reward providers covering multiple search words (e.g. complex + medical)
+                if ($matched_domain_kw_count >= 3) {
+                    $keyword_boost += 2.0;
+                } elseif ($matched_domain_kw_count >= 2) {
+                    $keyword_boost += 1.0;
                 }
             }
 
@@ -472,7 +497,7 @@ class SearchEngine
                     }
                 }
 
-                if (!$has_topic_match) {
+                if (!$has_topic_match && !$has_exact_phrase) {
                     continue;
                 }
             }
@@ -541,14 +566,24 @@ class SearchEngine
 
             // Determine if provider is genuinely relevant to the search query
             $has_filter_match = !empty($intent['availability']) ||
-                                ($intent['min_price'] > 0) ||
-                                ($intent['max_price'] > 0) ||
-                                $is_highest_rated_intent;
+                ($intent['min_price'] > 0) ||
+                ($intent['max_price'] > 0) ||
+                $is_highest_rated_intent;
 
             $is_genuine_match = false;
-            if (!empty($domain_query_kws)) {
-                // For keyword-driven searches (e.g. "fetal alcohol", "Jamaica", "sleep problems")
-                // Candidate MUST have actual text proof, exact phrase, verified topic qualification, or name match
+            $matched_content_words_count = 0;
+            if ($is_multi_word_query) {
+                foreach ($content_query_words as $cw) {
+                    if (strpos($p_text, $cw) !== false) {
+                        $matched_content_words_count++;
+                    }
+                }
+                // Multi-Word Precision Rule: Must match exact phrase OR at least 2 distinct query words (or provider name)
+                if ($phrase_boost > 0.0 || $matched_content_words_count >= 2 || in_array($provider_id, $name_matched_ids, true)) {
+                    $is_genuine_match = true;
+                }
+            } elseif (!empty($domain_query_kws)) {
+                // For single-keyword searches (e.g. "fetal alcohol", "sleep", "adhd", "ivf")
                 if ($phrase_boost > 0.0 || $prov_has_kw || $has_topic_match || in_array($provider_id, $name_matched_ids, true)) {
                     $is_genuine_match = true;
                 } elseif (!empty($intent['is_conversational_broad']) && $vector_score >= 0.65) {
@@ -587,7 +622,7 @@ class SearchEngine
                 'has_match'         => false,
                 'is_fallback'       => true,
                 'no_match_title'    => __("We couldn't find a parent matching your search.", 'cosy-appointments'),
-                'no_match_subtitle' => __("Try another search, or explore the different experiences shared by parents below.", 'cosy-appointments'),
+                'no_match_subtitle' => __("Try another search, or explore the parents below.", 'cosy-appointments'),
             ];
         }
 
@@ -606,12 +641,12 @@ class SearchEngine
                 'has_match'         => false,
                 'is_fallback'       => true,
                 'no_match_title'    => __("We couldn't find a parent matching your search.", 'cosy-appointments'),
-                'no_match_subtitle' => __("Try another search, or explore the different experiences shared by parents below.", 'cosy-appointments'),
+                'no_match_subtitle' => __("Try another search, or explore the parents below.", 'cosy-appointments'),
             ];
         }
 
         // Dynamic Cutoff Floor for genuine matches
-        $threshold = max(0.20, $max_score * 0.40);
+        $threshold = $is_multi_word_query ? max(0.50, $max_score * 0.50) : max(0.20, $max_score * 0.40);
         $matches   = [];
         foreach ($genuine_matches as $item) {
             if ($item['score'] >= $threshold) {
@@ -628,7 +663,7 @@ class SearchEngine
                 'has_match'         => false,
                 'is_fallback'       => true,
                 'no_match_title'    => __("We couldn't find a parent matching your search.", 'cosy-appointments'),
-                'no_match_subtitle' => __("Try another search, or explore the different experiences shared by parents below.", 'cosy-appointments'),
+                'no_match_subtitle' => __("Try another search, or explore the parents below.", 'cosy-appointments'),
             ];
         }
 
@@ -871,8 +906,8 @@ class SearchEngine
             $intent['availability'] = strtolower($dmatches[1]);
         }
 
-        // Detect broad emotional, open-ended or conversational intent
-        if (preg_match('/\b(talk|speak|chat|listen|listening|listener|help|someone|somebody|anyone|anybody|guidance|advice|confused|overwhelmed|overwhelming|low|alone|isolated|isolation|support|therapist|counsellor|counselor|coach|mentor|hear me|hear us|anymore|handle|okay|ok|struggling|struggle|coping|cope|suffering|suffer|exhausted|exhaustion|broken|breaking|crying|tears|lost|mess|failing|fail|hopeless|desperate|mind|drowning|giving up|give up|survive|surviving|hard|difficult|scared|afraid|panic|panicking|lonely|loneliness|anxiety|anxious|depressed|depression|stress|stressed|burnout|bat|baat|madad|feel|feeling|bad|sad|hurt|hurting|pain|tough|trouble|know|need|want|much|everything|find|do|cant|cannot)\b/i', $q)) {
+        // Detect broad emotional, open-ended or conversational intent (distress keywords or conversational phrases)
+        if (preg_match('/\b(talk|speak|chat|listen|listening|listener|someone|somebody|anyone|anybody|guidance|advice|confused|overwhelmed|overwhelming|low|alone|isolated|isolation|support|therapist|counsellor|counselor|coach|mentor|hear me|hear us|anymore|handle|okay|ok|struggling|struggle|coping|cope|suffering|suffer|exhausted|exhaustion|broken|breaking|crying|tears|lost|mess|failing|fail|hopeless|desperate|mind|drowning|giving up|give up|survive|surviving|hard|difficult|scared|afraid|panic|panicking|lonely|loneliness|anxiety|anxious|depressed|depression|stress|stressed|burnout|bat|baat|madad|feel|feeling|bad|sad|hurt|hurting|pain|tough|trouble|know|much|everything|find|do|cant|cannot)\b/i', $q) || preg_match('/\b(?:i\s+)?need\s+(?:help|someone|support|to\s+talk|a\s+break)\b/i', $q)) {
             $intent['is_conversational_broad'] = true;
         }
 
@@ -933,12 +968,13 @@ class SearchEngine
             'teenager'     => ['teenager', 'teenagers', 'teenage', 'teens', 'teen', 'gcses', 'gcse'],
             'toddler'      => ['toddler', 'toddlers'],
             'baby'         => ['baby', 'babies', 'infant', 'newborn'],
-            'adhd'         => ['adhd', 'autism', 'send', 'senco', 'special needs'],
+            'adhd'         => ['adhd', 'autism', 'send', 'neurodivergent', 'hyperactive', 'special needs'],
+            'medical'      => ['medical', 'medicine', 'health', 'treatment', 'treatments', 'hospital', 'condition', 'conditions', 'special needs'],
             'foster'       => ['foster', 'fostering', 'fostercare'],
             'surrogacy'    => ['surrogacy', 'surrogate'],
             'miscarriage'  => ['miscarriage', 'baby loss', 'grief', 'bereavement'],
             'twins'        => ['twins', 'twin', 'multiples'],
-            'breastfeeding'=> ['breastfeeding', 'nursing', 'lactation'],
+            'breastfeeding' => ['breastfeeding', 'nursing', 'lactation'],
             'relationship' => ['relationship', 'marriage', 'marital', 'couples', 'divorce', 'separation', 'coparenting', 'co-parenting'],
             'marriage'     => ['marriage', 'marital', 'relationship', 'couples', 'divorce', 'separation', 'coparenting'],
             'therapist'    => ['therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'coach', 'mentor', 'guidance', 'listening ear'],
@@ -947,7 +983,7 @@ class SearchEngine
         ];
 
 
-        $q_tokens = preg_split('/[\s,;.!?-]+/', $q, -1, PREG_SPLIT_NO_EMPTY);
+        $q_tokens = preg_split('/[\s,;.!?\'"\-]+/', $q, -1, PREG_SPLIT_NO_EMPTY);
         foreach ($q_tokens as $token) {
             if (strlen($token) < 3) continue;
             foreach ($domain_taxonomy_targets as $canonical => $syn_list) {
@@ -957,9 +993,13 @@ class SearchEngine
                     continue 2;
                 }
 
-                // Check Levenshtein edit distance for typo tolerance
+                // Strict Levenshtein typo tolerance: First letter must match & length difference <= 2
+                if ($token[0] !== $canonical[0] || abs(strlen($token) - strlen($canonical)) > 2) {
+                    continue;
+                }
+
                 $dist = levenshtein($token, $canonical);
-                $max_allowed_dist = (strlen($canonical) >= 6) ? 2 : 1;
+                $max_allowed_dist = (strlen($canonical) >= 8) ? 2 : 1;
                 if ($dist <= $max_allowed_dist) {
                     $intent['synonyms'][] = $canonical;
                     $intent['synonyms'] = array_merge($intent['synonyms'], $syn_list);
@@ -1034,8 +1074,16 @@ class SearchEngine
 
         // 3. Extract Requested Result Count Limit (e.g. "only 2 best providers", "top 3", "only two best")
         $word_num_map = [
-            'one' => 1, 'two' => 2, 'three' => 3, 'four' => 4, 'five' => 5,
-            'six' => 6, 'seven' => 7, 'eight' => 8, 'nine' => 9, 'ten' => 10,
+            'one' => 1,
+            'two' => 2,
+            'three' => 3,
+            'four' => 4,
+            'five' => 5,
+            'six' => 6,
+            'seven' => 7,
+            'eight' => 8,
+            'nine' => 9,
+            'ten' => 10,
         ];
         if (preg_match('/(?:only|top|first|give me|show me|just|best)\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b/i', $q, $lmatches)) {
             $val = strtolower($lmatches[1]);
@@ -1045,17 +1093,32 @@ class SearchEngine
             $intent['requested_limit'] = is_numeric($val) ? intval($val) : ($word_num_map[$val] ?? 0);
         }
 
-        // 3. Dynamic N-Gram Phrase Extractor (2-word, 3-word, 4-word phrases)
-        $words = preg_split('/[\s,;.!?-]+/', $q, -1, PREG_SPLIT_NO_EMPTY);
+        // 3. Dynamic N-Gram Phrase Extractor (2-word and 3-word substantive phrases)
+        $words = preg_split('/[\s,;.!?\'"\-]+/', $q, -1, PREG_SPLIT_NO_EMPTY);
         $w_count = count($words);
-        $stopwords = ['and', 'the', 'for', 'with', 'you', 'our', 'are', 'was', 'were', 'who', 'this', 'that', 'have', 'has', 'looking', 'need', 'want', 'someone', 'help', 'guide', 'support'];
-        
+        $grammar_stopwords = [
+            'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'you', 'your', 'yours',
+            'he', 'him', 'his', 'she', 'her', 'hers', 'it', 'its', 'they', 'them', 'their', 'theirs',
+            'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+            'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing',
+            'to', 'from', 'in', 'out', 'on', 'off', 'over', 'under', 'for', 'with', 'by', 'at', 'as', 'of',
+            'and', 'the', 'a', 'an', 'into', 'onto', 'down', 'up', 'so', 'than', 'too', 'very', 'that', 'this',
+            'can', 'could', 'would', 'should', 'will', 'just', 'now', 'there', 'here',
+            'looking', 'look', 'want', 'wants', 'wanted', 'someone', 'somebody', 'anyone', 'anybody',
+            'help', 'helping', 'please', 'pls', 'find', 'show', 'give'
+        ];
+
         for ($i = 0; $i < $w_count - 1; $i++) {
-            if (!in_array($words[$i], $stopwords, true) || !in_array($words[$i + 1], $stopwords, true)) {
-                $intent['phrases'][] = $words[$i] . ' ' . $words[$i + 1];
+            $w1 = $words[$i];
+            $w2 = $words[$i + 1];
+            if (strlen($w1) >= 3 && strlen($w2) >= 3 && !in_array($w1, $grammar_stopwords, true) && !in_array($w2, $grammar_stopwords, true)) {
+                $intent['phrases'][] = $w1 . ' ' . $w2;
             }
             if ($i < $w_count - 2) {
-                $intent['phrases'][] = $words[$i] . ' ' . $words[$i + 1] . ' ' . $words[$i + 2];
+                $w3 = $words[$i + 2];
+                if (strlen($w1) >= 3 && strlen($w3) >= 3 && !in_array($w1, $grammar_stopwords, true) && !in_array($w3, $grammar_stopwords, true)) {
+                    $intent['phrases'][] = $w1 . ' ' . $w2 . ' ' . $w3;
+                }
             }
         }
 
@@ -1360,17 +1423,130 @@ class SearchEngine
         $all_text  = strtolower($query . ' ' . $expanded_query);
         $words     = preg_split('/[\s,;.!?-]+/', $all_text, -1, PREG_SPLIT_NO_EMPTY);
         $stopwords = [
-            'and', 'the', 'for', 'with', 'you', 'your', 'our', 'are', 'was', 'were', 'who', 'whom', 'whose',
-            'this', 'that', 'these', 'those', 'have', 'has', 'had', 'having', 'looking', 'need', 'needs',
-            'needing', 'want', 'wants', 'someone', 'somebody', 'anyone', 'anybody', 'me', 'my', 'myself',
-            'text', 'random', 'test', 'sample', 'xyz', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou',
-            'pls', 'please', 'good', 'morning', 'afternoon', 'evening', 'what', 'which', 'where', 'when',
-            'why', 'how', 'can', 'could', 'would', 'should', 'will', 'shall', 'may', 'might', 'must',
-            'just', 'not', 'sure', 'kind', 'type', 'about', 'some', 'any', 'all', 'more', 'most', 'very', 'like',
-            'of', 'in', 'to', 'at', 'by', 'on', 'off', 'up', 'out', 'over', 'into', 'onto', 'down', 'from',
-            'as', 'if', 'an', 'a', 'is', 'am', 'be', 'been', 'being', 'so', 'than',
-            'do', 'doing', 'done', 'did', 'cant', 'cannot', 'im', 'dont', 'ive', 'ill', 'id', 'anymore',
-            'too', 'much', 'really', 'bad', 'okay', 'ok', 'handle', 'mind', 'mess', 'everything', 'something'
+            'and',
+            'the',
+            'for',
+            'with',
+            'you',
+            'your',
+            'our',
+            'are',
+            'was',
+            'were',
+            'who',
+            'whom',
+            'whose',
+            'this',
+            'that',
+            'these',
+            'those',
+            'have',
+            'has',
+            'had',
+            'having',
+            'looking',
+            'want',
+            'wants',
+            'someone',
+            'somebody',
+            'anyone',
+            'anybody',
+            'me',
+            'my',
+            'myself',
+            'text',
+            'random',
+            'test',
+            'sample',
+            'xyz',
+            'hello',
+            'hi',
+            'hey',
+            'greetings',
+            'thanks',
+            'thankyou',
+            'pls',
+            'please',
+            'good',
+            'morning',
+            'afternoon',
+            'evening',
+            'what',
+            'which',
+            'where',
+            'when',
+            'why',
+            'how',
+            'can',
+            'could',
+            'would',
+            'should',
+            'will',
+            'shall',
+            'may',
+            'might',
+            'must',
+            'just',
+            'not',
+            'sure',
+            'kind',
+            'type',
+            'about',
+            'some',
+            'any',
+            'all',
+            'more',
+            'most',
+            'very',
+            'like',
+            'of',
+            'in',
+            'to',
+            'at',
+            'by',
+            'on',
+            'off',
+            'up',
+            'out',
+            'over',
+            'into',
+            'onto',
+            'down',
+            'from',
+            'as',
+            'if',
+            'an',
+            'a',
+            'is',
+            'am',
+            'be',
+            'been',
+            'being',
+            'so',
+            'than',
+            'do',
+            'doing',
+            'done',
+            'did',
+            'cant',
+            'cannot',
+            'im',
+            'dont',
+            'ive',
+            'ill',
+            'id',
+            'anymore',
+            'too',
+            'much',
+            'really',
+            'bad',
+            'okay',
+            'ok',
+            'handle',
+            'mind',
+            'mess',
+            'everything',
+            'something'
         ];
         $keywords  = [];
 
@@ -1391,108 +1567,463 @@ class SearchEngine
         $term = strtolower(trim($term));
         $clusters = [
             'adoption' => [
-                'adoption', 'adopt', 'adopting', 'adopted', 'adoptive', 'adopter', 'adopters',
-                'foster', 'fostering', 'foster-to-adopt', 'foster carer', 'panel approval',
-                'adoption panel', 'placement', 'child placement', 'guardianship'
+                'adoption',
+                'adopt',
+                'adopting',
+                'adopted',
+                'adoptive',
+                'adopter',
+                'adopters',
+                'foster',
+                'fostering',
+                'foster-to-adopt',
+                'foster carer',
+                'panel approval',
+                'adoption panel',
+                'placement',
+                'child placement',
+                'guardianship'
             ],
             'adopt' => [
-                'adoption', 'adopt', 'adopting', 'adopted', 'adoptive', 'adopter', 'adopters',
-                'foster', 'fostering', 'foster-to-adopt', 'foster carer', 'panel approval',
-                'adoption panel', 'placement', 'child placement', 'guardianship'
+                'adoption',
+                'adopt',
+                'adopting',
+                'adopted',
+                'adoptive',
+                'adopter',
+                'adopters',
+                'foster',
+                'fostering',
+                'foster-to-adopt',
+                'foster carer',
+                'panel approval',
+                'adoption panel',
+                'placement',
+                'child placement',
+                'guardianship'
             ],
             'baby loss' => [
-                'baby loss', 'pregnancy loss', 'miscarriage', 'miscarriages', 'stillbirth', 'stillborn',
-                'infant loss', 'bereavement', 'grief', 'angel baby', 'tfmr', 'rainbow baby', 'loss of a baby'
+                'baby loss',
+                'pregnancy loss',
+                'miscarriage',
+                'miscarriages',
+                'stillbirth',
+                'stillborn',
+                'infant loss',
+                'bereavement',
+                'grief',
+                'angel baby',
+                'tfmr',
+                'rainbow baby',
+                'loss of a baby'
             ],
             'loss' => [
-                'baby loss', 'pregnancy loss', 'miscarriage', 'miscarriages', 'stillbirth', 'stillborn',
-                'infant loss', 'bereavement', 'grief', 'angel baby', 'tfmr', 'rainbow baby', 'loss of a baby'
+                'baby loss',
+                'pregnancy loss',
+                'miscarriage',
+                'miscarriages',
+                'stillbirth',
+                'stillborn',
+                'infant loss',
+                'bereavement',
+                'grief',
+                'angel baby',
+                'tfmr',
+                'rainbow baby',
+                'loss of a baby'
+            ],
+            'grief' => [
+                'grief',
+                'bereavement',
+                'loss',
+                'baby loss',
+                'pregnancy loss',
+                'miscarriage',
+                'stillbirth',
+                'infant loss',
+                'tfmr'
+            ],
+            'bereavement' => [
+                'bereavement',
+                'grief',
+                'loss',
+                'baby loss',
+                'pregnancy loss',
+                'miscarriage',
+                'stillbirth'
             ],
             'ivf' => [
-                'ivf', 'infertility', 'fertility', 'icsi', 'embryo', 'donor sperm', 'donor egg',
-                'surrogacy', 'egg retrieval', 'two-week wait', 'two week wait', 'fertility treatment'
+                'ivf',
+                'infertility',
+                'fertility',
+                'icsi',
+                'embryo',
+                'donor sperm',
+                'donor egg',
+                'surrogacy',
+                'egg retrieval',
+                'two-week wait',
+                'two week wait',
+                'fertility treatment'
             ],
             'fertility' => [
-                'ivf', 'infertility', 'fertility', 'icsi', 'embryo', 'donor sperm', 'donor egg',
-                'surrogacy', 'egg retrieval', 'two-week wait', 'two week wait', 'fertility treatment'
+                'ivf',
+                'infertility',
+                'fertility',
+                'icsi',
+                'embryo',
+                'donor sperm',
+                'donor egg',
+                'surrogacy',
+                'egg retrieval',
+                'two-week wait',
+                'two week wait',
+                'fertility treatment'
             ],
             'adhd' => [
-                'adhd', 'add', 'neurodivergent', 'hyperactive', 'attention deficit', 'inattention'
+                'adhd',
+                'add',
+                'neurodivergent',
+                'hyperactive',
+                'attention deficit',
+                'inattention'
             ],
             'autism' => [
-                'autism', 'autistic', 'asd', 'neurodivergent', 'sensory overload', 'aspergers'
+                'autism',
+                'autistic',
+                'asd',
+                'neurodivergent',
+                'sensory overload',
+                'aspergers'
             ],
             'teen' => [
-                'teen', 'teens', 'teenager', 'teenagers', 'adolescent', 'adolescence', 'puberty',
-                'secondary school', 'high school', 'gcse', 'gcses', 'exams', 'revision', 'mood swings',
-                'screaming', 'attitude', 'screen time', 'gaming'
+                'teen',
+                'teens',
+                'teenager',
+                'teenagers',
+                'adolescent',
+                'adolescence',
+                'puberty',
+                'secondary school',
+                'high school',
+                'gcse',
+                'gcses',
+                'exams',
+                'revision',
+                'mood swings',
+                'screaming',
+                'attitude',
+                'screen time',
+                'gaming'
             ],
             'teenager' => [
-                'teen', 'teens', 'teenager', 'teenagers', 'adolescent', 'adolescence', 'puberty',
-                'secondary school', 'high school', 'gcse', 'gcses', 'exams', 'revision', 'mood swings',
-                'screaming', 'attitude', 'screen time', 'gaming'
+                'teen',
+                'teens',
+                'teenager',
+                'teenagers',
+                'adolescent',
+                'adolescence',
+                'puberty',
+                'secondary school',
+                'high school',
+                'gcse',
+                'gcses',
+                'exams',
+                'revision',
+                'mood swings',
+                'screaming',
+                'attitude',
+                'screen time',
+                'gaming'
             ],
             'sleep' => [
-                'sleep', 'sleeping', 'night feeding', 'sleepless', 'deprivation', 'insomnia',
-                'exhaustion', 'tired', 'cant sleep', 'night waking', 'bedtime', 'nighttime'
+                'sleep',
+                'sleeping',
+                'night feeding',
+                'sleepless',
+                'deprivation',
+                'insomnia',
+                'exhaustion',
+                'tired',
+                'cant sleep',
+                'night waking',
+                'bedtime',
+                'nighttime'
             ],
             'relationship' => [
-                'relationship', 'marriage', 'marital', 'partner', 'husband', 'wife', 'couples',
-                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'broken up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
-                'family dynamics', 'conflict', 'wellbeing'
+                'relationship',
+                'marriage',
+                'marital',
+                'partner',
+                'husband',
+                'wife',
+                'couples',
+                'divorce',
+                'separation',
+                'breakup',
+                'break-up',
+                'break up',
+                'broken up',
+                'co-parenting',
+                'coparenting',
+                'custody',
+                'split',
+                'ex',
+                'ex-partner',
+                'family dynamics',
+                'conflict',
+                'wellbeing'
             ],
             'marriage' => [
-                'relationship', 'marriage', 'marital', 'partner', 'husband', 'wife', 'couples',
-                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
-                'family dynamics', 'conflict', 'wellbeing'
+                'relationship',
+                'marriage',
+                'marital',
+                'partner',
+                'husband',
+                'wife',
+                'couples',
+                'divorce',
+                'separation',
+                'breakup',
+                'break-up',
+                'break up',
+                'co-parenting',
+                'coparenting',
+                'custody',
+                'split',
+                'ex',
+                'ex-partner',
+                'family dynamics',
+                'conflict',
+                'wellbeing'
             ],
             'divorce' => [
-                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
-                'marriage', 'marital', 'relationship', 'partner', 'couples', 'family dynamics'
+                'divorce',
+                'separation',
+                'breakup',
+                'break-up',
+                'break up',
+                'co-parenting',
+                'coparenting',
+                'custody',
+                'split',
+                'ex',
+                'ex-partner',
+                'marriage',
+                'marital',
+                'relationship',
+                'partner',
+                'couples',
+                'family dynamics'
             ],
             'separation' => [
-                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
-                'marriage', 'marital', 'relationship', 'partner', 'couples', 'family dynamics'
+                'divorce',
+                'separation',
+                'breakup',
+                'break-up',
+                'break up',
+                'co-parenting',
+                'coparenting',
+                'custody',
+                'split',
+                'ex',
+                'ex-partner',
+                'marriage',
+                'marital',
+                'relationship',
+                'partner',
+                'couples',
+                'family dynamics'
             ],
             'breakup' => [
-                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'broken up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
-                'marriage', 'marital', 'relationship', 'partner', 'couples', 'family dynamics'
+                'divorce',
+                'separation',
+                'breakup',
+                'break-up',
+                'break up',
+                'broken up',
+                'co-parenting',
+                'coparenting',
+                'custody',
+                'split',
+                'ex',
+                'ex-partner',
+                'marriage',
+                'marital',
+                'relationship',
+                'partner',
+                'couples',
+                'family dynamics'
             ],
             'break-up' => [
-                'divorce', 'separation', 'breakup', 'break-up', 'break up', 'broken up', 'co-parenting', 'coparenting', 'custody', 'split', 'ex', 'ex-partner',
-                'marriage', 'marital', 'relationship', 'partner', 'couples', 'family dynamics'
+                'divorce',
+                'separation',
+                'breakup',
+                'break-up',
+                'break up',
+                'broken up',
+                'co-parenting',
+                'coparenting',
+                'custody',
+                'split',
+                'ex',
+                'ex-partner',
+                'marriage',
+                'marital',
+                'relationship',
+                'partner',
+                'couples',
+                'family dynamics'
             ],
             'co-parenting' => [
-                'co-parenting', 'coparenting', 'divorce', 'separation', 'breakup', 'break-up', 'custody', 'split', 'ex',
-                'ex-partner', 'marriage', 'marital', 'relationship', 'partner', 'couples'
+                'co-parenting',
+                'coparenting',
+                'divorce',
+                'separation',
+                'breakup',
+                'break-up',
+                'custody',
+                'split',
+                'ex',
+                'ex-partner',
+                'marriage',
+                'marital',
+                'relationship',
+                'partner',
+                'couples'
             ],
             'coparenting' => [
-                'co-parenting', 'coparenting', 'divorce', 'separation', 'breakup', 'break-up', 'custody', 'split', 'ex',
-                'ex-partner', 'marriage', 'marital', 'relationship', 'partner', 'couples'
+                'co-parenting',
+                'coparenting',
+                'divorce',
+                'separation',
+                'breakup',
+                'break-up',
+                'custody',
+                'split',
+                'ex',
+                'ex-partner',
+                'marriage',
+                'marital',
+                'relationship',
+                'partner',
+                'couples'
             ],
             'therapist' => [
-                'therapist', 'counsellor', 'counselor', 'counseling', 'therapy', 'psychologist',
-                'coach', 'mentor', 'advisor', 'listening', 'support', 'guide', 'wellbeing', 'mental health'
+                'therapist',
+                'counsellor',
+                'counselor',
+                'counseling',
+                'therapy',
+                'psychologist',
+                'coach',
+                'mentor',
+                'advisor',
+                'listening',
+                'support',
+                'guide',
+                'wellbeing',
+                'mental health'
             ],
             'counsellor' => [
-                'therapist', 'counsellor', 'counselor', 'counseling', 'therapy', 'psychologist',
-                'coach', 'mentor', 'advisor', 'listening', 'support', 'guide', 'wellbeing', 'mental health'
+                'therapist',
+                'counsellor',
+                'counselor',
+                'counseling',
+                'therapy',
+                'psychologist',
+                'coach',
+                'mentor',
+                'advisor',
+                'listening',
+                'support',
+                'guide',
+                'wellbeing',
+                'mental health'
             ],
             'counseling' => [
-                'counseling', 'counselling', 'counselor', 'counsellor', 'therapist', 'therapy',
-                'psychologist', 'coach', 'mentor', 'advisor', 'listening ear', 'support', 'peer support'
+                'counseling',
+                'counselling',
+                'counselor',
+                'counsellor',
+                'therapist',
+                'therapy',
+                'psychologist',
+                'coach',
+                'mentor',
+                'advisor',
+                'listening ear',
+                'support',
+                'peer support'
             ],
             'anxiety' => [
-                'anxiety', 'anxious', 'panic', 'worry', 'worries', 'stress', 'overwhelmed',
-                'nervous', 'phobia', 'fear', 'mental health', 'school anxiety', 'social anxiety'
+                'anxiety',
+                'anxious',
+                'panic',
+                'worry',
+                'worries',
+                'stress',
+                'overwhelmed',
+                'nervous',
+                'phobia',
+                'fear',
+                'mental health',
+                'school anxiety',
+                'social anxiety'
             ],
             'family' => [
-                'family', 'families', 'family dynamics', 'family life', 'parenting', 'parents',
-                'co-parenting', 'coparenting', 'household', 'home', 'children', 'kids'
+                'family',
+                'families',
+                'family dynamics',
+                'family life',
+                'parenting',
+                'parents',
+                'co-parenting',
+                'coparenting',
+                'household',
+                'home',
+                'children',
+                'kids'
             ],
             'wellbeing' => [
-                'wellbeing', 'well-being', 'burnout', 'anxiety', 'depression', 'mental health',
-                'exhaustion', 'stress', 'low', 'support', 'listen', 'self-care'
+                'wellbeing',
+                'well-being',
+                'burnout',
+                'anxiety',
+                'depression',
+                'mental health',
+                'exhaustion',
+                'stress',
+                'low',
+                'support',
+                'listen',
+                'self-care'
+            ],
+            'medical' => [
+                'medical',
+                'medicine',
+                'treatment',
+                'treatments',
+                'hospital',
+                'condition',
+                'conditions',
+                'health',
+                'illness',
+                'doctor',
+                'surgery',
+                'complex medical needs',
+                'special needs',
+                'needs'
+            ],
+            'health' => [
+                'health',
+                'medical',
+                'medicine',
+                'treatment',
+                'treatments',
+                'condition',
+                'mental health',
+                'wellbeing'
             ],
         ];
 
@@ -1523,17 +2054,93 @@ class SearchEngine
         }
 
         $domain_roots = [
-            'adoption', 'adopt', 'adopting', 'adopted', 'adoptive', 'adopter', 'adopters', 'foster', 'fostering', 'foster-to-adopt', 'guardianship',
-            'baby loss', 'pregnancy loss', 'miscarriage', 'miscarriages', 'stillbirth', 'stillborn', 'bereavement', 'grief', 'angel baby', 'tfmr', 'rainbow baby',
-            'infertility', 'fertility', 'icsi', 'embryo', 'surrogacy', 'surrogate', 'donor egg', 'donor sperm', 'egg retrieval',
-            'adhd', 'autism', 'autistic', 'neurodivergent', 'hyperactive', 'senco',
-            'teen', 'teens', 'teenager', 'teenagers', 'adolescent', 'adolescence', 'puberty', 'gcse', 'gcses',
-            'sleep', 'sleeping', 'sleepless', 'insomnia', 'night feeding',
-            'relationship', 'marriage', 'marital', 'partner', 'husband', 'wife', 'couples', 'divorce', 'separation', 'co-parenting', 'coparenting', 'breakup', 'break-up',
-            'family', 'families', 'family dynamics', 'family life', 'parenting',
-            'newborn', 'newborns', 'postnatal', 'postpartum', 'paternity', 'maternity', 'breastfeeding', 'colic',
-            'wellbeing', 'burnout', 'anxiety', 'depression', 'mental health',
-            'therapist', 'counsellor', 'counselor', 'therapy', 'counseling'
+            'adoption',
+            'adopt',
+            'adopting',
+            'adopted',
+            'adoptive',
+            'adopter',
+            'adopters',
+            'foster',
+            'fostering',
+            'foster-to-adopt',
+            'guardianship',
+            'baby loss',
+            'pregnancy loss',
+            'miscarriage',
+            'miscarriages',
+            'stillbirth',
+            'stillborn',
+            'bereavement',
+            'grief',
+            'angel baby',
+            'tfmr',
+            'rainbow baby',
+            'infertility',
+            'fertility',
+            'icsi',
+            'embryo',
+            'surrogacy',
+            'surrogate',
+            'donor egg',
+            'donor sperm',
+            'egg retrieval',
+            'adhd',
+            'autism',
+            'autistic',
+            'neurodivergent',
+            'hyperactive',
+            'senco',
+            'teen',
+            'teens',
+            'teenager',
+            'teenagers',
+            'adolescent',
+            'adolescence',
+            'puberty',
+            'gcse',
+            'gcses',
+            'sleep',
+            'sleeping',
+            'sleepless',
+            'insomnia',
+            'night feeding',
+            'relationship',
+            'marriage',
+            'marital',
+            'partner',
+            'husband',
+            'wife',
+            'couples',
+            'divorce',
+            'separation',
+            'co-parenting',
+            'coparenting',
+            'breakup',
+            'break-up',
+            'family',
+            'families',
+            'family dynamics',
+            'family life',
+            'parenting',
+            'newborn',
+            'newborns',
+            'postnatal',
+            'postpartum',
+            'paternity',
+            'maternity',
+            'breastfeeding',
+            'colic',
+            'wellbeing',
+            'burnout',
+            'anxiety',
+            'depression',
+            'mental health',
+            'therapist',
+            'counsellor',
+            'counselor',
+            'therapy',
+            'counseling'
         ];
 
 
@@ -1665,7 +2272,7 @@ class SearchEngine
 
         // 2. Normalise common typos and Hinglish phrases to standard conversational English
         $typo_phrase_map = [
-            '/\b(?:mujhe\s+)?kisi\s+se\s+ba?t\s+karni\s+he?\b/i' => 'talk to someone',
+            '/\b(?:mujhe\s+)?kisi\s+se\s+ba?t\s+karni\s+(?:hai|he|h)\b/i' => 'talk to someone',
             '/\b(?:madad|help)\s+chahiye\b/i'                   => 'need help',
             '/\bproblem\s+hai\b/i'                              => 'having problems',
             '/\b(?:stress|tension)\s+ho\s+rah[ia]\s+hai?\b/i'    => 'feeling stressed anxiety',
@@ -1679,6 +2286,10 @@ class SearchEngine
             '/\bcounseller\b/i'                                 => 'counsellor',
             '/\banxeity\b/i'                                    => 'anxiety',
             '/\brelashionship\b/i'                              => 'relationship',
+            '/\badopshun\b/i'                                   => 'adoption',
+            '/\badopshen\b/i'                                   => 'adoption',
+            '/\bautisum\b/i'                                    => 'autism',
+            '/\bmedicle\b/i'                                    => 'medical',
         ];
         foreach ($typo_phrase_map as $pattern => $replacement) {
             $q_norm = preg_replace($pattern, $replacement, $q_norm);
@@ -1692,23 +2303,170 @@ class SearchEngine
         }
 
         $vocabulary = [
-            'adoption', 'adoptive', 'adopted', 'fostering', 'foster', 'guardianship',
-            'pregnancy', 'miscarriage', 'miscarriages', 'stillbirth', 'bereavement', 'infant', 'grief',
-            'infertility', 'fertility', 'embryo', 'surrogacy', 'surrogate', 'ivf',
-            'toddler', 'toddlers', 'teenager', 'teenagers', 'adolescent', 'puberty',
-            'autism', 'autistic', 'neurodivergent', 'hyperactive', 'senco', 'adhd',
-            'newborn', 'newborns', 'postnatal', 'paternity', 'maternity', 'breastfeeding',
-            'wellbeing', 'burnout', 'anxiety', 'depression', 'divorce', 'separation', 'coparenting',
-            'father', 'mother', 'parent', 'parents', 'children', 'experience', 'experienced',
-            'marriage', 'marital', 'relationship', 'partner', 'husband', 'wife', 'couples',
-            'therapist', 'counsellor', 'counseling', 'therapy', 'mentor', 'coach', 'listen', 'listening',
-            'sleepless', 'insomnia', 'lonely', 'anxious'
+            'adoption',
+            'adoptive',
+            'adopted',
+            'fostering',
+            'foster',
+            'guardianship',
+            'pregnancy',
+            'miscarriage',
+            'miscarriages',
+            'stillbirth',
+            'bereavement',
+            'infant',
+            'grief',
+            'infertility',
+            'fertility',
+            'embryo',
+            'surrogacy',
+            'surrogate',
+            'ivf',
+            'toddler',
+            'toddlers',
+            'teenager',
+            'teenagers',
+            'adolescent',
+            'puberty',
+            'autism',
+            'autistic',
+            'neurodivergent',
+            'hyperactive',
+            'senco',
+            'adhd',
+            'newborn',
+            'newborns',
+            'postnatal',
+            'paternity',
+            'maternity',
+            'breastfeeding',
+            'wellbeing',
+            'burnout',
+            'anxiety',
+            'depression',
+            'divorce',
+            'separation',
+            'coparenting',
+            'father',
+            'mother',
+            'parent',
+            'parents',
+            'children',
+            'experience',
+            'experienced',
+            'marriage',
+            'marital',
+            'relationship',
+            'partner',
+            'husband',
+            'wife',
+            'couples',
+            'therapist',
+            'counsellor',
+            'counselor',
+            'therapy',
+            'mentor',
+            'coach',
+            'listen',
+            'listening',
+            'sleep',
+            'sleeping',
+            'sleepless',
+            'insomnia',
+            'lonely',
+            'anxious',
+            'complex',
+            'medical',
+            'medicine',
+            'needs',
+            'need',
+            'special',
+            'health',
+            'healthy',
+            'illness',
+            'treatment',
+            'treatments',
+            'hospital',
+            'doctor',
+            'condition',
+            'conditions',
+            'loss',
+            'potty',
+            'training',
+            'tantrum',
+            'tantrums',
+            'behavior',
+            'behaviour',
+            'school',
+            'primary',
+            'secondary',
+            'feeding',
+            'bottle',
+            'weaning',
+            'donor',
+            'colic',
+            'reflux',
+            'twins',
+            'triplets',
+            'multiples'
         ];
 
+        // Dynamic Provider Profile Vocabulary Check:
+        // If a word already exists verbatim in any active provider's narrative, NEVER mutate or replace it!
+        static $provider_corpus_words = null;
+        if ($provider_corpus_words === null) {
+            $provider_corpus_words = [];
+            global $wpdb;
+            $active_ids = get_users([
+                'meta_key'   => 'cosy_provider_status',
+                'meta_value' => 'active',
+                'fields'     => 'ID',
+            ]);
+            if (!empty($active_ids)) {
+                $id_list = implode(',', array_map('intval', $active_ids));
+                $meta_texts = $wpdb->get_col("SELECT meta_value FROM {$wpdb->usermeta} WHERE meta_key IN ('description', 'cosy_provider_bio', 'first_name', 'last_name') AND user_id IN ($id_list)");
+                foreach ($meta_texts as $mt) {
+                    $tokens = preg_split('/[^a-z0-9]+/i', strtolower($mt), -1, PREG_SPLIT_NO_EMPTY);
+                    foreach ($tokens as $t) {
+                        if (strlen($t) >= 3) {
+                            $provider_corpus_words[$t] = true;
+                        }
+                    }
+                }
+            }
+        }
+
         $english_stopwords = [
-            'with', 'from', 'have', 'that', 'this', 'they', 'them', 'some', 'what', 'when',
-            'more', 'most', 'over', 'into', 'only', 'also', 'will', 'just', 'been', 'were',
-            'much', 'each', 'make', 'like', 'back', 'well', 'here', 'look', 'tell', 'help'
+            'with',
+            'from',
+            'have',
+            'that',
+            'this',
+            'they',
+            'them',
+            'some',
+            'what',
+            'when',
+            'more',
+            'most',
+            'over',
+            'into',
+            'only',
+            'also',
+            'will',
+            'just',
+            'been',
+            'were',
+            'much',
+            'each',
+            'make',
+            'like',
+            'back',
+            'well',
+            'here',
+            'look',
+            'tell',
+            'help'
         ];
 
         $corrected_words = [];
@@ -1716,16 +2474,16 @@ class SearchEngine
 
         foreach ($words as $w) {
             $clean_w = preg_replace('/[^a-z0-9]/i', '', $w);
-            if (strlen($clean_w) < 4 || is_numeric($clean_w) || in_array($clean_w, $vocabulary, true)) {
+            if (strlen($clean_w) < 4 || is_numeric($clean_w) || in_array($clean_w, $vocabulary, true) || isset($provider_corpus_words[$clean_w])) {
                 $corrected_words[] = $w;
                 continue;
             }
 
-            // A. Words Cut / Incomplete: Prefix matching (e.g. "adopti" -> "adoption", "miscar" -> "miscarriage", "teenag" -> "teenager", "relat" -> "relationship")
+            // A. Words Cut / Incomplete: Prefix matching only for truly incomplete word fragments
             $prefix_matched = null;
             if (!in_array($clean_w, $english_stopwords, true)) {
                 foreach ($vocabulary as $vocab) {
-                    if (strpos($vocab, $clean_w) === 0) {
+                    if (strpos($vocab, $clean_w) === 0 && strlen($vocab) > strlen($clean_w) + 1) {
                         $prefix_matched = $vocab;
                         break;
                     }
@@ -1743,12 +2501,17 @@ class SearchEngine
             $best_distance = 99;
 
             foreach ($vocabulary as $vocab) {
+                // Real typos share the same first letter
+                if ($clean_w[0] !== $vocab[0]) {
+                    continue;
+                }
                 if (abs(strlen($clean_w) - strlen($vocab)) > 2) {
                     continue;
                 }
 
                 $dist = levenshtein($clean_w, $vocab);
-                $max_allowed_dist = (strlen($vocab) >= 7) ? 2 : 1;
+                // Allow edit distance of 2 ONLY for words with 8 or more characters (e.g. miscarriage, relationship)
+                $max_allowed_dist = (strlen($vocab) >= 8) ? 2 : 1;
 
                 if ($dist <= $max_allowed_dist && $dist < $best_distance) {
                     $best_distance = $dist;
