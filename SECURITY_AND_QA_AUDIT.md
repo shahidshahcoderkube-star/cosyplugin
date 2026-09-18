@@ -10,7 +10,7 @@ Yeh comprehensive document **`cosy-appointments`** WordPress plugin ke deep secu
 | :--- | :--- | :--- | :--- | :--- |
 | **SQL Injection & DB Queries** | 45+ `$wpdb` calls | 45 | 0 | ✅ Clean |
 | **Authentication & IDOR** | 18 AJAX / REST endpoints | 18 | 0 | ✅ Clean |
-| **Financial / Price Integrity** | WorldPay Session & Callback | 1 | 1 | 🚨 High |
+| **Financial / Price Integrity** | WorldPay Session & Callback | 2 | 0 | ✅ Clean |
 | **Webhook Security** | REST & Query Webhook | 0 | 1 | ⚠️ Medium |
 | **Cross-Site Scripting (XSS)** | Form Inputs & Template Outputs | Clean | 0 | ✅ Clean |
 | **CSRF / Nonce Protection** | AJAX Handlers | 18 | 0 | ✅ Clean |
@@ -36,29 +36,21 @@ Yeh comprehensive document **`cosy-appointments`** WordPress plugin ke deep secu
 
 ---
 
-### 1.2 Client-Side Price Tampering Risk in Payment Creation
+### 1.2 Client-Side Price Tampering Risk in Payment Creation [✅ RESOLVED / FIXED]
 * **File:** [`src/Gateways/WorldPayPaymentGateway.php:L258-L264`](file:///f:/xammp/htdocs/cosyplugin/wp-content/plugins/cosy-appointments/src/Gateways/WorldPayPaymentGateway.php#L258-L264)
 * **Method:** `handle_create_worldpay_session()`
-* **Vulnerability Description:**
-  Backend accurately server-side price calculate karta hai (`$expected_total_payable_str`), lekin check validation mein client se aane wale values ko trust kar leta hai agar wo `> 0` hain:
+* **Status:** ✅ **PATCHED**: Ab client-sent amounts ko completely override kar ke server-side calculated pricing strictly enforce ki gayi hai (`$total_payable = $expected_total_payable_str`). Invalid ya zero amount par immediate error throw hota hai.
+* **Applied Fix:**
   ```php
-  if (floatval($service_cost) > 0 && floatval($total_payable) > 0) {
-      // ❌ Frontend se bheja hua rate accept ho jata hai!
-  } else {
-      $total_payable = $expected_total_payable_str;
-      $service_cost = $expected_service_cost_str;
-      $service_fee = $expected_service_fee_str;
-  }
-  ```
-* **Impact:**
-  Koi customer browser DevTools ya POST request interceptor ke zariye `serviceCost: "0.50"` aur `totalPayable: "0.50"` bhej kar £50 ki service ko 50p mein book kar sakta hai.
-* **Remediation Plan:**
-  Client-sent price par kabhi trust na karein. Backend hamesha server-calculated price ko strictly enforce kare:
-  ```php
-  // Always enforce server-calculated amounts
-  $total_payable = $expected_total_payable_str;
+  // Security: Strictly enforce server-calculated amounts to prevent client-side price tampering
   $service_cost  = $expected_service_cost_str;
   $service_fee   = $expected_service_fee_str;
+  $total_payable = $expected_total_payable_str;
+
+  if (floatval($total_payable) <= 0) {
+      $this->cosy_payment_log("WorldPay Session Creation FAILED: Calculated total payable amount is invalid or zero (£{$total_payable}).", $_POST);
+      wp_send_json_error(['message' => __('Invalid booking amount. Please contact support.', 'cosy-appointments')]);
+  }
   ```
 
 ---
