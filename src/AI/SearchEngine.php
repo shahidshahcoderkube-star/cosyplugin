@@ -122,6 +122,29 @@ class SearchEngine
             ];
         }
 
+        // Require at least one word with 3 or more characters; otherwise return no-match signpost with fallback providers
+        $query_words = array_filter(preg_split('/\s+/', $clean_query_input));
+        $has_valid_min_length_word = false;
+        foreach ($query_words as $qw) {
+            if (mb_strlen($qw) >= 3) {
+                $has_valid_min_length_word = true;
+                break;
+            }
+        }
+
+        if (!$has_valid_min_length_word || mb_strlen($clean_query_input) < 3) {
+            $fallback_ids = self::get_fallback_provider_ids($limit);
+            $cards        = self::fetch_provider_cards($fallback_ids, $limit, '');
+
+            return [
+                'results'           => $cards,
+                'has_match'         => false,
+                'is_fallback'       => true,
+                'no_match_title'    => __("We couldn't find a parent matching your search.", 'cosy-appointments'),
+                'no_match_subtitle' => __("Try another search, or explore the parents below.", 'cosy-appointments'),
+            ];
+        }
+
         // 1. Auto-Correct Typo & Spelling Mistakes (e.g. "adoptoin" -> "adoption", "misscarriage" -> "miscarriage")
         $corrected_query = self::correct_spelling_typos($clean_query_input);
 
@@ -578,20 +601,22 @@ class SearchEngine
                         $matched_content_words_count++;
                     }
                 }
-                // Multi-Word Precision Rule: Must match exact phrase OR at least 2 distinct query words (or provider name)
+                // Multi-Word Precision Rule: Must match exact phrase OR at least 2 distinct query words (or provider name) OR broad conversational vector match
                 if ($phrase_boost > 0.0 || $matched_content_words_count >= 2 || in_array($provider_id, $name_matched_ids, true)) {
+                    $is_genuine_match = true;
+                } elseif (!empty($intent['is_conversational_broad']) && $vector_score >= 0.40) {
                     $is_genuine_match = true;
                 }
             } elseif (!empty($domain_query_kws)) {
                 // For single-keyword searches (e.g. "fetal alcohol", "sleep", "adhd", "ivf")
                 if ($phrase_boost > 0.0 || $prov_has_kw || $has_topic_match || in_array($provider_id, $name_matched_ids, true)) {
                     $is_genuine_match = true;
-                } elseif (!empty($intent['is_conversational_broad']) && $vector_score >= 0.65) {
+                } elseif (!empty($intent['is_conversational_broad']) && $vector_score >= 0.40) {
                     $is_genuine_match = true;
                 }
             } elseif (!empty($intent['is_conversational_broad'])) {
                 // Pure conversational / emotional support query without specific domain keywords
-                if ($vector_score >= 0.50) {
+                if ($vector_score >= 0.40) {
                     $is_genuine_match = true;
                 }
             } elseif ($has_role_intent_match || $has_age_intent_match || !empty($name_matched_ids) || $has_filter_match) {
@@ -1097,15 +1122,97 @@ class SearchEngine
         $words = preg_split('/[\s,;.!?\'"\-]+/', $q, -1, PREG_SPLIT_NO_EMPTY);
         $w_count = count($words);
         $grammar_stopwords = [
-            'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'you', 'your', 'yours',
-            'he', 'him', 'his', 'she', 'her', 'hers', 'it', 'its', 'they', 'them', 'their', 'theirs',
-            'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
-            'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing',
-            'to', 'from', 'in', 'out', 'on', 'off', 'over', 'under', 'for', 'with', 'by', 'at', 'as', 'of',
-            'and', 'the', 'a', 'an', 'into', 'onto', 'down', 'up', 'so', 'than', 'too', 'very', 'that', 'this',
-            'can', 'could', 'would', 'should', 'will', 'just', 'now', 'there', 'here',
-            'looking', 'look', 'want', 'wants', 'wanted', 'someone', 'somebody', 'anyone', 'anybody',
-            'help', 'helping', 'please', 'pls', 'find', 'show', 'give'
+            'i',
+            'me',
+            'my',
+            'myself',
+            'we',
+            'our',
+            'ours',
+            'you',
+            'your',
+            'yours',
+            'he',
+            'him',
+            'his',
+            'she',
+            'her',
+            'hers',
+            'it',
+            'its',
+            'they',
+            'them',
+            'their',
+            'theirs',
+            'am',
+            'is',
+            'are',
+            'was',
+            'were',
+            'be',
+            'been',
+            'being',
+            'have',
+            'has',
+            'had',
+            'having',
+            'do',
+            'does',
+            'did',
+            'doing',
+            'to',
+            'from',
+            'in',
+            'out',
+            'on',
+            'off',
+            'over',
+            'under',
+            'for',
+            'with',
+            'by',
+            'at',
+            'as',
+            'of',
+            'and',
+            'the',
+            'a',
+            'an',
+            'into',
+            'onto',
+            'down',
+            'up',
+            'so',
+            'than',
+            'too',
+            'very',
+            'that',
+            'this',
+            'can',
+            'could',
+            'would',
+            'should',
+            'will',
+            'just',
+            'now',
+            'there',
+            'here',
+            'looking',
+            'look',
+            'want',
+            'wants',
+            'wanted',
+            'someone',
+            'somebody',
+            'anyone',
+            'anybody',
+            'help',
+            'helping',
+            'please',
+            'pls',
+            'find',
+            'show',
+            'give'
         ];
 
         for ($i = 0; $i < $w_count - 1; $i++) {
@@ -1551,7 +1658,7 @@ class SearchEngine
         $keywords  = [];
 
         foreach ($words as $w) {
-            if (strlen($w) >= 2 && !in_array($w, $stopwords, true)) {
+            if (strlen($w) >= 3 && !in_array($w, $stopwords, true)) {
                 $keywords[] = $w;
             }
         }
