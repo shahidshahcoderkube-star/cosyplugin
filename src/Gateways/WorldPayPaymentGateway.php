@@ -205,7 +205,8 @@ class WorldPayPaymentGateway
                 (SELECT price FROM $table WHERE provider_id = %d AND checkbox_status = 'yes' LIMIT 1),
                 (SELECT price FROM $table WHERE provider_id = %d LIMIT 1)
             )",
-            $provider_id, $service_id,
+            $provider_id,
+            $service_id,
             $provider_id,
             $provider_id
         ));
@@ -231,6 +232,7 @@ class WorldPayPaymentGateway
                 }
             }
         }
+
         if ($total_slots === 0 && $number_of_bookings > 0) {
             $total_slots = $number_of_bookings;
         }

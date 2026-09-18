@@ -59,6 +59,15 @@ class UsersAdmin
         // Clear user appointments cache when appointment is updated or deleted
         $loader->add_action('save_post_cosy_appointment', $this, 'clear_user_appointments_cache', 10, 2);
         $loader->add_action('before_delete_post', $this, 'clear_user_appointments_cache_before_delete');
+
+        // Filter avatar across WordPress (Admin bar, Profile, All Users table, etc.) with custom profile_image
+        $loader->add_filter('pre_get_avatar_data', $this, 'filter_avatar_data_with_profile_image', 10, 2);
+
+        // Add custom profile image field on WordPress user profile screen
+        $loader->add_action('show_user_profile', $this, 'render_admin_profile_image_field');
+        $loader->add_action('edit_user_profile', $this, 'render_admin_profile_image_field');
+        $loader->add_action('personal_options_update', $this, 'save_admin_profile_image_field');
+        $loader->add_action('edit_user_profile_update', $this, 'save_admin_profile_image_field');
     }
 
     // =========================================================================
@@ -71,6 +80,13 @@ class UsersAdmin
      */
     public function enqueue_users_admin_scripts(string $hook): void
     {
+        // Enqueue media and avatar upload script on WordPress profile pages
+        if ($hook === 'profile.php' || $hook === 'user-edit.php') {
+            wp_enqueue_media();
+            add_action('admin_footer', [$this, 'render_profile_page_avatar_js']);
+            return;
+        }
+
         if ($hook !== 'cc-booking_page_cosy-users') {
             return;
         }
@@ -617,5 +633,192 @@ class UsersAdmin
         if ($post && $post->post_type === 'cosy_appointment') {
             $this->clear_user_appointments_cache($post_id, $post);
         }
+    }
+
+    // =========================================================================
+    // AVATAR & PROFILE PICTURE MANAGEMENT
+    // =========================================================================
+
+    /**
+     * Overrides default WordPress avatar with Cosy Appointments provider profile image.
+     *
+     * @param array $args        Arguments passed to get_avatar_data().
+     * @param mixed $id_or_email User identifier (ID, email, WP_User, WP_Post, WP_Comment).
+     * @return array
+     */
+    public function filter_avatar_data_with_profile_image(array $args, $id_or_email): array
+    {
+        $user_id = $this->get_user_id_from_avatar_identifier($id_or_email);
+
+        if ($user_id > 0) {
+            $profile_image = get_user_meta($user_id, 'profile_image', true);
+            if (!empty($profile_image)) {
+                $image_url = is_numeric($profile_image) ? wp_get_attachment_url((int) $profile_image) : $profile_image;
+                if (!empty($image_url)) {
+                    $args['url'] = esc_url_raw($image_url);
+                    $args['found_avatar'] = true;
+                }
+            }
+        }
+
+        return $args;
+    }
+
+    /**
+     * Resolves user ID from various avatar identifier formats.
+     *
+     * @param mixed $id_or_email User ID, email string, WP_User, WP_Post, or WP_Comment object.
+     * @return int
+     */
+    private function get_user_id_from_avatar_identifier($id_or_email): int
+    {
+        if (is_numeric($id_or_email)) {
+            return (int) $id_or_email;
+        }
+
+        if ($id_or_email instanceof \WP_User) {
+            return (int) $id_or_email->ID;
+        }
+
+        if ($id_or_email instanceof \WP_Post) {
+            return (int) $id_or_email->post_author;
+        }
+
+        if ($id_or_email instanceof \WP_Comment) {
+            if (!empty($id_or_email->user_id)) {
+                return (int) $id_or_email->user_id;
+            }
+            if (!empty($id_or_email->comment_author_email)) {
+                $user = get_user_by('email', $id_or_email->comment_author_email);
+                return $user ? (int) $user->ID : 0;
+            }
+            return 0;
+        }
+
+        if (is_object($id_or_email) && isset($id_or_email->user_id)) {
+            return (int) $id_or_email->user_id;
+        }
+
+        if (is_string($id_or_email) && is_email($id_or_email)) {
+            $user = get_user_by('email', $id_or_email);
+            return $user ? (int) $user->ID : 0;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Renders custom profile image upload field on WordPress user profile screen.
+     *
+     * @param \WP_User $user The WP_User object.
+     */
+    public function render_admin_profile_image_field(\WP_User $user): void
+    {
+        $profile_image = get_user_meta($user->ID, 'profile_image', true);
+        $image_url = is_numeric($profile_image) ? wp_get_attachment_url((int) $profile_image) : $profile_image;
+        ?>
+        <h2><?php esc_html_e('Cosy Appointments Profile Picture', 'cosy-appointments'); ?></h2>
+        <table class="form-table cosy-profile-image-section">
+            <tr>
+                <th><label for="cosy_profile_image"><?php esc_html_e('Custom Profile Picture', 'cosy-appointments'); ?></label></th>
+                <td>
+                    <div class="cosy-avatar-preview-wrap" style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <img id="cosy-avatar-preview" 
+                             src="<?php echo !empty($image_url) ? esc_url($image_url) : esc_url(get_avatar_url($user->ID, ['size' => 96])); ?>" 
+                             alt="<?php echo esc_attr($user->display_name); ?>" 
+                             style="width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 2px solid #ccd0d4; background: #f0f0f1;">
+                        <div>
+                            <input type="hidden" name="cosy_profile_image" id="cosy_profile_image" value="<?php echo esc_attr($image_url); ?>">
+                            <button type="button" class="button button-secondary" id="cosy_upload_avatar_btn">
+                                <?php esc_html_e('Upload / Choose Image', 'cosy-appointments'); ?>
+                            </button>
+                            <button type="button" class="button button-link-delete" id="cosy_remove_avatar_btn" style="margin-left: 8px; <?php echo empty($image_url) ? 'display: none;' : ''; ?>">
+                                <?php esc_html_e('Remove', 'cosy-appointments'); ?>
+                            </button>
+                            <p class="description" style="margin-top: 6px;">
+                                <?php esc_html_e('Upload or select a custom photo to use as your profile avatar across WordPress and the provider dashboard.', 'cosy-appointments'); ?>
+                            </p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <?php
+    }
+
+    /**
+     * Saves custom profile image from the user profile screen.
+     *
+     * @param int $user_id The user ID being saved.
+     */
+    public function save_admin_profile_image_field(int $user_id): void
+    {
+        if (!current_user_can('edit_user', $user_id)) {
+            return;
+        }
+
+        if (isset($_POST['cosy_profile_image'])) {
+            $image_url = sanitize_text_field(wp_unslash($_POST['cosy_profile_image']));
+            if (!empty($image_url)) {
+                update_user_meta($user_id, 'profile_image', esc_url_raw($image_url));
+            } else {
+                delete_user_meta($user_id, 'profile_image');
+            }
+        }
+    }
+
+    /**
+     * Inlines JavaScript on user profile / edit screen to handle media library avatar selection.
+     */
+    public function render_profile_page_avatar_js(): void
+    {
+        ?>
+        <script>
+        jQuery(document).ready(function($) {
+            var mediaUploader;
+
+            // If a custom profile image exists, update the core WordPress Gravatar description text
+            if ($('#cosy_profile_image').val()) {
+                $('.user-profile-picture .description').html('<?php echo esc_js(__('Using custom profile picture from Cosy Appointments. You can change or remove it below.', 'cosy-appointments')); ?>');
+            }
+
+            $('#cosy_upload_avatar_btn').on('click', function(e) {
+                e.preventDefault();
+                if (mediaUploader) {
+                    mediaUploader.open();
+                    return;
+                }
+                mediaUploader = wp.media({
+                    title: '<?php echo esc_js(__('Select Profile Picture', 'cosy-appointments')); ?>',
+                    button: { text: '<?php echo esc_js(__('Use as Profile Picture', 'cosy-appointments')); ?>' },
+                    multiple: false,
+                    library: { type: 'image' }
+                });
+
+                mediaUploader.on('select', function() {
+                    var attachment = mediaUploader.state().get('selection').first().toJSON();
+                    var imageUrl = attachment.url;
+                    $('#cosy_profile_image').val(imageUrl);
+                    $('#cosy-avatar-preview').attr('src', imageUrl);
+                    $('.user-profile-picture img.avatar').attr('src', imageUrl).removeAttr('srcset');
+                    $('#wp-admin-bar-my-account img.avatar').attr('src', imageUrl).removeAttr('srcset');
+                    $('.user-profile-picture .description').html('<?php echo esc_js(__('Using custom profile picture from Cosy Appointments. You can change or remove it below.', 'cosy-appointments')); ?>');
+                    $('#cosy_remove_avatar_btn').show();
+                });
+
+                mediaUploader.open();
+            });
+
+            $('#cosy_remove_avatar_btn').on('click', function(e) {
+                e.preventDefault();
+                $('#cosy_profile_image').val('');
+                var defaultAvatar = '<?php echo esc_js(get_avatar_url(0, ['size' => 96, 'default' => 'mystery'])); ?>';
+                $('#cosy-avatar-preview').attr('src', defaultAvatar);
+                $('.user-profile-picture img.avatar').attr('src', defaultAvatar).removeAttr('srcset');
+                $(this).hide();
+            });
+        });
+        </script>
+        <?php
     }
 }
