@@ -334,13 +334,18 @@ class Dashboard
      */
     public function ajax_delete_video()
     {
-        $this->verify_ajax_request('cosy_dashboard_nonce');
+        $current_user_id = $this->verify_ajax_request('cosy_dashboard_nonce');
 
-        $user_id = intval($_POST['user_id']);
+        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : $current_user_id;
         if (!$user_id) {
+            $user_id = $current_user_id;
+        }
+
+        // Security check: Only allow deleting own video unless user has admin permissions
+        if ($user_id !== $current_user_id && !current_user_can('manage_options') && !current_user_can('manage_cosy_appointments')) {
             wp_send_json_error([
-                'message' => __('Invalid user ID', 'cosy-appointments')
-            ]);
+                'message' => __('Unauthorized: You can only delete your own video.', 'cosy-appointments')
+            ], 403);
         }
 
         $video_url = get_user_meta($user_id, 'introduction_video', true);

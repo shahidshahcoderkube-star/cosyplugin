@@ -445,10 +445,10 @@ trait GlobalCommonFunctions
 
             // Profile Information Check: Must have filled basic profile details
             $has_profile_info = !empty(get_user_meta($user_id, 'first_name', true)) &&
-                                !empty(get_user_meta($user_id, 'prov_phone', true)) &&
-                                !empty(get_user_meta($user_id, 'dob', true)) &&
-                                !empty(get_user_meta($user_id, 'gender', true)) &&
-                                !empty(get_user_meta($user_id, 'age_group', true));
+                !empty(get_user_meta($user_id, 'prov_phone', true)) &&
+                !empty(get_user_meta($user_id, 'dob', true)) &&
+                !empty(get_user_meta($user_id, 'gender', true)) &&
+                !empty(get_user_meta($user_id, 'age_group', true));
             if (!$has_profile_info) {
                 continue; // Skip listing provider if profile information is incomplete
             }
@@ -466,7 +466,7 @@ trait GlobalCommonFunctions
             if (!$has_availability) {
                 continue; // Skip listing provider if no availability is set up
             }
-            
+
             // Read pre-cached average rating (0 DB queries executed here)
             $avg_rating = isset($ratings_map[$user_id]) ? $ratings_map[$user_id] : 0.0;
 
@@ -523,8 +523,6 @@ trait GlobalCommonFunctions
                 'price' => isset($provider_prices[$user_id]) ? $provider_prices[$user_id]->price : '0.00',
                 'rating' => $avg_rating
             ];
-
-            
         }
 
         // Filter by Search Name in PHP
@@ -532,10 +530,10 @@ trait GlobalCommonFunctions
             $search_val = strtolower(sanitize_text_field($filters['search_name']));
             $data = array_filter($data, function ($item) use ($search_val) {
                 $full_name = strtolower($item['first_name'] . ' ' . $item['last_name']);
-                return (strpos(strtolower($item['name']), $search_val) !== false) || 
-                       (strpos(strtolower($item['first_name']), $search_val) !== false) ||
-                       (strpos(strtolower($item['last_name']), $search_val) !== false) ||
-                       (strpos($full_name, $search_val) !== false);
+                return (strpos(strtolower($item['name']), $search_val) !== false) ||
+                    (strpos(strtolower($item['first_name']), $search_val) !== false) ||
+                    (strpos(strtolower($item['last_name']), $search_val) !== false) ||
+                    (strpos($full_name, $search_val) !== false);
             });
             $data = array_values($data); // Reindex array
         }
@@ -1087,7 +1085,7 @@ trait GlobalCommonFunctions
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'cosy_media_approvals';
-        
+
         // If table doesn't exist, fallback to user meta
         if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) !== $table_name) {
             return (string) get_user_meta($user_id, 'video_status', true);
@@ -1115,7 +1113,7 @@ trait GlobalCommonFunctions
 
         // 1. Try default WordPress function first
         $attachment_id = attachment_url_to_postid($url);
-        
+
         // 2. Fallback query if attachment_url_to_postid fails
         if (!$attachment_id) {
             global $wpdb;

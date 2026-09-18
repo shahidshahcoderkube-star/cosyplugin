@@ -932,14 +932,18 @@ class SearchEngine
         }
 
         // Detect broad emotional, open-ended or conversational intent (distress keywords or conversational phrases)
-        if (preg_match('/\b(talk|speak|chat|listen|listening|listener|someone|somebody|anyone|anybody|guidance|advice|confused|overwhelmed|overwhelming|low|alone|isolated|isolation|support|therapist|counsellor|counselor|coach|mentor|hear me|hear us|anymore|handle|okay|ok|struggling|struggle|coping|cope|suffering|suffer|exhausted|exhaustion|broken|breaking|crying|tears|lost|mess|failing|fail|hopeless|desperate|mind|drowning|giving up|give up|survive|surviving|hard|difficult|scared|afraid|panic|panicking|lonely|loneliness|anxiety|anxious|depressed|depression|stress|stressed|burnout|bat|baat|madad|feel|feeling|bad|sad|hurt|hurting|pain|tough|trouble|know|much|everything|find|do|cant|cannot)\b/i', $q) || preg_match('/\b(?:i\s+)?need\s+(?:help|someone|support|to\s+talk|a\s+break)\b/i', $q)) {
+        if (preg_match('/\b(talk|speak|chat|listen|listening|listener|someone|somebody|anyone|anybody|guidance|advice|confused|overwhelmed|overwhelming|low|alone|isolated|isolation|support|therapist|counsellor|counselor|coach|mentor|hear me|hear us|anymore|handle|okay|ok|struggling|struggle|coping|cope|suffering|suffer|exhausted|exhaustion|broken|breaking|crying|tears|lost|mess|failing|fail|hopeless|desperate|mind|drowning|giving up|give up|survive|surviving|hard|difficult|scared|afraid|panic|panicking|lonely|loneliness|anxiety|anxious|depressed|depression|stress|stressed|burnout|bat|baat|madad|feel|feeling|bad|sad|hurt|hurting|pain|tough|trouble|know|much|everything|find|do|cant|cannot|understand|understands|understanding|situation|nobody|no one|samajh|samajhta)\b/i', $q) || preg_match('/\b(?:i\s+)?need\s+(?:help|someone|support|to\s+talk|a\s+break)\b/i', $q)) {
             $intent['is_conversational_broad'] = true;
         }
 
-        // Extract explicit child age intent (e.g. "5 year old", "5-year-old", "5yo", "age 5")
+        // Extract explicit child age intent (e.g. "5 year old", "5-year-old", "5yo", "age 5", "7 saal")
         if (preg_match('/\b(\d+)\s*(?:-| |\s*to\s*)*year\s*(?:s|-)*old\b/i', $q, $amatches)) {
             $intent['target_age'] = intval($amatches[1]);
         } elseif (preg_match('/\bage\s*(\d+)\b/i', $q, $amatches)) {
+            $intent['target_age'] = intval($amatches[1]);
+        } elseif (preg_match('/\b(\d+)\s*(?:yo|y\/o)\b/i', $q, $amatches)) {
+            $intent['target_age'] = intval($amatches[1]);
+        } elseif (preg_match('/\b(\d+)\s*(?:saal|sal)\b/i', $q, $amatches)) {
             $intent['target_age'] = intval($amatches[1]);
         }
 
@@ -977,6 +981,17 @@ class SearchEngine
             'therapist'    => ['wellbeing', 'mental health', 'support', 'guide'],
             'counsellor'   => ['wellbeing', 'mental health', 'support', 'guide'],
             'counselor'    => ['wellbeing', 'mental health', 'support', 'guide'],
+            'caesarean'    => ['c-section', 'csection', 'birth recovery', 'postpartum'],
+            'c-section'    => ['caesarean', 'csection', 'birth recovery', 'postpartum'],
+            'postpartum'   => ['postnatal', 'birth recovery', 'caesarean', 'newborn'],
+            'worldschooling' => ['home education', 'homeschooling', 'alternative education'],
+            'homeschooling'  => ['home education', 'worldschooling', 'alternative education'],
+            'homeschool'     => ['home education', 'worldschooling', 'alternative education'],
+            'gentle parenting' => ['calm home', 'boundaries', 'emotion coaching'],
+            'donor conception' => ['donor', 'sperm donor', 'egg donor', 'same-sex parenting'],
+            'paternal'       => ['fatherhood', 'dad', 'paternal depression', 'father isolation'],
+            'burnout'        => ['workplace burnout', 'work stress', 'remote work', 'exhaustion'],
+            'outbursts'      => ['emotional outbursts', 'childhood anxiety', 'meltdowns'],
         ];
 
         foreach ($synonym_map as $trigger => $syns) {
@@ -1000,6 +1015,16 @@ class SearchEngine
             'miscarriage'  => ['miscarriage', 'baby loss', 'grief', 'bereavement'],
             'twins'        => ['twins', 'twin', 'multiples'],
             'breastfeeding' => ['breastfeeding', 'nursing', 'lactation'],
+            'caesarean'    => ['caesarean', 'c-section', 'csection', 'cesarean', 'birth recovery', 'postpartum'],
+            'postpartum'   => ['postpartum', 'postnatal', 'birth recovery', 'caesarean', 'c-section'],
+            'feeding'      => ['breastfeeding', 'nursing', 'lactation', 'extended breastfeeding', 'toddler feeding'],
+            'outbursts'    => ['childhood anxiety', 'emotional outbursts', 'meltdowns', 'emotional overwhelm', 'tantrums', 'emotional regulation'],
+            'gentle'       => ['gentle parenting', 'boundaries', 'calm home', 'emotion coaching', 'parenting style'],
+            'fatherhood'   => ['fatherhood', 'paternal', 'paternal depression', 'paternal postnatal depression', 'father isolation', 'dad wellbeing'],
+            'burnout'      => ['burnout', 'workplace burnout', 'work stress', 'remote work', 'wfh', 'working parent'],
+            'donor'        => ['donor conception', 'sperm donor', 'egg donor', 'same-sex parenting', 'same-sex co-parenting', 'later-life parenthood'],
+            'homeschooling' => ['homeschooling', 'home education', 'worldschooling', 'unschooling', 'alternative education'],
+            'relocation'   => ['relocation', 'moving country', 'moving city', 'family transitions', 'changing lifestyle'],
             'relationship' => ['relationship', 'marriage', 'marital', 'couples', 'divorce', 'separation', 'coparenting', 'co-parenting'],
             'marriage'     => ['marriage', 'marital', 'relationship', 'couples', 'divorce', 'separation', 'coparenting'],
             'therapist'    => ['therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'coach', 'mentor', 'guidance', 'listening ear'],
@@ -1709,11 +1734,31 @@ class SearchEngine
                 'child placement',
                 'guardianship'
             ],
+            'miscarriage' => [
+                'miscarriage',
+                'miscarriages',
+                'recurrent miscarriage',
+                'pregnancy loss',
+                'baby loss',
+                'loss of a baby',
+                'rainbow baby',
+                'pregnancy loss grief',
+                'loss triggers',
+                'triggers',
+                'stillbirth',
+                'stillborn',
+                'infant loss',
+                'bereavement',
+                'grief',
+                'angel baby',
+                'tfmr'
+            ],
             'baby loss' => [
                 'baby loss',
                 'pregnancy loss',
                 'miscarriage',
                 'miscarriages',
+                'recurrent miscarriage',
                 'stillbirth',
                 'stillborn',
                 'infant loss',
@@ -1722,13 +1767,17 @@ class SearchEngine
                 'angel baby',
                 'tfmr',
                 'rainbow baby',
-                'loss of a baby'
+                'loss of a baby',
+                'pregnancy loss grief',
+                'loss triggers',
+                'triggers'
             ],
             'loss' => [
                 'baby loss',
                 'pregnancy loss',
                 'miscarriage',
                 'miscarriages',
+                'recurrent miscarriage',
                 'stillbirth',
                 'stillborn',
                 'infant loss',
@@ -1737,7 +1786,10 @@ class SearchEngine
                 'angel baby',
                 'tfmr',
                 'rainbow baby',
-                'loss of a baby'
+                'loss of a baby',
+                'pregnancy loss grief',
+                'loss triggers',
+                'triggers'
             ],
             'grief' => [
                 'grief',
@@ -1761,31 +1813,49 @@ class SearchEngine
             ],
             'ivf' => [
                 'ivf',
+                'in vitro fertilization',
                 'infertility',
                 'fertility',
                 'icsi',
                 'embryo',
+                'embryo transfer',
                 'donor sperm',
                 'donor egg',
                 'surrogacy',
                 'egg retrieval',
                 'two-week wait',
                 'two week wait',
-                'fertility treatment'
+                'tww',
+                'fertility treatment',
+                'fertility journey',
+                'ivf cycle',
+                'failed ivf',
+                'failed cycle',
+                'fertility injections',
+                'injections'
             ],
             'fertility' => [
                 'ivf',
+                'in vitro fertilization',
                 'infertility',
                 'fertility',
                 'icsi',
                 'embryo',
+                'embryo transfer',
                 'donor sperm',
                 'donor egg',
                 'surrogacy',
                 'egg retrieval',
                 'two-week wait',
                 'two week wait',
-                'fertility treatment'
+                'tww',
+                'fertility treatment',
+                'fertility journey',
+                'ivf cycle',
+                'failed ivf',
+                'failed cycle',
+                'fertility injections',
+                'injections'
             ],
             'adhd' => [
                 'adhd',
@@ -2132,6 +2202,214 @@ class SearchEngine
                 'mental health',
                 'wellbeing'
             ],
+            'caesarean' => [
+                'caesarean',
+                'c-section',
+                'csection',
+                'c section',
+                'cesarean',
+                'birth recovery',
+                'postpartum recovery',
+                'postpartum'
+            ],
+            'c-section' => [
+                'caesarean',
+                'c-section',
+                'csection',
+                'c section',
+                'cesarean',
+                'birth recovery',
+                'postpartum recovery',
+                'postpartum'
+            ],
+            'postpartum' => [
+                'postpartum',
+                'postnatal',
+                'birth recovery',
+                'postpartum recovery',
+                'new-parent transition',
+                'new parent',
+                'fourth trimester',
+                'caesarean',
+                'c-section'
+            ],
+            'feeding' => [
+                'breastfeeding',
+                'nursing',
+                'lactation',
+                'extended breastfeeding',
+                'older toddler feeding',
+                'bottle feeding',
+                'weaning',
+                'latch'
+            ],
+            'gentle parenting' => [
+                'gentle parenting',
+                'boundaries',
+                'calm home',
+                'emotion coaching',
+                'parenting style',
+                'positive parenting',
+                'conscious parenting'
+            ],
+            'emotional outbursts' => [
+                'emotional outbursts',
+                'childhood anxiety',
+                'emotional overwhelm',
+                'emotional regulation',
+                'tantrums',
+                'meltdowns',
+                'behavioural struggles',
+                'behaviour'
+            ],
+            'outbursts' => [
+                'emotional outbursts',
+                'childhood anxiety',
+                'emotional overwhelm',
+                'emotional regulation',
+                'tantrums',
+                'meltdowns',
+                'behavioural struggles',
+                'behaviour'
+            ],
+            'fatherhood' => [
+                'fatherhood',
+                'paternal',
+                'paternal wellbeing',
+                'paternal postnatal depression',
+                'paternal depression',
+                'father isolation',
+                'dad feels isolated',
+                'dad struggling',
+                'father mental health',
+                'dad mental health',
+                'new dad',
+                'new dad struggles',
+                'fatherhood stress',
+                'work stress',
+                'dad',
+                'father'
+            ],
+            'paternal' => [
+                'fatherhood',
+                'paternal',
+                'paternal wellbeing',
+                'paternal postnatal depression',
+                'paternal depression',
+                'father isolation',
+                'dad feels isolated',
+                'dad struggling',
+                'father mental health',
+                'dad mental health',
+                'new dad',
+                'new dad struggles',
+                'fatherhood stress',
+                'work stress',
+                'dad',
+                'father'
+            ],
+            'dad' => [
+                'fatherhood',
+                'paternal',
+                'paternal wellbeing',
+                'paternal postnatal depression',
+                'paternal depression',
+                'father isolation',
+                'dad feels isolated',
+                'dad struggling',
+                'father mental health',
+                'dad mental health',
+                'new dad',
+                'new dad struggles',
+                'fatherhood stress',
+                'work stress',
+                'dad',
+                'father'
+            ],
+            'burnout' => [
+                'burnout',
+                'workplace burnout',
+                'work stress',
+                'remote work',
+                'wfh',
+                'working parent',
+                'work from home parent',
+                'work-life balance',
+                'work life balance',
+                'balancing career and kids',
+                'parenting while working',
+                'work family boundaries',
+                'career stress',
+                'exhaustion'
+            ],
+            'work-life balance' => [
+                'work-life balance',
+                'work life balance',
+                'working parent',
+                'work from home parent',
+                'remote work',
+                'work stress',
+                'burnout',
+                'workplace burnout',
+                'balancing career and kids',
+                'parenting while working',
+                'work family boundaries',
+                'wfh'
+            ],
+            'donor conception' => [
+                'donor conception',
+                'donor',
+                'sperm donor',
+                'egg donor',
+                'same-sex parenting',
+                'same-sex co-parenting',
+                'later-life parenthood',
+                'surrogacy'
+            ],
+            'same-sex parenting' => [
+                'same-sex parenting',
+                'same-sex co-parenting',
+                'same sex parents',
+                'donor conception',
+                'lgbtq parenting',
+                'co-parenting'
+            ],
+            'homeschooling' => [
+                'home education',
+                'homeschooling',
+                'homeschool',
+                'worldschooling',
+                'unschooling',
+                'alternative education',
+                'different family lifestyle'
+            ],
+            'home education' => [
+                'home education',
+                'homeschooling',
+                'homeschool',
+                'worldschooling',
+                'unschooling',
+                'alternative education',
+                'different family lifestyle'
+            ],
+            'worldschooling' => [
+                'home education',
+                'homeschooling',
+                'homeschool',
+                'worldschooling',
+                'unschooling',
+                'alternative education',
+                'different family lifestyle'
+            ],
+            'relocation' => [
+                'relocation',
+                'moving country',
+                'moving city',
+                'family transitions',
+                'changing family circumstances',
+                'changing lifestyle',
+                'relocating'
+            ],
         ];
 
         // Exact canonical key match takes highest precedence
@@ -2247,7 +2525,28 @@ class SearchEngine
             'counsellor',
             'counselor',
             'therapy',
-            'counseling'
+            'counseling',
+            'caesarean',
+            'c-section',
+            'csection',
+            'cesarean',
+            'worldschooling',
+            'homeschool',
+            'homeschooling',
+            'home education',
+            'gentle parenting',
+            'donor conception',
+            'same-sex',
+            'same sex',
+            'paternal',
+            'fatherhood',
+            'two-week wait',
+            'egg retrieval',
+            'embryo',
+            'outbursts',
+            'relocation',
+            'workplace burnout',
+            'work stress'
         ];
 
 
@@ -2372,6 +2671,11 @@ class SearchEngine
             '/\bprobs\b/i'     => 'problems',
             '/\brel\b/i'       => 'relationship',
             '/\bptsd\b/i'      => 'trauma',
+            '/\bc[\s\-]?section\b/i' => 'c-section',
+            '/\btww\b/i'       => 'two-week wait',
+            '/\bttc\b/i'       => 'trying to conceive',
+            '/\bpnd\b/i'       => 'postnatal depression',
+            '/\bwfh\b/i'       => 'remote work',
         ];
         foreach ($abbreviation_map as $pattern => $replacement) {
             $q_norm = preg_replace($pattern, $replacement, $q_norm);
@@ -2397,6 +2701,9 @@ class SearchEngine
             '/\badopshen\b/i'                                   => 'adoption',
             '/\bautisum\b/i'                                    => 'autism',
             '/\bmedicle\b/i'                                    => 'medical',
+            '/\b(?:mujhe\s+lagta\s+hai\s+)?koi\s+(?:meri\s+)?situation\s+samajhta\s+(?:hi\s+)?nahi\b/i' => 'nobody understands my situation feel alone need peer support',
+            '/\bkoi\s+(?:bhi\s+)?samajh(?:ta)?\s+nahi\b/i'     => 'no one understands feel alone',
+            '/\b(?:no\s+one|nobody)\s+understands(?:\s+my\s+situation)?\b/i' => 'nobody understands my situation feel alone peer support',
         ];
         foreach ($typo_phrase_map as $pattern => $replacement) {
             $q_norm = preg_replace($pattern, $replacement, $q_norm);
