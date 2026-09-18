@@ -255,12 +255,14 @@ class WorldPayPaymentGateway
         $expected_total_payable     = $expected_service_cost + $expected_service_fee;
         $expected_total_payable_str = number_format($expected_total_payable, 2, '.', '');
 
-        if (floatval($service_cost) > 0 && floatval($total_payable) > 0) {
-            // Received values from frontend are valid
-        } else {
-            $total_payable = $expected_total_payable_str;
-            $service_cost = $expected_service_cost_str;
-            $service_fee = $expected_service_fee_str;
+        // Security: Strictly enforce server-calculated amounts to prevent client-side price tampering
+        $service_cost  = $expected_service_cost_str;
+        $service_fee   = $expected_service_fee_str;
+        $total_payable = $expected_total_payable_str;
+
+        if (floatval($total_payable) <= 0) {
+            $this->cosy_payment_log("WorldPay Session Creation FAILED: Calculated total payable amount is invalid or zero (£{$total_payable}).", $_POST);
+            wp_send_json_error(['message' => __('Invalid booking amount. Please contact support.', 'cosy-appointments')]);
         }
 
         $this->cosy_payment_log("Initiating WorldPay Session Creation for Service: $service, Provider ID: $provider_id", $_POST);
