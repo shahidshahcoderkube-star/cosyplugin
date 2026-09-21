@@ -101,14 +101,14 @@ class SearchEngine
     {
         global $wpdb;
 
-        // Auto-purge stale cache & transients on version upgrade (v1.0.46)
-        if (get_option('cosy_ai_search_version') !== '1.0.46') {
+        // Auto-purge stale cache & transients on version upgrade (v1.0.47)
+        if (get_option('cosy_ai_search_version') !== '1.0.47') {
             $table_c = $wpdb->prefix . 'cosychats_search_cache';
             if ($wpdb->get_var("SHOW TABLES LIKE '$table_c'") === $table_c) {
                 $wpdb->query("TRUNCATE TABLE $table_c");
             }
             $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cosy_prov_list_%' OR option_name LIKE '_transient_timeout_cosy_prov_list_%'");
-            update_option('cosy_ai_search_version', '1.0.46');
+            update_option('cosy_ai_search_version', '1.0.47');
         }
 
         $clean_query_input = trim($query_text);
@@ -222,6 +222,7 @@ class SearchEngine
         $has_potential_name = false;
 
         $is_filter_intent = ($intent['target_role'] !== 'any') ||
+            !empty($intent['require_single_parent']) ||
             ($intent['target_age'] > 0) ||
             ($intent['min_price'] > 0) ||
             ($intent['max_price'] > 0) ||
@@ -333,6 +334,16 @@ class SearchEngine
                         continue; // Strictly reject non-single fathers when single father was queried
                     }
                 }
+            } elseif (!empty($intent['require_single_parent'])) {
+                // Strict Single Parent Filter for gender-neutral queries ("single parent", "solo parent")
+                $is_single_parent = preg_match('/\b(single mum|solo mum|single mom|solo mom|single mother|solo mother|single dad|solo dad|single father|solo father|single parent|solo parent|full custody|raising.*on my own|solo mum by choice)\b/i', $p_text);
+                $facts = get_user_meta($provider_id, 'cosy_profile_facts', true) ?: [];
+                if (!empty($facts['is_owner_single_parent'])) {
+                    $is_single_parent = true;
+                }
+                if (!$is_single_parent) {
+                    continue; // Strictly reject non-single parents when single parent was queried
+                }
             }
 
             // Explicit Price Range & Min/Max Hard Filter
@@ -428,6 +439,7 @@ class SearchEngine
             // Baseline score for broad conversational queries or filter-only searches without explicit domain topic
             $is_filter_only_candidate = empty($domain_query_kws) && (
                 $intent['target_role'] !== 'any' ||
+                !empty($intent['require_single_parent']) ||
                 $intent['target_age'] > 0 ||
                 $intent['min_price'] > 0 ||
                 $intent['max_price'] > 0 ||
@@ -551,6 +563,10 @@ class SearchEngine
                 if ($p_gender === 'male' || preg_match('/\b(single father|solo father|father|dad)\b/i', $p_text)) {
                     $intent_multiplier = 1.5;
                 }
+            } elseif (!empty($intent['require_single_parent'])) {
+                if (preg_match('/\b(single mum|solo mum|single mom|solo mom|single mother|solo mother|single dad|solo dad|single father|solo father|single parent|solo parent)\b/i', $p_text)) {
+                    $intent_multiplier = 1.5;
+                }
             }
 
             // Layer F: Multi-Topic Joint Intersection Bonus (Requires distinct semantic words)
@@ -589,6 +605,7 @@ class SearchEngine
 
             // Determine if provider is genuinely relevant to the search query
             $has_filter_match = !empty($intent['availability']) ||
+                !empty($intent['require_single_parent']) ||
                 ($intent['min_price'] > 0) ||
                 ($intent['max_price'] > 0) ||
                 $is_highest_rated_intent;
@@ -636,7 +653,7 @@ class SearchEngine
         }
 
         // Strict Out-of-Context & Gibberish Query Safety Filter
-        $is_valid_intent = ($intent['target_role'] !== 'any') || ($intent['max_price'] > 0) || ($intent['min_price'] > 0) || !empty($intent['availability']) || $is_highest_rated_intent || ($intent['target_age'] > 0) || ($intent['target_children_count'] > 0) || ($intent['target_experience_years'] > 0) || !empty($intent['synonyms']) || !empty($intent['is_conversational_broad']) || preg_match('/\b(best|top|cheap|cheapest|affordable|rated|rating|reviewed|reviews|guide|guides|parent|parents|mum|mums|dad|dads|talk|listen|listening|help|someone|support|therapist|counsellor|counselor|coach|advice|guidance|bat|baat|madad)\b/i', $corrected_query);
+        $is_valid_intent = ($intent['target_role'] !== 'any') || !empty($intent['require_single_parent']) || ($intent['max_price'] > 0) || ($intent['min_price'] > 0) || !empty($intent['availability']) || $is_highest_rated_intent || ($intent['target_age'] > 0) || ($intent['target_children_count'] > 0) || ($intent['target_experience_years'] > 0) || !empty($intent['synonyms']) || !empty($intent['is_conversational_broad']) || preg_match('/\b(best|top|cheap|cheapest|affordable|rated|rating|reviewed|reviews|guide|guides|parent|parents|mum|mums|dad|dads|talk|listen|listening|help|someone|support|therapist|counsellor|counselor|coach|advice|guidance|bat|baat|madad)\b/i', $corrected_query);
 
         if (!$is_valid_intent && empty($domain_query_kws)) {
             $fallback_ids = self::get_fallback_provider_ids($effective_limit);
@@ -1091,14 +1108,17 @@ class SearchEngine
         }
 
         // Strict Single Parent Intent Detection
-        if (preg_match('/\b(single mum|solo mum|single mom|solo mom|single mother|solo mother)\b/i', $q)) {
+        if (preg_match('/\b(single mum|solo mum|single mom|solo mom|single mother|solo mother)s?\b/i', $q)) {
             $intent['target_role'] = 'female';
             $intent['require_single_parent'] = true;
-        } elseif (preg_match('/\b(single dad|solo dad|single father|solo father)\b/i', $q)) {
+            $intent['phrases'] = array_merge($intent['phrases'], ['single mum', 'solo mum', 'single mom', 'solo mom', 'single mother', 'solo mother']);
+        } elseif (preg_match('/\b(single dad|solo dad|single father|solo father)s?\b/i', $q)) {
             $intent['target_role'] = 'male';
             $intent['require_single_parent'] = true;
-        } elseif (preg_match('/\b(single parent|solo parent)\b/i', $q)) {
+            $intent['phrases'] = array_merge($intent['phrases'], ['single dad', 'solo dad', 'single father', 'solo father']);
+        } elseif (preg_match('/\b(single parent|solo parent)s?\b/i', $q)) {
             $intent['require_single_parent'] = true;
+            $intent['phrases'] = array_merge($intent['phrases'], ['single mum', 'single dad', 'single mother', 'single father', 'single mom', 'solo mum', 'solo dad', 'solo mother', 'single parent', 'solo parent']);
         }
 
         // 2. Extract Explicit Price / Budget Constraints (Range, Min, Max)

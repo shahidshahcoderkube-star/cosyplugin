@@ -168,20 +168,20 @@ class ProfileIndexer
         ];
 
         // 1. Detect Owner Statement Scope vs Helper Statement Scope
-        // Owner Identity Statements: "I am a single mum", "I'm a solo mother", "I became a single parent"
-        $owner_pattern = '/\b(i am|i\'m|became a|as a)\s+(a\s+)?(single|solo)\s+(mum|mom|mother|parent)\b/i';
+        // Owner Identity Statements: "I am a single mum", "I'm a solo mother", "I became a single parent", "single dad"
+        $owner_pattern = '/\b(i am|i\'m|became a|as a)\s+(a\s+)?(single|solo)\s+(mum|mom|mother|dad|father|parent)\b/i';
         if (preg_match($owner_pattern, $text)) {
             $facts['is_owner_single_parent'] = true;
         }
 
         // Helper Statements: "I support single mums", "work with single mums", "supported many single mums"
-        $helper_pattern = '/\b(support|supported|working with|help|counsel)\s+(many\s+)?(single|solo)\s+(mums|moms|mothers|parents)\b/i';
+        $helper_pattern = '/\b(support|supported|working with|help|counsel)\s+(many\s+)?(single|solo)\s+(mums|moms|mothers|dads|fathers|parents)\b/i';
         if (preg_match($helper_pattern, $text) && !preg_match($owner_pattern, $text)) {
             $facts['is_helper_only'] = true;
         }
 
         // Negative Statement Exclusions: "I'm not a single mum"
-        if (preg_match('/\b(not a single mum|not a single mother|not a solo mum)\b/i', $text)) {
+        if (preg_match('/\b(not a single mum|not a single mother|not a solo mum|not a single dad|not a single father)\b/i', $text)) {
             $facts['is_owner_single_parent'] = false;
             $facts['is_helper_only'] = true;
         }
