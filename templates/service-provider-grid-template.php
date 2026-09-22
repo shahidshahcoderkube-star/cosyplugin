@@ -41,7 +41,7 @@ if (empty($providers)): ?>
 
                 <div class="card-main-content">
                     <p class="description-text">
-                        <?php echo esc_html(wp_trim_words($provider['description'], 25)); ?>
+                        <?php echo esc_html(wp_trim_words($provider['description'], 23)); ?>
                     </p>
 
                     <?php if (!empty($provider['price'])): ?>
