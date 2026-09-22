@@ -13,23 +13,25 @@ if (!defined('ABSPATH')) {
 class AIService
 {
     /**
-     * GENERATES AI VECTOR EMBEDDINGS
+     * GENERATES AI VECTOR EMBEDDINGS (WITH SMART QUERY VECTOR TRANSIENT CACHING)
      * 
      * USE CASE:
      * Generates floating-point vector embeddings for search queries and provider profile indexing.
+     * Caches repeat query vectors in WordPress Transients to avoid external API costs & latency.
      * 
      * HOW TO USE:
      * $vector = AIService::get_embedding("child therapy specialist");
      * 
      * WHAT IT DOES INTERNALLY:
-     * 1. Reads AI provider choice ('gemini' vs 'openai') and API key from Admin settings.
-     * 2. Sends HTTP POST request to Gemini text-embedding endpoint or OpenAI text-embedding-3-small endpoint.
-     * 3. Parses response JSON and returns array of float embedding coordinates.
+     * 1. Checks 7-day transient cache for query embedding to eliminate repeated API costs ($0.00 repeat cost).
+     * 2. If cache miss, sends HTTP POST request to Gemini embedding endpoint or OpenAI endpoint.
+     * 3. Parses response JSON, stores float vector in transient cache, and returns vector coordinates.
      * 
-     * @param string $text Text to embed into vector format.
-     * @return array       Float array of vector embedding values.
+     * @param string $text      Text to embed into vector format.
+     * @param bool   $use_cache Whether to read and write to transient cache (default true).
+     * @return array            Float array of vector embedding values.
      */
-    public static function get_embedding(string $text): array
+    public static function get_embedding(string $text, bool $use_cache = true): array
     {
         $text = trim($text);
         if (empty($text)) {
@@ -44,15 +46,148 @@ class AIService
             return [];
         }
 
-        if ($provider === 'openai') {
-            return self::get_openai_embedding($text, $api_key);
-        } else {
-            return self::get_gemini_embedding($text, $api_key);
+        // 1. Smart Query Vector Transient Cache Check
+        $cache_key = 'cosy_qvec_' . md5(strtolower($text) . '_' . $provider);
+        if ($use_cache) {
+            $cached_vector = get_transient($cache_key);
+            if (is_array($cached_vector) && !empty($cached_vector)) {
+                return $cached_vector;
+            }
         }
+
+        // 2. Live API Call on Cache Miss
+        if ($provider === 'openai') {
+            $vector = self::get_openai_embedding($text, $api_key);
+        } else {
+            $vector = self::get_gemini_embedding($text, $api_key);
+        }
+
+        // 3. Cache Result for 7 Days on Successful Retrieval
+        if (!empty($vector) && is_array($vector) && $use_cache) {
+            set_transient($cache_key, $vector, DAY_IN_SECONDS * 7);
+        }
+
+        return $vector;
     }
 
     /**
-     * Call Google Gemini text-embedding-004 endpoint.
+     * GENERATES BATCH AI VECTOR EMBEDDINGS (WITH TRANSIENT CACHING)
+     * 
+     * USE CASE:
+     * Embeds multiple text snippets (e.g. bio sentences) in a single batch API call.
+     * Caches each vector individually in transients so repeated sentences cost $0.00.
+     * 
+     * @param array $texts Array of text strings to embed.
+     * @return array       Array of float vectors mapped 1:1 to input texts.
+     */
+    public static function get_batch_embeddings(array $texts): array
+    {
+        if (empty($texts)) {
+            return [];
+        }
+
+        $provider = get_option('cosy_ai_provider', 'gemini');
+        $api_key  = get_option('cosy_ai_api_key', '');
+
+        $results      = [];
+        $uncached_idx = [];
+        $uncached_txt = [];
+
+        // 1. Check transient cache for each text individually
+        foreach ($texts as $idx => $txt) {
+            $trimmed = trim($txt);
+            if (empty($trimmed)) {
+                $results[$idx] = [];
+                continue;
+            }
+            $cache_key = 'cosy_qvec_' . md5(strtolower($trimmed) . '_' . $provider);
+            $cached    = get_transient($cache_key);
+            if (is_array($cached) && !empty($cached)) {
+                $results[$idx] = $cached;
+            } else {
+                $uncached_idx[] = $idx;
+                $uncached_txt[] = $trimmed;
+            }
+        }
+
+        // If all texts were found in cache, return immediately (sub-millisecond)
+        if (empty($uncached_txt)) {
+            ksort($results);
+            return $results;
+        }
+
+        if (empty($api_key)) {
+            error_log('[Cosy AI Search] API Key is missing in plugin settings.');
+            ksort($results);
+            return $results;
+        }
+
+        // 2. Fetch uncached embeddings via batch API
+        if ($provider === 'openai') {
+            $url     = 'https://api.openai.com/v1/embeddings';
+            $payload = [
+                'input' => array_values($uncached_txt),
+                'model' => 'text-embedding-3-small'
+            ];
+            $response = wp_remote_post($url, [
+                'headers' => [
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . $api_key,
+                ],
+                'body'    => json_encode($payload),
+                'timeout' => 20,
+            ]);
+            if (!is_wp_error($response)) {
+                $data = json_decode(wp_remote_retrieve_body($response), true);
+                if (!empty($data['data'])) {
+                    foreach ($data['data'] as $pos => $item) {
+                        $orig_idx = $uncached_idx[$pos];
+                        $vec      = $item['embedding'] ?? [];
+                        $results[$orig_idx] = $vec;
+                        if (!empty($vec)) {
+                            $c_key = 'cosy_qvec_' . md5(strtolower($uncached_txt[$pos]) . '_' . $provider);
+                            set_transient($c_key, $vec, DAY_IN_SECONDS * 7);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Google Gemini batchEmbedContents endpoint
+            $url      = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:batchEmbedContents?key=' . urlencode($api_key);
+            $requests = [];
+            foreach ($uncached_txt as $txt) {
+                $requests[] = [
+                    'model'   => 'models/gemini-embedding-2',
+                    'content' => ['parts' => [['text' => $txt]]]
+                ];
+            }
+            $response = wp_remote_post($url, [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body'    => json_encode(['requests' => $requests]),
+                'timeout' => 25,
+            ]);
+            if (!is_wp_error($response)) {
+                $data = json_decode(wp_remote_retrieve_body($response), true);
+                if (!empty($data['embeddings'])) {
+                    foreach ($data['embeddings'] as $pos => $item) {
+                        $orig_idx = $uncached_idx[$pos];
+                        $vec      = $item['values'] ?? [];
+                        $results[$orig_idx] = $vec;
+                        if (!empty($vec)) {
+                            $c_key = 'cosy_qvec_' . md5(strtolower($uncached_txt[$pos]) . '_' . $provider);
+                            set_transient($c_key, $vec, DAY_IN_SECONDS * 7);
+                        }
+                    }
+                }
+            }
+        }
+
+        ksort($results);
+        return $results;
+    }
+
+    /**
+     * Call Google Gemini gemini-embedding-2 endpoint (3072 dimensions).
      */
     private static function get_gemini_embedding(string $text, string $api_key): array
     {

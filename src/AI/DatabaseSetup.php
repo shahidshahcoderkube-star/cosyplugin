@@ -8,12 +8,12 @@ if (!defined('ABSPATH')) {
 
 /**
  * DatabaseSetup Class
- * Handles database table creation for AI Provider Embeddings and Search Cache.
+ * Handles database table creation for AI Provider Embeddings.
  */
 class DatabaseSetup
 {
     /**
-     * CREATES AI EMBEDDINGS & SEARCH CACHE TABLES
+     * CREATES AI EMBEDDINGS TABLE
      * 
      * USE CASE:
      * Triggered on plugin activation or database migration to ensure AI vector database tables exist.
@@ -22,8 +22,8 @@ class DatabaseSetup
      * DatabaseSetup::create_tables();
      * 
      * WHAT IT DOES INTERNALLY:
-     * 1. Prepares table names wp_provider_embeddings and wp_cosychats_search_cache.
-     * 2. Executes dbDelta() to create embeddings and search query cache tables.
+     * 1. Prepares table name wp_provider_embeddings.
+     * 2. Executes dbDelta() to create embeddings table.
      */
     public static function create_tables(): void
     {
@@ -32,7 +32,7 @@ class DatabaseSetup
         $charset_collate = $wpdb->get_charset_collate();
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-        // 1. Table: wp_provider_embeddings
+        // Table: wp_provider_embeddings
         $table_embeddings = $wpdb->prefix . 'provider_embeddings';
         $sql_embeddings = "CREATE TABLE $table_embeddings (
             provider_id bigint(20) unsigned NOT NULL,
@@ -41,18 +41,5 @@ class DatabaseSetup
             PRIMARY KEY  (provider_id)
         ) $charset_collate;";
         dbDelta($sql_embeddings);
-
-        // 2. Table: wp_cosychats_search_cache
-        $table_cache = $wpdb->prefix . 'cosychats_search_cache';
-        $sql_cache = "CREATE TABLE $table_cache (
-            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            query_hash varchar(32) NOT NULL,
-            query_text text NOT NULL,
-            matching_provider_ids longtext NOT NULL,
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY  (id),
-            UNIQUE KEY query_hash (query_hash)
-        ) $charset_collate;";
-        dbDelta($sql_cache);
     }
 }

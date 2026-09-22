@@ -70,16 +70,20 @@ class ProfileIndexer
             }
         }
 
-        // Fetch assigned services from wp_provider_services
+        // Fetch assigned services from wp_provider_services (including service description if present)
         $services_table = $wpdb->prefix . 'provider_services';
         $services = [];
         if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
             $service_rows = $wpdb->get_results(
-                $wpdb->prepare("SELECT DISTINCT service FROM $services_table WHERE provider_id = %d", $user_id)
+                $wpdb->prepare("SELECT service, description FROM $services_table WHERE provider_id = %d", $user_id)
             );
             foreach ($service_rows as $row) {
                 if (!empty($row->service)) {
-                    $services[] = $row->service;
+                    $entry = trim($row->service);
+                    if (!empty($row->description)) {
+                        $entry .= " (" . trim($row->description) . ")";
+                    }
+                    $services[] = $entry;
                 }
             }
         }
@@ -128,7 +132,32 @@ class ProfileIndexer
         $facts = self::extract_profile_facts($bio, $gender, $services_str);
         update_user_meta($user_id, 'cosy_profile_facts', $facts);
 
-        // Fetch vector embedding
+        // Pre-compute bio sentence vector embeddings for high-precision proof extraction
+        if (!empty($bio)) {
+            $raw_sentences = preg_split('/(?<=[.!?])\s+/u', $bio, -1, PREG_SPLIT_NO_EMPTY);
+            $clean_sentences = [];
+            foreach ($raw_sentences as $rs) {
+                $rs_trim = trim($rs);
+                if (mb_strlen($rs_trim) >= 20 && str_word_count($rs_trim) >= 4) {
+                    $clean_sentences[] = $rs_trim;
+                }
+            }
+            if (!empty($clean_sentences)) {
+                $sentence_vectors = AIService::get_batch_embeddings($clean_sentences);
+                $bio_sentence_data = [];
+                foreach ($clean_sentences as $idx => $s_text) {
+                    if (!empty($sentence_vectors[$idx])) {
+                        $bio_sentence_data[] = [
+                            'text'   => $s_text,
+                            'vector' => $sentence_vectors[$idx],
+                        ];
+                    }
+                }
+                update_user_meta($user_id, 'cosy_bio_sentence_embeddings', $bio_sentence_data);
+            }
+        }
+
+        // Fetch overall vector embedding
         $vector = AIService::get_embedding($profile_text);
         if (empty($vector)) {
             return false;
@@ -165,6 +194,9 @@ class ProfileIndexer
             'is_helper_only'         => false,
             'children_count'         => 0,
             'experience_years'       => 0,
+            'has_adhd_send_exp'      => false,
+            'has_ivf_loss_exp'       => false,
+            'has_twins_multiples'    => false,
         ];
 
         // 1. Detect Owner Statement Scope vs Helper Statement Scope
@@ -205,6 +237,17 @@ class ProfileIndexer
             $facts['experience_years'] = intval($exp_matches[1]);
         }
 
+        // 4. Lived Experience Fact Detection (ADHD/SEND, IVF/Loss, Twins)
+        if (preg_match('/\b(adhd|autism|send|special needs|neurodivergent|sensory processing)\b/i', $text)) {
+            $facts['has_adhd_send_exp'] = true;
+        }
+        if (preg_match('/\b(ivf|miscarriage|baby loss|fertility journey|pregnancy loss)\b/i', $text)) {
+            $facts['has_ivf_loss_exp'] = true;
+        }
+        if (preg_match('/\b(twins|triplets|multiples)\b/i', $text)) {
+            $facts['has_twins_multiples'] = true;
+        }
+
         return $facts;
     }
 
@@ -240,14 +283,11 @@ class ProfileIndexer
     }
 
     /**
-     * Empty search cache table whenever profile data changes.
+     * Flush provider list transients whenever profile data changes.
      */
     public static function clear_search_cache(): void
     {
         global $wpdb;
-        $table_cache = $wpdb->prefix . 'cosychats_search_cache';
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_cache'") === $table_cache) {
-            $wpdb->query("TRUNCATE TABLE $table_cache");
-        }
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cosy_prov_list_%' OR option_name LIKE '_transient_timeout_cosy_prov_list_%'");
     }
 }

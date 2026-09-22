@@ -766,8 +766,8 @@ if (!defined('ABSPATH')) {
                     </div>
                     <div class="cdoc-card">
                         <div class="cdoc-card-icon"><i class="fas fa-bolt"></i></div>
-                        <h3>Instant Search Cache</h3>
-                        <p>Search queries are hashed (MD5) and cached in <code>wp_cosychats_search_cache</code>. Repeat searches return in <strong>&lt; 10ms with $0.00 API cost</strong>.</p>
+                        <h3>Live Hybrid Search</h3>
+                        <p>Real-time intent parsing and cosine similarity ranking with zero stale-data risks, ensuring 100% live database precision.</p>
                     </div>
                     <div class="cdoc-card">
                         <div class="cdoc-card-icon"><i class="fas fa-calculator"></i></div>
@@ -792,15 +792,11 @@ if (!defined('ABSPATH')) {
                     <tbody>
                         <tr>
                             <td style="padding: 12px; font-family: monospace;">wp_provider_embeddings</td>
-                            <td style="padding: 12px;">Stores JSON-encoded 1536-dimensional float vector embeddings generated for each registered service provider.</td>
+                            <td style="padding: 12px;">Stores JSON-encoded vector embeddings generated for each registered service provider.</td>
                         </tr>
                         <tr>
-                            <td style="padding: 12px; font-family: monospace;">wp_cosychats_search_cache</td>
-                            <td style="padding: 12px;">Stores MD5 query hashes, search prompt text, and matching provider IDs. Serves repeated user queries instantly without contacting OpenAI.</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; font-family: monospace;">REST API Endpoints</td>
-                            <td style="padding: 12px;"><code>POST /wp-json/cosy/v1/ai-search</code> — Processes natural language search queries and returns ranked provider objects.</td>
+                            <td style="padding: 12px; font-family: monospace;">AJAX & REST Endpoints</td>
+                            <td style="padding: 12px;"><code>action: cosy_ai_search</code> — Processes natural language search queries and returns ranked provider objects.</td>
                         </tr>
                     </tbody>
                 </table>

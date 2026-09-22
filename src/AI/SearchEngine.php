@@ -101,14 +101,10 @@ class SearchEngine
     {
         global $wpdb;
 
-        // Auto-purge stale cache & transients on version upgrade (v1.0.47)
-        if (get_option('cosy_ai_search_version') !== '1.0.47') {
-            $table_c = $wpdb->prefix . 'cosychats_search_cache';
-            if ($wpdb->get_var("SHOW TABLES LIKE '$table_c'") === $table_c) {
-                $wpdb->query("TRUNCATE TABLE $table_c");
-            }
+        // Auto-purge stale transients on version upgrade (v1.0.48)
+        if (get_option('cosy_ai_search_version') !== '1.0.48') {
             $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cosy_prov_list_%' OR option_name LIKE '_transient_timeout_cosy_prov_list_%'");
-            update_option('cosy_ai_search_version', '1.0.47');
+            update_option('cosy_ai_search_version', '1.0.48');
         }
 
         $clean_query_input = trim($query_text);
@@ -177,6 +173,63 @@ class SearchEngine
             ];
         }
 
+        // Prime WordPress user and usermeta cache in a single SQL query
+        if (function_exists('update_meta_cache')) {
+            update_meta_cache('user', $active_provider_ids);
+        }
+
+        // Bulk pre-fetch all provider services & prices in ONE single query
+        $services_table        = $wpdb->prefix . 'provider_services';
+        $has_services_table    = ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table);
+        $services_by_provider  = [];
+        $min_price_by_provider = [];
+        $max_price_by_provider = [];
+
+        if (!empty($active_provider_ids) && $has_services_table) {
+            $placeholders     = implode(',', array_fill(0, count($active_provider_ids), '%d'));
+            $all_service_rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT provider_id, service, price, description FROM $services_table WHERE provider_id IN ($placeholders)",
+                ...$active_provider_ids
+            ));
+            if (!empty($all_service_rows)) {
+                foreach ($all_service_rows as $srow) {
+                    $pid   = (int)$srow->provider_id;
+                    $p_val = floatval($srow->price);
+                    $services_by_provider[$pid][] = $srow;
+                    if ($p_val > 0) {
+                        if (!isset($min_price_by_provider[$pid]) || $p_val < $min_price_by_provider[$pid]) {
+                            $min_price_by_provider[$pid] = $p_val;
+                        }
+                        if (!isset($max_price_by_provider[$pid]) || $p_val > $max_price_by_provider[$pid]) {
+                            $max_price_by_provider[$pid] = $p_val;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Bulk pre-fetch all provider reviews & ratings in ONE single query
+        $reviews_table       = $wpdb->prefix . 'cosy_provider_reviews';
+        $has_reviews_table   = ($wpdb->get_var("SHOW TABLES LIKE '$reviews_table'") === $reviews_table);
+        $ratings_by_provider = [];
+
+        if (!empty($active_provider_ids) && $has_reviews_table) {
+            $placeholders    = implode(',', array_fill(0, count($active_provider_ids), '%d'));
+            $all_review_rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT provider_id, AVG(rating) as avg_rating, COUNT(id) as cnt FROM $reviews_table WHERE provider_id IN ($placeholders) AND status = 'approved' GROUP BY provider_id",
+                ...$active_provider_ids
+            ));
+            if (!empty($all_review_rows)) {
+                foreach ($all_review_rows as $rrow) {
+                    $pid = (int)$rrow->provider_id;
+                    $ratings_by_provider[$pid] = [
+                        'rating'       => $rrow->avg_rating ? round(floatval($rrow->avg_rating), 1) : 0.0,
+                        'review_count' => intval($rrow->cnt),
+                    ];
+                }
+            }
+        }
+
         // Load provider embeddings from database for vector similarity scoring if available
         $table_embeddings = $wpdb->prefix . 'provider_embeddings';
         $vector_lookup    = [];
@@ -192,9 +245,9 @@ class SearchEngine
             }
         }
 
-        // Build text lookup and keywords
-        $provider_details    = self::get_provider_text_lookup($active_provider_ids);
-        $provider_narratives = self::get_provider_narrative_lookup($active_provider_ids);
+        // Build text lookup and keywords using pre-loaded in-memory services
+        $provider_details    = self::get_provider_text_lookup($active_provider_ids, $services_by_provider);
+        $provider_narratives = self::get_provider_narrative_lookup($active_provider_ids, $services_by_provider);
         $search_keywords     = self::get_search_keywords($corrected_query, $expanded_query);
 
         if (!empty($intent['synonyms'])) {
@@ -212,7 +265,7 @@ class SearchEngine
         $clean_search_kws = array_unique($clean_search_kws);
 
         // Extract domain topic keywords
-        $modifier_words   = ['highest', 'highly', 'high', 'top', 'best', 'good', 'popular', 'great', 'rated', 'rating', 'ratings', 'reviewed', 'reviews', 'review', 'experience', 'experiences', 'experienced', 'expert', 'experts', 'specialist', 'specialists', 'trained', 'qualified', 'knowledgeable', 'proven', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'mom', 'moms', 'mother', 'mothers', 'mama', 'mamas', 'dad', 'dads', 'father', 'fathers', 'papa', 'papas', 'child', 'children', 'kid', 'kids', 'son', 'daughter', 'female', 'male', 'woman', 'women', 'man', 'men', 'girl', 'boy', 'profile', 'profiles', 'person', 'people', 'user', 'users', 'account', 'accounts', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'something', 'anything', 'everything', 'nothing', 'nice', 'cool', 'awesome', 'lovely', 'amazing', 'sweet', 'friendly', 'kind', 'helpful', 'caring', 'warm', 'gentle', 'under', 'max', 'only', 'cheap', 'cheapest', 'affordable', 'budget', 'low', 'cost', 'price', 'rate', 'rates', 'value', 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '40', '50', 'for', 'with', 'and', 'but', 'also', 'or', 'so', 'is', 'am', 'are', 'be', 'been', 'being', 'can', 'could', 'would', 'should', 'will', 'the', 'who', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking', 'support', 'guidance', 'advisor', 'coaching', 'emergency', 'urgent', 'repair', 'fixing', 'fitting', 'fittings', 'service', 'services', 'talk', 'talks', 'talking', 'chat', 'chatting', 'call', 'meeting', 'session', 'consultation', 'conversation', 'kisi', 'se', 'bat', 'baat', 'karni', 'he', 'hai', 'chahiye', 'madad', 'listen', 'listening', 'listener', 'hear', 'somebody', 'anyone', 'anybody', 'today', 'tonight', 'tomorrow', 'weekend', 'soon', 'now', 'available', 'avail', 'availability', 'wk', 'week', 'weeks', 'day', 'days', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'this', 'that', 'these', 'those', 'between', 'over', 'above', 'more', 'less', 'than', 'from', 'therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'coach', 'mentor', 'second', 'hand', 'car', 'buy', 'not', 'sure', 'kind', 'just', 'what', 'which', 'where', 'when', 'why', 'feel', 'feeling', 'type', 'know', 'handle', 'anymore', 'okay', 'ok', 'much', 'mess', 'mind', 'really', 'bad', 'cant', 'cannot', 'dont', 'im', 'problem', 'problems', 'issue', 'issues', 'trouble', 'troubles', 'struggle', 'struggles', 'single', 'solo', 'want', 'wants', 'wanted', 'wish', 'wishes', 'seek', 'seeking', 'find', 'finding', 'search', 'searching', 'hope', 'hoping', 'like', 'need', 'trying', 'try', 'connect', 'connecting', 'stage', 'stages', 'phase', 'phases', 'level', 'levels', 'type', 'types', 'kind', 'kinds', 'form', 'forms', 'way', 'ways'];
+        $modifier_words   = ['highest', 'highly', 'high', 'top', 'best', 'good', 'popular', 'great', 'rated', 'rating', 'ratings', 'reviewed', 'reviews', 'review', 'experience', 'experiences', 'experienced', 'expert', 'experts', 'specialist', 'specialists', 'trained', 'qualified', 'knowledgeable', 'proven', 'guide', 'guides', 'parent', 'parents', 'mum', 'mums', 'mom', 'moms', 'mother', 'mothers', 'mama', 'mamas', 'dad', 'dads', 'father', 'fathers', 'papa', 'papas', 'child', 'children', 'kid', 'kids', 'son', 'daughter', 'female', 'male', 'woman', 'women', 'man', 'men', 'girl', 'boy', 'large', 'big', 'profile', 'profiles', 'person', 'people', 'user', 'users', 'account', 'accounts', 'hello', 'hi', 'hey', 'greetings', 'thanks', 'thankyou', 'pls', 'please', 'something', 'anything', 'everything', 'nothing', 'nice', 'cool', 'awesome', 'lovely', 'amazing', 'sweet', 'friendly', 'kind', 'helpful', 'caring', 'warm', 'gentle', 'under', 'max', 'only', 'cheap', 'cheapest', 'affordable', 'budget', 'low', 'cost', 'price', 'rate', 'rates', 'value', 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '40', '50', 'for', 'with', 'and', 'but', 'also', 'or', 'so', 'is', 'am', 'are', 'be', 'been', 'being', 'can', 'could', 'would', 'should', 'will', 'the', 'who', 'about', 'someone', 'how', 'in', 'of', 'to', 'a', 'an', 'understand', 'understands', 'understanding', 'help', 'looking', 'support', 'guidance', 'advisor', 'coaching', 'emergency', 'urgent', 'repair', 'fixing', 'fitting', 'fittings', 'service', 'services', 'talk', 'talks', 'talking', 'chat', 'chatting', 'call', 'meeting', 'session', 'consultation', 'conversation', 'kisi', 'se', 'bat', 'baat', 'karni', 'he', 'hai', 'chahiye', 'madad', 'listen', 'listening', 'listener', 'hear', 'somebody', 'anyone', 'anybody', 'today', 'tonight', 'tomorrow', 'weekend', 'soon', 'now', 'available', 'avail', 'availability', 'wk', 'week', 'weeks', 'day', 'days', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'this', 'that', 'these', 'those', 'between', 'over', 'above', 'more', 'less', 'than', 'from', 'therapist', 'counsellor', 'counselor', 'therapy', 'counseling', 'coach', 'mentor', 'second', 'hand', 'car', 'buy', 'not', 'sure', 'kind', 'just', 'what', 'which', 'where', 'when', 'why', 'feel', 'feeling', 'type', 'know', 'handle', 'anymore', 'okay', 'ok', 'much', 'mess', 'mind', 'really', 'bad', 'cant', 'cannot', 'dont', 'im', 'problem', 'problems', 'issue', 'issues', 'trouble', 'troubles', 'struggle', 'struggles', 'single', 'solo', 'want', 'wants', 'wanted', 'wish', 'wishes', 'seek', 'seeking', 'find', 'finding', 'search', 'searching', 'hope', 'hoping', 'like', 'need', 'trying', 'try', 'connect', 'connecting', 'stage', 'stages', 'phase', 'phases', 'level', 'levels', 'type', 'types', 'kind', 'kinds', 'form', 'forms', 'way', 'ways'];
         $domain_query_kws = array_diff($clean_search_kws, $modifier_words);
 
         // 4.5. Check for Explicit Provider Name Matches in Query
@@ -223,6 +276,8 @@ class SearchEngine
 
         $is_filter_intent = ($intent['target_role'] !== 'any') ||
             !empty($intent['require_single_parent']) ||
+            !empty($intent['is_large_family']) ||
+            ($intent['target_children_count'] > 0) ||
             ($intent['target_age'] > 0) ||
             ($intent['min_price'] > 0) ||
             ($intent['max_price'] > 0) ||
@@ -263,8 +318,8 @@ class SearchEngine
 
         // If user explicitly searched for a non-existent provider name (e.g. "Emma 5.0"), but NO provider with that name exists and no domain topic was queried
         if ($has_potential_name && empty($name_matched_ids) && empty($domain_query_kws)) {
-            $fallback_ids = self::get_fallback_provider_ids($effective_limit);
-            $cards        = self::fetch_provider_cards($fallback_ids, $effective_limit, '');
+            $fallback_ids = self::get_fallback_provider_ids($effective_limit, $ratings_by_provider);
+            $cards        = self::fetch_provider_cards($fallback_ids, $effective_limit, '', $services_by_provider, $ratings_by_provider);
 
             return [
                 'results'           => $cards,
@@ -346,15 +401,13 @@ class SearchEngine
                 }
             }
 
-            // Explicit Price Range & Min/Max Hard Filter
-            $services_table = $wpdb->prefix . 'provider_services';
-            $has_services_table = ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table);
-
+            // Explicit Price Range & Min/Max Hard Filter (In-Memory Check, 0 SQL queries)
             if ($has_services_table) {
+                $highest_p = $max_price_by_provider[$provider_id] ?? 0.0;
+                $lowest_p  = $min_price_by_provider[$provider_id] ?? 0.0;
+
                 // Minimum Price Filter (e.g. "over 20", "above 20", "from 20")
                 if ($intent['min_price'] > 0) {
-                    $max_p = $wpdb->get_var($wpdb->prepare("SELECT MAX(price) FROM $services_table WHERE provider_id = %d AND price > 0", $provider_id));
-                    $highest_p = ($max_p !== null && floatval($max_p) > 0) ? floatval($max_p) : 0;
                     if ($highest_p > 0 && $highest_p < $intent['min_price']) {
                         continue;
                     }
@@ -362,8 +415,6 @@ class SearchEngine
 
                 // Maximum Price Filter (e.g. "under 20", "max 20", "below 20")
                 if ($intent['max_price'] > 0) {
-                    $min_p = $wpdb->get_var($wpdb->prepare("SELECT MIN(price) FROM $services_table WHERE provider_id = %d AND price > 0", $provider_id));
-                    $lowest_p = ($min_p !== null && floatval($min_p) > 0) ? floatval($min_p) : 0;
                     if ($lowest_p > 0 && $lowest_p > $intent['max_price']) {
                         continue;
                     }
@@ -371,13 +422,17 @@ class SearchEngine
 
                 // Price Range Filter (e.g. "between 15 and 25", "15 to 25")
                 if ($intent['min_price'] > 0 && $intent['max_price'] > 0) {
-                    $in_range = $wpdb->get_var($wpdb->prepare(
-                        "SELECT COUNT(*) FROM $services_table WHERE provider_id = %d AND price >= %f AND price <= %f",
-                        $provider_id,
-                        $intent['min_price'],
-                        $intent['max_price']
-                    ));
-                    if (intval($in_range) === 0) {
+                    $has_in_range = false;
+                    if (!empty($services_by_provider[$provider_id])) {
+                        foreach ($services_by_provider[$provider_id] as $s_item) {
+                            $s_p = floatval($s_item->price);
+                            if ($s_p >= $intent['min_price'] && $s_p <= $intent['max_price']) {
+                                $has_in_range = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!$has_in_range) {
                         continue;
                     }
                 }
@@ -390,11 +445,38 @@ class SearchEngine
                 }
             }
 
-            // Explicit Target Children Count Hard Filter (e.g. "17 children", "3 kids")
+            // Explicit Target Children Count Filter (e.g. "6 children", "3 kids", "6 boys", "six children")
             if (!empty($intent['target_children_count']) && $intent['target_children_count'] > 0) {
                 $ccount = $intent['target_children_count'];
-                $has_count_match = preg_match('/\b' . $ccount . '\s+(?:children|child|kids|kid)\b/i', $p_text) ||
-                    preg_match('/\b(?:mum|mother|dad|father|parent|raising)\s+of\s+' . $ccount . '\b/i', $p_text);
+                $word_counts = [
+                    1 => 'one',
+                    2 => 'two',
+                    3 => 'three',
+                    4 => 'four',
+                    5 => 'five',
+                    6 => 'six',
+                    7 => 'seven',
+                    8 => 'eight',
+                    9 => 'nine',
+                    10 => 'ten'
+                ];
+                $c_word = $word_counts[$ccount] ?? '';
+                $num_pattern = $c_word ? "($ccount|$c_word)" : "$ccount";
+
+                // If query specifically asked for boys/girls/sons/daughters, match gender-specifically.
+                // If query asked for children/kids, match generically (children, kids, boys, girls, sons, daughters).
+                $is_specific_boys = (bool) preg_match('/\b(?:boy|boys|son|sons)\b/i', $corrected_query);
+                $is_specific_girls = (bool) preg_match('/\b(?:girl|girls|daughter|daughters)\b/i', $corrected_query);
+
+                if ($is_specific_boys) {
+                    $has_count_match = preg_match('/\b' . $num_pattern . '\s+(?:boys|boy|sons|son)\b/i', $p_text);
+                } elseif ($is_specific_girls) {
+                    $has_count_match = preg_match('/\b' . $num_pattern . '\s+(?:girls|girl|daughters|daughter)\b/i', $p_text);
+                } else {
+                    $has_count_match = preg_match('/\b' . $num_pattern . '\s+(?:children|child|kids|kid|boys|boy|girls|girl|sons|son|daughters|daughter)\b/i', $p_text) ||
+                        preg_match('/\b(?:mum|mother|dad|father|parent|raising|family)\s+of\s+' . $num_pattern . '\b/i', $p_text);
+                }
+
                 if (!$has_count_match) {
                     continue;
                 }
@@ -440,6 +522,8 @@ class SearchEngine
             $is_filter_only_candidate = empty($domain_query_kws) && (
                 $intent['target_role'] !== 'any' ||
                 !empty($intent['require_single_parent']) ||
+                !empty($intent['is_large_family']) ||
+                $intent['target_children_count'] > 0 ||
                 $intent['target_age'] > 0 ||
                 $intent['min_price'] > 0 ||
                 $intent['max_price'] > 0 ||
@@ -452,16 +536,16 @@ class SearchEngine
                 $vector_score = max(0.50, $vector_score);
             }
 
-            // Layer B: Exact Phrase Boosting (+2.0 Score for Exact Match)
+            // Layer B: Exact Phrase Boosting (+2.0 Score for Exact Match with Word Boundaries)
             $phrase_boost = 0.0;
-            if (!empty($clean_query) && strpos($p_text, $clean_query) !== false) {
+            if (!empty($clean_query) && preg_match('/\b' . preg_quote($clean_query, '/') . '\b/i', $p_text)) {
                 $phrase_boost += 2.0;
                 $has_exact_phrase = true;
             }
 
-            // Specific multi-word phrase boosts (e.g., "single mum", "solo mum", "toddler sleep")
+            // Specific multi-word phrase boosts (e.g., "single mum", "solo mum", "toddler sleep", "large family")
             foreach ($intent['phrases'] as $phrase) {
-                if (strlen($phrase) >= 3 && strpos($p_text, $phrase) !== false) {
+                if (strlen($phrase) >= 3 && preg_match('/\b' . preg_quote($phrase, '/') . '\b/i', $p_text)) {
                     $phrase_boost += 1.5;
                     $has_exact_phrase = true;
                 }
@@ -569,25 +653,35 @@ class SearchEngine
                 }
             }
 
-            // Layer F: Multi-Topic Joint Intersection Bonus (Requires distinct semantic words)
+            // Layer F: Multi-Topic Joint Intersection Bonus (Requires distinct semantic words explicitly in query)
             $intersection_boost = 0.0;
             if (count($registered_domain_topics) >= 2) {
-                $matched_topics = 0;
-                $used_words     = [];
-                foreach ($registered_domain_topics as $dkw) {
-                    $cluster = self::get_domain_synonym_cluster($dkw);
-                    foreach ($cluster as $cword) {
-                        if (!in_array($cword, $used_words, true) && preg_match('/\b' . preg_quote($cword, '/') . '\b/i', $p_narrative)) {
-                            $matched_topics++;
-                            $used_words[] = $cword;
-                            break;
-                        }
+                // Only award multi-topic intersection boost if USER actually entered 2 distinct taxonomy topics (not synonyms)
+                $user_explicit_topics = 0;
+                foreach ($registered_domain_topics as $dt) {
+                    if (preg_match('/\b' . preg_quote($dt, '/') . '\b/i', $clean_query)) {
+                        $user_explicit_topics++;
                     }
                 }
-                if ($matched_topics >= count($registered_domain_topics)) {
-                    $intersection_boost = 3.5;
-                } elseif ($matched_topics >= 2) {
-                    $intersection_boost = 1.5;
+
+                if ($user_explicit_topics >= 2) {
+                    $matched_topics = 0;
+                    $used_words     = [];
+                    foreach ($registered_domain_topics as $dkw) {
+                        $cluster = self::get_domain_synonym_cluster($dkw);
+                        foreach ($cluster as $cword) {
+                            if (!in_array($cword, $used_words, true) && preg_match('/\b' . preg_quote($cword, '/') . '\b/i', $p_narrative)) {
+                                $matched_topics++;
+                                $used_words[] = $cword;
+                                break;
+                            }
+                        }
+                    }
+                    if ($matched_topics >= count($registered_domain_topics)) {
+                        $intersection_boost = 3.5;
+                    } elseif ($matched_topics >= 2) {
+                        $intersection_boost = 1.5;
+                    }
                 }
             }
 
@@ -596,7 +690,18 @@ class SearchEngine
                 $phrase_boost += 2.0;
             }
 
-            $composite_score = ($vector_score + $phrase_boost + $keyword_boost + $age_boost + $intersection_boost) * $intent_multiplier;
+            // Large Family / Big Family Concept Boost (+2.5 for households with 4+ kids or large family mentions)
+            $family_boost = 0.0;
+            if (!empty($intent['is_large_family'])) {
+                if (
+                    preg_match('/\b([4-9]|\d{2}|four|five|six|seven|eight|nine|ten)\s+(?:children|child|kids|kid|boys|boy|girls|girl|sons|son|daughters|daughter)\b/i', $p_text) ||
+                    preg_match('/\b(?:large family|big family|household of \d+|family of [4-9]|family of \d{2})\b/i', $p_text)
+                ) {
+                    $family_boost = 2.5;
+                }
+            }
+
+            $composite_score = ($vector_score + $phrase_boost + $keyword_boost + $age_boost + $intersection_boost + $family_boost) * $intent_multiplier;
 
 
             // Track genuine relevance indicators for this specific candidate
@@ -606,6 +711,8 @@ class SearchEngine
             // Determine if provider is genuinely relevant to the search query
             $has_filter_match = !empty($intent['availability']) ||
                 !empty($intent['require_single_parent']) ||
+                !empty($intent['is_large_family']) ||
+                ($intent['target_children_count'] > 0) ||
                 ($intent['min_price'] > 0) ||
                 ($intent['max_price'] > 0) ||
                 $is_highest_rated_intent;
@@ -653,11 +760,11 @@ class SearchEngine
         }
 
         // Strict Out-of-Context & Gibberish Query Safety Filter
-        $is_valid_intent = ($intent['target_role'] !== 'any') || !empty($intent['require_single_parent']) || ($intent['max_price'] > 0) || ($intent['min_price'] > 0) || !empty($intent['availability']) || $is_highest_rated_intent || ($intent['target_age'] > 0) || ($intent['target_children_count'] > 0) || ($intent['target_experience_years'] > 0) || !empty($intent['synonyms']) || !empty($intent['is_conversational_broad']) || preg_match('/\b(best|top|cheap|cheapest|affordable|rated|rating|reviewed|reviews|guide|guides|parent|parents|mum|mums|dad|dads|talk|listen|listening|help|someone|support|therapist|counsellor|counselor|coach|advice|guidance|bat|baat|madad)\b/i', $corrected_query);
+        $is_valid_intent = ($intent['target_role'] !== 'any') || !empty($intent['require_single_parent']) || !empty($intent['is_large_family']) || ($intent['target_children_count'] > 0) || ($intent['max_price'] > 0) || ($intent['min_price'] > 0) || !empty($intent['availability']) || $is_highest_rated_intent || ($intent['target_age'] > 0) || ($intent['target_experience_years'] > 0) || !empty($intent['synonyms']) || !empty($intent['is_conversational_broad']) || preg_match('/\b(best|top|cheap|cheapest|affordable|rated|rating|reviewed|reviews|guide|guides|parent|parents|mum|mums|dad|dads|talk|listen|listening|help|someone|support|therapist|counsellor|counselor|coach|advice|guidance|bat|baat|madad)\b/i', $corrected_query);
 
         if (!$is_valid_intent && empty($domain_query_kws)) {
-            $fallback_ids = self::get_fallback_provider_ids($effective_limit);
-            $cards        = self::fetch_provider_cards($fallback_ids, $effective_limit, '');
+            $fallback_ids = self::get_fallback_provider_ids($effective_limit, $ratings_by_provider);
+            $cards        = self::fetch_provider_cards($fallback_ids, $effective_limit, '', $services_by_provider, $ratings_by_provider);
 
             return [
                 'results'           => $cards,
@@ -675,8 +782,8 @@ class SearchEngine
 
         // If zero providers met genuine relevance criteria, or query was out-of-domain gibberish
         if (empty($genuine_matches) || $max_score < 0.20) {
-            $fallback_ids = self::get_fallback_provider_ids($effective_limit);
-            $cards        = self::fetch_provider_cards($fallback_ids, $effective_limit, '');
+            $fallback_ids = self::get_fallback_provider_ids($effective_limit, $ratings_by_provider);
+            $cards        = self::fetch_provider_cards($fallback_ids, $effective_limit, '', $services_by_provider, $ratings_by_provider);
 
             return [
                 'results'           => $cards,
@@ -687,8 +794,8 @@ class SearchEngine
             ];
         }
 
-        // Dynamic Cutoff Floor for genuine matches
-        $threshold = $is_multi_word_query ? max(0.50, $max_score * 0.50) : max(0.20, $max_score * 0.40);
+        // Dynamic Cutoff Floor for genuine matches (eliminate loose / aaj-baaju candidates)
+        $threshold = $is_multi_word_query ? max(0.65, $max_score * 0.70) : max(0.35, $max_score * 0.60);
         $matches   = [];
         foreach ($genuine_matches as $item) {
             if ($item['score'] >= $threshold) {
@@ -697,8 +804,8 @@ class SearchEngine
         }
 
         if (empty($matches)) {
-            $fallback_ids = self::get_fallback_provider_ids($effective_limit);
-            $cards        = self::fetch_provider_cards($fallback_ids, $effective_limit, '');
+            $fallback_ids = self::get_fallback_provider_ids($effective_limit, $ratings_by_provider);
+            $cards        = self::fetch_provider_cards($fallback_ids, $effective_limit, '', $services_by_provider, $ratings_by_provider);
 
             return [
                 'results'           => $cards,
@@ -709,31 +816,18 @@ class SearchEngine
             ];
         }
 
-        // 6. Fetch Ratings, Reviews & Price for Hybrid Ranking Boosts
-        $services_table          = $wpdb->prefix . 'provider_services';
-        $reviews_table           = $wpdb->prefix . 'cosy_provider_reviews';
+        // 6. Fetch Ratings, Reviews & Price for Hybrid Ranking Boosts (In-Memory Lookups, 0 SQL queries)
         $is_highest_rated_intent = preg_match('/\b(highest|top|best)\b.*?\b(rated|rating|ratings|stars|reviews)\b/i', $corrected_query) || preg_match('/\b(highest|top|best)\b/i', $corrected_query) || preg_match('/\b(?:5\s*star|five\s*star|high\s*rating)\b/i', $corrected_query);
 
         foreach ($matches as &$item) {
             $pid = $item['provider_id'];
 
-            // Get average rating and review count
-            $rating = 0;
-            $review_count = 0;
-            if ($wpdb->get_var("SHOW TABLES LIKE '$reviews_table'") === $reviews_table) {
-                $r_data = $wpdb->get_row($wpdb->prepare("SELECT AVG(rating) as avg_rating, COUNT(id) as cnt FROM $reviews_table WHERE provider_id = %d AND status = 'approved'", $pid));
-                if ($r_data) {
-                    $rating = $r_data->avg_rating ? floatval($r_data->avg_rating) : 0;
-                    $review_count = intval($r_data->cnt);
-                }
-            }
+            // Get average rating and review count from in-memory pre-fetched array
+            $rating       = $ratings_by_provider[$pid]['rating'] ?? 0.0;
+            $review_count = $ratings_by_provider[$pid]['review_count'] ?? 0;
 
-            // Get lowest price
-            $price = 0;
-            if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
-                $min_price = $wpdb->get_var($wpdb->prepare("SELECT MIN(price) FROM $services_table WHERE provider_id = %d AND price > 0", $pid));
-                $price = $min_price ? floatval($min_price) : 0;
-            }
+            // Get lowest price from in-memory pre-fetched array
+            $price = $min_price_by_provider[$pid] ?? 0.0;
 
             // Apply Rating Boost: Strong +3.0 multiplier for explicit "highest/top rated" intent
             if ($is_highest_rated_intent) {
@@ -781,7 +875,7 @@ class SearchEngine
 
         // 8. Extract Sorted Provider IDs & Return Real-Time Cards with Contextual Service Selection
         $sorted_provider_ids = array_column($matches, 'provider_id');
-        $cards               = self::fetch_provider_cards($sorted_provider_ids, $effective_limit, $corrected_query);
+        $cards               = self::fetch_provider_cards($sorted_provider_ids, $effective_limit, $corrected_query, $services_by_provider, $ratings_by_provider, $query_vector);
 
         return [
             'results'           => $cards,
@@ -799,7 +893,7 @@ class SearchEngine
      * @param int $limit Number of fallback providers to return.
      * @return int[] Array of provider user IDs.
      */
-    public static function get_fallback_provider_ids(int $limit = 6): array
+    public static function get_fallback_provider_ids(int $limit = 6, array $ratings_by_provider = []): array
     {
         global $wpdb;
 
@@ -816,6 +910,23 @@ class SearchEngine
         $reviews_table     = $wpdb->prefix . 'cosy_provider_reviews';
         $has_reviews_table = ($wpdb->get_var("SHOW TABLES LIKE '$reviews_table'") === $reviews_table);
 
+        // Bulk pre-fetch ratings if not supplied
+        if (empty($ratings_by_provider) && $has_reviews_table) {
+            $placeholders = implode(',', array_fill(0, count($active_provider_ids), '%d'));
+            $r_rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT provider_id, AVG(rating) as avg_rating, COUNT(id) as cnt FROM $reviews_table WHERE provider_id IN ($placeholders) AND status = 'approved' GROUP BY provider_id",
+                ...$active_provider_ids
+            ));
+            if (!empty($r_rows)) {
+                foreach ($r_rows as $r) {
+                    $ratings_by_provider[(int)$r->provider_id] = [
+                        'rating'       => $r->avg_rating ? floatval($r->avg_rating) : 0.0,
+                        'review_count' => intval($r->cnt),
+                    ];
+                }
+            }
+        }
+
         $pool = [];
         foreach ($active_provider_ids as $pid) {
             $user = get_userdata($pid);
@@ -828,20 +939,9 @@ class SearchEngine
                 continue;
             }
 
-            $rating       = 0.0;
-            $review_count = 0;
-            if ($has_reviews_table) {
-                $r_data = $wpdb->get_row($wpdb->prepare(
-                    "SELECT AVG(rating) as avg_rating, COUNT(id) as cnt FROM $reviews_table WHERE provider_id = %d AND status = 'approved'",
-                    $pid
-                ));
-                if ($r_data) {
-                    $rating       = $r_data->avg_rating ? floatval($r_data->avg_rating) : 0.0;
-                    $review_count = intval($r_data->cnt);
-                }
-            }
-
-            $first_name = strtolower(get_user_meta($pid, 'first_name', true) ?: $user->display_name);
+            $rating       = $ratings_by_provider[$pid]['rating'] ?? 0.0;
+            $review_count = $ratings_by_provider[$pid]['review_count'] ?? 0;
+            $first_name   = strtolower(get_user_meta($pid, 'first_name', true) ?: $user->display_name);
 
             $pool[] = [
                 'provider_id'  => $pid,
@@ -924,6 +1024,7 @@ class SearchEngine
         $intent = [
             'target_role'             => 'any', // female, male, any
             'require_single_parent'   => false,
+            'is_large_family'         => false,
             'target_age'              => 0,
             'target_children_count'   => 0,
             'target_experience_years' => 0,
@@ -934,6 +1035,12 @@ class SearchEngine
             'phrases'                 => [],
             'synonyms'                => [],
         ];
+
+        // Detect big/large family intent (e.g. "big family", "large family", "large household", "many kids")
+        if (preg_match('/\b(big family|large family|huge family|big household|large household|many kids|many children)\b/i', $q)) {
+            $intent['is_large_family'] = true;
+            $intent['phrases'] = array_merge($intent['phrases'], ['big family', 'large family', 'many kids', 'many children']);
+        }
 
         // Detect availability intent (e.g. today, tomorrow, weekend, this week, avail this wk)
         if (preg_match('/\b(?:available\s+)?today\b/i', $q)) {
@@ -964,9 +1071,22 @@ class SearchEngine
             $intent['target_age'] = intval($amatches[1]);
         }
 
-        // Extract explicit children count intent (e.g. "17 children", "3 kids", "4 children")
-        if (preg_match('/\b(\d+)\s+(?:children|child|kids|kid)\b/i', $q, $cmatches)) {
-            $intent['target_children_count'] = intval($cmatches[1]);
+        // Extract explicit children count intent (e.g. "17 children", "3 kids", "6 boys", "six children")
+        $num_word_map = [
+            'one' => 1,
+            'two' => 2,
+            'three' => 3,
+            'four' => 4,
+            'five' => 5,
+            'six' => 6,
+            'seven' => 7,
+            'eight' => 8,
+            'nine' => 9,
+            'ten' => 10
+        ];
+        if (preg_match('/\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:children|child|kids|kid|boys|boy|girls|girl|sons|son|daughters|daughter)\b/i', $q, $cmatches)) {
+            $raw_c = strtolower($cmatches[1]);
+            $intent['target_children_count'] = is_numeric($raw_c) ? intval($raw_c) : ($num_word_map[$raw_c] ?? 0);
         }
 
         // Extract explicit experience years intent (e.g. "50 years of experience", "10 yrs experience")
@@ -1328,7 +1448,7 @@ class SearchEngine
     /**
      * Format and return provider profile details for rendering search cards.
      */
-    private static function fetch_provider_cards(array $provider_ids, int $limit = 6, string $query_text = ''): array
+    private static function fetch_provider_cards(array $provider_ids, int $limit = 6, string $query_text = '', array $services_by_provider = [], array $ratings_by_provider = [], ?array $query_vector = null): array
     {
         global $wpdb;
 
@@ -1349,6 +1469,11 @@ class SearchEngine
         $q_max_price  = floatval($card_intent['max_price'] ?? 0);
 
         $provider_ids = array_slice($provider_ids, 0, 50); // Sanity cap
+
+        // Prime user meta cache for the card providers in 1 query
+        if (function_exists('update_meta_cache')) {
+            update_meta_cache('user', $provider_ids);
+        }
 
         foreach ($provider_ids as $user_id) {
             if (count($cards) >= $limit) {
@@ -1376,89 +1501,146 @@ class SearchEngine
             $bio           = get_user_meta($user_id, 'description', true) ?: '';
             $profile_image = get_user_meta($user_id, 'profile_image', true) ?: 'https://i.pravatar.cc/300?img=' . ($user_id % 70);
 
-            // Fetch rating
+            // Fetch rating from in-memory pre-loaded array
             $rating = 0;
-            if ($wpdb->get_var("SHOW TABLES LIKE '$reviews_table'") === $reviews_table) {
+            if (isset($ratings_by_provider[$user_id])) {
+                $rating = $ratings_by_provider[$user_id]['rating'] ?? 0;
+            } elseif ($wpdb->get_var("SHOW TABLES LIKE '$reviews_table'") === $reviews_table) {
                 $avg_rating = $wpdb->get_var($wpdb->prepare("SELECT AVG(rating) FROM $reviews_table WHERE provider_id = %d AND status = 'approved'", $user_id));
                 $rating = $avg_rating ? round(floatval($avg_rating), 1) : 0;
             }
 
-            // Fetch contextual service title & price matching searched topic and budget constraints
+            // Fetch contextual service title & price from in-memory pre-loaded array
             $service_name         = '';
             $price                = '0.00';
             $matched_service_desc = '';
-            if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
+            $all_services         = $services_by_provider[$user_id] ?? null;
+
+            if ($all_services === null && $wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
                 $all_services = $wpdb->get_results($wpdb->prepare(
                     "SELECT service, price, description FROM $services_table WHERE provider_id = %d",
                     $user_id
                 ));
+            }
 
-                if (!empty($all_services)) {
-                    $best_s     = null;
-                    $best_score = -999.0;
+            if (!empty($all_services)) {
+                $best_s     = null;
+                $best_score = -999.0;
 
-                    foreach ($all_services as $s) {
-                        $s_score      = 0.0;
-                        $s_name_lower = strtolower($s->service);
-                        $s_desc_lower = strtolower($s->description);
-                        $s_price      = floatval($s->price);
+                foreach ($all_services as $s) {
+                    $s_score      = 0.0;
+                    $s_name_lower = strtolower($s->service);
+                    $s_desc_lower = strtolower($s->description);
+                    $s_price      = floatval($s->price);
 
-                        // 1. Topic Match: Service Title Match (+10.0) vs Description Match (+4.0)
-                        if (!empty($query_topics)) {
-                            foreach ($query_topics as $topic) {
-                                $cluster = self::get_domain_synonym_cluster($topic);
-                                foreach ($cluster as $cword) {
-                                    if (strlen($cword) >= 3) {
-                                        if (strpos($s_name_lower, $cword) !== false) {
-                                            $s_score += 10.0;
-                                            break;
-                                        } elseif (strpos($s_desc_lower, $cword) !== false) {
-                                            $s_score += 4.0;
-                                            break;
-                                        }
+                    // 1. Topic Match: Service Title Match (+10.0) vs Description Match (+4.0)
+                    if (!empty($query_topics)) {
+                        foreach ($query_topics as $topic) {
+                            $cluster = self::get_domain_synonym_cluster($topic);
+                            foreach ($cluster as $cword) {
+                                if (strlen($cword) >= 3) {
+                                    if (strpos($s_name_lower, $cword) !== false) {
+                                        $s_score += 10.0;
+                                        break;
+                                    } elseif (strpos($s_desc_lower, $cword) !== false) {
+                                        $s_score += 4.0;
+                                        break;
                                     }
                                 }
                             }
                         }
+                    }
 
-                        // 2. Budget Constraints Match
-                        if ($q_min_price > 0) {
-                            if ($s_price >= $q_min_price) {
-                                $s_score += 5.0;
-                            } else {
-                                $s_score -= 10.0;
-                            }
+                    // 2. Budget Constraints Match
+                    if ($q_min_price > 0) {
+                        if ($s_price >= $q_min_price) {
+                            $s_score += 5.0;
+                        } else {
+                            $s_score -= 10.0;
                         }
-                        if ($q_max_price > 0) {
-                            if ($s_price <= $q_max_price) {
-                                $s_score += 5.0;
-                            } else {
-                                $s_score -= 10.0;
-                            }
-                        }
-
-                        // 3. Prefer valid positive rates
-                        if ($s_price > 0) {
-                            $s_score += 1.0;
-                        }
-
-                        if ($s_score > $best_score) {
-                            $best_score = $s_score;
-                            $best_s     = $s;
+                    }
+                    if ($q_max_price > 0) {
+                        if ($s_price <= $q_max_price) {
+                            $s_score += 5.0;
+                        } else {
+                            $s_score -= 10.0;
                         }
                     }
 
-                    if ($best_s) {
-                        $service_name         = $best_s->service;
-                        $price                = number_format(floatval($best_s->price), 2);
-                        $matched_service_desc = !empty($best_s->description) ? trim($best_s->description) : '';
+                    // 3. Prefer valid positive rates
+                    if ($s_price > 0) {
+                        $s_score += 1.0;
+                    }
+
+                    if ($s_score > $best_score) {
+                        $best_score = $s_score;
+                        $best_s     = $s;
+                    }
+                }
+
+                if ($best_s) {
+                    $service_name         = $best_s->service;
+                    $price                = number_format(floatval($best_s->price), 2);
+                    $matched_service_desc = !empty($best_s->description) ? trim($best_s->description) : '';
+                }
+            }
+
+            // Extract Semantic Sentence-Level Proof Snippet from Bio
+            $proof_snippet = '';
+            $proof_score   = 0.0;
+
+            if (!empty($query_vector) && !empty($bio)) {
+                // Check if provider has pre-computed bio sentence embeddings in user meta
+                $sentence_data = get_user_meta($user_id, 'cosy_bio_sentence_embeddings', true);
+
+                // If not pre-computed yet, extract and batch embed on the fly, then persist
+                if (empty($sentence_data) || !is_array($sentence_data)) {
+                    $raw_sents = preg_split('/(?<=[.!?])\s+/u', $bio, -1, PREG_SPLIT_NO_EMPTY);
+                    $clean_sents = [];
+                    foreach ($raw_sents as $rs) {
+                        $rs_trim = trim($rs);
+                        if (mb_strlen($rs_trim) >= 20 && str_word_count($rs_trim) >= 4) {
+                            $clean_sents[] = $rs_trim;
+                        }
+                    }
+                    if (!empty($clean_sents)) {
+                        $s_vectors     = AIService::get_batch_embeddings($clean_sents);
+                        $sentence_data = [];
+                        foreach ($clean_sents as $s_idx => $stxt) {
+                            if (!empty($s_vectors[$s_idx])) {
+                                $sentence_data[] = [
+                                    'text'   => $stxt,
+                                    'vector' => $s_vectors[$s_idx],
+                                ];
+                            }
+                        }
+                        if (!empty($sentence_data)) {
+                            update_user_meta($user_id, 'cosy_bio_sentence_embeddings', $sentence_data);
+                        }
+                    }
+                }
+
+                // Score each sentence against user query vector using in-memory cosine similarity (0 API calls)
+                if (!empty($sentence_data) && is_array($sentence_data)) {
+                    foreach ($sentence_data as $s_item) {
+                        if (!empty($s_item['vector']) && !empty($s_item['text'])) {
+                            $sim = self::cosine_similarity($query_vector, $s_item['vector']);
+                            if ($sim > $proof_score) {
+                                $proof_score   = $sim;
+                                $proof_snippet = $s_item['text'];
+                            }
+                        }
                     }
                 }
             }
 
-            // Contextual Description: Show the exact service description or relevant sentence matching user query
+            // Contextual Description: Show the exact proof sentence or matching service description
             $card_desc = $bio;
-            if (!empty($matched_service_desc)) {
+            if ($proof_score >= 0.58 && !empty($proof_snippet)) {
+                // High-precision proof snippet directly addressing the user's situation
+                $clean_snippet = trim($proof_snippet, " \t\n\r\0\x0B\"'“”");
+                $card_desc     = '“' . $clean_snippet . '”';
+            } elseif (!empty($matched_service_desc)) {
                 // If service description has relevant topic content, prefer it over generic bio
                 if (!empty($query_topics)) {
                     foreach ($query_topics as $topic) {
@@ -1471,10 +1653,8 @@ class SearchEngine
                         }
                     }
                 }
-            }
-
-            // If general bio is used, highlight the relevant sentence matching query topic
-            if (!empty($query_topics) && strlen($card_desc) > 80) {
+            } elseif (!empty($query_topics) && strlen($card_desc) > 80) {
+                // Keyword fallback highlighting
                 $sentences = preg_split('/(?<=[.?!])\s+/', $card_desc, -1, PREG_SPLIT_NO_EMPTY);
                 $best_idx = -1;
                 foreach ($query_topics as $topic) {
@@ -1509,6 +1689,8 @@ class SearchEngine
                 'email'              => $user->user_email,
                 'description'        => $card_desc,
                 'bio'                => $bio,
+                'proof_snippet'      => $proof_snippet,
+                'proof_score'        => round($proof_score, 3),
                 'profile_image'      => $profile_image,
                 'rating'             => $rating,
                 'service'            => $service_name,
@@ -2581,7 +2763,7 @@ class SearchEngine
     /**
      * Build lookup array of combined provider text (Name, Services, Bio) for keyword boost matching.
      */
-    private static function get_provider_text_lookup(array $provider_ids): array
+    private static function get_provider_text_lookup(array $provider_ids, array $services_by_provider = []): array
     {
         if (empty($provider_ids)) {
             return [];
@@ -2602,14 +2784,27 @@ class SearchEngine
             $bio   = get_user_meta($id, 'description', true) ?: '';
 
             $services_text = [];
-            if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
-                $rows = $wpdb->get_results($wpdb->prepare("SELECT service, description FROM $services_table WHERE provider_id = %d", $id));
-                foreach ($rows as $r) {
-                    if (!empty($r->service)) {
-                        $services_text[] = $r->service;
+            $prov_services = $services_by_provider[$id] ?? null;
+
+            if ($prov_services === null) {
+                if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
+                    $rows = $wpdb->get_results($wpdb->prepare("SELECT service, description FROM $services_table WHERE provider_id = %d", $id));
+                    foreach ($rows as $r) {
+                        if (!empty($r->service)) {
+                            $services_text[] = $r->service;
+                        }
+                        if (!empty($r->description)) {
+                            $services_text[] = $r->description;
+                        }
                     }
-                    if (!empty($r->description)) {
-                        $services_text[] = $r->description;
+                }
+            } else {
+                foreach ($prov_services as $s) {
+                    if (!empty($s->service)) {
+                        $services_text[] = $s->service;
+                    }
+                    if (!empty($s->description)) {
+                        $services_text[] = $s->description;
                     }
                 }
             }
@@ -2624,7 +2819,7 @@ class SearchEngine
      * Build lookup array of provider narrative content (Bio and Service Descriptions)
      * strictly excluding service category titles to verify genuine lived experience.
      */
-    private static function get_provider_narrative_lookup(array $provider_ids): array
+    private static function get_provider_narrative_lookup(array $provider_ids, array $services_by_provider = []): array
     {
         if (empty($provider_ids)) {
             return [];
@@ -2638,11 +2833,21 @@ class SearchEngine
             $bio = get_user_meta($id, 'description', true) ?: '';
 
             $descriptions = [];
-            if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
-                $rows = $wpdb->get_results($wpdb->prepare("SELECT description FROM $services_table WHERE provider_id = %d", $id));
-                foreach ($rows as $r) {
-                    if (!empty($r->description)) {
-                        $descriptions[] = $r->description;
+            $prov_services = $services_by_provider[$id] ?? null;
+
+            if ($prov_services === null) {
+                if ($wpdb->get_var("SHOW TABLES LIKE '$services_table'") === $services_table) {
+                    $rows = $wpdb->get_results($wpdb->prepare("SELECT description FROM $services_table WHERE provider_id = %d", $id));
+                    foreach ($rows as $r) {
+                        if (!empty($r->description)) {
+                            $descriptions[] = $r->description;
+                        }
+                    }
+                }
+            } else {
+                foreach ($prov_services as $s) {
+                    if (!empty($s->description)) {
+                        $descriptions[] = $s->description;
                     }
                 }
             }
