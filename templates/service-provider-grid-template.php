@@ -54,9 +54,9 @@ if (empty($providers)): ?>
                 </div>
 
                 <div class="card-action-footer">
-                    <?php 
+                    <?php
                     $is_video_approved = (!empty($provider['video_status'])) ? ($provider['video_status'] === 'approved') : true;
-                    if (!empty($provider['introduction_video']) && $is_video_approved): 
+                    if (!empty($provider['introduction_video']) && $is_video_approved):
                     ?>
                         <button class="btn-premium btn-intro-v2"
                             onclick="openVideo('<?php echo esc_url($provider['introduction_video']); ?>')">
@@ -96,7 +96,7 @@ if (empty($providers)): ?>
             <div class="cosy-pagination-info text-muted small fw-medium">
                 <?php printf(esc_html__('Showing %1$d–%2$d of %3$d Parent Guides', 'cosy-appointments'), $start_num, $end_num, $total_providers); ?>
             </div>
-            
+
             <nav class="cosy-pagination-nav">
                 <ul class="pagination pagination-rounded gap-2 m-0 align-items-center list-unstyled d-flex">
                     <!-- Prev Button -->

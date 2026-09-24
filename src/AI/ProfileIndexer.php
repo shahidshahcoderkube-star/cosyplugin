@@ -143,6 +143,7 @@ class ProfileIndexer
                 }
             }
             if (!empty($clean_sentences)) {
+                $clean_sentences  = array_slice($clean_sentences, 0, 8);
                 $sentence_vectors = AIService::get_batch_embeddings($clean_sentences);
                 $bio_sentence_data = [];
                 foreach ($clean_sentences as $idx => $s_text) {
@@ -184,9 +185,9 @@ class ProfileIndexer
     /**
      * Parse and extract structured facts from provider bio text (Statement Owner Scope vs Helper Scope).
      */
-    public static function extract_profile_facts(string $bio, string $gender = '', string $services = ''): array
+    public static function extract_profile_facts(string $bio, string $gender = '', string $services_str = ''): array
     {
-        $text = strtolower($bio);
+        $text = mb_strtolower("$bio. $services_str");
 
         $facts = [
             'gender'                 => strtolower($gender),
@@ -197,38 +198,69 @@ class ProfileIndexer
             'has_adhd_send_exp'      => false,
             'has_ivf_loss_exp'       => false,
             'has_twins_multiples'    => false,
+            'has_adoption_exp'       => false,
+            'has_divorce_exp'        => false,
         ];
 
         // 1. Detect Owner Statement Scope vs Helper Statement Scope
-        // Owner Identity Statements: "I am a single mum", "I'm a solo mother", "I became a single parent", "single dad"
-        $owner_pattern = '/\b(i am|i\'m|became a|as a)\s+(a\s+)?(single|solo)\s+(mum|mom|mother|dad|father|parent)\b/i';
-        if (preg_match($owner_pattern, $text)) {
-            $facts['is_owner_single_parent'] = true;
-        }
+        // Owner Identity Statements: "I am a single mum", "I'm Rachel, a single mum", "became a single parent", "single dad", "full custody", "divorced dad", "raising on my own"
+        $owner_pattern = '/\b(i am|i\'m|became a|as a)\s+([a-z\'-]+,?\s+)*(a\s+)?(single|solo|divorced|separated)\s+(mum|mom|mother|dad|father|parent)\b/i';
+        $direct_single_parent = '/\b(single (mum|mom|mother|dad|father|parent)|solo (mum|mom|mother|dad|father|parent)|raising.*on my own|full custody)\b/i';
 
         // Helper Statements: "I support single mums", "work with single mums", "supported many single mums"
         $helper_pattern = '/\b(support|supported|working with|help|counsel)\s+(many\s+)?(single|solo)\s+(mums|moms|mothers|dads|fathers|parents)\b/i';
-        if (preg_match($helper_pattern, $text) && !preg_match($owner_pattern, $text)) {
+        $is_helper = preg_match($helper_pattern, $text) && !preg_match($owner_pattern, $text);
+        if ($is_helper) {
             $facts['is_helper_only'] = true;
         }
 
+        if (preg_match($owner_pattern, $text) || (preg_match($direct_single_parent, $text) && !$is_helper)) {
+            $facts['is_owner_single_parent'] = true;
+        }
+
         // Negative Statement Exclusions: "I'm not a single mum"
-        if (preg_match('/\b(not a single mum|not a single mother|not a solo mum|not a single dad|not a single father)\b/i', $text)) {
+        if (preg_match('/\b(not a single (mum|mom|mother|dad|father|parent))\b/i', $text)) {
             $facts['is_owner_single_parent'] = false;
             $facts['is_helper_only'] = true;
         }
 
-        // 2. Extract Children Count Context
+        // 2. Extract Children Count Context (1 to 10)
         $child_word_map = [
-            'one' => 1, 'two' => 2, 'three' => 3, 'four' => 4, 'five' => 5,
-            '1'   => 1, '2'   => 2, '3'     => 3, '4'    => 4, '5'    => 5
+            'ten' => 10, 'nine' => 9, 'eight' => 8, 'seven' => 7, 'six' => 6,
+            'five' => 5, 'four' => 4, 'three' => 3, 'two' => 2, 'one' => 1,
+            '10' => 10, '9' => 9, '8' => 8, '7' => 7, '6' => 6,
+            '5' => 5, '4' => 4, '3' => 3, '2' => 2, '1' => 1
         ];
 
+        // Check exact "mum/dad of X (not month/year-old)", "raising X (children/kids/boys/girls)"
         foreach ($child_word_map as $word => $count) {
-            if (preg_match('/\b(mum|mother|mom|parent|dad|father)\s+of\s+' . preg_quote($word, '/') . '\b/i', $text) ||
-                preg_match('/\b' . preg_quote($word, '/') . '\s+(children|kids|boys|girls|sons|daughters)\b/i', $text)) {
+            if (preg_match('/\b(mum|mother|mom|parent|dad|father)\s+(of|to)\s+' . preg_quote($word, '/') . '(?!\s*-?\s*(month|year))\b/i', $text) ||
+                preg_match('/\braising\s+' . preg_quote($word, '/') . '\s+(children|kids|boys|girls|sons|daughters)\b/i', $text)) {
                 $facts['children_count'] = $count;
                 break;
+            }
+        }
+
+        // Detect twins / triplets / single baby
+        if ($facts['children_count'] === 0) {
+            if (preg_match('/\b(twins)\b/i', $text)) {
+                $facts['children_count'] = 2;
+            } elseif (preg_match('/\b(triplets)\b/i', $text)) {
+                $facts['children_count'] = 3;
+            } elseif (preg_match('/\b(a\s+daughter\b.*\band\s+(a\s+)?son\b|a\s+son\b.*\band\s+(a\s+)?daughter\b)/i', $text)) {
+                $facts['children_count'] = 2;
+            } elseif (preg_match('/\b(first-time|new)\s+(mum|mother|mom|dad|father|parent)\b/i', $text) ||
+                      preg_match('/\braising\s+(a|an|my)\s+([a-z\'-]+\s+)*(baby|infant|toddler|child|son|daughter|boy|girl)\b/i', $text) ||
+                      preg_match('/\b(to|with)\s+(a|an|my)\s+([a-z\'-]+\s+)*(baby|infant|toddler|child|son|daughter|boy|girl)\b/i', $text)) {
+                $facts['children_count'] = 1;
+            } else {
+                foreach ($child_word_map as $word => $count) {
+                    if (preg_match('/\b' . preg_quote($word, '/') . '\s+(children|kids|boys|girls|sons|daughters)\b/i', $text) &&
+                        !preg_match('/\b(no|any)\s+' . preg_quote($word, '/') . '\s+(children|kids)\b/i', $text)) {
+                        $facts['children_count'] = $count;
+                        break;
+                    }
+                }
             }
         }
 
@@ -237,15 +269,21 @@ class ProfileIndexer
             $facts['experience_years'] = intval($exp_matches[1]);
         }
 
-        // 4. Lived Experience Fact Detection (ADHD/SEND, IVF/Loss, Twins)
-        if (preg_match('/\b(adhd|autism|send|special needs|neurodivergent|sensory processing)\b/i', $text)) {
+        // 4. Lived Experience Fact Detection (ADHD/SEND, IVF/Loss, Twins, Adoption, Divorce)
+        if (preg_match('/\b(adhd|autism|autistic|send|special needs|neurodivergent|sensory processing|neurodiverse)\b/i', $text)) {
             $facts['has_adhd_send_exp'] = true;
         }
-        if (preg_match('/\b(ivf|miscarriage|baby loss|fertility journey|pregnancy loss)\b/i', $text)) {
+        if (preg_match('/\b(ivf|icsi|miscarriage|baby loss|fertility journey|pregnancy loss|stillbirth)\b/i', $text)) {
             $facts['has_ivf_loss_exp'] = true;
         }
         if (preg_match('/\b(twins|triplets|multiples)\b/i', $text)) {
             $facts['has_twins_multiples'] = true;
+        }
+        if (preg_match('/\b(adopt|adopted|adoption|foster|fostering|foster care)\b/i', $text)) {
+            $facts['has_adoption_exp'] = true;
+        }
+        if (preg_match('/\b(divorce|divorced|separation|separated|co-parent|co-parenting|coparenting)\b/i', $text)) {
+            $facts['has_divorce_exp'] = true;
         }
 
         return $facts;

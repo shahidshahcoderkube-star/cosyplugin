@@ -725,10 +725,14 @@ class SearchEngine
                         $matched_content_words_count++;
                     }
                 }
-                // Multi-Word Precision Rule: Must match exact phrase OR at least 2 distinct query words (or provider name) OR broad conversational vector match
+                // Multi-Word Precision Rule: Must match exact phrase OR at least 2 distinct query words (or provider name) OR strong semantic vector match
                 if ($phrase_boost > 0.0 || $matched_content_words_count >= 2 || in_array($provider_id, $name_matched_ids, true)) {
                     $is_genuine_match = true;
                 } elseif (!empty($intent['is_conversational_broad']) && $vector_score >= 0.40) {
+                    $is_genuine_match = true;
+                } elseif ($matched_content_words_count >= 1 && $vector_score >= 0.48) {
+                    $is_genuine_match = true;
+                } elseif ($vector_score >= 0.58) {
                     $is_genuine_match = true;
                 }
             } elseif (!empty($domain_query_kws)) {
@@ -795,7 +799,7 @@ class SearchEngine
         }
 
         // Dynamic Cutoff Floor for genuine matches (eliminate loose / aaj-baaju candidates)
-        $threshold = $is_multi_word_query ? max(0.65, $max_score * 0.70) : max(0.35, $max_score * 0.60);
+        $threshold = $is_multi_word_query ? max(0.48, $max_score * 0.70) : max(0.35, $max_score * 0.60);
         $matches   = [];
         foreach ($genuine_matches as $item) {
             if ($item['score'] >= $threshold) {
