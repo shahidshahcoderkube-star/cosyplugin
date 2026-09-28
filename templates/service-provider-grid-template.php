@@ -85,7 +85,7 @@ if (empty($providers)): ?>
     $paged           = isset($paged) ? max(1, intval($paged)) : 1;
     $total_pages     = isset($total_pages) ? max(1, intval($total_pages)) : 1;
     $total_providers = isset($total_providers) ? intval($total_providers) : count($providers);
-    $per_page        = 9;
+    $per_page        = isset($per_page) ? max(1, intval($per_page)) : 6;
 
     $start_num = min($total_providers, (($paged - 1) * $per_page) + 1);
     $end_num   = min($total_providers, $paged * $per_page);

@@ -64,15 +64,21 @@ class SearchController
     public function handle_ai_search(): void
     {
         $query = isset($_REQUEST['query']) ? sanitize_text_field(wp_unslash($_REQUEST['query'])) : '';
+        $page  = isset($_REQUEST['page']) ? max(1, intval($_REQUEST['page'])) : 1;
+        $limit = isset($_REQUEST['limit']) ? max(1, min(50, intval($_REQUEST['limit']))) : 6;
 
         if (empty($query)) {
             wp_send_json_error(['message' => __('Please enter a search query.', 'cosy-appointments')]);
         }
 
-        $search_data = SearchEngine::search_detailed($query);
-        $results     = $search_data['results'] ?? [];
-        $has_match   = !empty($search_data['has_match']);
-        $is_fallback = !empty($search_data['is_fallback']);
+        $search_data   = SearchEngine::search_detailed($query, $limit, $page);
+        $results       = $search_data['results'] ?? [];
+        $has_match     = !empty($search_data['has_match']);
+        $is_fallback   = !empty($search_data['is_fallback']);
+        $total_results = $search_data['total_results'] ?? count($results);
+        $total_pages   = $search_data['total_pages'] ?? 1;
+        $current_page  = $search_data['current_page'] ?? $page;
+        $per_page      = $search_data['per_page'] ?? $limit;
 
         // Determine user role label for log message
         $actor_label = __('Guest', 'cosy-appointments');
@@ -99,8 +105,11 @@ class SearchController
             );
         }
 
-        $providers = $results;
-        $html      = '';
+        $providers       = $results;
+        $paged           = $current_page;
+        $total_providers = $total_results;
+        $per_page        = $per_page;
+        $html            = '';
 
         // If zero genuine matches were found, prepend client's required signpost notice
         if ($is_fallback) {
@@ -122,6 +131,10 @@ class SearchController
         wp_send_json_success([
             'query'             => $query,
             'count'             => count($results),
+            'total_results'     => $total_results,
+            'total_pages'       => $total_pages,
+            'current_page'      => $current_page,
+            'per_page'          => $per_page,
             'has_match'         => $has_match,
             'is_fallback'       => $is_fallback,
             'no_match_title'    => $search_data['no_match_title'] ?? '',
