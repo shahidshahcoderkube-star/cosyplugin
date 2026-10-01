@@ -1,3 +1,8 @@
+<?php
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+?>
 <div id="registerPopup">
     <div class="popup-header">
         <span class="cc__choose"><?php esc_html_e('Choose Member Type', 'cosy-appointments'); ?></span>

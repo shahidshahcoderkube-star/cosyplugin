@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use Cosy\Appointments\PostTypes\ServiceCPT;
 use Cosy\Appointments\Frontend\Frontend;
 use Cosy\Appointments\Admin\Admin;

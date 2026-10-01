@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Admin;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use Cosy\Appointments\Loader;
 
 use Cosy\Appointments\Common\GlobalCommonFunctions;

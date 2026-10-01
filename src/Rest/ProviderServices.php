@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Rest;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use WP_REST_Request;
 use Cosy\Appointments\Loader;
 

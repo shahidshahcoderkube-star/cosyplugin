@@ -31,15 +31,6 @@ jQuery(document).ready(function ($) {
     $(document).on('click', '#closePopup', function () {
         $('#registerPopup').fadeOut(); // smoother than .hide()
     });
-
-    // ---------------- Slot Selection ----------------
-    $(document).on('click', '.cosy-slot-btn', function (e) {
-        e.preventDefault();
-        $('.cosy-slot-btn').removeClass('selected');
-        $(this).addClass('selected');
-        $('#cosy-slot-input').val($(this).data('slot'));
-    });
-
     /**
      * READ URL IMAGE PREVIEW
      * 
@@ -88,8 +79,8 @@ jQuery(document).ready(function ($) {
 
     // Detect if page was loaded via BROWSER BACK / FORWARD button vs FRESH RELOAD / REFRESH
     const navEntries = (window.performance && window.performance.getEntriesByType) ? window.performance.getEntriesByType('navigation') : [];
-    const isBackNav = (navEntries.length > 0 && navEntries[0].type === 'back_forward') || 
-                      (window.performance && window.performance.navigation && window.performance.navigation.type === 2);
+    const isBackNav = (navEntries.length > 0 && navEntries[0].type === 'back_forward') ||
+        (window.performance && window.performance.navigation && window.performance.navigation.type === 2);
 
     if (isBackNav) {
         // Restore saved directory search state ONLY if returning via Back button
@@ -116,7 +107,7 @@ jQuery(document).ready(function ($) {
                     $('#cosyProvidersGridWrap').html(savedHtml);
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
     } else {
         // Clear saved directory search state on fresh page load or manual refresh (F5)
         try {
@@ -128,7 +119,7 @@ jQuery(document).ready(function ($) {
             sessionStorage.removeItem('cosy_dir_search_age');
             sessionStorage.removeItem('cosy_dir_search_rating');
             sessionStorage.removeItem('cosy_dir_search_paged');
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // Prevent form submission on enter press
@@ -161,9 +152,60 @@ jQuery(document).ready(function ($) {
 
     $(document).on('click', '.cosy-page-link', function (e) {
         e.preventDefault();
-        const targetPage = $(this).data('page');
+        const targetPage = parseInt($(this).data('page') || $(this).attr('data-page'), 10);
         if (!targetPage || $(this).prop('disabled') || $(this).parent().hasClass('disabled')) return;
 
+        // 1. If clicked inside Homepage AI Search container (#ai-answer), handle AI pagination
+        if ($(this).closest('#ai-answer').length || ($('#ai-query-input').length && !$('#cosyProvidersFilterForm').length)) {
+            // Smoothly scroll back to the search bar so the user sees the new cards from the top
+            const searchWrapper = document.querySelector('.cosy-google-search-wrapper') || document.getElementById('cosy-ai-form') || document.getElementById('ai-response-area');
+            if (searchWrapper) {
+                searchWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            if (typeof simulateCosyAI === 'function') {
+                simulateCosyAI(targetPage);
+            } else {
+                // Self-contained fallback in case theme JS is cached
+                const queryVal = $('#ai-query-input').val() ? $('#ai-query-input').val().trim() : '';
+                if (queryVal) {
+                    $('#ai-typing').css('display', 'flex');
+                    const ajaxUrl = (typeof cosyAjax !== 'undefined' && cosyAjax.ajaxurl) ? cosyAjax.ajaxurl : cosy_ajax.ajax_url;
+                    $.ajax({
+                        url: ajaxUrl,
+                        type: 'POST',
+                        data: {
+                            action: 'cosy_ai_search',
+                            query: queryVal,
+                            page: targetPage
+                        },
+                        success: function (response) {
+                            $('#ai-typing').hide();
+                            if (response.success && response.data && response.data.html) {
+                                let html = response.data.html;
+                                const siteUrl = (typeof cosyAjax !== 'undefined' && cosyAjax.siteUrl) ? cosyAjax.siteUrl : '';
+                                html += `
+                                <div class="cosy-browse-all-wrapper text-center my-4 w-100" style="display: flex; justify-content: center; width: 100%; margin-top: 36px; margin-bottom: 30px; grid-column: 1 / -1;">
+                                    <a href="${siteUrl}/service-provider/" class="cosy-browse-all-parents-btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #a44390 0%, #6d2e67 100%); color: #ffffff; padding: 14px 34px; border-radius: 50px; font-weight: 700; font-size: 1rem; text-decoration: none; box-shadow: 0 4px 15px rgba(164, 67, 144, 0.3); transition: all 0.3s ease;">
+                                        Browse All Parents <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>`;
+                                $('#ai-answer').html(html);
+                                if (searchWrapper) {
+                                    searchWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            }
+                        },
+                        error: function () {
+                            $('#ai-typing').hide();
+                        }
+                    });
+                }
+            }
+            return;
+        }
+
+        // 2. Standard Directory Filter Pagination (/service-provider/)
         $('#filter_paged').val(targetPage);
         triggerFilter(true);
     });
@@ -195,7 +237,7 @@ jQuery(document).ready(function ($) {
                         sessionStorage.setItem('cosy_dir_search_rating', $('#filter_rating').val() || '');
                         sessionStorage.setItem('cosy_dir_search_paged', $('#filter_paged').val() || '1');
                         sessionStorage.setItem('cosy_dir_search_html', response.data.html);
-                    } catch (e) {}
+                    } catch (e) { }
 
                     if (scrollToTop) {
                         $('html, body').animate({
@@ -275,7 +317,7 @@ jQuery(document).ready(function ($) {
                     const year = dObj.getFullYear();
                     return `${day} ${month} ${year}`;
                 }
-            } catch (e) {}
+            } catch (e) { }
             return dStr;
         }
 
@@ -412,7 +454,7 @@ window.openVideo = function (url) {
 
     videoPlayer.src = url;
     videoPlayer.style.display = 'block';
-    videoPlayer.play().catch(function(e) {
+    videoPlayer.play().catch(function (e) {
         console.log("Autoplay was prevented:", e);
     });
 

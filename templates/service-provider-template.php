@@ -1,4 +1,8 @@
 <?php 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $active_service_slug = isset($_GET['service_name']) ? sanitize_text_field($_GET['service_name']) : (isset($_GET['service_category']) ? sanitize_text_field($_GET['service_category']) : '');
 if (empty($active_service_slug) && !empty($uri_path)) {

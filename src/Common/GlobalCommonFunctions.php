@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Common;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use Cosy\Appointments\Email\EmailTemplates;
 
 /**
@@ -73,23 +77,7 @@ trait GlobalCommonFunctions
         return $user_id;
     }
 
-    /**
-     * cosy_payment_log
-     * Logs payment activity into a file.
-     */
-    public function cosy_payment_log(string $message, $data = null): void
-    {
-        $log_file = COSY_APPT_PATH . 'payment.log';
-        $timestamp = current_time('mysql');
-
-        $entry = "[$timestamp] $message";
-        if ($data !== null) {
-            $entry .= " | DATA: " . wp_json_encode($data);
-        }
-
-        // Append to file safely
-        file_put_contents($log_file, $entry . PHP_EOL, FILE_APPEND);
-    }
+    
 
 
 

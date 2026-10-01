@@ -5,7 +5,11 @@
 
             <form id="providerForm" class="cosy-form two-column-form" data-action="cosy_provider_register">
                 <div class="cosy-message"></div>
-                <?php wp_nonce_field('cosy_provider_register_nonce', 'cosy_nonce'); ?>
+                <?php 
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+wp_nonce_field('cosy_provider_register_nonce', 'cosy_nonce'); ?>
                 <input type="hidden" name="action" value="cosy_provider_register">
 
                 <div class="cc_provider_form">

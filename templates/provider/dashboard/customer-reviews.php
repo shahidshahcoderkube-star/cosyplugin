@@ -1,4 +1,8 @@
 <?php
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 $current_provider_id = get_current_user_id();
 
 // Fetch reviews data

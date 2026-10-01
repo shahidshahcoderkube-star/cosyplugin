@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Forms;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use Cosy\Appointments\Common\GlobalCommonFunctions;
 use WP_User;
 
@@ -94,17 +98,7 @@ class FormsData
         }
     }
 
-    /**
-     * Utility method to send JSON responses containing an array of messages.
-     */
-    public function send_multiple_response($success, $message)
-    {
-        if ($success) {
-            wp_send_json_success([$message]);
-        } else {
-            wp_send_json_error([$message]);
-        }
-    }
+    
 
     /**
      * Handles AJAX requests for new Customer registrations.

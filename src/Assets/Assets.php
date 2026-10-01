@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Assets;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use Cosy\Appointments\Loader;
 
 /**

@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Frontend;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 class Class_Header_Menu
 {
     /**
@@ -47,14 +51,6 @@ class Class_Header_Menu
     {
         // You can target a specific menu location if needed, e.g., 'primary'
         // if ($args->theme_location !== 'primary') return $items;
-
-        $services = get_posts([
-            'post_type' => 'cosy_service',
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC'
-        ]);
 
         $current_user = wp_get_current_user();
         $roles = (array) $current_user->roles;

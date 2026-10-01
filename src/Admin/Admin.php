@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Admin;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use Cosy\Appointments\Admin\OrdersAdmin;
 use Cosy\Appointments\Admin\DashboardAdmin;
 use Cosy\Appointments\Admin\UsersAdmin;

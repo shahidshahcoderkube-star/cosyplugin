@@ -1,5 +1,9 @@
 <div class="container mt-5">
-    <?php if (is_user_logged_in()) : ?>
+    <?php 
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+if (is_user_logged_in()) : ?>
         <div class="alert alert-success text-center" role="alert">
             <h4 class="alert-heading"><?php esc_html_e('🎉 Account Verified!', 'cosy-appointments'); ?></h4>
             <p><?php esc_html_e('Your account has been successfully verified and you are now logged in.', 'cosy-appointments'); ?></p>

@@ -5,7 +5,11 @@
     <!-- Media Upload Configuration Card -->
     <div class="cosy-media-config-card">
         <form method="post" action="options.php">
-            <?php settings_fields('cosy_media_settings'); ?>
+            <?php 
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+settings_fields('cosy_media_settings'); ?>
             <div class="cosy-media-config-inner">
                 <div class="cosy-media-config-left">
                     <span class="dashicons dashicons-video-alt3 cosy-media-icon"></span>

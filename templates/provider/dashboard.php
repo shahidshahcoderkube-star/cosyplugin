@@ -1,5 +1,9 @@
 <div class="container-fluid mt-0 mt-md-4 px-0" id="cosy-dashboard-container">
-    <?php wp_nonce_field('cosy_dashboard_nonce', 'cosy_dashboard_nonce_field'); ?>
+    <?php 
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+wp_nonce_field('cosy_dashboard_nonce', 'cosy_dashboard_nonce_field'); ?>
     <div class="row mx-0">
         <!-- Sidebar -->
         <div class="col-12 col-md-4 col-lg-3 bg-white p-3 p-lg-4 shadow-sm" id="cosy-sidebar"

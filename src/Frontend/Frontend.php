@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Frontend;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use Cosy\Appointments\Forms\FormsData;
 use Cosy\Appointments\Loader;
 use Cosy\Appointments\Common\GlobalCommonFunctions;

@@ -1,4 +1,8 @@
 <?php
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 get_header();
 $queried_obj = get_queried_object();
 $author_slug = get_query_var('author_name');

@@ -2,6 +2,10 @@
 
 namespace Cosy\Appointments\Admin;
 
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
 use Cosy\Appointments\Loader;
 
 class Class_Reviews_Admin
@@ -31,54 +35,7 @@ class Class_Reviews_Admin
         $loader->add_action('wp_ajax_cosy_admin_delete_review', $this, 'handle_delete_review');
     }
 
-    /**
-     * RENDERS ADMIN REVIEWS MODERATION TABLE
-     * 
-     * USE CASE:
-     * Callback renderer for 'Reviews' admin page.
-     * 
-     * HOW TO USE:
-     * Triggered when admin visits 'Reviews' submenu under 'CC Booking'.
-     * 
-     * WHAT IT DOES INTERNALLY:
-     * 1. Extracts status and provider filter URL parameters.
-     * 2. Queries review records from wp_cosy_provider_reviews database table.
-     * 3. Fetches provider user lists for dropdown filter.
-     * 4. Includes reviews-admin-template.php layout file.
-     */
-    public function render_reviews_page(): void
-    {
-        $status_filter   = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';
-        $provider_filter = isset($_GET['provider']) ? intval($_GET['provider']) : 0;
-        $search_query    = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
-        $paged           = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
-        $per_page        = 20;
-        $offset          = ($paged - 1) * $per_page;
-
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'cosy_provider_reviews';
-
-        $where = ["1=1"];
-        if (!empty($status_filter)) {
-            $where[] = $wpdb->prepare("status = %s", $status_filter);
-        }
-        if (!empty($provider_filter)) {
-            $where[] = $wpdb->prepare("provider_id = %d", $provider_filter);
-        }
-        if (!empty($search_query)) {
-            $search_like = '%' . $wpdb->esc_like($search_query) . '%';
-            $where[] = $wpdb->prepare("(customer_name LIKE %s OR review LIKE %s OR provider_reply LIKE %s)", $search_like, $search_like, $search_like);
-        }
-
-        $where_sql     = implode(' AND ', $where);
-        $total_reviews = intval($wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE $where_sql"));
-        $total_pages   = max(1, ceil($total_reviews / $per_page));
-        $reviews       = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE $where_sql ORDER BY id DESC LIMIT %d OFFSET %d", $per_page, $offset));
-
-        $providers = get_users(['role' => 'provider']);
-
-        include COSY_APPT_PATH . 'src/Admin/Backend/reviews-page.php';
-    }
+    
 
     /**
      * AJAX Handler: Approve Customer Review.

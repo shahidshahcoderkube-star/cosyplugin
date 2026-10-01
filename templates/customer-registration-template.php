@@ -7,7 +7,11 @@
 
             <form id="customerForm" class="cosy-form" method="post" data-action="cosy_customer_register">
                 <div class="cosy-message"></div>
-                <?php wp_nonce_field('cosy_customer_register_nonce', 'cosy_nonce'); ?>
+                <?php 
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+wp_nonce_field('cosy_customer_register_nonce', 'cosy_nonce'); ?>
                 <input type="hidden" name="action" value="cosy_customer_register">
 
                 <div class="form-group" style="margin-bottom: 16px;">
