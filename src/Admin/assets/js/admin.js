@@ -1032,6 +1032,41 @@ jQuery(document).ready(function ($) {
                 });
             });
 
+            // WorldPay Test vs Live Credentials Toggle Switcher
+            $(document).on('change', '#cosy_worldpay_test_mode', function () {
+                const isChecked = $(this).is(':checked');
+                const testFields = $('#cosy_worldpay_test_fields');
+                const liveFields = $('#cosy_worldpay_live_fields');
+                const label = $('#cosy_worldpay_mode_label');
+                const testCharge = $('#cosy_worldpay_test_charge');
+                const liveCharge = $('#cosy_worldpay_live_charge');
+
+                if (isChecked) {
+                    liveFields.stop(true, true).slideUp(200, function () {
+                        testFields.stop(true, true).slideDown(250);
+                    });
+                    testCharge.prop('disabled', false).val(liveCharge.val() || testCharge.val());
+                    liveCharge.prop('disabled', true);
+                    if (label.length) {
+                        label.text('Sandbox / Test Mode (ON)');
+                    }
+                } else {
+                    testFields.stop(true, true).slideUp(200, function () {
+                        liveFields.stop(true, true).slideDown(250);
+                    });
+                    liveCharge.prop('disabled', false).val(testCharge.val() || liveCharge.val());
+                    testCharge.prop('disabled', true);
+                    if (label.length) {
+                        label.text('Sandbox / Test Mode (OFF - Live)');
+                    }
+                }
+            });
+
+            // Synchronize Transaction Charge inputs between modes
+            $(document).on('input', '.cosy-charge-sync', function () {
+                $('.cosy-charge-sync').val($(this).val());
+            });
+
             // Track tab clicks and persist selection
             $(document).on('shown.bs.tab', '#v-pills-tab button[data-bs-toggle="pill"]', function (e) {
                 const targetId = $(e.target).attr('data-bs-target').replace('#v-pills-', '');

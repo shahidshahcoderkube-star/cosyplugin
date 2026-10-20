@@ -338,10 +338,26 @@ class WorldPayPaymentGateway
         \Cosy\Appointments\Common\Database::record_worldpay_payment_entry($order_id, 'Pending');
 
         // 100% Dynamic retrieval of WorldPay credentials directly from saved Admin Settings
-        $username  = trim(get_option('cosy_worldpay_token', ''));
-        $password  = trim(get_option('cosy_worldpay_password', ''));
-        $entity_id = trim(get_option('cosy_worldpay_inst_id', ''));
-        $test_mode = get_option('cosy_worldpay_test_mode', 1);
+        $test_mode = (bool) get_option('cosy_worldpay_test_mode', 1);
+
+        if ($test_mode) {
+            $username  = trim(get_option('cosy_worldpay_test_token', ''));
+            $password  = trim(get_option('cosy_worldpay_test_password', ''));
+            $entity_id = trim(get_option('cosy_worldpay_test_inst_id', ''));
+            // Fallback to legacy single settings if dedicated test fields are empty
+            if (empty($username))  $username  = trim(get_option('cosy_worldpay_token', ''));
+            if (empty($password))  $password  = trim(get_option('cosy_worldpay_password', ''));
+            if (empty($entity_id)) $entity_id = trim(get_option('cosy_worldpay_inst_id', ''));
+        } else {
+            $username  = trim(get_option('cosy_worldpay_live_token', ''));
+            $password  = trim(get_option('cosy_worldpay_live_password', ''));
+            $entity_id = trim(get_option('cosy_worldpay_live_inst_id', ''));
+            // Fallback to legacy single settings if dedicated live fields are empty
+            if (empty($username))  $username  = trim(get_option('cosy_worldpay_token', ''));
+            if (empty($password))  $password  = trim(get_option('cosy_worldpay_password', ''));
+            if (empty($entity_id)) $entity_id = trim(get_option('cosy_worldpay_inst_id', ''));
+        }
+
         $currency  = strtoupper(cosy_get_currency_code());
 
         $base_checkout_url = cosy_get_page_url('cosy-checkout');

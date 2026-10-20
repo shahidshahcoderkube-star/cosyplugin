@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GLOBAL SETTINGS PAGE TEMPLATE VIEW
  *
@@ -40,7 +41,6 @@ defined('ABSPATH') || exit;
                             <i class="fa-solid fa-globe fs-4 w-20"></i>
                             <span class="fw-bold">WorldPay</span>
                         </button>
-
                         <button class="nav-link d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0 text-start" id="v-pills-aisearch-tab" data-bs-toggle="pill" data-bs-target="#v-pills-aisearch" type="button" role="tab" aria-controls="v-pills-aisearch" aria-selected="false">
                             <i class="fa-solid fa-brain fs-4 w-20"></i>
                             <span class="fw-bold">AI Search Engine</span>
@@ -67,6 +67,41 @@ defined('ABSPATH') || exit;
 
                         <!-- WorldPay Settings Tab -->
                         <div class="tab-pane fade show active" id="v-pills-worldpay" role="tabpanel" aria-labelledby="v-pills-worldpay-tab">
+                            <?php
+                            $is_test_mode = (bool) get_option('cosy_worldpay_test_mode', 1);
+
+                            // Dedicated Test Credentials
+                            $test_inst_id = get_option('cosy_worldpay_test_inst_id', '');
+                            $test_token   = get_option('cosy_worldpay_test_token', '');
+                            $test_pass    = get_option('cosy_worldpay_test_password', '');
+
+                            // Dedicated Live Credentials
+                            $live_inst_id = get_option('cosy_worldpay_live_inst_id', '');
+                            $live_token   = get_option('cosy_worldpay_live_token', '');
+                            $live_pass    = get_option('cosy_worldpay_live_password', '');
+
+                            // Smart migration fallback from legacy keys if new dedicated fields are not yet populated
+                            if (empty($test_inst_id) && $is_test_mode) {
+                                $test_inst_id = get_option('cosy_worldpay_inst_id', '');
+                            }
+                            if (empty($test_token) && $is_test_mode) {
+                                $test_token = get_option('cosy_worldpay_token', '');
+                            }
+                            if (empty($test_pass) && $is_test_mode) {
+                                $test_pass = get_option('cosy_worldpay_password', '');
+                            }
+
+                            if (empty($live_inst_id) && !$is_test_mode) {
+                                $live_inst_id = get_option('cosy_worldpay_inst_id', '');
+                            }
+                            if (empty($live_token) && !$is_test_mode) {
+                                $live_token = get_option('cosy_worldpay_token', '');
+                            }
+                            if (empty($live_pass) && !$is_test_mode) {
+                                $live_pass = get_option('cosy_worldpay_password', '');
+                            }
+                            $worldpay_charge = get_option('cosy_worldpay_charge', '0.00');
+                            ?>
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
                                     <i class="fa-solid fa-globe fs-2 cosy-settings-icon-purple"></i>
@@ -74,44 +109,101 @@ defined('ABSPATH') || exit;
                                 </h3>
                                 <div class="d-flex align-items-center m-0">
                                     <label class="cosy-switch">
-                                        <input type="checkbox" name="cosy_worldpay_test_mode" id="cosy_worldpay_test_mode" value="1" <?php checked(1, get_option('cosy_worldpay_test_mode', 1)); ?>>
+                                        <input type="hidden" name="cosy_worldpay_test_mode" value="0">
+                                        <input type="checkbox" name="cosy_worldpay_test_mode" id="cosy_worldpay_test_mode" value="1" <?php checked(1, $is_test_mode); ?>>
                                         <span class="cosy-slider round"></span>
                                     </label>
-                                    <span class="fw-semibold text-secondary ms-2">Sandbox / Test Mode</span>
+                                    <span class="fw-semibold text-secondary ms-2" id="cosy_worldpay_mode_label"><?php echo $is_test_mode ? __('Sandbox / Test Mode (ON)', 'cosy-appointments') : __('Sandbox / Test Mode (OFF - Live)', 'cosy-appointments'); ?></span>
                                 </div>
                             </div>
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label for="cosy_worldpay_inst_id" class="form-label fw-bold text-secondary">Installation ID</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-card"></i></span>
-                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_inst_id" id="cosy_worldpay_inst_id" value="<?php echo esc_attr(get_option('cosy_worldpay_inst_id')); ?>" placeholder="e.g. 1057362">
+
+                            <!-- Test / Sandbox Mode Credentials -->
+                            <div id="cosy_worldpay_test_fields" style="<?php echo $is_test_mode ? '' : 'display: none;'; ?>">
+                                <div class="alert border-0 rounded-3 p-3 mb-4 d-flex align-items-center gap-3" style="background-color: #fffbeb; border-left: 4px solid #f59e0b !important;">
+                                    <i class="fa-solid fa-flask fs-4 text-warning"></i>
+                                    <div>
+                                        <div class="fw-bold text-dark"><?php _e('Sandbox / Test Mode Credentials (Active)', 'cosy-appointments'); ?></div>
+                                        <div class="text-secondary small"><?php _e('Transactions will be sent to WorldPay Simulator/Try Mode endpoint (https://try.access.worldpay.com).', 'cosy-appointments'); ?></div>
                                     </div>
-                                    <div class="form-text text-muted mt-1">Enter your 7-digit WorldPay Installation ID (e.g. 1057362).</div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_worldpay_token" class="form-label fw-bold text-secondary">API User name</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
-                                        <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_token" id="cosy_worldpay_token" value="<?php echo esc_attr(get_option('cosy_worldpay_token')); ?>" placeholder="e.g. rMkF6vE1F9xmmGtu">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label for="cosy_worldpay_test_inst_id" class="form-label fw-bold text-secondary"><?php _e('Test Installation ID / Entity ID', 'cosy-appointments'); ?></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-card"></i></span>
+                                            <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_test_inst_id" id="cosy_worldpay_test_inst_id" value="<?php echo esc_attr($test_inst_id); ?>" placeholder="e.g. PO4097986011">
+                                        </div>
+                                        <div class="form-text text-muted mt-1"><?php _e('From WorldPay Try Mode.', 'cosy-appointments'); ?></div>
                                     </div>
-                                    <div class="form-text text-muted mt-1">From API Credentials section.</div>
+                                    <div class="col-md-6">
+                                        <label for="cosy_worldpay_test_token" class="form-label fw-bold text-secondary"><?php _e('Test API User name', 'cosy-appointments'); ?></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
+                                            <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_test_token" id="cosy_worldpay_test_token" value="<?php echo esc_attr($test_token); ?>" placeholder="e.g. 7MkF6vE1f9xmnGtd">
+                                        </div>
+                                        <div class="form-text text-muted mt-1"><?php _e('From WorldPay Try Mode API Credentials.', 'cosy-appointments'); ?></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="cosy_worldpay_test_password" class="form-label fw-bold text-secondary"><?php _e('Test API Password', 'cosy-appointments'); ?></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
+                                            <input type="password" class="form-control border-start-0 py-2" name="cosy_worldpay_test_password" id="cosy_worldpay_test_password" value="<?php echo esc_attr($test_pass); ?>" placeholder="Test API Password">
+                                        </div>
+                                        <div class="form-text text-muted mt-1"><?php _e('From WorldPay Try Mode API Credentials.', 'cosy-appointments'); ?></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="cosy_worldpay_test_charge" class="form-label fw-bold text-secondary"><?php _e('Transaction Charge (%)', 'cosy-appointments'); ?></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
+                                            <input type="number" step="0.01" class="form-control border-start-0 py-2 cosy-charge-sync" name="cosy_worldpay_charge" id="cosy_worldpay_test_charge" value="<?php echo esc_attr($worldpay_charge); ?>" placeholder="0.00" <?php echo $is_test_mode ? '' : 'disabled'; ?>>
+                                        </div>
+                                        <div class="form-text text-muted mt-1"><?php _e('Specify platform fee percentage charged for WorldPay transactions.', 'cosy-appointments'); ?></div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_worldpay_password" class="form-label fw-bold text-secondary">API Password</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
-                                        <input type="password" class="form-control border-start-0 py-2" name="cosy_worldpay_password" id="cosy_worldpay_password" value="<?php echo esc_attr(get_option('cosy_worldpay_password')); ?>" placeholder="API Password">
+                            </div>
+
+                            <!-- Live Mode Credentials -->
+                            <div id="cosy_worldpay_live_fields" style="<?php echo !$is_test_mode ? '' : 'display: none;'; ?>">
+                                <div class="alert border-0 rounded-3 p-3 mb-4 d-flex align-items-center gap-3" style="background-color: #f0fdf4; border-left: 4px solid #16a34a !important;">
+                                    <i class="fa-solid fa-circle-check fs-4 text-success"></i>
+                                    <div>
+                                        <div class="fw-bold text-dark"><?php _e('Live Production Mode Credentials (Active)', 'cosy-appointments'); ?></div>
+                                        <div class="text-secondary small"><?php _e('Real transactions will be processed through WorldPay Production endpoint (https://access.worldpay.com).', 'cosy-appointments'); ?></div>
                                     </div>
-                                    <div class="form-text text-muted mt-1">From API Credentials section.</div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="cosy_worldpay_charge" class="form-label fw-bold text-secondary">Transaction Charge (%)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
-                                        <input type="number" step="0.01" class="form-control border-start-0 py-2" name="cosy_worldpay_charge" id="cosy_worldpay_charge" value="<?php echo esc_attr(get_option('cosy_worldpay_charge')); ?>" placeholder="0.00">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label for="cosy_worldpay_live_inst_id" class="form-label fw-bold text-secondary"><?php _e('Live Installation ID / Entity ID', 'cosy-appointments'); ?></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-card"></i></span>
+                                            <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_live_inst_id" id="cosy_worldpay_live_inst_id" value="<?php echo esc_attr($live_inst_id); ?>" placeholder="e.g. PO4097986011">
+                                        </div>
+                                        <div class="form-text text-muted mt-1"><?php _e('From WorldPay Live Mode.', 'cosy-appointments'); ?></div>
                                     </div>
-                                    <div class="form-text text-muted mt-1">Specify platform fee percentage charged for WorldPay transactions.</div>
+                                    <div class="col-md-6">
+                                        <label for="cosy_worldpay_live_token" class="form-label fw-bold text-secondary"><?php _e('Live API User name', 'cosy-appointments'); ?></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
+                                            <input type="text" class="form-control border-start-0 py-2" name="cosy_worldpay_live_token" id="cosy_worldpay_live_token" value="<?php echo esc_attr($live_token); ?>" placeholder="e.g. FEhXjTGmfOWWHpR3">
+                                        </div>
+                                        <div class="form-text text-muted mt-1"><?php _e('From WorldPay Live Mode API Credentials.', 'cosy-appointments'); ?></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="cosy_worldpay_live_password" class="form-label fw-bold text-secondary"><?php _e('Live API Password', 'cosy-appointments'); ?></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
+                                            <input type="password" class="form-control border-start-0 py-2" name="cosy_worldpay_live_password" id="cosy_worldpay_live_password" value="<?php echo esc_attr($live_pass); ?>" placeholder="Live API Password">
+                                        </div>
+                                        <div class="form-text text-muted mt-1"><?php _e('From WorldPay Live Mode API Credentials.', 'cosy-appointments'); ?></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="cosy_worldpay_live_charge" class="form-label fw-bold text-secondary"><?php _e('Transaction Charge (%)', 'cosy-appointments'); ?></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-percent"></i></span>
+                                            <input type="number" step="0.01" class="form-control border-start-0 py-2 cosy-charge-sync" name="cosy_worldpay_charge" id="cosy_worldpay_live_charge" value="<?php echo esc_attr($worldpay_charge); ?>" placeholder="0.00" <?php echo !$is_test_mode ? '' : 'disabled'; ?>>
+                                        </div>
+                                        <div class="form-text text-muted mt-1"><?php _e('Specify platform fee percentage charged for WorldPay transactions.', 'cosy-appointments'); ?></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -365,53 +457,53 @@ defined('ABSPATH') || exit;
                                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                                                 <tr>
                                                     <?php if (!empty($sig_logo)) : ?>
-                                                    <td class="cosy-sig-logo-td">
-                                                        <img src="<?php echo esc_url($sig_logo); ?>" alt="Logo" class="cosy-sig-logo-img">
-                                                    </td>
-                                                    <td class="cosy-sig-divider-td">
-                                                        <div class="cosy-sig-divider-line"></div>
-                                                    </td>
+                                                        <td class="cosy-sig-logo-td">
+                                                            <img src="<?php echo esc_url($sig_logo); ?>" alt="Logo" class="cosy-sig-logo-img">
+                                                        </td>
+                                                        <td class="cosy-sig-divider-td">
+                                                            <div class="cosy-sig-divider-line"></div>
+                                                        </td>
                                                     <?php endif; ?>
                                                     <td class="cosy-sig-details-td">
                                                         <?php if (!empty($sig_name)) : ?>
-                                                        <p class="cosy-sig-name-p"><?php echo esc_html($sig_name); ?></p>
+                                                            <p class="cosy-sig-name-p"><?php echo esc_html($sig_name); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_title)) : ?>
-                                                        <p class="cosy-sig-title-p"><?php echo esc_html($sig_title); ?></p>
+                                                            <p class="cosy-sig-title-p"><?php echo esc_html($sig_title); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_phone)) : ?>
-                                                        <p class="cosy-sig-contact-p">📞 <?php echo esc_html($sig_phone); ?></p>
+                                                            <p class="cosy-sig-contact-p">📞 <?php echo esc_html($sig_phone); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_email)) : ?>
-                                                        <p class="cosy-sig-contact-p">✉️ <?php echo esc_html($sig_email); ?></p>
+                                                            <p class="cosy-sig-contact-p">✉️ <?php echo esc_html($sig_email); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_website)) : ?>
-                                                        <p class="cosy-sig-contact-p">🌐 <?php echo esc_html($sig_website); ?></p>
+                                                            <p class="cosy-sig-contact-p">🌐 <?php echo esc_html($sig_website); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_address)) : ?>
-                                                        <p class="cosy-sig-contact-p-last">📍 <?php echo esc_html($sig_address); ?></p>
+                                                            <p class="cosy-sig-contact-p-last">📍 <?php echo esc_html($sig_address); ?></p>
                                                         <?php endif; ?>
                                                         <?php if (!empty($sig_fb) || !empty($sig_tw) || !empty($sig_ig) || !empty($sig_tk) || !empty($sig_yt) || !empty($sig_li)) : ?>
-                                                        <p class="cosy-sig-social-row">
-                                                            <?php if (!empty($sig_fb)) : ?>
-                                                            <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/facebook.png" width="26" height="26" alt="Facebook" class="cosy-sig-social-icon"></a>
-                                                            <?php endif; ?>
-                                                            <?php if (!empty($sig_tw)) : ?>
-                                                            <a href="<?php echo esc_url($sig_tw); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/X.png" width="26" height="26" alt="X" class="cosy-sig-social-icon"></a>
-                                                            <?php endif; ?>
-                                                            <?php if (!empty($sig_ig)) : ?>
-                                                            <a href="<?php echo esc_url($sig_ig); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/instagram.png" width="26" height="26" alt="Instagram" class="cosy-sig-social-icon"></a>
-                                                            <?php endif; ?>
-                                                            <?php if (!empty($sig_tk)) : ?>
-                                                            <a href="<?php echo esc_url($sig_tk); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/tiktok.png" width="26" height="26" alt="TikTok" class="cosy-sig-social-icon"></a>
-                                                            <?php endif; ?>
-                                                            <?php if (!empty($sig_yt)) : ?>
-                                                            <a href="<?php echo esc_url($sig_yt); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/youtube.png" width="26" height="26" alt="YouTube" class="cosy-sig-social-icon"></a>
-                                                            <?php endif; ?>
-                                                            <?php if (!empty($sig_li)) : ?>
-                                                            <a href="<?php echo esc_url($sig_li); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/Linkedin.png" width="26" height="26" alt="LinkedIn" class="cosy-sig-social-icon"></a>
-                                                            <?php endif; ?>
-                                                        </p>
+                                                            <p class="cosy-sig-social-row">
+                                                                <?php if (!empty($sig_fb)) : ?>
+                                                                    <a href="<?php echo esc_url($sig_fb); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/facebook.png" width="26" height="26" alt="Facebook" class="cosy-sig-social-icon"></a>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($sig_tw)) : ?>
+                                                                    <a href="<?php echo esc_url($sig_tw); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/X.png" width="26" height="26" alt="X" class="cosy-sig-social-icon"></a>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($sig_ig)) : ?>
+                                                                    <a href="<?php echo esc_url($sig_ig); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/instagram.png" width="26" height="26" alt="Instagram" class="cosy-sig-social-icon"></a>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($sig_tk)) : ?>
+                                                                    <a href="<?php echo esc_url($sig_tk); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/tiktok.png" width="26" height="26" alt="TikTok" class="cosy-sig-social-icon"></a>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($sig_yt)) : ?>
+                                                                    <a href="<?php echo esc_url($sig_yt); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/youtube.png" width="26" height="26" alt="YouTube" class="cosy-sig-social-icon"></a>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($sig_li)) : ?>
+                                                                    <a href="<?php echo esc_url($sig_li); ?>" target="_blank" class="cosy-sig-social-link"><img src="https://wppremiumplugins.com/cosychats/wp-content/uploads/2026/08/Linkedin.png" width="26" height="26" alt="LinkedIn" class="cosy-sig-social-icon"></a>
+                                                                <?php endif; ?>
+                                                            </p>
                                                         <?php endif; ?>
                                                     </td>
                                                 </tr>
@@ -529,7 +621,7 @@ defined('ABSPATH') || exit;
                                     <div class="form-text text-muted mt-1"><?php _e('The sender email address (matches SMTP account).', 'cosy-appointments'); ?></div>
                                 </div>
                             </div>
-                                                                
+
                             <!-- Live SMTP Test Email Card -->
                             <div class="card border border-0 shadow-sm mt-4 rounded-4 cosy-smtp-test-card">
                                 <div class="card-body p-4">
@@ -538,7 +630,7 @@ defined('ABSPATH') || exit;
                                         <h5 class="fw-bold text-dark m-0"><?php _e('Send Test Email', 'cosy-appointments'); ?></h5>
                                     </div>
                                     <p class="text-muted small mb-3"><?php _e('Verify your SMTP settings immediately by dispatching a test email. Remember to click "Save Configurations" first if you changed any credentials above.', 'cosy-appointments'); ?></p>
-                                    
+
                                     <div class="row g-2 align-items-center">
                                         <div class="col-md-7">
                                             <input type="email" id="cosy_test_smtp_recipient" class="form-control py-2" placeholder="Enter recipient email..." value="<?php echo esc_attr(get_option('admin_email')); ?>">
@@ -570,4 +662,3 @@ defined('ABSPATH') || exit;
         </form>
     </div>
 </div>
-

@@ -179,7 +179,7 @@ class SettingsAdmin
             'sanitize_callback' => 'sanitize_text_field'
         ]);
 
-        // WorldPay Settings
+        // WorldPay Settings (General / Legacy Fallback)
         register_setting('cosy_settings', 'cosy_worldpay_inst_id', [
             'sanitize_callback' => 'sanitize_text_field'
         ]);
@@ -197,6 +197,28 @@ class SettingsAdmin
         ]);
         register_setting('cosy_settings', 'cosy_worldpay_charge', [
             'sanitize_callback' => [$this, 'sanitize_charge']
+        ]);
+
+        // WorldPay Dedicated Test / Sandbox Credentials
+        register_setting('cosy_settings', 'cosy_worldpay_test_inst_id', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_settings', 'cosy_worldpay_test_token', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_settings', 'cosy_worldpay_test_password', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+
+        // WorldPay Dedicated Live Mode Credentials
+        register_setting('cosy_settings', 'cosy_worldpay_live_inst_id', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_settings', 'cosy_worldpay_live_token', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
+        register_setting('cosy_settings', 'cosy_worldpay_live_password', [
+            'sanitize_callback' => 'sanitize_text_field'
         ]);
 
         // Dynamic SMTP Configuration Settings
